@@ -148,6 +148,8 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
       }
     }
 
+    console.log(this._driverInfo)
+
     this._logger.log('Driver initialized', this._driverInfo)
 
     return this

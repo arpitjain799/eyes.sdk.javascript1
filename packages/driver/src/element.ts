@@ -324,10 +324,16 @@ export class Element<TDriver, TContext, TElement, TSelector> {
         let remainingOffset
         if (offset.x === 0 && offset.y === 0) {
           requiredOffset = offset
-          remainingOffset = {x: -maxOffset.x, y: -maxOffset.y}
+          remainingOffset = {x: -maxOffset.x * 2, y: -maxOffset.y * 2}
+          console.log('SCROLLING TO 0 0', {requiredOffset, remainingOffset})
         } else {
           requiredOffset = {x: Math.min(offset.x, maxOffset.x), y: Math.min(offset.y, maxOffset.y)}
           remainingOffset = utils.geometry.offsetNegative(requiredOffset, currentScrollOffset)
+          console.log('SCROLLING TO X Y', {requiredOffset, remainingOffset, maxOffset})
+
+          if (requiredOffset.x === maxOffset.x) remainingOffset.x *= 5
+          if (requiredOffset.y === maxOffset.y) remainingOffset.y *= 5
+          console.log('SCROLLING TO X Y ----', {requiredOffset, remainingOffset, maxOffset})
         }
 
         if (this.driver.isAndroid) {
@@ -353,7 +359,7 @@ export class Element<TDriver, TContext, TElement, TSelector> {
           xRemaining -= xRight - xLeft
         }
 
-        const yPadding = Math.floor(scrollableRegion.height * 0.1)
+        const yPadding = Math.floor(scrollableRegion.height * 0.05)
         const xCenter = Math.floor(scrollableRegion.x + scrollableRegion.width / 2) // 0
         const yTop = scrollableRegion.y + yPadding
         const yDirection = remainingOffset.y > 0 ? 'down' : 'up'

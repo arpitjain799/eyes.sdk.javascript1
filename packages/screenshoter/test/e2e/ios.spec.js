@@ -38,6 +38,61 @@ describe('screenshoter ios', () => {
     driver = await new Driver({driver: browser, spec, logger}).init()
   })
 
+  it.only('take viewport screenshot', async () => {
+    const expectedPath = `./test/fixtures/ios/app.png`
+
+    console.log(await browser.getWindowSize(), await browser.getWindowRect(), browser.capabilities)
+
+    const saveBtn = await browser.$('//android.widget.Button')
+    await saveBtn.click()
+    // await browser.acceptAlert()
+
+    await new Promise(r => setTimeout(r, 8000))
+    const signinBtn = await browser.$('//android.widget.Button[@text="SIGN IN"]')
+    await signinBtn.click()
+    await new Promise(r => setTimeout(r, 8000))
+    const emailInput = await browser.$('//android.widget.EditText')
+    await emailInput.setValue('daniel.martin@toro.com')
+    const nxtBtn = await browser.$('//android.widget.Button[@text="NEXT"]')
+    await nxtBtn.click()
+    // await nxtBtn.click()
+    await new Promise(r => setTimeout(r, 8000))
+    const passwordInput = await browser.$('//android.widget.EditText[@password="true"]')
+    await passwordInput.setValue('Welcome@1')
+    const loginBtn = await browser.$('//android.widget.Button[@text="LOGIN"]')
+    await loginBtn.click()
+    // await loginBtn.click()
+    await new Promise(r => setTimeout(r, 18000))
+
+    const skipBtn = await browser.$('//android.widget.Button[@text="SKIP"]')
+    await skipBtn.click()
+    await new Promise(r => setTimeout(r, 5000))
+    const finishBtn = await browser.$('//android.widget.Button[@text="FINISH"]')
+    await finishBtn.click()
+    await new Promise(r => setTimeout(r, 15000))
+
+    const billingBtn = await browser.$('//android.widget.FrameLayout[@content-desc="Billing"]')
+    await billingBtn.click()
+    await new Promise(r => setTimeout(r, 25000))
+
+    const screenshot = await screenshoter({
+      logger,
+      driver,
+      fully: true,
+      framed: true,
+      stabilization: {crop: {top: 53, bottom: 16, left: 0, right: 0}},
+      debug: {path: './'},
+    })
+    try {
+      const actual = await screenshot.image.toObject()
+      const expected = await makeImage(expectedPath).toObject()
+      assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
+    } catch (err) {
+      await screenshot.image.debug({path: './logs', name: 'viewport_failed', suffix: Date.now()})
+      throw err
+    }
+  })
+
   it('take viewport screenshot', () => {
     return app()
   })

@@ -131,16 +131,20 @@ async function getDriverInfo(browser) {
       ? browser.capabilities
       : await browser.getSession()
 
+    console.log(await browser.getSession())
+
     driverInfo.pixelRatio = capabilities.pixelRatio
+    driverInfo.statusBarHeight = capabilities.statBarHeight || (capabilities.viewportRect || {}).top || 0
+    driverInfo.navigationBarHeight = 0
 
     try {
       const {statusBar, navigationBar} = await browser.getSystemBars()
-      driverInfo.statusBarHeight = statusBar.visible ? statusBar.height : 0
-      driverInfo.navigationBarHeight = navigationBar.visible ? navigationBar.height : 0
-    } catch (err) {
-      driverInfo.statusBarHeight = capabilities.statBarHeight || (capabilities.viewportRect || {}).top || 0
-      driverInfo.navigationBarHeight = 0
-    }
+      console.log(await browser.getSystemBars())
+      driverInfo.statusBarHeight = statusBar.visible ? Math.max(statusBar.height, driverInfo.statusBarHeight) : 0
+      driverInfo.navigationBarHeight = navigationBar.visible
+        ? Math.max(navigationBar.height, driverInfo.navigationBarHeight)
+        : 0
+    } catch (err) {}
   }
 
   return driverInfo
@@ -217,21 +221,36 @@ async function build({type = 'web'} = {}) {
     },
     ios: {
       protocol: 'https',
-      hostname: 'ondemand.saucelabs.com',
+      hostname: 'hub.browserstack.com',
       path: '/wd/hub',
       port: 443,
       logLevel: 'silent',
       capabilities: {
-        name: 'iOS Screenshoter Test',
-        deviceName: 'iPhone 11 Pro Simulator',
-        platformName: 'iOS',
-        platformVersion: '13.4',
-        appiumVersion: '1.19.2',
-        automationName: 'XCUITest',
-        app: 'https://applitools.jfrog.io/artifactory/Examples/IOSTestApp/1.5/app/IOSTestApp-1.5.zip',
-        username: process.env.SAUCE_USERNAME,
-        accessKey: process.env.SAUCE_ACCESS_KEY,
+        platformName: 'android',
+        platformVersion: '11.0',
+        deviceName: 'Google Pixel 5',
+        app: 'android_agl_app',
+        'bstack:options': {
+          userName: 'applitools',
+          accessKey: 'zBo67o7BsoKhdkf8Va4u',
+        },
       },
+      // protocol: 'https',
+      // hostname: 'ondemand.us-west-1.saucelabs.com',
+      // path: '/wd/hub',
+      // port: 443,
+      // logLevel: 'silent',
+      // capabilities: {
+      //   name: 'iOS Screenshoter Test',
+      //   deviceName: 'iPhone 11 Pro Simulator',
+      //   platformName: 'iOS',
+      //   platformVersion: '13.4',
+      //   appiumVersion: '1.19.2',
+      //   automationName: 'XCUITest',
+      //   app: 'storage:d7f9f5b8-f9c1-4bd4-a021-9c95ae53bcc9',
+      //   username: process.env.SAUCE_USERNAME,
+      //   accessKey: process.env.SAUCE_ACCESS_KEY,
+      // },
     },
     'web-ios': {
       protocol: 'https',
