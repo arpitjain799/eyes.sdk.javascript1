@@ -117,10 +117,15 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
 
     if (this.isWeb) {
       const userAgent = this._driverInfo?.userAgent ?? (await this.execute(snippets.getUserAgent))
-      const pixelRatio = this._driverInfo?.pixelRatio ?? (await this.execute(snippets.getPixelRatio))
       const userAgentInfo = userAgent ? parseUserAgent(userAgent) : ({} as any)
       this._driverInfo = {
         ...this._driverInfo,
+        features: {
+          ...this._driverInfo.features,
+          allCookies:
+            this._driverInfo?.features?.allCookies ??
+            (/chrome/i.test(this._driverInfo.browserName) && !this._driverInfo.isMobile),
+        },
         isMobile: this._driverInfo?.isMobile ?? ['iOS', 'Android'].includes(userAgentInfo.platformName),
         platformName: this._driverInfo?.isMobile
           ? this._driverInfo?.platformName ?? userAgentInfo.platformName
@@ -130,8 +135,8 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
           : userAgentInfo.platformVersion ?? this._driverInfo?.platformVersion,
         browserName: userAgentInfo.browserName ?? this._driverInfo?.browserName,
         browserVersion: userAgentInfo.browserVersion ?? this._driverInfo?.browserVersion,
+        pixelRatio: this._driverInfo?.pixelRatio ?? (await this.execute(snippets.getPixelRatio)),
         userAgent,
-        pixelRatio,
       }
     } else {
       if (this.isAndroid) {
@@ -437,19 +442,9 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
     return orientation
   }
 
-  async getCookies() {
-    if (this.isNative) return []
-    const cookies = await this._spec.getCookies(this.target, true)
-    return cookies.map(cookie => ({
-      name: cookie.name,
-      value: cookie.value,
-      domain: cookie.domain,
-      path: cookie.path,
-      expiry: cookie.expires,
-      sameSite: cookie.sameSite,
-      httpOnly: cookie.httpOnly,
-      secure: cookie.secure,
-    }))
+  async getCookies(): Promise<types.Cookie[]> {
+    if (this.isNative || !this.features.allCookies) return []
+    return this._spec.getCookies(this.target)
   }
 
   async getTitle(): Promise<string> {

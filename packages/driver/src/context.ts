@@ -504,22 +504,10 @@ export class Context<TDriver, TContext, TElement, TSelector> {
     return region
   }
 
-  async getCookies() {
+  async getCookies(): Promise<types.Cookie[]> {
     if (this.driver.isNative) return []
     await this.focus()
-    const {cookies} = await this._spec.getCookies(this.target)
-    return cookies && cookies.length > 0
-      ? cookies.map((cookie: any) => ({
-          name: cookie.name,
-          value: cookie.value,
-          domain: cookie.domain,
-          path: cookie.path,
-          expiry: cookie.expiry || cookie.expires,
-          sameSite: cookie.sameSite,
-          httpOnly: cookie.httpOnly,
-          secure: cookie.secure,
-        }))
-      : []
+    return this._spec.getCookies(this.target, true)
   }
 
   private async preserveInnerOffset() {

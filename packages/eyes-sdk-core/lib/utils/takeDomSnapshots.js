@@ -16,14 +16,13 @@ async function takeDomSnapshots({
   getIosDevicesSizes,
   waitBeforeCapture,
 }) {
-  const allCookies = await driver.getCookies()
-  const cookieJar = allCookies || []
+  const cookieJar = driver.feature.allCookies ? await driver.getCookies() : []
 
   if (!breakpoints) {
     logger.log(`taking single dom snapshot`)
     if (waitBeforeCapture) await waitBeforeCapture()
     const snapshot = await takeDomSnapshot(logger, driver, {
-      onSnapshotContext: allCookies === null ? onSnapshotContext : undefined,
+      onSnapshotContext: !driver.feature.allCookies ? collectCookies : undefined,
       disableBrowserFetching,
       showLogs,
       skipResources,
@@ -83,7 +82,7 @@ async function takeDomSnapshots({
     }
 
     const snapshot = await takeDomSnapshot(logger, driver, {
-      onSnapshotContext: allCookies === null ? onSnapshotContext : undefined,
+      onSnapshotContext: !driver.feature.allCookies ? collectCookies : undefined,
       disableBrowserFetching,
       showLogs,
       skipResources,
@@ -111,9 +110,8 @@ async function takeDomSnapshots({
     }, Promise.resolve(new Map()))
   }
 
-  async function onSnapshotContext(context) {
-    const cookies = await context.getCookies()
-    cookieJar.push(...cookies)
+  async function collectCookies(context) {
+    cookieJar.push(...(await context.getCookies()))
   }
 }
 
