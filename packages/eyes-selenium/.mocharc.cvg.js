@@ -11,7 +11,7 @@ const tags = [
   'ie',
   'edge',
   'safari',
-  'allCookies'
+  'all-cookies'
 ]
 
 module.exports = {

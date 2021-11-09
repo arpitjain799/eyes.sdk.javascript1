@@ -17,17 +17,19 @@ describe('TestCookies', () => {
     const corsStaticPath = path.join(__dirname, '../fixtures/cookies/cors_images')
 
     corsServer = await testServer({
-        port: 5558,
-        staticPath: corsStaticPath,
-        allowCors: true,
-        middlewareFile: path.join(__dirname, '../util/cookies-middleware.js'),
+      port: 5558,
+      staticPath: corsStaticPath,
+      allowCors: true,
+      middlewares: ['cookies'],
     })
     server = await testServer({
       port: 5557,
       staticPath,
-      middlewareFile: path.join(__dirname, '../util/cookies-middleware.js'),
+      middlewares: ['cookies', 'handlebars'],
+      hbData: {
+        imageSrc: adjustUrlToDocker('http://localhost:5558/images/cookie.jpeg'),
+      },
     })
-    
   })
 
   after(async () => {
@@ -43,8 +45,10 @@ describe('TestCookies', () => {
     await destroyDriver()
   })
 
-  it('get cookies (@allCookies)', async () => {
-    const url = adjustUrlToDocker('http://localhost:5557?name=token&value=12345&path=/images')
+  it('get cookies (@all-cookies)', async () => {
+    const url = adjustUrlToDocker(
+      'http://localhost:5557/index.hbs?name=token&value=12345&path=/images',
+    )
     await spec.visit(driver, url)
     const eyes = setupEyes({vg: true, disableBrowserFetching: true})
     await eyes.open(driver, 'AllCookies', 'TestAllCookies', {width: 800, height: 600})

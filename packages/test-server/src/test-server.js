@@ -4,12 +4,13 @@ const express = require('express')
 const cookieParser = require('cookie-parser')
 const morgan = require('morgan')
 const {resolve} = require('path')
-const fs = require('fs');
+const fs = require('fs')
 const cors = require('cors')
-const https = require('https');
+const https = require('https')
+const utils = require('@applitools/utils')
 
 function testServer(argv = {}) {
-  const {staticPath = resolve('./test/fixtures'), port = 0, allowCors, showLogs, middlewareFile, key, cert} = argv
+  let {staticPath = resolve('./test/fixtures'), port = 0, allowCors, showLogs, middlewares, key, cert} = argv
 
   const app = express()
   app.use(cookieParser())
@@ -17,9 +18,15 @@ function testServer(argv = {}) {
     app.use(cors())
   }
 
-  if (middlewareFile) {
-    const middleware = require(middlewareFile)
-    app.use(middleware.generateMiddleware ? middleware.generateMiddleware(argv) : middleware)
+  if (middlewares) {
+    middlewares = utils.types.isString(middlewares) ? JSON.parse(middlewares) : middlewares
+    middlewares.forEach(data => {
+      const middleware = utils.types.isFunction(data)
+        ? data
+        : require(utils.types.isString(data) ? `./middlewares/${data}-middleware.js` : data.path)
+
+      app.use(utils.types.isFunction(middleware.create) ? middleware.create(argv) : middleware)
+    })
   }
 
   if (showLogs) {
@@ -52,21 +59,26 @@ function testServer(argv = {}) {
   const log = args => showLogs && console.log(args)
 
   return new Promise((resolve, reject) => {
-    let server;
+    let server
     if (key && cert) {
-      server = https.createServer({
-        key: fs.readFileSync(key),
-        cert: fs.readFileSync(cert)
-      }, app).listen(port, (err) => {
-        if (err) {
-          log('error starting test server', err)
-          reject(err)
-        } else {
-          const close = server.close.bind(server)
-          log(`test server running at port: ${port}`)
-          resolve({port, close})
-        }
-      })
+      server = https
+        .createServer(
+          {
+            key: fs.readFileSync(key),
+            cert: fs.readFileSync(cert),
+          },
+          app,
+        )
+        .listen(port, err => {
+          if (err) {
+            log('error starting test server', err)
+            reject(err)
+          } else {
+            const close = server.close.bind(server)
+            log(`test server running at port: ${port}`)
+            resolve({port, close})
+          }
+        })
     } else {
       server = app.listen(port, err => {
         if (err) {
@@ -80,7 +92,7 @@ function testServer(argv = {}) {
         }
       })
     }
-    
+
     server.on('error', err => {
       if (err.code === 'EADDRINUSE') {
         log(`error: test server could not start at port ${server.address().port}: port is already in use.`)
