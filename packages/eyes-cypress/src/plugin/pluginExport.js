@@ -11,15 +11,12 @@ function makePluginExport({startServer, eyesConfig, globalHooks}) {
       closeEyesServer = closeServer;
       const [origOn, config] = args;
       let isGlobalHookCalledFromUserHandler = false;
+      eyesConfig.eyesIsGlobalHooksSupported = isGlobalHooksSupported(config);
       const moduleExportsResult = await pluginModuleExports(onThatCallsUserDefinedHandler, config);
-      if (isGlobalHooksSupported(config)) {
-        if (!isGlobalHookCalledFromUserHandler) {
-          for (const [eventName, eventHandler] of Object.entries(globalHooks)) {
-            origOn.call(this, eventName, eventHandler);
-          }
+      if (eyesConfig.eyesIsGlobalHooksSupported && !isGlobalHookCalledFromUserHandler) {
+        for (const [eventName, eventHandler] of Object.entries(globalHooks)) {
+          origOn.call(this, eventName, eventHandler);
         }
-      } else {
-        eyesConfig.eyesIsGlobalHooksNotSupported = true;
       }
       return Object.assign({}, eyesConfig, {eyesPort}, moduleExportsResult);
 
@@ -30,7 +27,7 @@ function makePluginExport({startServer, eyesConfig, globalHooks}) {
       function onThatCallsUserDefinedHandler(eventName, handler) {
         const isRunEvent = eventName === 'before:run' || eventName === 'after:run';
         let handlerToCall = handler;
-        if (isGlobalHooksSupported(config) && isRunEvent) {
+        if (eyesConfig.eyesIsGlobalHooksSupported && isRunEvent) {
           handlerToCall = handlerThatCallsUserDefinedHandler;
           isGlobalHookCalledFromUserHandler = true;
         }

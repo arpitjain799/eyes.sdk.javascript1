@@ -22,7 +22,7 @@ function getGlobalConfigProperty(prop) {
 const shouldUseBrowserHooks =
   !getGlobalConfigProperty('eyesIsDisabled') &&
   (getGlobalConfigProperty('isInteractive') ||
-    getGlobalConfigProperty('eyesIsGlobalHooksNotSupported'));
+    !getGlobalConfigProperty('eyesIsGlobalHooksSupported'));
 
 if (shouldUseBrowserHooks) {
   const batchEnd = poll(() => {
