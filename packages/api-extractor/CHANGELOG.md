@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+
+## 1.2.1 - 2021/11/9
+
 - fix default export declaration
 
 ## 1.2.0 - 2021/11/9
