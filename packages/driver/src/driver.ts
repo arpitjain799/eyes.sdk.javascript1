@@ -120,12 +120,6 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
       const userAgentInfo = userAgent ? parseUserAgent(userAgent) : ({} as any)
       this._driverInfo = {
         ...this._driverInfo,
-        features: {
-          ...this._driverInfo.features,
-          allCookies:
-            this._driverInfo?.features?.allCookies ??
-            (/chrome/i.test(this._driverInfo.browserName) && !this._driverInfo.isMobile),
-        },
         isMobile: this._driverInfo?.isMobile ?? ['iOS', 'Android'].includes(userAgentInfo.platformName),
         platformName: this._driverInfo?.isMobile
           ? this._driverInfo?.platformName ?? userAgentInfo.platformName
@@ -137,6 +131,12 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
         browserVersion: userAgentInfo.browserVersion ?? this._driverInfo?.browserVersion,
         pixelRatio: this._driverInfo?.pixelRatio ?? (await this.execute(snippets.getPixelRatio)),
         userAgent,
+      }
+      this._driverInfo.features = {
+        ...this._driverInfo.features,
+        allCookies:
+          this._driverInfo.features?.allCookies ??
+          (/chrome/i.test(this._driverInfo.browserName) && !this._driverInfo.isMobile),
       }
     } else {
       if (this.isAndroid) {
