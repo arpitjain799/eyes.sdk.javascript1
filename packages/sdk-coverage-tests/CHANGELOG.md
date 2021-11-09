@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- replace deprecated `rmdirSync` with `rmSync`
 
 ## 2.3.15 - 2021/9/6
 
