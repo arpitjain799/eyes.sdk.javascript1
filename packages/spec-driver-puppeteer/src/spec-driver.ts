@@ -1,5 +1,5 @@
 import type * as Puppeteer from 'puppeteer'
-import type {Size, Cookie} from '@applitools/types'
+import type {Size, Cookie, DriverInfo} from '@applitools/types'
 import * as utils from '@applitools/utils'
 
 export type Driver = Puppeteer.Page & {__applitoolsBrand?: never}
@@ -167,6 +167,9 @@ export async function getCookies(page: Driver): Promise<Cookie[]> {
     delete copy.sourcePort
     return copy
   })
+}
+export async function getDriverInfo(_page: Driver): Promise<DriverInfo> {
+  return {features: {allCookies: true}}
 }
 export async function getTitle(page: Driver): Promise<string> {
   return page.title()

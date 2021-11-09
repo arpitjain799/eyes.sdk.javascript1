@@ -159,6 +159,7 @@ export async function getDriverInfo(driver: Driver): Promise<DriverInfo> {
   const isMobile = ['android', 'ios'].includes(platformName?.toLowerCase())
   const isNative = isMobile && !browserName
   const info: any = {
+    features: {allCookies: false},
     sessionId: driver.sessionId,
     isMobile,
     isNative,
