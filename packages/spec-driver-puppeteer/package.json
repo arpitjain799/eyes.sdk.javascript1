@@ -37,7 +37,7 @@
     "setup": "yarn puppeteer:setup",
     "puppeteer:setup": "PUPPETEER_PRODUCT=firefox node ./node_modules/puppeteer/install.js",
     "deps": "bongo deps",
-    "gh:test": "gh workflow run test.yml --ref $(git rev-parse --abbrev-ref HEAD) -f packages='spec-puppeteer' -f links='test-utils utils'",
+    "gh:test": "gh workflow run test.yml --ref $(git rev-parse --abbrev-ref HEAD) -f packages='spec-puppeteer' -f links='types utils test-utils",
     "gh:publish": "gh workflow run publish.yml --ref $(git rev-parse --abbrev-ref HEAD) -f packages='spec-puppeteer'",
     "preversion": "bongo preversion",
     "version": "bongo version",

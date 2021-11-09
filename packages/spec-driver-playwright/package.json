@@ -38,7 +38,7 @@
     "setup": "yarn playwright:setup",
     "playwright:setup": "sudo npx playwright install-deps",
     "deps": "bongo deps",
-    "gh:test": "gh workflow run test.yml --ref $(git rev-parse --abbrev-ref HEAD) -f packages='spec-playwright' -f links='test-utils utils'",
+    "gh:test": "gh workflow run test.yml --ref $(git rev-parse --abbrev-ref HEAD) -f packages='spec-playwright' -f links='types utils test-utils'",
     "gh:publish": "gh workflow run publish.yml --ref $(git rev-parse --abbrev-ref HEAD) -f packages='spec-playwright'",
     "preversion": "bongo preversion",
     "version": "bongo version",

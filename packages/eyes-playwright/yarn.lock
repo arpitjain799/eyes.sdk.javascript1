@@ -3674,10 +3674,10 @@ type-is@~1.6.17, type-is@~1.6.18:
     media-typer "0.3.0"
     mime-types "~2.1.24"
 
-typescript@^4.5.0-beta:
-  version "4.5.0-dev.20211026"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.5.0-dev.20211026.tgz#07ef2fc02abd3dba892b8fa247cfabf23a5a86f7"
-  integrity sha512-I5crDLk3EkC56MIxsh4juyCf4kopy9snooERex5mX7aDjl5BgrY2vHN6AebXPFW6TfeX7aNbSgDQ6ORwZVmdJw==
+typescript@^4.5.1-rc:
+  version "4.5.1-rc"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.5.1-rc.tgz#02155eaa0579d11babb2a55dcbd796948a994bb3"
+  integrity sha512-tQBWW1DCFqweyhSzsAUSFgssJ3uuRBh0zyOkRV4CaFF2rMBkGU0I+MqPMch0qhGCUGXjOW7FgMrbQLS6PE3Z6Q==
 
 uglify-js@^3.1.4:
   version "3.14.2"
