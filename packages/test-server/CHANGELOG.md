@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- add built-in middlewares
+- add multiple middlewares support
 - add https support
 
 ## 1.0.6 - 2021/10/30
