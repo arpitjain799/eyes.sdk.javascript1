@@ -213,7 +213,7 @@ describe('spec driver', async () => {
     })
   })
 
-  describe.only('native app (@mobile @native)', async () => {
+  describe('native app (@mobile @native)', async () => {
     before(async () => {
       ;[driver, destroyDriver] = await spec.build({
         app: 'https://applitools.jfrog.io/artifactory/Examples/android/1.3/app-debug.apk',
