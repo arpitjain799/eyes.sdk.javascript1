@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+
+## 0.9.8 - 2021/11/10
+
 - support cookies
 - updated to @applitools/test-utils@1.0.7 (from 1.0.5)
 - updated to @applitools/test-server@1.0.7 (from 1.0.6)
