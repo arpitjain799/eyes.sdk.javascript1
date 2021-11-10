@@ -15,7 +15,6 @@ on:
         required: false
       links:
         description: linked package names
-        default: eyes-sdk-core
         required: false
       linking-depth:
         description: linking depth
