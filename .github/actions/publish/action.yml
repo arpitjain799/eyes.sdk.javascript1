@@ -16,6 +16,8 @@ outputs:
     value: ${{steps.publish.outputs.tag}}
 runs:
   using: composite
+  env:
+    FORCE_COLOR: 3
   steps:
     - name: Configure NPM
       shell: bash
