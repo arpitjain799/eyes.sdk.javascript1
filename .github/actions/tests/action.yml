@@ -25,13 +25,12 @@ inputs:
     default: sandbox
 runs:
   using: composite
-  env:
-    FORCE_COLOR: 3
-    APPLITOOLS_TEST_REMOTE: ${{inputs.remote}}
-    MOCHA_GREP: ${{inputs.grep}}
-    MOCHA_JOBS: ${{inputs.remote == 'eg' && 50 || inputs.jobs}}
   steps:
     - shell: bash
+      env:
+        APPLITOOLS_TEST_REMOTE: ${{inputs.remote}}
+        MOCHA_GREP: ${{inputs.grep}}
+        MOCHA_JOBS: ${{inputs.remote == 'eg' && 50 || inputs.jobs}}
       run: |
         echo "::group::Configure NPM"
         echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > .npmrc
