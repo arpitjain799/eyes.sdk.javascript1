@@ -239,7 +239,6 @@ export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
     const browserOptionsName = browserOptionsNames[browser || desiredCapabilities.browserName]
     if (browserOptionsName) {
       const browserOptions = desiredCapabilities[browserOptionsName] || {}
-      browserOptions.w3c = browser === 'chrome' ? false : undefined
       browserOptions.args = [...(browserOptions.args || []), ...args]
       if (headless) browserOptions.args.push('headless')
       if (browser === 'firefox') {
