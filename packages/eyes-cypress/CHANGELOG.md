@@ -2,7 +2,20 @@
 
 ## Unreleased
 
+
+## 3.22.8 - 2021/11/9
+
+- fix not calling the global hooks before:run and after:run at all, unless the user also called them in his plugins file.
+- fix not calling the browser hooks for Cypress versions < 6.2.0 (where global hooks are not supported).
+
+## 3.22.7 - 2021/11/7
+
 - replace legacy logger construction with new
+- Support running user defined run hooks in Cypress
+- Fix cypress tests not being cleaned up
+- Fix duplicate batch start/end events in cypress
+- updated to @applitools/dom-snapshot@4.5.10 (from 4.5.9)
+- updated to @applitools/visual-grid-client@15.8.43 (from 15.8.36)
 
 ## 3.22.6 - 2021/10/18
 

@@ -4,12 +4,10 @@ const {expect} = require('chai');
 const makePluginExport = require('../../../src/plugin/pluginExport');
 const {promisify: p} = require('util');
 const psetTimeout = p(setTimeout);
-const {makeVisualGridClient} = require('@applitools/visual-grid-client');
-const {makeLogger} = require('@applitools/logger');
 const makeConfig = require('../../../src/plugin/config');
 
 describe('pluginExport', () => {
-  let prevEnv, visualGridClient, logger, eyesConfig;
+  let prevEnv, eyesConfig, globalHooks;
 
   async function startServer() {
     return {
@@ -18,11 +16,10 @@ describe('pluginExport', () => {
   }
 
   beforeEach(() => {
-    logger = makeLogger({label: 'eyes'});
-    visualGridClient = makeVisualGridClient({logger});
     prevEnv = process.env;
     process.env = {};
     eyesConfig = makeConfig().eyesConfig;
+    globalHooks = {};
   });
 
   afterEach(() => {
@@ -30,7 +27,7 @@ describe('pluginExport', () => {
   });
 
   it('sets eyesLegcyHooks', async () => {
-    const pluginExport = makePluginExport({startServer, eyesConfig, visualGridClient, logger});
+    const pluginExport = makePluginExport({startServer, eyesConfig, globalHooks});
     let __module = {
       exports: () => ({bla: 'blah'}),
     };
@@ -44,7 +41,7 @@ describe('pluginExport', () => {
       eyesLayoutBreakpoints: undefined,
       eyesFailCypressOnDiff: true,
       eyesIsDisabled: false,
-      eyesLegacyHooks: true,
+      eyesIsGlobalHooksSupported: false,
       eyesBrowser: undefined,
       eyesTestConcurrency: 5,
     });
@@ -64,8 +61,8 @@ describe('pluginExport', () => {
       eyesDisableBrowserFetching: false,
       eyesLayoutBreakpoints: undefined,
       eyesFailCypressOnDiff: true,
-      eyesLegacyHooks: true,
       eyesIsDisabled: false,
+      eyesIsGlobalHooksSupported: false,
       eyesBrowser: undefined,
       eyesTestConcurrency: 5,
       version: '6.5.0',
@@ -74,7 +71,7 @@ describe('pluginExport', () => {
   });
 
   it('handles async module.exports', async () => {
-    const pluginExport = makePluginExport({startServer, eyesConfig, visualGridClient});
+    const pluginExport = makePluginExport({startServer, eyesConfig, globalHooks});
     const __module = {
       exports: async () => {
         await psetTimeout(0);
@@ -90,8 +87,8 @@ describe('pluginExport', () => {
       eyesDisableBrowserFetching: false,
       eyesLayoutBreakpoints: undefined,
       eyesFailCypressOnDiff: true,
-      eyesLegacyHooks: true,
       eyesIsDisabled: false,
+      eyesIsGlobalHooksSupported: false,
       eyesBrowser: undefined,
       eyesTestConcurrency: 5,
     });
@@ -99,11 +96,7 @@ describe('pluginExport', () => {
 
   it('works with disabled eyes', async () => {
     eyesConfig.eyesIsDisabled = true;
-    const pluginExport = makePluginExport({
-      startServer,
-      eyesConfig,
-      visualGridClient,
-    });
+    const pluginExport = makePluginExport({startServer, eyesConfig, globalHooks});
     const __module = {
       exports: () => ({bla: 'ret'}),
     };
@@ -114,9 +107,9 @@ describe('pluginExport', () => {
       bla: 'ret',
       eyesPort: 123,
       eyesIsDisabled: true,
+      eyesIsGlobalHooksSupported: false,
       eyesDisableBrowserFetching: false,
       eyesLayoutBreakpoints: undefined,
-      eyesLegacyHooks: true,
       eyesFailCypressOnDiff: true,
       eyesBrowser: undefined,
       eyesTestConcurrency: 5,
@@ -128,11 +121,7 @@ describe('pluginExport', () => {
     const __module = {
       exports: () => ({bla: 'ret'}),
     };
-    const pluginExport = makePluginExport({
-      startServer,
-      eyesConfig,
-      visualGridClient,
-    });
+    const pluginExport = makePluginExport({startServer, eyesConfig, globalHooks});
 
     pluginExport(__module);
     const ret = await __module.exports(() => {}, {});
@@ -141,8 +130,8 @@ describe('pluginExport', () => {
       eyesPort: 123,
       eyesDisableBrowserFetching: false,
       eyesLayoutBreakpoints: undefined,
-      eyesLegacyHooks: true,
       eyesIsDisabled: false,
+      eyesIsGlobalHooksSupported: false,
       eyesFailCypressOnDiff: false,
       eyesBrowser: undefined,
       eyesTestConcurrency: 5,
@@ -151,7 +140,7 @@ describe('pluginExport', () => {
 
   it('works with eyes disableBrowserFetching', async () => {
     eyesConfig.eyesDisableBrowserFetching = true;
-    const pluginExport = makePluginExport({startServer, eyesConfig});
+    const pluginExport = makePluginExport({startServer, eyesConfig, globalHooks});
     const __module = {
       exports: () => ({bla: 'ret'}),
     };
@@ -163,8 +152,8 @@ describe('pluginExport', () => {
       eyesPort: 123,
       eyesDisableBrowserFetching: true,
       eyesLayoutBreakpoints: undefined,
-      eyesLegacyHooks: true,
       eyesIsDisabled: false,
+      eyesIsGlobalHooksSupported: false,
       eyesFailCypressOnDiff: true,
       eyesBrowser: undefined,
       eyesTestConcurrency: 5,

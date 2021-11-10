@@ -1,10 +1,23 @@
 # Change Log
-
-- added full typescript support
-- introduced @applitools/eyes-api package with new api
-
 ## Unreleased
 
+
+## 2.34.0 - 2021/11/10
+
+- support cookie
+- added full typescript support
+- introduced @applitools/eyes-api package with new api
+- updated to @applitools/eyes-api@1.1.6 (from 1.1.5)
+- updated to @applitools/eyes-sdk-core@12.24.0 (from 12.23.24)
+- updated to @applitools/types@1.0.19 (from 1.0.18)
+- updated to @applitools/visual-grid-client@15.8.44 (from 15.8.43)
+
+## 2.33.0 - 2021/11/5
+
+- updated to @applitools/eyes-api@1.1.5 (from 1.1.1)
+- updated to @applitools/eyes-sdk-core@12.23.24 (from 12.23.5)
+- updated to @applitools/utils@1.2.4 (from 1.2.3)
+- updated to @applitools/visual-grid-client@15.8.43 (from 15.8.25)
 
 ## 2.32.0 - 2021/9/9
 
