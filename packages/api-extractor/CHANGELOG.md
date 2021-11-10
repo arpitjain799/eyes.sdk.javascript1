@@ -3,6 +3,10 @@
 ## Unreleased
 
 
+## 1.2.2 - 2021/11/10
+
+- publish version without a tag
+
 ## 1.2.1 - 2021/11/9
 
 - fix default export declaration
