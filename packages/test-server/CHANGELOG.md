@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+
+## 1.0.7 - 2021/11/10
+
 - add built-in middlewares
 - add multiple middlewares support
 - add https support
