@@ -1,6 +1,9 @@
 # Change Log
 ## Unreleased
 
+
+## 2.34.0 - 2021/11/10
+
 - support cookie
 - added full typescript support
 - introduced @applitools/eyes-api package with new api
