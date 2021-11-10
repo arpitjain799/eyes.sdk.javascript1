@@ -247,6 +247,7 @@ export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
       } else {
         desiredCapabilities[browserOptionsName] = browserOptions
       }
+      if (browser !== 'firefox' && !browserOptions.mobileEmulation) browserOptions.w3c = false
     }
   }
 

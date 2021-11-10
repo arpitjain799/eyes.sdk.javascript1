@@ -12,11 +12,11 @@ describe('TestCookies', () => {
     const staticPath = path.join(__dirname, '../fixtures/cookies/no_cors')
 
     server = await testServer({
-      port: 5556,
+      port: 5562,
       staticPath,
       middlewares: ['cookies', 'handlebars'],
       hbData: {
-        imageSrc: adjustUrlToDocker('http://localhost:5556/images/cookie.jpeg'),
+        imageSrc: adjustUrlToDocker('http://localhost:5562/images/cookie.jpeg'),
       },
     })
   })
@@ -35,7 +35,7 @@ describe('TestCookies', () => {
 
   it('get cookies', async () => {
     const url = adjustUrlToDocker(
-      'http://localhost:5556/index.hbs?name=token&value=12345&path=/images',
+      'http://localhost:5562/index.hbs?name=token&value=12345&path=/images',
     )
     await spec.visit(driver, url)
     const eyes = setupEyes({vg: true, disableBrowserFetching: true})
