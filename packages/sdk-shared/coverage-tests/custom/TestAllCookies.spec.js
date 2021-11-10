@@ -17,7 +17,7 @@ describe('TestCookies', () => {
     const corsStaticPath = path.join(__dirname, '../fixtures/cookies/cors_images')
 
     corsServer = await testServer({
-      port: 5558,
+      port: 5560,
       staticPath: corsStaticPath,
       allowCors: true,
       middlewares: ['cookies'],
@@ -27,7 +27,7 @@ describe('TestCookies', () => {
       staticPath,
       middlewares: ['cookies', 'handlebars'],
       hbData: {
-        imageSrc: adjustUrlToDocker('http://localhost:5558/images/cookie.jpeg'),
+        imageSrc: adjustUrlToDocker('http://localhost:5560/images/cookie.jpeg'),
       },
     })
   })
