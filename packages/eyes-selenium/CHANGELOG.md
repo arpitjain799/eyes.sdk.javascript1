@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+
+## 4.58.0 - 2021/11/10
+
 - support cookies
 - updated to @applitools/eyes-api@1.1.6 (from 1.1.5)
 - updated to @applitools/eyes-sdk-core@12.24.0 (from 12.23.24)
