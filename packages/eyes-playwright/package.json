@@ -68,7 +68,7 @@
     "@applitools/scripts": "1.0.1",
     "@applitools/sdk-coverage-tests": "2.3.16",
     "@applitools/sdk-release-kit": "0.13.4",
-    "@applitools/sdk-shared": "0.9.7",
+    "@applitools/sdk-shared": "0.9.8",
     "@applitools/test-utils": "1.0.9",
     "@types/mocha": "^9.0.0",
     "@typescript-eslint/eslint-plugin": "^4.15.1",
