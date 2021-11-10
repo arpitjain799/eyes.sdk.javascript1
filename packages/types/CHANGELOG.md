@@ -2,7 +2,8 @@
 
 ## Unreleased
 
-- add `Cookie` and `CookieObject` types
+- add `Cookie` type
+- add `allCookies` feature flag to `DriverInfo` type
 
 ## 1.0.18 - 2021/10/30
 
