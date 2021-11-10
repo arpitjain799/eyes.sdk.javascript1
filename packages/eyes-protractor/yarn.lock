@@ -194,10 +194,10 @@
     node-fetch "2.6.1"
     yargs "15.0.2"
 
-"@applitools/sdk-shared@0.9.8":
-  version "0.9.8"
-  resolved "https://registry.yarnpkg.com/@applitools/sdk-shared/-/sdk-shared-0.9.8.tgz#a7c549c52fe2511897c162fee4e3c87f011657bc"
-  integrity sha512-kSi5ajWhsPVle+Ls7k/aRdWxO+lYAOmVi9ns+ITOqqMdXXbAysUxCHAzXvb4M/t6polmV8fBP6BKpy7tfjzQmQ==
+"@applitools/sdk-shared@0.9.9":
+  version "0.9.9"
+  resolved "https://registry.yarnpkg.com/@applitools/sdk-shared/-/sdk-shared-0.9.9.tgz#af21110c96882d720082d654ff1935e124f6f17a"
+  integrity sha512-6HghYIq+kWc49GpS2GM9JcoHRy5y4C1ajzXvxSbTeYtA3zviURkvxCzDRHsSwBGuRoRkli7crG8QrUeq79Efwg==
   dependencies:
     "@applitools/test-server" "1.0.7"
     "@applitools/test-utils" "1.0.9"
