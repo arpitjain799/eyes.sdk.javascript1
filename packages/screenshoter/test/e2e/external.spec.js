@@ -6,7 +6,7 @@ const spec = require('@applitools/spec-driver-webdriverio')
 const makeImage = require('../../src/image')
 const screenshoter = require('../../index')
 
-describe('external tests', () => {
+describe.skip('external tests', () => {
   const logger = {log: () => {}, warn: () => {}, error: () => {}, verbose: () => {}}
   let browser, destroyBrowser
 
@@ -25,8 +25,8 @@ describe('external tests', () => {
         'appium:deviceName': 'Google Pixel 5',
         'appium:app': 'android_agl_app',
         'bstack:options': {
-          userName: 'applitools',
-          accessKey: 'zBo67o7BsoKhdkf8Va4u',
+          userName: process.env.BROWSERSTACK_USERNAME,
+          accessKey: process.env.BROWSERSTACK_ACCESS_KEY,
         },
       },
     })
