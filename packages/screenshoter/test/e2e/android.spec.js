@@ -103,7 +103,7 @@ describe('screenshoter', () => {
     })
   })
 
-  describe.only('androidx app', () => {
+  describe('androidx app', () => {
     before(async () => {
       ;[browser, destroyBrowser] = await spec.build(env.androidx)
     })
