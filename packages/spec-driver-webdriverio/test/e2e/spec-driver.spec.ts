@@ -14,13 +14,28 @@ describe('spec driver', async () => {
   let browser: spec.Driver, destroyBrowser: () => void
   const url = 'https://applitools.github.io/demo/TestPages/FramesTestPage/'
 
-  describe('headless desktop (@puppeteer)', async () => {
+  describe.only('headless desktop (@puppeteer)', async () => {
     before(function () {
       if (Number(process.env.APPLITOOLS_WEBDRIVERIO_MAJOR_VERSION) < 7) this.skip()
     })
 
     before(async () => {
-      ;[browser, destroyBrowser] = await spec.build({browser: 'chrome', protocol: 'cdp'})
+      ;[browser, destroyBrowser] = await spec.build({
+        capabilities: {
+          name: 'iOS Screenshoter Test',
+          deviceName: 'iPhone 11 Pro Simulator',
+          platformName: 'iOS',
+          platformVersion: '13.4',
+          appiumVersion: '1.19.2',
+          automationName: 'XCUITest',
+          app: 'https://applitools.jfrog.io/artifactory/Examples/IOSTestApp/1.5/app/IOSTestApp-1.5.zip',
+          username: process.env.SAUCE_USERNAME,
+          accessKey: process.env.SAUCE_ACCESS_KEY,
+        },
+        url: 'https://ondemand.us-west-1.saucelabs.com/wd/hub',
+      })
+      console.log(await spec.getCapabilities(browser))
+      throw 0
       await browser.url(url)
     })
 

@@ -43,8 +43,6 @@ async function takeStitchedScreenshot({
   // in this case target region coordinate should be already related to the scrolling element of the context
   let cropRegion = driver.isNative ? targetRegion : await driver.getRegionInViewport(context, targetRegion)
 
-  // console.log(cropRegion)
-
   logger.verbose('cropping...')
   image.crop(withStatusBar ? utils.geometry.offset(cropRegion, {x: 0, y: driver.statusBarHeight}) : cropRegion)
   await image.debug({...debug, name: 'initial', suffix: 'region'})
@@ -61,8 +59,6 @@ async function takeStitchedScreenshot({
   const padding = {top: overlap, bottom: overlap}
   const [initialRegion, ...partRegions] = utils.geometry.divide(region, utils.geometry.round(image.size), padding)
   logger.verbose('Part regions', partRegions)
-
-  console.log([initialRegion, ...partRegions])
 
   logger.verbose('Creating stitched image composition container')
   const stitchedImage = makeImage({width: region.width, height: region.height})
@@ -91,33 +87,38 @@ async function takeStitchedScreenshot({
       compensateOffset,
     )
 
-    const TEST = utils.geometry.offsetNegative(utils.geometry.location(await scroller.getClientRegion()), utils.geometry.location(cropRegion))
-    console.log({TEST, cropRegion, j: await scroller.getClientRegion()})
+    // TODO come up with generic solution
+    // The problem is that web default scrolling element treated differently than normal scrollable elements on the web and native
+    const cropRegionOffset = driver.isNative
+      ? utils.geometry.offsetNegative(
+          utils.geometry.location(await scroller.getClientRegion()),
+          utils.geometry.location(cropRegion),
+        )
+      : {x: 0, y: 0}
 
     const cropPartRegion = {
-      x: cropRegion.x + remainingOffset.x + TEST.x,
-      y: cropRegion.y + remainingOffset.y + TEST.y,
-      width: partRegion.width,
-      height: partRegion.height - TEST.y,
+      x: cropRegion.x + remainingOffset.x + cropRegionOffset.x,
+      y: cropRegion.y + remainingOffset.y + cropRegionOffset.y,
+      width: partRegion.width - cropRegionOffset.x,
+      height: partRegion.height - cropRegionOffset.y,
     }
     logger.verbose(`Actual offset is ${actualOffset}, remaining offset is ${remainingOffset}`)
 
     await utils.general.sleep(wait)
 
-    // if (utils.geometry.isEmpty(cropPartRegion) || !utils.geometry.isIntersected(cropRegion, cropPartRegion)) continue
+    if (utils.geometry.isEmpty(cropPartRegion) || !utils.geometry.isIntersected(cropRegion, cropPartRegion)) continue
 
     logger.verbose('Getting image...')
     image = await takeScreenshot({name: partName})
     lastImage = framed ? makeImage(image) : null
 
     logger.verbose('cropping...')
-    console.log({partRegion, cropPartRegion})
     image.crop(cropPartRegion)
     await image.debug({...debug, name: partName, suffix: 'region'})
 
     const pasteOffset = utils.geometry.offsetNegative(utils.geometry.location(partRegion), initialOffset)
-    pasteOffset.y -= TEST.y / 2
-    console.log({pasteOffset, partRegion, cropPartRegion})
+    pasteOffset.y += cropRegionOffset.y
+    pasteOffset.x += cropRegionOffset.x
     await stitchedImage.copy(image, pasteOffset)
 
     stitchedSize = {width: pasteOffset.x + image.width, height: pasteOffset.y + image.height}

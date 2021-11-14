@@ -206,8 +206,6 @@ async function extract(image, region) {
   const dstHeight = Math.round(Math.min(image.height - srcY, region.height))
   const dstSize = {width: dstWidth, height: dstHeight}
 
-  console.log({w: image.width, h: image.height, region})
-
   if (utils.geometry.isEmpty(dstSize)) {
     throw new Error(`Cannot extract empty region (${srcX};${srcY})${dstWidth}x${dstHeight} from image`)
   }
