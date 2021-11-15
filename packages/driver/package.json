@@ -1,6 +1,6 @@
 {
   "name": "@applitools/driver",
-  "version": "1.3.0",
+  "version": "1.3.3",
   "description": "Applitools universal framework wrapper",
   "keywords": [
     "applitools",
@@ -26,16 +26,29 @@
   },
   "main": "./dist/index.js",
   "types": "./types/index.d.ts",
-  "directories": {
-    "lib": "./src",
-    "test": "./test"
+  "exports": {
+    ".": {
+      "default": "./dist/index.js",
+      "types": "./types/index.d.ts"
+    },
+    "./fake": {
+      "default": "./dist/fake/index.js",
+      "types": "./types/fake/index.d.ts"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "fake": [
+        "./types/fake/index.d.ts"
+      ]
+    }
   },
   "files": [
     "dist",
     "types"
   ],
   "scripts": {
-    "lint": "eslint '**/*.ts' '**/*.js'",
+    "lint": "eslint '**/*.ts'",
     "build": "tsc",
     "test": "mocha --no-timeouts -r ts-node/register ./test/**/*.spec.ts",
     "deps": "bongo deps",
@@ -50,7 +63,7 @@
   },
   "dependencies": {
     "@applitools/snippets": "2.1.7",
-    "@applitools/types": "1.0.19",
+    "@applitools/types": "1.0.20",
     "@applitools/utils": "1.2.4"
   },
   "devDependencies": {

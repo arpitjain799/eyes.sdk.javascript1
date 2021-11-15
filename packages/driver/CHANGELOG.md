@@ -2,7 +2,21 @@
 
 ## Unreleased
 
+
+## 1.3.3 - 2021/11/14
+
+- do not throw if `getCookies` method is missed in spec driver
+
+## 1.3.2 - 2021/11/14
+
+- adjust scrolling algorithm on native devices
+
+## 1.3.1 - 2021/11/14
+
+- add in-house capability parsing and system bars size handling mechanisms
+- adjust scrolling algorithm on native devices
 - support cookies
+- updated to @applitools/types@1.0.20 (from 1.0.19)
 
 ## 1.3.0 - 2021/11/10
 

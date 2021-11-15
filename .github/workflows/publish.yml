@@ -47,10 +47,6 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: lts/*
-      - name: Run tests
-        uses: ./.github/actions/tests
-        with:
-          package: ${{fromJSON(needs.setup.outputs.packages).types.package}}
       - name: Publish to NPM
         uses: ./.github/actions/publish
         with:
@@ -138,7 +134,7 @@ jobs:
           package: ${{fromJSON(needs.setup.outputs.packages).logger.package}}
           version: ${{fromJSON(needs.setup.outputs.packages).logger.releaseVersion}}
   screenshoter:
-    needs: [setup, utils, driver, snippets]
+    needs: [setup, utils, driver, snippets, spec-webdriverio]
     if: ${{fromJSON(needs.setup.outputs.packages).screenshoter && !failure() && !cancelled()}}
     runs-on: ubuntu-latest
     steps:
