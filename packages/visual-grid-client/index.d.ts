@@ -324,6 +324,16 @@ declare namespace Eyes {
        * Default value: false
        */
       ignoreDisplacements?: boolean
+
+      /**
+       * A flag that specify whether layout algorithm should consider the DOM in match window
+       */
+      useDom?: boolean
+
+      /**
+       * A flag that specify whether layout algorithm should not flag repeating patters as differences
+       */
+      enablePatterns?: boolean
     }
 
     interface Selector {
