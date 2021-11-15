@@ -2,8 +2,9 @@
 
 ## Unreleased
 
-- support cookies
 - update types to include useDom enablePatters and supprot shadow DOM on eyesCheck
+- support cookies
+
 
 ## 15.8.44 - 2021/11/10
 
