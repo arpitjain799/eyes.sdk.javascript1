@@ -8,12 +8,14 @@ const fs = require('fs');
 const {testServerInProcess} = require('@applitools/test-server');
 
 const sourceTestAppPath = path.resolve(__dirname, '../fixtures/testApp');
-const targetTestAppPath = path.resolve(__dirname, '../fixtures/testAppCopies/testApp-simple-with-timeout');
+const targetTestAppPath = path.resolve(
+  __dirname,
+  '../fixtures/testAppCopies/testApp-simple-with-timeout',
+);
 
 describe('simple with middleware', () => {
-let closeServer;
+  let closeServer;
   before(async () => {
-
     const staticPath = path.resolve(__dirname, '../fixtures');
     const server = await testServerInProcess({
       port: 5555,
@@ -21,7 +23,6 @@ let closeServer;
       middlewares: ['slow'],
     });
     closeServer = server.close;
-
 
     if (fs.existsSync(targetTestAppPath)) {
       fs.rmdirSync(targetTestAppPath, {recursive: true});
@@ -31,9 +32,6 @@ let closeServer;
     await pexec(`npm install`, {
       maxBuffer: 1000000,
     });
-
-
-
   });
 
   after(async () => {
