@@ -22,6 +22,21 @@ const env = {
     },
   },
   androidx: {
+    // url: 'https://hub.browserstack.com/wd/hub',
+    // capabilities: {
+    //   platformName: 'Android',
+    //   'appium:platformVersion': '9.0',
+    //   'appium:deviceName': 'Google Pixel 3a',
+    //   // 'appium:app': 'android_agl_app',
+    //   'appium:app': 'bs://b5f564e39167e8b153325fb8d49a1cc1852c2d07',
+    //   'bstack:options': {
+    //     realMobile: 'true',
+    //     appiumVersion: '1.20.2',
+    //     local: 'false',
+    //     userName: process.env.BROWSERSTACK_USERNAME,
+    //     accessKey: process.env.BROWSERSTACK_ACCESS_KEY,
+    //   },
+    // },
     url: 'https://ondemand.saucelabs.com/wd/hub',
     capabilities: {
       name: 'AndroidX Screenshoter Test',
@@ -31,7 +46,7 @@ const env = {
       appiumVersion: '1.20.2',
       deviceName: 'Google Pixel 3a XL GoogleAPI Emulator',
       automationName: 'uiautomator2',
-      app: 'https://applitools.jfrog.io/artifactory/Examples/androidx/1.2.0/app_androidx.apk',
+      app: 'https://applitools.jfrog.io/artifactory/Examples/androidx/1.3.1/app_androidx.apk',
       username: process.env.SAUCE_USERNAME,
       accessKey: process.env.SAUCE_ACCESS_KEY,
     },
@@ -122,6 +137,15 @@ describe('screenshoter', () => {
       return fullApp({type: 'recycler', x: true})
     })
 
+    it('take full app screenshot (collapsing layout)', () => {
+      return fullApp({type: 'collapsing', x: true})
+    })
+
+    // require new features in helper lib
+    it.skip('take full app screenshot (overlapped status bar)', () => {
+      return fullApp({type: 'overlapped', x: true, debug: {path: './'}})
+    })
+
     it('take full element screenshot', () => {
       return fullElement()
     })
@@ -142,8 +166,15 @@ describe('screenshoter', () => {
     }
   }
   async function fullApp({type, x, ...options} = {}) {
-    let buttonSelector, expectedPath
-    if (type === 'recycler') {
+    let buttonSelector, expectedPath, scrollingElementSelector
+    if (type === 'overlapped') {
+      buttonSelector = {type: 'id', selector: 'btn_recycler_view_under_status_bar_activity'}
+      expectedPath = `./test/fixtures/android/x-app-fully-overlapped${options.withStatusBar ? '-statusbar' : ''}.png`
+    } else if (type === 'collapsing') {
+      buttonSelector = {type: 'id', selector: 'btn_recycler_view_nested_collapsing'}
+      scrollingElementSelector = {type: 'id', selector: 'recyclerView'}
+      expectedPath = `./test/fixtures/android/x-app-fully-collapsing${options.withStatusBar ? '-statusbar' : ''}.png`
+    } else if (type === 'recycler') {
       if (x) {
         buttonSelector = {type: 'id', selector: 'btn_recycler_view_activity'}
         expectedPath = `./test/fixtures/android/x-app-fully-recycler${options.withStatusBar ? '-statusbar' : ''}.png`
@@ -161,6 +192,12 @@ describe('screenshoter', () => {
 
     const button = await driver.element(buttonSelector)
     await button.click()
+
+    await driver.init()
+
+    if (scrollingElementSelector) {
+      await driver.currentContext.setScrollingElement(scrollingElementSelector)
+    }
 
     const screenshot = await screenshoter({
       logger,

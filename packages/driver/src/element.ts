@@ -142,34 +142,8 @@ export class Element<TDriver, TContext, TElement, TSelector> {
       } else {
         this._logger.log('Extracting content size of native element with selector', this.selector)
         try {
-          if (this.driver.isAndroid) {
-            const className = await this.getAttribute('className')
-            if (
-              [
-                'android.widget.ListView',
-                'android.widget.GridView',
-                'android.support.v7.widget.RecyclerView',
-                // 'androidx.recyclerview.widget.RecyclerView',
-                'androidx.viewpager2.widget.ViewPager2',
-              ].includes(className)
-            ) {
-              this._logger.log('Trying to extract content size using android helper library')
-              const helperElement = await this.driver.element({
-                type: '-android uiautomator',
-                selector: 'new UiSelector().description("EyesAppiumHelper")',
-              })
-              if (helperElement) {
-                const elementRegion = await this._spec.getElementRegion(this.driver.target, this.target)
-                await helperElement.click()
-                const info = await this._spec.getElementText(this.driver.target, helperElement.target)
-                this._state.contentSize = utils.geometry.scale(
-                  {width: elementRegion.width, height: Number(info)},
-                  1 / this.driver.pixelRatio,
-                )
-              } else {
-                this._logger.log('Helper library for android was not detected')
-              }
-            }
+          if (this.driver.helper) {
+            this._state.contentSize = await this.driver.helper.getContentSize(this)
           } else if (this.driver.isIOS) {
             const type = await this.getAttribute('type')
             if (type === 'XCUIElementTypeScrollView') {
@@ -213,16 +187,17 @@ export class Element<TDriver, TContext, TElement, TSelector> {
             this._logger.log('Extracted native content size attribute', data)
             this._state.contentSize = this.driver.isIOS
               ? {width: data.width, height: data.scrollableOffset}
-              : utils.geometry.scale(
-                  {width: data.width, height: data.height + data.scrollableOffset},
-                  1 / this.driver.pixelRatio,
-                )
+              : {width: data.width, height: data.height + data.scrollableOffset}
+
             this._touchPadding = data.touchPadding ?? this._touchPadding
           }
 
           if (this.driver.isAndroid) {
-            this._logger.log('Stabilizing android scroll offset')
+            this._state.contentSize = utils.geometry.scale(this._state.contentSize, 1 / this.driver.pixelRatio)
 
+            this._state.contentSize.height -= 24
+
+            this._logger.log('Stabilizing android scroll offset')
             // android has a bug when after extracting 'contentSize' attribute the element is being scrolled by undetermined number of pixels
             const originalScrollOffset = await this.getScrollOffset()
             this._state.scrollOffset = {x: -1, y: -1}
@@ -284,6 +259,19 @@ export class Element<TDriver, TContext, TElement, TSelector> {
     return this._touchPadding
   }
 
+  async getText(): Promise<string> {
+    const text = await this.withRefresh(async () => {
+      if (this.driver.isWeb) {
+        return ''
+      } else {
+        this._logger.log('Extracting text of native element with selector', this.selector)
+        return this._spec.getElementText(this.driver.target, this.target)
+      }
+    })
+    this._logger.log('Extracted element text', text)
+    return text
+  }
+
   async getAttribute(name: string): Promise<string> {
     if (this.driver.isWeb) {
       const properties = await this.context.execute(snippets.getElementProperties, [this, [name]])
@@ -309,36 +297,24 @@ export class Element<TDriver, TContext, TElement, TSelector> {
         return actualOffset
       } else {
         const currentScrollOffset = await this.getScrollOffset()
+
         if (utils.geometry.equals(offset, currentScrollOffset)) return currentScrollOffset
 
         const contentSize = await this.getContentSize()
-        const scrollableRegion = await this._spec.getElementRegion(this.driver.target, this.target)
-        const scaledScrollableRegion = this.driver.isAndroid
-          ? utils.geometry.scale(scrollableRegion, 1 / this.driver.pixelRatio)
+        const scrollableRegion = await this.getClientRegion()
+
+        const effectiveRegion = this.driver.isAndroid
+          ? utils.geometry.scale(scrollableRegion, this.driver.pixelRatio)
           : scrollableRegion
         const maxOffset = {
-          x: Math.round(scaledScrollableRegion.width * (contentSize.width / scaledScrollableRegion.width - 1)),
-          y: Math.round(scaledScrollableRegion.height * (contentSize.height / scaledScrollableRegion.height - 1)),
+          x: Math.round(scrollableRegion.width * (contentSize.width / scrollableRegion.width - 1)),
+          y: Math.round(scrollableRegion.height * (contentSize.height / scrollableRegion.height - 1)),
         }
-        let requiredOffset
-        let remainingOffset
-        if (offset.x === 0 && offset.y === 0) {
-          requiredOffset = offset
-          // if it has to be scrolled to the very beginning, then scroll maximum amount of pixels and a bit extra to be sure
-          remainingOffset = {x: -(maxOffset.x + 0), y: -(maxOffset.y + 0)}
-        } else {
-          requiredOffset = {x: Math.min(offset.x, maxOffset.x), y: Math.min(offset.y, maxOffset.y)}
-          remainingOffset = utils.geometry.offsetNegative(requiredOffset, currentScrollOffset)
-
-          // if it has to be scrolled to the very end, then do a bit of extra scrolling to be sure
-          // if (requiredOffset.x === maxOffset.x) remainingOffset.x += 100
-          // if (requiredOffset.y === maxOffset.y) remainingOffset.y += 100
-        }
-
-        // if (requiredOffset.x === 0) remainingOffset.x -= 100
-        // if (requiredOffset.y === 0) remainingOffset.y -= 100
-        // if (requiredOffset.x === maxOffset.x) remainingOffset.x += 100
-        // if (requiredOffset.y === maxOffset.y) remainingOffset.y += 100
+        const requiredOffset = {x: Math.min(offset.x, maxOffset.x), y: Math.min(offset.y, maxOffset.y)}
+        let remainingOffset =
+          offset.x === 0 && offset.y === 0
+            ? {x: -maxOffset.x, y: -maxOffset.y} // if it has to be scrolled to the very beginning, then scroll maximum amount of pixels
+            : utils.geometry.offsetNegative(requiredOffset, currentScrollOffset)
 
         if (this.driver.isAndroid) {
           remainingOffset = utils.geometry.scale(remainingOffset, this.driver.pixelRatio)
@@ -346,13 +322,13 @@ export class Element<TDriver, TContext, TElement, TSelector> {
 
         const actions = []
 
-        const xPadding = Math.floor(scrollableRegion.width * 0.1)
-        const yTrack = Math.floor(scrollableRegion.y + scrollableRegion.height / 2) // center
-        const xLeft = scrollableRegion.y + xPadding
+        const xPadding = Math.floor(effectiveRegion.width * 0.1)
+        const yTrack = Math.floor(effectiveRegion.y + effectiveRegion.height / 2) // center
+        const xLeft = effectiveRegion.y + xPadding
         const xDirection = remainingOffset.y > 0 ? 'right' : 'left'
         let xRemaining = Math.abs(remainingOffset.x)
         while (xRemaining > 0) {
-          const xRight = scrollableRegion.x + Math.min(xRemaining + xPadding, scrollableRegion.width - xPadding)
+          const xRight = effectiveRegion.x + Math.min(xRemaining + xPadding, effectiveRegion.width - xPadding)
           const [xStart, xEnd] = xDirection === 'right' ? [xRight, xLeft] : [xLeft, xRight]
           actions.push(
             {action: 'press', x: xStart, y: yTrack},
@@ -363,19 +339,18 @@ export class Element<TDriver, TContext, TElement, TSelector> {
           xRemaining -= xRight - xLeft
         }
 
-        const yPadding = Math.floor(scrollableRegion.height * 0.1)
-        const xTrack = Math.floor(scrollableRegion.x + 5) // a little bit off left border
-        const yTop = scrollableRegion.y + yPadding
+        const yPadding = Math.floor(effectiveRegion.height * 0.1)
+        const xTrack = Math.floor(effectiveRegion.x + 5) // a little bit off left border
+        const yTop = effectiveRegion.y + yPadding
         const yDirection = remainingOffset.y > 0 ? 'down' : 'up'
         let yRemaining = Math.abs(remainingOffset.y) + (await this.getTouchPadding()) * 2
         while (yRemaining > 0) {
-          const yBottom = scrollableRegion.y + Math.min(yRemaining + yPadding, scrollableRegion.height - yPadding)
+          const yBottom = effectiveRegion.y + Math.min(yRemaining + yPadding, effectiveRegion.height - yPadding)
           const [yStart, yEnd] = yDirection === 'down' ? [yBottom, yTop] : [yTop, yBottom]
           actions.push(
             {action: 'press', x: xTrack, y: yStart},
             {action: 'wait', ms: 1500},
             {action: 'moveTo', x: xTrack, y: yEnd},
-            {action: 'wait', ms: 1500},
             {action: 'release'},
           )
           yRemaining -= yBottom - yTop
@@ -385,7 +360,15 @@ export class Element<TDriver, TContext, TElement, TSelector> {
           await this._spec.performAction(this.driver.target, actions)
         }
 
-        this._state.scrollOffset = requiredOffset
+        const actualScrollableRegion = await this.getClientRegion()
+
+        const scrollableRegionOffset = {
+          x: scrollableRegion.x - actualScrollableRegion.x,
+          y: scrollableRegion.y - actualScrollableRegion.y,
+        }
+
+        this._state.scrollOffset = utils.geometry.offsetNegative(requiredOffset, scrollableRegionOffset)
+
         return this._state.scrollOffset
       }
     })
@@ -426,6 +409,10 @@ export class Element<TDriver, TContext, TElement, TSelector> {
 
   async click(): Promise<void> {
     await this._spec.click(this.context.target, this.target)
+  }
+
+  async type(value: string): Promise<void> {
+    await this._spec.type(this.context.target, this.target, value)
   }
 
   async preserveState(): Promise<ElementState> {
