@@ -90,6 +90,7 @@ export async function childContext(driver: Driver, element: Element): Promise<Dr
 export async function findElement(driver: Driver, selector: Selector, parent?: Element): Promise<Element> {
   try {
     const {ElementFinder} = require('protractor')
+    console.log(parent)
     if (parent) return await ElementFinder.fromWebElement_(driver, parent).element(selector).getWebElement()
     else return await driver.element(selector).getWebElement()
   } catch (err) {
@@ -99,6 +100,7 @@ export async function findElement(driver: Driver, selector: Selector, parent?: E
 }
 export async function findElements(driver: Driver, selector: Selector, parent?: Element): Promise<Element[]> {
   const {ElementFinder} = require('protractor')
+  console.log(parent)
   if (parent) return ElementFinder.fromWebElement_(driver, parent).all(selector).getWebElements()
   else return driver.element.all(selector).getWebElements()
 }
