@@ -106,7 +106,7 @@ function makeTakeMarkedScreenshot({driver, stabilization = {}, debug, logger}) {
     if (stabilization.crop) image.crop(stabilization.crop)
     else {
       if (!viewportRegion) viewportRegion = await getViewportRegion()
-      image.crop(viewportRegion)
+      if (viewportRegion) image.crop(viewportRegion)
       await image.debug({...debug, name, suffix: 'viewport'})
     }
 
@@ -122,7 +122,7 @@ function makeTakeMarkedScreenshot({driver, stabilization = {}, debug, logger}) {
 
       await image.debug({...debug, name: 'marker'})
 
-      const markerLocation = findImagePattern(await image.toObject(), marker)
+      const markerLocation = findImagePattern(await image.toObject(), {...marker, pixelRatio: driver.pixelRatio})
       if (!markerLocation) return null
 
       const viewportSize = await driver.getViewportSize()
