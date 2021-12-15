@@ -3,6 +3,10 @@
 ## Unreleased
 
 
+## 1.2.2 - 2021/12/7
+
+- updated to @applitools/types@1.0.21 (from 1.0.20)
+
 ## 1.2.1 - 2021/11/17
 
 - remove most of logic from `getDriverInfo`

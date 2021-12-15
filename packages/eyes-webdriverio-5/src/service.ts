@@ -17,6 +17,7 @@ const sdk = makeSDK({
   name: 'eyes-webdriverio-service',
   version: require('../package.json').version,
   spec,
+  cwd: process.cwd(),
   VisualGridClient: require('@applitools/visual-grid-client'),
 })
 class EyesOverride extends Eyes {
@@ -102,10 +103,10 @@ class EyesService {
   }
   beforeTest(test: Record<string, string>) {
     const configuration = this._eyes.getConfiguration()
-    configuration.setTestName(test.title || test.description) // test.title is for mocha, and test.description is for jasmine
+    configuration.setTestName(test.title ?? test.description) // test.title is for mocha, and test.description is for jasmine
 
     if (!this._appName) {
-      configuration.setAppName(test.parent || test.id) // test.parent is for mocha, and test.id is for jasmine
+      configuration.setAppName(test.parent ?? (test.fullName?.replace(` ${test.description}`, '') || test.id)) // test.parent is for mocha, and test.id is for jasmine
     }
 
     if (!configuration.getViewportSize()) {

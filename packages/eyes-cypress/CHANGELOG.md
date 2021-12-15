@@ -3,6 +3,10 @@
 ## Unreleased
 
 
+## 3.23.4 - 2021/12/9
+
+- updated to @applitools/visual-grid-client@15.8.50 (from 15.8.49)
+
  ## 3.23.3 - 2021/11/24
 
  - add timeout before capturing dom snapshot
