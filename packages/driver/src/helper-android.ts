@@ -9,13 +9,11 @@ export class HelperAndroid<TDriver, TContext, TElement, TSelector> {
     logger: any
   }): Promise<HelperAndroid<TDriver, TContext, TElement, TSelector> | null> {
     const {spec, driver, logger} = options
-
     let legacy = false
     let element = await driver.element({
       type: '-android uiautomator',
       selector: 'new UiSelector().description("EyesAppiumHelperEDT")',
     })
-
     if (!element) {
       legacy = true
       element = await driver.element({
@@ -23,7 +21,6 @@ export class HelperAndroid<TDriver, TContext, TElement, TSelector> {
         selector: 'new UiSelector().description("EyesAppiumHelper")',
       })
     }
-
     return element ? new HelperAndroid<TDriver, TContext, TElement, TSelector>({spec, element, legacy, logger}) : null
   }
 

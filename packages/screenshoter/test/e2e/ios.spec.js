@@ -14,10 +14,18 @@ const env = {
     platformVersion: '13.4',
     appiumVersion: '1.19.2',
     automationName: 'XCUITest',
-    app: 'https://applitools.jfrog.io/artifactory/Examples/IOSTestApp/1.5/app/IOSTestApp-1.5.zip',
+    app: 'https://applitools.jfrog.io/artifactory/Examples/IOSTestApp/1.8/app/IOSTestApp.zip',
     username: process.env.SAUCE_USERNAME,
     accessKey: process.env.SAUCE_ACCESS_KEY,
   },
+
+  // url: 'http://0.0.0.0:4723/wd/hub',
+  // capabilities: {
+  //   deviceName: 'iPhone 11 Pro',
+  //   platformName: 'iOS',
+  //   platformVersion: '14.5',
+  //   app: '/Users/kyrylo/Downloads/IOSTestApp.zip',
+  // },
 }
 
 describe('screenshoter ios', () => {
@@ -77,6 +85,22 @@ describe('screenshoter ios', () => {
     return fullApp({type: 'collection'})
   })
 
+  it('take full app screenshot (table view with collapsing header)', () => {
+    return fullApp({type: 'collapsing'})
+  })
+
+  it('take full app screenshot (collection view with overlapped status bar)', () => {
+    return fullApp({type: 'overlapped'})
+  })
+
+  it('take full app screenshot with status bar (collection view with overlapped status bar)', () => {
+    return fullApp({type: 'overlapped', withStatusBar: true})
+  })
+
+  it('take full app screenshot (collection view with superview)', () => {
+    return fullApp({type: 'superview'})
+  })
+
   it('take region screenshot', () => {
     return region()
   })
@@ -108,8 +132,19 @@ describe('screenshoter ios', () => {
     }
   }
   async function fullApp({type, ...options} = {}) {
-    let buttonSelector, expectedPath
-    if (type === 'collection') {
+    let buttonSelector, expectedPath, overlap
+    if (type === 'superview') {
+      overlap = {top: 200}
+      buttonSelector = {type: 'accessibility id', selector: 'Bottom to superview'}
+      expectedPath = `./test/fixtures/ios/app-fully-superview${options.withStatusBar ? '-statusbar' : ''}.png`
+    } else if (type === 'overlapped') {
+      overlap = {top: 200}
+      buttonSelector = {type: 'accessibility id', selector: 'Bottom to safe area'}
+      expectedPath = `./test/fixtures/ios/app-fully-overlapped${options.withStatusBar ? '-statusbar' : ''}.png`
+    } else if (type === 'collapsing') {
+      buttonSelector = {type: 'accessibility id', selector: 'Table view with stretchable header'}
+      expectedPath = `./test/fixtures/ios/app-fully-collapsing${options.withStatusBar ? '-statusbar' : ''}.png`
+    } else if (type === 'collection') {
       buttonSelector = {type: 'accessibility id', selector: 'Collection view'}
       expectedPath = `./test/fixtures/ios/app-fully-collection${options.withStatusBar ? '-statusbar' : ''}.png`
     } else if (type === 'table') {
@@ -123,6 +158,8 @@ describe('screenshoter ios', () => {
     const button = await driver.element(buttonSelector)
     await button.click()
 
+    await driver.init()
+
     const screenshot = await screenshoter({
       logger,
       driver,
@@ -130,6 +167,7 @@ describe('screenshoter ios', () => {
       framed: true,
       scrollingMode: 'scroll',
       wait: 1500,
+      overlap: {top: 10, bottom: 50, ...overlap},
       ...options,
     })
     try {

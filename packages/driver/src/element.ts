@@ -122,10 +122,7 @@ export class Element<TDriver, TContext, TElement, TSelector> {
         this._logger.log('Extracting region of web element with selector', this.selector)
         return this.context.execute(snippets.getElementRect, [this, true])
       } else {
-        this._logger.log('Extracting region of native element with selector', this.selector)
-        const region = await this._spec.getElementRegion(this.driver.target, this.target)
-        this._logger.log('Extracted native region', region)
-        return this.driver.normalizeRegion(region)
+        return this.getRegion()
       }
     })
     this._logger.log('Extracted client region', region)
@@ -142,63 +139,42 @@ export class Element<TDriver, TContext, TElement, TSelector> {
       } else {
         this._logger.log('Extracting content size of native element with selector', this.selector)
         try {
-          if (this.driver.helper) {
-            this._state.contentSize = await this.driver.helper.getContentSize(this)
-          } else if (this.driver.isIOS) {
-            const type = await this.getAttribute('type')
-            if (type === 'XCUIElementTypeScrollView') {
-              const elementRegion = await this._spec.getElementRegion(this.driver.target, this.target)
-              const [childElement] = await this.driver.elements({
-                type: 'xpath',
-                selector: '//XCUIElementTypeScrollView[1]/*', // We cannot be sure that our element is the first one
-              })
-              const childElementRegion = await this._spec.getElementRegion(this.driver.target, childElement.target)
-              this._state.contentSize = {
-                width: elementRegion.width,
-                height: childElementRegion.y + childElementRegion.height - elementRegion.y,
+          const {touchPadding, ...contentRegion}: any = await this.getAttribute('contentSize')
+            .then(data => {
+              const contentSize = JSON.parse(data)
+              return {
+                touchPadding: contentSize.touchPadding,
+                x: contentSize.left,
+                y: contentSize.top,
+                width: contentSize.width,
+                height: (this.driver.isAndroid ? contentSize.height : 0) + contentSize.scrollableOffset,
               }
-            } else if (type === 'XCUIElementTypeCollectionView') {
-              this._logger.log('Trying to extract content size using ios helper library')
-              const helperElement = await this.driver.element({
-                type: 'name',
-                selector: 'applitools_grab_scrollable_data_button',
-              })
-              if (helperElement) {
-                const helperElementRegion = await this._spec.getElementRegion(this.driver.target, helperElement.target)
-                await this._spec.performAction(this.driver.target, [
-                  {action: 'tap', x: helperElementRegion.x, y: helperElementRegion.y},
-                  {action: 'wait', ms: 1000},
-                  {action: 'release'},
-                ])
-                const infoElement = await this.driver.element({type: 'name', selector: 'applitools_content_size_label'})
-                const info = await this._spec.getElementText(this.driver.target, infoElement.target)
-                if (info) {
-                  const [_, width, height] = info.match(/\{(\d+),\s?(\d+)\}/)
-                  this._state.contentSize = {width: Number(width), height: Number(height)}
-                }
-              } else {
-                this._logger.log('Helper library for ios was not detected')
-              }
-            }
-          }
+            })
+            .catch(() => {
+              return this._spec.getElementRegion(this.driver.target, this.target)
+            })
+          this._logger.log('Extracted native content size attribute', contentRegion)
 
-          if (!this._state.contentSize) {
-            const data = JSON.parse(await this.getAttribute('contentSize'))
-            this._logger.log('Extracted native content size attribute', data)
-            this._state.contentSize = this.driver.isIOS
-              ? {width: data.width, height: data.scrollableOffset}
-              : {width: data.width, height: data.height + data.scrollableOffset}
+          const contentSize = await this.driver.helper?.getContentSize(this)
+          this._logger.log('Extracted native content size with helper library', contentSize)
 
-            this._touchPadding = data.touchPadding ?? this._touchPadding
+          this._state.contentSize = {
+            width: Math.max(contentSize?.width ?? 0, contentRegion.width),
+            height: Math.max(contentSize?.height ?? 0, contentRegion.height),
           }
+          this._touchPadding = touchPadding ?? this._touchPadding
 
           if (this.driver.isAndroid) {
             this._state.contentSize = utils.geometry.scale(this._state.contentSize, 1 / this.driver.pixelRatio)
+          }
 
-            this._state.contentSize.height -= 24
+          if (contentRegion.y < this.driver.statusBarHeight) {
+            this._state.contentSize.height -= this.driver.statusBarHeight - contentRegion.y
+          }
 
+          // android has a bug when after extracting 'contentSize' attribute the element is being scrolled by undetermined number of pixels
+          if (this.driver.isAndroid) {
             this._logger.log('Stabilizing android scroll offset')
-            // android has a bug when after extracting 'contentSize' attribute the element is being scrolled by undetermined number of pixels
             const originalScrollOffset = await this.getScrollOffset()
             this._state.scrollOffset = {x: -1, y: -1}
             await this.scrollTo({x: 0, y: 0})
@@ -207,6 +183,7 @@ export class Element<TDriver, TContext, TElement, TSelector> {
 
           return this._state.contentSize
         } catch (err) {
+          console.log(err)
           this._logger.warn('Failed to extract content size, extracting client size instead')
           this._logger.error(err)
           return utils.geometry.size(await this.getClientRegion())
@@ -250,7 +227,7 @@ export class Element<TDriver, TContext, TElement, TSelector> {
   async getTouchPadding(): Promise<number> {
     if (this._touchPadding == null) {
       if (this.driver.isWeb) this._touchPadding = 0
-      else if (this.driver.isIOS) this._touchPadding = 14
+      else if (this.driver.isIOS) this._touchPadding = 10
       else if (this.driver.isAndroid) {
         const {touchPadding} = JSON.parse(await this.getAttribute('contentSize'))
         this._touchPadding = touchPadding ?? 0
@@ -289,7 +266,7 @@ export class Element<TDriver, TContext, TElement, TSelector> {
 
   async scrollTo(offset: types.Location): Promise<types.Location> {
     return this.withRefresh(async () => {
-      offset = {x: Math.round(offset.x), y: Math.round(offset.y)}
+      offset = utils.geometry.round(offset)
       if (this.driver.isWeb) {
         let actualOffset = await this.context.execute(snippets.scrollTo, [this, offset])
         // iOS has an issue when scroll offset is read immediately after it is been set it will always return the exact value that was set
@@ -320,9 +297,9 @@ export class Element<TDriver, TContext, TElement, TSelector> {
           remainingOffset = utils.geometry.scale(remainingOffset, this.driver.pixelRatio)
         }
 
-        const actions = []
+        const touchPadding = await this.getTouchPadding()
 
-        const xPadding = Math.floor(effectiveRegion.width * 0.1)
+        const xPadding = Math.max(Math.floor(effectiveRegion.width * 0.1), touchPadding)
         const yTrack = Math.floor(effectiveRegion.y + effectiveRegion.height / 2) // center
         const xLeft = effectiveRegion.y + xPadding
         const xDirection = remainingOffset.y > 0 ? 'right' : 'left'
@@ -330,38 +307,39 @@ export class Element<TDriver, TContext, TElement, TSelector> {
         while (xRemaining > 0) {
           const xRight = effectiveRegion.x + Math.min(xRemaining + xPadding, effectiveRegion.width - xPadding)
           const [xStart, xEnd] = xDirection === 'right' ? [xRight, xLeft] : [xLeft, xRight]
-          actions.push(
+          await this._spec.performAction(this.driver.target, [
             {action: 'press', x: xStart, y: yTrack},
-            {action: 'wait', ms: 1500},
+            {action: 'wait', ms: 100},
             {action: 'moveTo', x: xEnd, y: yTrack},
+            {action: 'wait', ms: 100},
+            {action: 'moveTo', x: xEnd, y: yTrack + 1},
             {action: 'release'},
-          )
+          ])
           xRemaining -= xRight - xLeft
         }
 
-        const yPadding = Math.floor(effectiveRegion.height * 0.1)
+        const yPadding = Math.max(Math.floor(effectiveRegion.height * 0.1), touchPadding)
         const xTrack = Math.floor(effectiveRegion.x + 5) // a little bit off left border
-        const yTop = effectiveRegion.y + yPadding
+        const yBottom = effectiveRegion.y + effectiveRegion.height - yPadding
         const yDirection = remainingOffset.y > 0 ? 'down' : 'up'
-        let yRemaining = Math.abs(remainingOffset.y) + (await this.getTouchPadding()) * 2
+        let yRemaining = Math.abs(remainingOffset.y)
         while (yRemaining > 0) {
-          const yBottom = effectiveRegion.y + Math.min(yRemaining + yPadding, effectiveRegion.height - yPadding)
+          const yTop = Math.max(yBottom - yRemaining, effectiveRegion.y + yPadding)
           const [yStart, yEnd] = yDirection === 'down' ? [yBottom, yTop] : [yTop, yBottom]
-          actions.push(
+          await this._spec.performAction(this.driver.target, [
             {action: 'press', x: xTrack, y: yStart},
-            {action: 'wait', ms: 1500},
-            {action: 'moveTo', x: xTrack, y: yEnd},
+            {action: 'wait', ms: 100},
+            {action: 'moveTo', x: xTrack, y: yStart - touchPadding},
+            {action: 'wait', ms: 100},
+            {action: 'moveTo', x: xTrack, y: yEnd - touchPadding},
+            {action: 'wait', ms: 100},
+            {action: 'moveTo', x: xTrack + 1, y: yEnd - touchPadding},
             {action: 'release'},
-          )
+          ])
           yRemaining -= yBottom - yTop
         }
 
-        if (actions.length > 0) {
-          await this._spec.performAction(this.driver.target, actions)
-        }
-
         const actualScrollableRegion = await this.getClientRegion()
-
         const scrollableRegionOffset = {
           x: scrollableRegion.x - actualScrollableRegion.x,
           y: scrollableRegion.y - actualScrollableRegion.y,

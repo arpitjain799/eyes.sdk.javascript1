@@ -2,7 +2,7 @@ const utils = require('@applitools/utils')
 const makeScroller = require('./scroller')
 const scrollIntoViewport = require('./scroll-into-viewport')
 const takeStitchedScreenshot = require('./take-stitched-screenshot')
-const takeViewportScreenshot = require('./take-viewport-screenshot')
+const takeSimpleScreenshot = require('./take-simple-screenshot')
 
 async function screenshoter({
   driver,
@@ -58,7 +58,7 @@ async function screenshoter({
     const screenshot =
       fully && target.scroller
         ? await takeStitchedScreenshot({...target, withStatusBar, overlap, framed, wait, stabilization, debug, logger})
-        : await takeViewportScreenshot({...target, withStatusBar, wait, stabilization, debug, logger})
+        : await takeSimpleScreenshot({...target, withStatusBar, wait, stabilization, debug, logger})
 
     if (hooks && hooks.afterScreenshot) {
       // imitate image-like state for the hook

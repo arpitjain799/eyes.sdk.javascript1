@@ -154,6 +154,7 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
       const barsHeight = await this._spec.getBarsHeight?.(this.target).catch(() => undefined as never)
       const displaySize = await this.getDisplaySize()
 
+      // calculate status and navigation bars sizes
       if (barsHeight) {
         // when status bar is overlapping content on android it returns status bar height equal to viewport height
         if (this.isAndroid && barsHeight.statusBarHeight / this.pixelRatio < displaySize.height) {
@@ -169,6 +170,7 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
         this._driverInfo.navigationBarHeight /= this.pixelRatio
       }
 
+      // calculate viewport size
       if (!this._driverInfo.viewportSize) {
         this._driverInfo.viewportSize = {
           width: displaySize.width,
@@ -176,11 +178,28 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
         }
       }
 
-      if (this.isAndroid) {
-        this._helper = await HelperAndroid.make({spec: this._spec, driver: this, logger: this._logger})
-      } else if (this.isIOS) {
-        this._helper = await HelperIOS.make({driver: this})
+      // calculate safe area
+      if (this.isIOS && !this._driverInfo.safeArea) {
+        this._driverInfo.safeArea = {x: 0, y: 0, ...displaySize}
+        const topElement = await this.element({type: 'class name', selector: 'XCUIElementTypeNavigationBar'})
+        if (topElement) {
+          const topRegion = await this._spec.getElementRegion(this.target, topElement.target)
+          const topOffset = topRegion.y + topRegion.height
+          this._driverInfo.safeArea.y = topOffset
+          this._driverInfo.safeArea.height -= topOffset
+        }
+        const bottomElement = await this.element({type: 'class name', selector: 'XCUIElementTypeTabBar'})
+        if (bottomElement) {
+          const bottomRegion = await this._spec.getElementRegion(this.target, bottomElement.target)
+          const bottomOffset = bottomRegion.height
+          this._driverInfo.safeArea.height -= bottomOffset
+        }
       }
+
+      // init helper lib
+      this._helper = this.isIOS
+        ? await HelperIOS.make({spec: this._spec, driver: this, logger: this._logger})
+        : await HelperAndroid.make({spec: this._spec, driver: this, logger: this._logger})
     }
 
     this._logger.log('Combined driver info', this._driverInfo)
@@ -367,7 +386,8 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
   async normalizeRegion(region: types.Region): Promise<types.Region> {
     if (this.isWeb || !utils.types.has(this._driverInfo, ['viewportSize', 'statusBarHeight'])) return region
     const scaledRegion = this.isAndroid ? utils.geometry.scale(region, 1 / this.pixelRatio) : region
-    const offsetRegion = utils.geometry.offsetNegative(scaledRegion, {x: 0, y: this.statusBarHeight})
+    const safeRegion = this.isIOS ? utils.geometry.intersect(scaledRegion, this._driverInfo.safeArea) : scaledRegion
+    const offsetRegion = utils.geometry.offsetNegative(safeRegion, {x: 0, y: this.statusBarHeight})
     if (offsetRegion.y < 0) {
       offsetRegion.height += offsetRegion.y
       offsetRegion.y = 0

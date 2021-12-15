@@ -10,6 +10,7 @@ export type DriverInfo = {
   userAgent?: string
   viewportSize?: Size
   pixelRatio?: number
+  safeArea?: Region
   statusBarHeight?: number
   navigationBarHeight?: number
   isW3C?: boolean

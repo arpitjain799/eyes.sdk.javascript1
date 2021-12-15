@@ -20,8 +20,6 @@ const env = {
   },
 }
 
-// TODO add tests for page without viewport meta tag
-
 describe('screenshoter web ios', () => {
   const logger = {log: () => {}, warn: () => {}, error: () => {}, verbose: () => {}}
   let driver, browser, destroyBrowser

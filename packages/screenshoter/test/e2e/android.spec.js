@@ -22,21 +22,6 @@ const env = {
     },
   },
   androidx: {
-    // url: 'https://hub.browserstack.com/wd/hub',
-    // capabilities: {
-    //   platformName: 'Android',
-    //   'appium:platformVersion': '9.0',
-    //   'appium:deviceName': 'Google Pixel 3a',
-    //   // 'appium:app': 'android_agl_app',
-    //   'appium:app': 'bs://b5f564e39167e8b153325fb8d49a1cc1852c2d07',
-    //   'bstack:options': {
-    //     realMobile: 'true',
-    //     appiumVersion: '1.20.2',
-    //     local: 'false',
-    //     userName: process.env.BROWSERSTACK_USERNAME,
-    //     accessKey: process.env.BROWSERSTACK_ACCESS_KEY,
-    //   },
-    // },
     url: 'https://ondemand.saucelabs.com/wd/hub',
     capabilities: {
       name: 'AndroidX Screenshoter Test',
@@ -50,6 +35,16 @@ const env = {
       username: process.env.SAUCE_USERNAME,
       accessKey: process.env.SAUCE_ACCESS_KEY,
     },
+
+    // url: 'http://0.0.0.0:4723/wd/hub',
+    // capabilities: {
+    //   deviceName: 'Google Pixel 3a XL',
+    //   platformName: 'Android',
+    //   platformVersion: '10.0',
+    //   automationName: 'uiautomator2',
+    //   avd: 'Pixel_3a_XL',
+    //   app: '/Users/kyrylo/Downloads/app_androidx.apk',
+    // },
   },
 }
 
@@ -143,7 +138,7 @@ describe('screenshoter', () => {
 
     // require new features in helper lib
     it.skip('take full app screenshot (overlapped status bar)', () => {
-      return fullApp({type: 'overlapped', x: true, debug: {path: './'}})
+      return fullApp({type: 'overlapped', x: true})
     })
 
     it('take full element screenshot', () => {
@@ -183,7 +178,7 @@ describe('screenshoter', () => {
         expectedPath = `./test/fixtures/android/app-fully-recycler${options.withStatusBar ? '-statusbar' : ''}.png`
       }
     } else if (type === 'non-scrollable') {
-      buttonSelector = {type: 'id', selector: 'btn_edit_text'}
+      buttonSelector = {type: 'id', selector: 'btn_activity_as_dialog'}
       expectedPath = `./test/fixtures/android/app-fully-non-scrollable${options.withStatusBar ? '-statusbar' : ''}.png`
     } else {
       buttonSelector = {type: 'id', selector: 'btn_scroll_view_footer_header'}
