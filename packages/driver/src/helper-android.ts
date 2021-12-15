@@ -41,15 +41,20 @@ export class HelperAndroid<TDriver, TContext, TElement, TSelector> {
     this._logger = options.logger
   }
 
+  async _getElementId(element: Element<TDriver, TContext, TElement, TSelector>): Promise<string> {
+    const resourceId = await element.getAttribute('resource-id')
+    if (!resourceId) return null
+    return resourceId.split('/')[1]
+  }
+
   async getContentSize(element: Element<TDriver, TContext, TElement, TSelector>): Promise<types.Size> {
     let contentHeight
     if (this._legacy) {
       await this._element.click()
       contentHeight = await this._element.getText()
     } else {
-      const resourceId = await element.getAttribute('resource-id')
-      if (!resourceId) return null
-      const elementId = resourceId.split('/')[1]
+      const elementId = this._getElementId(element)
+      if (!elementId) return null
       await this._element.type(`offset;${elementId};0;0;0`)
       await this._element.click()
       contentHeight = await this._element.getText()
@@ -59,5 +64,23 @@ export class HelperAndroid<TDriver, TContext, TElement, TSelector> {
     const region = await this._spec.getElementRegion(this._element.driver.target, element.target)
 
     return {width: region.width, height: Number(contentHeight)}
+  }
+
+  async getRegion(element: Element<TDriver, TContext, TElement, TSelector>): Promise<types.Region> {
+    if (this._legacy) return null
+
+    const elementId = await this._getElementId(element)
+    if (!elementId) return null
+    await this._element.type(`getRect;${elementId};0;0`)
+    await this._element.click()
+    const regionString = await this._element.getText()
+    await this._element.type('')
+    const [, x, y, height, width] = regionString.match(
+      /\[(-?\d+(?:\.\d+)?);(-?\d+(?:\.\d+)?);(-?\d+(?:\.\d+)?);(-?\d+(?:\.\d+)?)\]/,
+    )
+    const region = {x: Number(x), y: Number(y), width: Number(width), height: Number(height)}
+    if (Number.isNaN(region.x + region.y + region.width + region.height)) return null
+
+    return region
   }
 }

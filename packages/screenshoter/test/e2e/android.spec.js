@@ -43,7 +43,7 @@ const env = {
     //   platformVersion: '10.0',
     //   automationName: 'uiautomator2',
     //   avd: 'Pixel_3a_XL',
-    //   app: '/Users/kyrylo/Downloads/app_androidx.apk',
+    //   app: 'https://applitools.jfrog.io/artifactory/Examples/androidx/1.3.3/app_androidx.apk',
     // },
   },
 }
@@ -136,7 +136,6 @@ describe('screenshoter', () => {
       return fullApp({type: 'collapsing', x: true})
     })
 
-    // require new features in helper lib
     it.skip('take full app screenshot (overlapped status bar)', () => {
       return fullApp({type: 'overlapped', x: true})
     })

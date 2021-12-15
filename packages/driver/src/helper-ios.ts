@@ -38,7 +38,7 @@ export class HelperIOS<TDriver, TContext, TElement, TSelector> {
     if (!sizeString) return null
     const [, width, height] = sizeString.match(/\{(-?\d+(?:\.\d+)?),\s?(-?\d+(?:\.\d+)?)\}/)
     const contentSize = {width: Number(width), height: Number(height)}
-    if (Number.isNaN(contentSize.width) || Number.isNaN(contentSize.height)) return null
+    if (Number.isNaN(contentSize.width + contentSize.height)) return null
     const paddingLabel = await this._driver.element({type: 'name', selector: 'applitools_content_offset_label'})
     const paddingString = await paddingLabel?.getText()
     if (!paddingString) return contentSize
