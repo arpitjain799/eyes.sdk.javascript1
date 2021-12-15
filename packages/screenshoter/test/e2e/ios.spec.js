@@ -3,7 +3,7 @@ const pixelmatch = require('pixelmatch')
 const {Driver} = require('@applitools/driver')
 const spec = require('@applitools/spec-driver-webdriverio')
 const makeImage = require('../../src/image')
-const screenshoter = require('../../index')
+const takeScreenshot = require('../../index')
 
 const env = {
   url: 'https://ondemand.saucelabs.com/wd/hub',
@@ -120,7 +120,7 @@ describe('screenshoter ios', () => {
   async function app(options = {}) {
     const expectedPath = `./test/fixtures/ios/app${options.withStatusBar ? '-statusbar' : ''}.png`
 
-    const screenshot = await screenshoter({logger, driver, ...options})
+    const screenshot = await takeScreenshot({logger, driver, ...options})
     try {
       if (options.withStatusBar) await sanitizeStatusBar(screenshot.image)
       const actual = await screenshot.image.toObject()
@@ -160,7 +160,7 @@ describe('screenshoter ios', () => {
 
     await driver.init()
 
-    const screenshot = await screenshoter({
+    const screenshot = await takeScreenshot({
       logger,
       driver,
       fully: true,
@@ -181,7 +181,7 @@ describe('screenshoter ios', () => {
     }
   }
   async function region(options) {
-    const screenshot = await screenshoter({
+    const screenshot = await takeScreenshot({
       logger,
       driver,
       region: {x: 30, y: 500, height: 100, width: 200},
@@ -199,7 +199,7 @@ describe('screenshoter ios', () => {
     }
   }
   async function fullRegion(options) {
-    const screenshot = await screenshoter({
+    const screenshot = await takeScreenshot({
       logger,
       driver,
       region: {x: 30, y: 10, height: 700, width: 200},
@@ -217,7 +217,7 @@ describe('screenshoter ios', () => {
     }
   }
   async function element(options) {
-    const screenshot = await screenshoter({
+    const screenshot = await takeScreenshot({
       logger,
       driver,
       region: {type: 'accessibility id', selector: 'Table view'},
@@ -240,7 +240,7 @@ describe('screenshoter ios', () => {
     })
     await button.click()
 
-    const screenshot = await screenshoter({
+    const screenshot = await takeScreenshot({
       logger,
       driver,
       region: {type: 'xpath', selector: '//XCUIElementTypeTable[1]'},

@@ -3,7 +3,7 @@ const pixelmatch = require('pixelmatch')
 const {Driver} = require('@applitools/driver')
 const spec = require('@applitools/spec-driver-webdriverio')
 const makeImage = require('../../src/image')
-const screenshoter = require('../../index')
+const takeScreenshot = require('../../index')
 
 const env = {
   android: {
@@ -148,7 +148,7 @@ describe('screenshoter', () => {
   async function app(options = {}) {
     const expectedPath = `./test/fixtures/android/app${options.withStatusBar ? '-statusbar' : ''}.png`
 
-    const screenshot = await screenshoter({logger, driver, wait: 1500, ...options})
+    const screenshot = await takeScreenshot({logger, driver, wait: 1500, ...options})
     try {
       if (options.withStatusBar) await sanitizeStatusBar(screenshot.image)
       const actual = await screenshot.image.toObject()
@@ -193,7 +193,7 @@ describe('screenshoter', () => {
       await driver.currentContext.setScrollingElement(scrollingElementSelector)
     }
 
-    const screenshot = await screenshoter({
+    const screenshot = await takeScreenshot({
       logger,
       driver,
       fully: true,
@@ -213,7 +213,7 @@ describe('screenshoter', () => {
     }
   }
   async function region(options) {
-    const screenshot = await screenshoter({
+    const screenshot = await takeScreenshot({
       logger,
       driver,
       region: {x: 30, y: 500, height: 100, width: 200},
@@ -230,7 +230,7 @@ describe('screenshoter', () => {
     }
   }
   async function fullRegion(options) {
-    const screenshot = await screenshoter({
+    const screenshot = await takeScreenshot({
       logger,
       driver,
       region: {x: 30, y: 10, height: 700, width: 200},
@@ -248,7 +248,7 @@ describe('screenshoter', () => {
     }
   }
   async function element(options) {
-    const screenshot = await screenshoter({
+    const screenshot = await takeScreenshot({
       logger,
       driver,
       region: {type: 'id', selector: 'btn_recycler_view'},
@@ -271,7 +271,7 @@ describe('screenshoter', () => {
     })
     await button.click()
 
-    const screenshot = await screenshoter({
+    const screenshot = await takeScreenshot({
       logger,
       driver,
       region: {type: 'id', selector: 'recyclerView'},

@@ -4,7 +4,7 @@ const {Driver} = require('@applitools/driver')
 const utils = require('@applitools/utils')
 const spec = require('@applitools/spec-driver-webdriverio')
 const makeImage = require('../../src/image')
-const screenshoter = require('../../index')
+const takeScreenshot = require('../../index')
 
 describe.skip('external tests', () => {
   const logger = {log: () => {}, warn: () => {}, error: () => {}, verbose: () => {}}
@@ -61,7 +61,7 @@ describe.skip('external tests', () => {
 
     await driver.init()
 
-    const screenshot = await screenshoter({
+    const screenshot = await takeScreenshot({
       logger,
       driver,
       fully: true,
@@ -135,7 +135,7 @@ describe.skip('external tests', () => {
 
     await driver.init()
 
-    const screenshot = await screenshoter({
+    const screenshot = await takeScreenshot({
       logger,
       driver,
       fully: true,
