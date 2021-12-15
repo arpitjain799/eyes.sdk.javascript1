@@ -73,14 +73,20 @@ async function takeStitchedScreenshot({
     const requiredOffset = utils.geometry.offsetNegative(utils.geometry.location(partRegion), compensateOffset)
 
     logger.verbose(`Move to ${requiredOffset}`)
-    const actualOffset = await scroller.moveTo(requiredOffset)
-    const actualScrollerRegion = await scroller.getClientRegion()
-    const actualScrollerOffset = driver.isNative
-      ? {x: scrollerRegion.x - actualScrollerRegion.x, y: scrollerRegion.y - actualScrollerRegion.y}
-      : {x: 0, y: 0}
+    let actualOffset = await scroller.moveTo(requiredOffset)
+    // actual scroll position after scrolling might be not equal to required position due to
+    // scrollable region shift during scrolling so actual scroll position should be corrected
+    if (!utils.geometry.equals(actualOffset, requiredOffset) && driver.isNative) {
+      const actualScrollerRegion = await scroller.getClientRegion()
+      actualOffset = utils.geometry.offset(actualOffset, {
+        x: scrollerRegion.x - actualScrollerRegion.x,
+        y: scrollerRegion.y - actualScrollerRegion.y,
+      })
+    }
+
     const remainingOffset = {
-      x: requiredOffset.x - (actualOffset.x + actualScrollerOffset.x) - expectedRemainingOffset.x + compensateOffset.x,
-      y: requiredOffset.y - (actualOffset.y + actualScrollerOffset.y) - expectedRemainingOffset.y + compensateOffset.y,
+      x: requiredOffset.x - actualOffset.x - expectedRemainingOffset.x + compensateOffset.x,
+      y: requiredOffset.y - actualOffset.y - expectedRemainingOffset.y + compensateOffset.y,
     }
 
     const cropPartRegion = {

@@ -303,16 +303,19 @@ export class Element<TDriver, TContext, TElement, TSelector> {
         const yTrack = Math.floor(effectiveRegion.y + effectiveRegion.height / 2) // center
         const xLeft = effectiveRegion.y + xPadding
         const xDirection = remainingOffset.y > 0 ? 'right' : 'left'
+        const xGap = xDirection === 'right' ? -touchPadding : touchPadding
         let xRemaining = Math.abs(remainingOffset.x)
         while (xRemaining > 0) {
           const xRight = effectiveRegion.x + Math.min(xRemaining + xPadding, effectiveRegion.width - xPadding)
           const [xStart, xEnd] = xDirection === 'right' ? [xRight, xLeft] : [xLeft, xRight]
           await this._spec.performAction(this.driver.target, [
-            {action: 'press', x: xStart, y: yTrack},
+            {action: 'press', y: yTrack, x: xStart},
             {action: 'wait', ms: 100},
-            {action: 'moveTo', x: xEnd, y: yTrack},
+            {action: 'moveTo', y: yTrack, x: xStart + xGap},
             {action: 'wait', ms: 100},
-            {action: 'moveTo', x: xEnd, y: yTrack + 1},
+            {action: 'moveTo', y: yTrack, x: xEnd + xGap},
+            {action: 'wait', ms: 100},
+            {action: 'moveTo', y: yTrack + 1, x: xEnd + xGap},
             {action: 'release'},
           ])
           xRemaining -= xRight - xLeft
@@ -322,6 +325,7 @@ export class Element<TDriver, TContext, TElement, TSelector> {
         const xTrack = Math.floor(effectiveRegion.x + 5) // a little bit off left border
         const yBottom = effectiveRegion.y + effectiveRegion.height - yPadding
         const yDirection = remainingOffset.y > 0 ? 'down' : 'up'
+        const yGap = yDirection === 'down' ? -touchPadding : touchPadding
         let yRemaining = Math.abs(remainingOffset.y)
         while (yRemaining > 0) {
           const yTop = Math.max(yBottom - yRemaining, effectiveRegion.y + yPadding)
@@ -329,23 +333,21 @@ export class Element<TDriver, TContext, TElement, TSelector> {
           await this._spec.performAction(this.driver.target, [
             {action: 'press', x: xTrack, y: yStart},
             {action: 'wait', ms: 100},
-            {action: 'moveTo', x: xTrack, y: yStart - touchPadding},
+            {action: 'moveTo', x: xTrack, y: yStart + yGap},
             {action: 'wait', ms: 100},
-            {action: 'moveTo', x: xTrack, y: yEnd - touchPadding},
+            {action: 'moveTo', x: xTrack, y: yEnd + yGap},
             {action: 'wait', ms: 100},
-            {action: 'moveTo', x: xTrack + 1, y: yEnd - touchPadding},
+            {action: 'moveTo', x: xTrack + 1, y: yEnd + yGap},
             {action: 'release'},
           ])
           yRemaining -= yBottom - yTop
         }
 
         const actualScrollableRegion = await this.getClientRegion()
-        const scrollableRegionOffset = {
+        this._state.scrollOffset = utils.geometry.offsetNegative(requiredOffset, {
           x: scrollableRegion.x - actualScrollableRegion.x,
           y: scrollableRegion.y - actualScrollableRegion.y,
-        }
-
-        this._state.scrollOffset = utils.geometry.offsetNegative(requiredOffset, scrollableRegionOffset)
+        })
 
         return this._state.scrollOffset
       }

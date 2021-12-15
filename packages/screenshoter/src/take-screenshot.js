@@ -4,7 +4,7 @@ const scrollIntoViewport = require('./scroll-into-viewport')
 const takeStitchedScreenshot = require('./take-stitched-screenshot')
 const takeSimpleScreenshot = require('./take-simple-screenshot')
 
-async function screenshoter({
+async function takeScreenshot({
   driver,
   frames = [],
   region,
@@ -156,4 +156,4 @@ async function getTarget({window, context, region, fully, scrollingMode, logger}
   }
 }
 
-module.exports = screenshoter
+module.exports = takeScreenshot
