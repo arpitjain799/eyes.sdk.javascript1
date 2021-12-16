@@ -1,6 +1,6 @@
 {
   "name": "@applitools/visual-grid-client",
-  "version": "15.8.50",
+  "version": "15.8.51",
   "description": "",
   "keywords": [
     "applitools",
@@ -36,7 +36,7 @@
     "@applitools/functional-commons": "1.6.0",
     "@applitools/http-commons": "2.4.5",
     "@applitools/isomorphic-fetch": "3.0.0",
-    "@applitools/jsdom": "1.0.3",
+    "@applitools/jsdom": "1.0.4",
     "@applitools/logger": "1.0.6",
     "abort-controller": "3.0.0",
     "chalk": "3.0.0",
@@ -61,7 +61,7 @@
     "chai-spies": "^1.0.0",
     "chai-uuid": "^1.0.6",
     "cookie-parser": "^1.4.4",
-    "debug": "^4.1.1",
+    "debug": "^4.3.3",
     "eslint": "^7.9.0",
     "eslint-plugin-mocha-no-only": "^1.1.1",
     "eslint-plugin-node": "^11.1.0",
