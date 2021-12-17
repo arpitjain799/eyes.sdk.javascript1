@@ -65,14 +65,14 @@ jobs:
         run: echo 'screenshoter'
   driver:
     needs: [setup, types, utils, snippets]
-    if: ${{(fromJSON(needs.setup.outputs.packages).driver || needs.utils.result == 'success') && !failure() && !cancelled()}}
+    if: ${{(fromJSON(needs.setup.outputs.packages).driver || contains(needs.*.result, 'success')) && !failure() && !cancelled()}}
     runs-on: ubuntu-latest
     steps:
       - name: Do the thing
         run: echo 'driver'
   test-server:
     needs: [setup, utils]
-    if: ${{fromJSON(needs.setup.outputs.packages).test-server && !failure() && !cancelled()}}
+    if: ${{(fromJSON(needs.setup.outputs.packages).test-server || contains(needs.*.result, 'success'))&& !failure() && !cancelled()}}
     runs-on: ubuntu-latest
     steps:
       - name: Do the thing
