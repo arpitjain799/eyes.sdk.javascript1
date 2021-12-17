@@ -64,7 +64,7 @@ jobs:
       - name: Do the thing
         run: echo 'screenshoter'
   driver:
-    needs: [setup, types, utils, snippets]
+    needs: ${{fromJSON(needs.setup.outputs.packages.driver.needs)}}
     if: ${{(fromJSON(needs.setup.outputs.packages).driver || contains(needs.*.result, 'success')) && !failure() && !cancelled()}}
     runs-on: ubuntu-latest
     steps:
