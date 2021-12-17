@@ -7,7 +7,7 @@ const PACKAGES = [
   {name: 'snippets', dirname: 'snippets', aliases: ['@applitools/snippets']},
   {name: 'logger', dirname: 'logger', aliases: ['@applitools/logger']},
   {name: 'screenshoter', dirname: 'screenshoter', aliases: ['@applitools/screenshoter']},
-  {name: 'driver', dirname: 'driver', aliases: ['@applitools/driver'], needs: ['setup', 'types', 'utils', 'snippets']},
+  {name: 'driver', dirname: 'driver', aliases: ['@applitools/driver']},
   {name: 'scripts', dirname: 'scripts', aliases: ['@applitools/scripts']},
   {name: 'test-server', dirname: 'test-server', aliases: ['@applitools/test-server']},
   {name: 'api', dirname: 'eyes-api', aliases: ['@applitools/eyes-api']},
