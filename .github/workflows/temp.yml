@@ -21,6 +21,7 @@ jobs:
         id: setup
         with:
           packages: ${{github.event.inputs.packages}}
+          allow-cascading: false
           release-version: ${{github.event.inputs.version}}
   temp:
     needs: [setup]
