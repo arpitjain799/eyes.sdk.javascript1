@@ -59,7 +59,7 @@ jobs:
       - name: Do the thing
         run: echo 'logger'
   screenshoter:
-    needs: ${{inputs.needs}}
+    needs: ${{fromJSON(inputs.needs)}}
     if: ${{fromJSON(needs.setup.outputs.packages).screenshoter && !failure() && !cancelled()}}
     runs-on: ubuntu-latest
     steps:
