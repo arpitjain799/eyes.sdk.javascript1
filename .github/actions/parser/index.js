@@ -52,9 +52,9 @@ const PACKAGES = [
 ]
 
 const packageSettings = core.getInput('packages', {required: true})
-const allowVariations = core.getInput('allow-variations')
+const allowVariations = core.getBooleanInput('allow-variations')
+const allowCascading = core.getBooleanInput('allow-cascading')
 const defaultReleaseVersion = core.getInput('release-version')
-const allowCascading = core.getInput('allow-cascading')
 
 core.info(`Packages: ${packageSettings}`)
 
