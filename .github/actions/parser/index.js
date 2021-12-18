@@ -129,7 +129,11 @@ function dependentPackages(packageNames) {
   while (more) {
     more = false
     for(packageInfo of PACKAGES) {
-      if (!packageNames.includes(packageInfo.name) && packageNames.some(packageName => packageInfo.dependencies.includes(packageName))) {
+      if (
+        !packageInfo.sdk &&
+        !packageNames.includes(packageInfo.name) &&
+        packageNames.some(packageName => packageInfo.dependencies.includes(packageName))
+      ) {
         more = true
         packageNames.push(packageInfo.name)
         dependentPackages.push(packageInfo)

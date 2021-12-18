@@ -7,14 +7,6 @@ on:
         description: package names (aliases)
         required: true
         type: string
-      version:
-        type: choice
-        options:
-          - patch
-          - minor
-          - major
-      do:
-        type: boolean
 env:
   NEEDS: '["setup", "utils", "driver", "snippets"]'
 jobs:
