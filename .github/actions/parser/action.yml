@@ -8,9 +8,11 @@ inputs:
   allow-variations:
     description: whether modifiers should be allowed to create variations (wdio:cdp or selenium@3)
     type: boolean
+    default: false
   allow-cascading:
     description: whether including of not listed packages should be allowed
     type: boolean
+    default: false
   release-version:
     description: default release version type (major, minor, patch)
     type: string
