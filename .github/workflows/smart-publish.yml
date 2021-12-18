@@ -1,4 +1,4 @@
-name: Temp
+name: Smart publish packages
 
 on:
   workflow_dispatch:
@@ -6,9 +6,17 @@ on:
       packages:
         description: package names (aliases)
         required: true
-        type: string
-env:
-  NEEDS: '["setup", "utils", "driver", "snippets"]'
+      version:
+        description: version type
+        type: choice
+        options: [patch, minor, major]
+        default: patch
+        required: false
+      allow-cascading:
+        description: allow cascading
+        type: boolean
+        default: false
+        required: false
 jobs:
   setup:
     name: Setup
@@ -21,12 +29,13 @@ jobs:
         id: setup
         with:
           packages: ${{github.event.inputs.packages}}
-          allow-cascading: true
+          allow-cascading: ${{github.event.inputs.allow-cascading}}
           release-version: ${{github.event.inputs.version}}
-  temp:
+
+  publish:
     needs: [setup]
     name: Temp
     uses: applitools/eyes.sdk.javascript1/.github/workflows/temp_r.yml@cascade-publishing-gh-action
     with:
       schema: ${{needs.setup.outputs.packages}}
-
+    secrets: ${{secrets}
