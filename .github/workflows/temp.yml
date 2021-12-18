@@ -15,8 +15,6 @@ on:
           - major
       do:
         type: boolean
-      env:
-        type: environment
 env:
   NEEDS: '["setup", "utils", "driver", "snippets"]'
 jobs:
