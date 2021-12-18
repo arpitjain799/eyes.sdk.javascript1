@@ -5,6 +5,7 @@ on:
     inputs:
       schema:
         required: true
+        type: string
 jobs:
   types:
     if: ${{fromJSON(inputs.schema).types}}
