@@ -39,7 +39,7 @@ jobs:
       - name: Do the thing
         run: echo 'logger'
   screenshoter:
-    needs: ${{fromJSON(inputs.schema).screenshoter.needs}}
+    needs: [utils, driver, snippets]
     if: ${{fromJSON(inputs.schema).screenshoter && !failure() && !cancelled()}}
     runs-on: ubuntu-latest
     steps:
