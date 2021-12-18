@@ -6,6 +6,7 @@ on:
       packages:
         description: package names (aliases)
         required: true
+        type: string
 env:
   NEEDS: '["setup", "utils", "driver", "snippets"]'
 jobs:
