@@ -6,6 +6,8 @@ on:
       packages:
         description: package names (aliases)
         required: true
+      needs:
+        required: true
 jobs:
   setup:
     name: Setup
@@ -57,22 +59,22 @@ jobs:
       - name: Do the thing
         run: echo 'logger'
   screenshoter:
-    needs: [setup, utils, driver, snippets]
-    if: ${{(fromJSON(needs.setup.outputs.packages).screenshoter) && !failure() && !cancelled()}}
+    needs: ${{inputs.needs}}
+    if: ${{fromJSON(needs.setup.outputs.packages).screenshoter && !failure() && !cancelled()}}
     runs-on: ubuntu-latest
     steps:
       - name: Do the thing
         run: echo 'screenshoter'
   driver:
     needs: [setup, types, utils, snippets]
-    if: ${{(fromJSON(needs.setup.outputs.packages).driver || contains(fromJSON([needs.types.result, needs.utils.result, needs.snippets.result]), 'success')) && !failure() && !cancelled()}}
+    if: ${{fromJSON(needs.setup.outputs.packages).driver && !failure() && !cancelled()}}
     runs-on: ubuntu-latest
     steps:
       - name: Do the thing
         run: echo 'driver'
   test-server:
     needs: [setup, utils]
-    if: ${{(fromJSON(needs.setup.outputs.packages).test-server || contains(needs.*.result, 'success'))&& !failure() && !cancelled()}}
+    if: ${{fromJSON(needs.setup.outputs.packages).test-server && !failure() && !cancelled()}}
     runs-on: ubuntu-latest
     steps:
       - name: Do the thing
