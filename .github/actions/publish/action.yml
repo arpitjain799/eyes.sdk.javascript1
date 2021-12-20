@@ -2,13 +2,16 @@ name: Publish
 description: Publish a package to NPM
 inputs:
   package:
-    description: name of the package
+    description: name of the package directory in repository
+    type: string
     required: true
   version:
     description: version type (patch, major, minor)
+    type: string
     required: true
   skip-npm:
     description: should the package be published in npm
+    type: boolean
     default: false
 outputs:
   tag:
