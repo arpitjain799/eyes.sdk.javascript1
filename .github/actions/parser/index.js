@@ -69,8 +69,8 @@ if (allowCascading) {
     packages[package.name] = {
       displayName: package.name,
       name: package.name,
-      dirname: packageInfo.dirname,
-      sdk: packageInfo.sdk,
+      dirname: package.dirname,
+      sdk: package.sdk,
     }
   })
 }
