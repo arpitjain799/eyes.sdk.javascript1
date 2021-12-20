@@ -5,6 +5,7 @@ on:
     inputs:
       schema:
         description: schema of packages to publish
+        type: string
         required: true
 env:
   CVG_TESTS_REMOTE: http://localhost:4444/wd/hub
