@@ -17,16 +17,6 @@ on:
         type: boolean
         default: true
         required: false
-env:
-  CVG_TESTS_REMOTE: http://localhost:4444/wd/hub
-  CVG_TESTS_EG_REMOTE: ${{secrets.CVG_TESTS_EG_REMOTE}}
-  APPLITOOLS_API_KEY: ${{secrets.APPLITOOLS_API_KEY}}
-  APPLITOOLS_API_KEY_SDK: ${{secrets.APPLITOOLS_API_KEY_SDK}}
-  APPLITOOLS_API_KEY_READ: ${{secrets.APPLITOOLS_API_KEY_READ}}
-  SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
-  SAUCE_ACCESS_KEY: ${{secrets.SAUCE_ACCESS_KEY}}
-  NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-  AZURE_STORAGE_CONNECTION_STRING: ${{secrets.AZURE_STORAGE_CONNECTION_STRING}}
 jobs:
   setup:
     name: Setup
@@ -50,3 +40,12 @@ jobs:
     uses: applitools/eyes.sdk.javascript1/.github/workflows/publish.yml@cascade-publishing-gh-action
     with:
       schema: ${{needs.setup.outputs.packages}}
+    secrets:
+      CVG_TESTS_EG_REMOTE: ${{secrets.CVG_TESTS_EG_REMOTE}}
+      APPLITOOLS_API_KEY: ${{secrets.APPLITOOLS_API_KEY}}
+      APPLITOOLS_API_KEY_SDK: ${{secrets.APPLITOOLS_API_KEY_SDK}}
+      APPLITOOLS_API_KEY_READ: ${{secrets.APPLITOOLS_API_KEY_READ}}
+      SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
+      SAUCE_ACCESS_KEY: ${{secrets.SAUCE_ACCESS_KEY}}
+      NPM_TOKEN: ${{secrets.NPM_TOKEN}}
+      AZURE_STORAGE_CONNECTION_STRING: ${{secrets.AZURE_STORAGE_CONNECTION_STRING}}
