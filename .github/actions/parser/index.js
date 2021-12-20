@@ -11,12 +11,15 @@ const PACKAGES = [
   {name: 'test-server', dirname: 'test-server', aliases: ['@applitools/test-server'], dependencies: ['utils']},
   // #endregion
 
+  // #region TOOLING
+  {name: 'scripts', dirname: 'scripts', aliases: ['@applitools/scripts'], dependencies: ['utils', 'test-utils']},
+  // #endregion
+
   // #region MODULES
   {name: 'snippets', dirname: 'snippets', aliases: ['@applitools/snippets'], dependencies: []},
   {name: 'logger', dirname: 'logger', aliases: ['@applitools/logger'], dependencies: ['utils']},
   {name: 'screenshoter', dirname: 'screenshoter', aliases: ['@applitools/screenshoter'], dependencies: ['utils', 'driver', 'snippets', 'spec-webdriver']},
   {name: 'driver', dirname: 'driver', aliases: ['@applitools/driver'], dependencies: ['types', 'utils', 'snippets']},
-  {name: 'scripts', dirname: 'scripts', aliases: ['@applitools/scripts'], dependencies: ['utils', 'test-utils']},
   // #endregion
   
   // #region CORE

@@ -7,6 +7,23 @@ on:
         description: schema of packages to publish
         type: string
         required: true
+    secrets:
+      CVG_TESTS_EG_REMOTE:
+        required: true
+      APPLITOOLS_API_KEY:
+        required: true
+      APPLITOOLS_API_KEY_SDK:
+        required: true
+      APPLITOOLS_API_KEY_READ:
+        required: true
+      SAUCE_USERNAME:
+        required: true
+      SAUCE_ACCESS_KEY:
+        required: true
+      NODE_AUTH_TOKEN:
+        required: true
+      AZURE_STORAGE_CONNECTION_STRING:
+        required: true
 env:
   CVG_TESTS_REMOTE: http://localhost:4444/wd/hub
   CVG_TESTS_EG_REMOTE: ${{secrets.CVG_TESTS_EG_REMOTE}}
@@ -93,6 +110,28 @@ jobs:
           package: ${{fromJSON(inputs.schema).test-server.dirname}}
           version: ${{fromJSON(inputs.schema).test-server.releaseVersion}}
 
+  # TOOLING
+  scripts:
+    needs: [utils, test-utils]
+    if: ${{fromJSON(inputs.schema).scripts && !failure() && !cancelled()}}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: lts/*
+      - name: Run tests
+        uses: ./.github/actions/tests
+        with:
+          package: ${{fromJSON(inputs.schema).scripts.dirname}}
+      - name: Publish to NPM
+        uses: ./.github/actions/publish
+        with:
+          package: ${{fromJSON(inputs.schema).scripts.dirname}}
+          version: ${{fromJSON(inputs.schema).scripts.releaseVersion}}
+
   # MODULES
   logger:
     needs: [utils]
@@ -173,28 +212,6 @@ jobs:
         with:
           package: ${{fromJSON(inputs.schema).driver.dirname}}
           version: ${{fromJSON(inputs.schema).driver.releaseVersion}}
-
-  # TOOLING
-  scripts:
-    needs: [test-utils]
-    if: ${{fromJSON(inputs.schema).scripts && !failure() && !cancelled()}}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check-out repository
-        uses: actions/checkout@v2
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: lts/*
-      - name: Run tests
-        uses: ./.github/actions/tests
-        with:
-          package: ${{fromJSON(inputs.schema).scripts.dirname}}
-      - name: Publish to NPM
-        uses: ./.github/actions/publish
-        with:
-          package: ${{fromJSON(inputs.schema).scripts.dirname}}
-          version: ${{fromJSON(inputs.schema).scripts.releaseVersion}}
 
   # CORE
   core:
