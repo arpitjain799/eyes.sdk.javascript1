@@ -15,7 +15,7 @@ on:
       allow-cascading:
         description: allow cascading
         type: boolean
-        default: false
+        default: true
         required: false
 jobs:
   setup:
