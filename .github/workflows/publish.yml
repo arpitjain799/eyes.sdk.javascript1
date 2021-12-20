@@ -7,33 +7,7 @@ on:
         description: schema of packages to publish
         type: string
         required: true
-    secrets:
-      CVG_TESTS_EG_REMOTE:
-        required: true
-      APPLITOOLS_API_KEY:
-        required: true
-      APPLITOOLS_API_KEY_SDK:
-        required: true
-      APPLITOOLS_API_KEY_READ:
-        required: true
-      SAUCE_USERNAME:
-        required: true
-      SAUCE_ACCESS_KEY:
-        required: true
-      NPM_TOKEN:
-        required: true
-      AZURE_STORAGE_CONNECTION_STRING:
-        required: true
 env:
-  CVG_TESTS_REMOTE: http://localhost:4444/wd/hub
-  CVG_TESTS_EG_REMOTE: ${{secrets.CVG_TESTS_EG_REMOTE}}
-  APPLITOOLS_API_KEY: ${{secrets.APPLITOOLS_API_KEY}}
-  APPLITOOLS_API_KEY_SDK: ${{secrets.APPLITOOLS_API_KEY_SDK}}
-  APPLITOOLS_API_KEY_READ: ${{secrets.APPLITOOLS_API_KEY_READ}}
-  SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
-  SAUCE_ACCESS_KEY: ${{secrets.SAUCE_ACCESS_KEY}}
-  NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-  AZURE_STORAGE_CONNECTION_STRING: ${{secrets.AZURE_STORAGE_CONNECTION_STRING}}
   STDOUT_LEVEL: 1
   FORCE_COLOR: 3
 jobs:
