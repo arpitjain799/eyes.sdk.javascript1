@@ -29,8 +29,11 @@ describe('eyesStorybook', () => {
   });
 
   let serverUrl, closeEyesServer;
-  beforeEach(async () => {
-    const {port, close} = await fakeEyesServer();
+  beforeEach(async function() {
+    let fakeEyesConfig = {}
+    if(this.test.title.includes('enforces legacy concurrency'))
+      fakeEyesConfig = {delay: 500}
+    const {port, close} = await fakeEyesServer(fakeEyesConfig);
     closeEyesServer = close;
     serverUrl = `http://localhost:${port}`;
   });
