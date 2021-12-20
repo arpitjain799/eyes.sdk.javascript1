@@ -75,6 +75,7 @@ if (allowCascading) {
   })
 }
 
+
 core.setOutput('packages', allowVariations ? Object.values(packages) : packages)
 
 function requestedPackages(packageSettings) {
