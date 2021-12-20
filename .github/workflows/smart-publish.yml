@@ -37,7 +37,7 @@ jobs:
   publish:
     needs: [setup]
     name: Temp
-    uses: applitools/eyes.sdk.javascript1/.github/workflows/temp_r.yml@cascade-publishing-gh-action
+    uses: applitools/eyes.sdk.javascript1/.github/workflows/publish.yml@${{github.ref_name}}
     with:
       schema: ${{needs.setup.outputs.packages}}
     secrets: ${{secrets}
