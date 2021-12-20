@@ -37,7 +37,7 @@ jobs:
   publish:
     needs: [setup]
     name: Temp
-    uses: ${{format(applitools/eyes.sdk.javascript1/.github/workflows/publish.yml@{1}, github.ref_name)}}
+    uses: ${{format('applitools/eyes.sdk.javascript1/.github/workflows/publish.yml@{1}', github.ref_name)}}
     with:
       schema: ${{needs.setup.outputs.packages}}
     secrets: ${{secrets}
