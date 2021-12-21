@@ -30,18 +30,18 @@ describe('eyesStorybook', () => {
 
   let serverUrl, closeEyesServer;
   beforeEach(async function() {
-    let fakeEyesConfig = {}
-    if(this.test.title.includes('enforces legacy concurrency'))
-      fakeEyesConfig = {delay: 500}
-    const {port, close} = await fakeEyesServer(fakeEyesConfig);
-    closeEyesServer = close;
-    serverUrl = `http://localhost:${port}`;
+    // const {port, close} = await fakeEyesServer(fakeEyesConfig);
+    // closeEyesServer = close;
+    // serverUrl = `http://localhost:${port}`;
   });
   afterEach(async () => {
     await closeEyesServer();
   });
 
   it('renders test storybook with fake eyes and visual grid', async () => {
+    const {port, close} = await fakeEyesServer();
+    closeEyesServer = close;
+    serverUrl = `http://localhost:${port}`;
     const {stream, getEvents} = testStream();
     const configPath = path.resolve(__dirname, '../fixtures/applitools.config.js');
     const globalConfig = require(configPath);
@@ -199,6 +199,9 @@ describe('eyesStorybook', () => {
   });
 
   it('enforces default concurrency', async () => {
+    const {port, close} = await fakeEyesServer();
+    closeEyesServer = close;
+    serverUrl = `http://localhost:${port}`;
     const {stream} = testStream();
     const configPath = path.resolve(__dirname, '../fixtures/applitools.config.js');
     const config = generateConfig({argv: {conf: configPath}, defaultConfig, externalConfigParams});
@@ -220,6 +223,9 @@ describe('eyesStorybook', () => {
   });
 
   it('enforces testConcurrency', async () => {
+    const {port, close} = await fakeEyesServer();
+    closeEyesServer = close;
+    serverUrl = `http://localhost:${port}`;
     const {stream} = testStream();
     const configPath = path.resolve(__dirname, '../fixtures/applitools.config.js');
     const config = generateConfig({argv: {conf: configPath}, defaultConfig, externalConfigParams});
@@ -242,6 +248,9 @@ describe('eyesStorybook', () => {
   });
 
   it('enforces testConcurrency over legacy concurrency', async () => {
+    const {port, close} = await fakeEyesServer();
+    closeEyesServer = close;
+    serverUrl = `http://localhost:${port}`;
     const {stream} = testStream();
     const configPath = path.resolve(__dirname, '../fixtures/applitools.config.js');
     const config = generateConfig({argv: {conf: configPath}, defaultConfig, externalConfigParams});
@@ -265,6 +274,9 @@ describe('eyesStorybook', () => {
   });
 
   it('enforces legacy concurrency', async () => {
+    const {port, close} = await fakeEyesServer({renderDelay: 1000});
+    closeEyesServer = close;
+    serverUrl = `http://localhost:${port}`;
     const {stream} = testStream();
     const configPath = path.resolve(
       __dirname,
@@ -290,6 +302,9 @@ describe('eyesStorybook', () => {
 
   // This test doesn't pass in CI, probably because git is not installed or doesn't work as expected. This needs to be investigated
   it.skip('sends parentBranchBaselineSavedBefore when branchName and parentBranchName are specified, and there is a merge-base time for them', async () => {
+    const {port, close} = await fakeEyesServer();
+    closeEyesServer = close;
+    serverUrl = `http://localhost:${port}`;
     const {stream} = testStream();
     const configPath = path.resolve(
       __dirname,
@@ -327,6 +342,9 @@ describe('eyesStorybook', () => {
   });
 
   it('handles ignoreGitMergeBase', async () => {
+    const {port, close} = await fakeEyesServer();
+    closeEyesServer = close;
+    serverUrl = `http://localhost:${port}`;
     const {stream} = testStream();
     const configPath = path.resolve(
       __dirname,
@@ -359,6 +377,9 @@ describe('eyesStorybook', () => {
   });
 
   it('fail immediately, wrong api key', async () => {
+    const {port, close} = await fakeEyesServer();
+    closeEyesServer = close;
+    serverUrl = `http://localhost:${port}`;
     const config = {apiKey: 'INVALIDAPIKEY'}; // this is a well-known apiKey that is meant to return 401 from fake eyes server
     let errorMessage;
 

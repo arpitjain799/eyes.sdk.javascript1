@@ -10,6 +10,7 @@ const spawnOptions = {stdio: 'pipe', env: envWithColor};
 
 describe('zero stories retry', () => {
   //skipped as storybook removed the option to load a story after storybook starts
+  // going forward we would like to re-add this test by running it with Storybook version 5
   it.skip('zero stories retry', async () => {
     const [err, result] = await presult(
       utils.process.sh(
