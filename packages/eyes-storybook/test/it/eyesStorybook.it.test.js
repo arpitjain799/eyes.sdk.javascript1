@@ -30,9 +30,6 @@ describe('eyesStorybook', () => {
 
   let serverUrl, closeEyesServer;
   beforeEach(async function() {
-    // const {port, close} = await fakeEyesServer(fakeEyesConfig);
-    // closeEyesServer = close;
-    // serverUrl = `http://localhost:${port}`;
   });
   afterEach(async () => {
     await closeEyesServer();
