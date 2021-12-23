@@ -1,10 +1,23 @@
 # Change Log
 
 ## Unreleased
+
+## 1.19.2 - 2021/12/23
+
+- updated to @applitools/eyes-sdk-core@12.24.9 (from 12.24.6)
+- updated to @applitools/types@1.0.23 (from 1.0.22)
+- updated to @applitools/utils@1.2.5 (from 1.2.4)
+- updated to @applitools/visual-grid-client@15.8.55 (from 15.8.52)
+
+## 1.19.1 - 2021/12/16
+
 - implement `getCapabilities` instead of `getDriverInfo`
 - updated to @applitools/eyes-sdk-core@12.24.5 (from 12.24.0)
 - updated to @applitools/types@1.0.21 (from 1.0.19)
 - updated to @applitools/visual-grid-client@15.8.49 (from 15.8.44)
+- updated to @applitools/eyes-sdk-core@12.24.6 (from 12.24.5)
+- updated to @applitools/types@1.0.22 (from 1.0.21)
+- updated to @applitools/visual-grid-client@15.8.52 (from 15.8.49)
 
 ## 1.19.0 - 2021/11/10
 

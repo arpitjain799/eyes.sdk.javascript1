@@ -1,9 +1,10 @@
 const assert = require('assert')
 const pixelmatch = require('pixelmatch')
+const utils = require('@applitools/utils')
 const {Driver} = require('@applitools/driver')
 const spec = require('@applitools/spec-driver-webdriverio')
 const makeImage = require('../../src/image')
-const screenshoter = require('../../index')
+const takeScreenshot = require('../../index')
 
 const env = {
   url: 'https://ondemand.saucelabs.com/wd/hub',
@@ -11,13 +12,22 @@ const env = {
     name: 'iOS Screenshoter Test',
     deviceName: 'iPhone 11 Pro Simulator',
     platformName: 'iOS',
-    platformVersion: '13.4',
-    appiumVersion: '1.19.2',
+    platformVersion: '14.5',
+    appiumVersion: '1.21.0',
     automationName: 'XCUITest',
-    app: 'https://applitools.jfrog.io/artifactory/Examples/IOSTestApp/1.5/app/IOSTestApp-1.5.zip',
+    app: 'https://applitools.jfrog.io/artifactory/Examples/IOSTestApp/1.9/app/IOSTestApp.zip',
     username: process.env.SAUCE_USERNAME,
     accessKey: process.env.SAUCE_ACCESS_KEY,
   },
+
+  // url: 'http://0.0.0.0:4723/wd/hub',
+  // capabilities: {
+  //   deviceName: 'iPhone 11 Pro',
+  //   platformName: 'iOS',
+  //   platformVersion: '14.5',
+  //   automationName: 'XCUITest',
+  //   app: 'https://applitools.jfrog.io/artifactory/Examples/IOSTestApp/1.9/app/IOSTestApp.zip',
+  // },
 }
 
 describe('screenshoter ios', () => {
@@ -77,6 +87,30 @@ describe('screenshoter ios', () => {
     return fullApp({type: 'collection'})
   })
 
+  it('take full app screenshot (table view with collapsing header)', () => {
+    return fullApp({type: 'collapsing'})
+  })
+
+  it('take full app screenshot (collection view with overlapped status bar)', () => {
+    return fullApp({type: 'overlapped'})
+  })
+
+  it('take full app screenshot with status bar (collection view with overlapped status bar)', () => {
+    return fullApp({type: 'overlapped', withStatusBar: true})
+  })
+
+  it('take full app screenshot (collection view with superview)', () => {
+    return fullApp({type: 'superview'})
+  })
+
+  it('take webview screenshot', () => {
+    return webview()
+  })
+
+  it('take full webview screenshot', () => {
+    return fullWebview()
+  })
+
   it('take region screenshot', () => {
     return region()
   })
@@ -95,8 +129,12 @@ describe('screenshoter ios', () => {
 
   async function app(options = {}) {
     const expectedPath = `./test/fixtures/ios/app${options.withStatusBar ? '-statusbar' : ''}.png`
+    const buttonSelector = {type: 'accessibility id', selector: 'Empty table view'}
 
-    const screenshot = await screenshoter({logger, driver, ...options})
+    const button = await driver.element(buttonSelector)
+    await button.click()
+
+    const screenshot = await takeScreenshot({logger, driver, ...options})
     try {
       if (options.withStatusBar) await sanitizeStatusBar(screenshot.image)
       const actual = await screenshot.image.toObject()
@@ -108,8 +146,19 @@ describe('screenshoter ios', () => {
     }
   }
   async function fullApp({type, ...options} = {}) {
-    let buttonSelector, expectedPath
-    if (type === 'collection') {
+    let buttonSelector, expectedPath, overlap
+    if (type === 'superview') {
+      overlap = {top: 200}
+      buttonSelector = {type: 'accessibility id', selector: 'Bottom to superview'}
+      expectedPath = `./test/fixtures/ios/app-fully-superview${options.withStatusBar ? '-statusbar' : ''}.png`
+    } else if (type === 'overlapped') {
+      overlap = {top: 200}
+      buttonSelector = {type: 'accessibility id', selector: 'Bottom to safe area'}
+      expectedPath = `./test/fixtures/ios/app-fully-overlapped${options.withStatusBar ? '-statusbar' : ''}.png`
+    } else if (type === 'collapsing') {
+      buttonSelector = {type: 'accessibility id', selector: 'Table view with stretchable header'}
+      expectedPath = `./test/fixtures/ios/app-fully-collapsing${options.withStatusBar ? '-statusbar' : ''}.png`
+    } else if (type === 'collection') {
       buttonSelector = {type: 'accessibility id', selector: 'Collection view'}
       expectedPath = `./test/fixtures/ios/app-fully-collection${options.withStatusBar ? '-statusbar' : ''}.png`
     } else if (type === 'table') {
@@ -123,13 +172,16 @@ describe('screenshoter ios', () => {
     const button = await driver.element(buttonSelector)
     await button.click()
 
-    const screenshot = await screenshoter({
+    await driver.init()
+
+    const screenshot = await takeScreenshot({
       logger,
       driver,
       fully: true,
       framed: true,
       scrollingMode: 'scroll',
       wait: 1500,
+      overlap: {top: 10, bottom: 50, ...overlap},
       ...options,
     })
     try {
@@ -142,8 +194,72 @@ describe('screenshoter ios', () => {
       throw err
     }
   }
+  async function webview(options) {
+    const expectedPath = `./test/fixtures/ios/webview.png`
+    const buttonSelector = {type: 'accessibility id', selector: 'Web view'}
+
+    const button = await driver.element(buttonSelector)
+    await button.click()
+    await driver.target.getContexts()
+    await utils.general.sleep(500)
+    const [, webview] = await driver.target.getContexts()
+    console.log(webview)
+    await driver.target.switchContext(webview)
+
+    await driver.init()
+
+    const screenshot = await takeScreenshot({logger, driver, wait: 1500, ...options})
+    try {
+      const actual = await screenshot.image.toObject()
+      const expected = await makeImage(expectedPath).toObject()
+      assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
+    } catch (err) {
+      await screenshot.image.debug({path: './logs', name: 'webview_failed', suffix: Date.now()})
+      throw err
+    } finally {
+      await driver.target.switchContext('NATIVE_APP')
+    }
+  }
+  async function fullWebview(options) {
+    const expectedPath = `./test/fixtures/ios/webview-fully.png`
+    const buttonSelector = {type: 'accessibility id', selector: 'Web view'}
+
+    const button = await driver.element(buttonSelector)
+    await button.click()
+    await driver.target.getContexts()
+    await utils.general.sleep(500)
+    const [, webview] = await driver.target.getContexts()
+    await driver.target.switchContext(webview)
+
+    await driver.init()
+    const screenshot = await takeScreenshot({
+      logger,
+      driver,
+      wait: 1500,
+      fully: true,
+      scrollingMode: 'scroll',
+      ...options,
+    })
+    try {
+      const actual = await screenshot.image.toObject()
+      const expected = await makeImage(expectedPath).toObject()
+      assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
+    } catch (err) {
+      await screenshot.image.debug({path: './logs', name: 'full_webview_failed', suffix: Date.now()})
+      throw err
+    } finally {
+      await driver.target.switchContext('NATIVE_APP')
+    }
+  }
   async function region(options) {
-    const screenshot = await screenshoter({
+    const expectedPath = `./test/fixtures/ios/region.png`
+    const buttonSelector = {type: 'accessibility id', selector: 'Empty table view'}
+
+    const button = await driver.element(buttonSelector)
+    await button.click()
+
+    await driver.init()
+    const screenshot = await takeScreenshot({
       logger,
       driver,
       region: {x: 30, y: 500, height: 100, width: 200},
@@ -153,7 +269,7 @@ describe('screenshoter ios', () => {
     })
     try {
       const actual = await screenshot.image.toObject()
-      const expected = await makeImage('./test/fixtures/ios/region.png').toObject()
+      const expected = await makeImage(expectedPath).toObject()
       assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
     } catch (err) {
       await screenshot.image.debug({path: './logs', name: 'region_failed'})
@@ -161,7 +277,7 @@ describe('screenshoter ios', () => {
     }
   }
   async function fullRegion(options) {
-    const screenshot = await screenshoter({
+    const screenshot = await takeScreenshot({
       logger,
       driver,
       region: {x: 30, y: 10, height: 700, width: 200},
@@ -179,7 +295,7 @@ describe('screenshoter ios', () => {
     }
   }
   async function element(options) {
-    const screenshot = await screenshoter({
+    const screenshot = await takeScreenshot({
       logger,
       driver,
       region: {type: 'accessibility id', selector: 'Table view'},
@@ -202,7 +318,7 @@ describe('screenshoter ios', () => {
     })
     await button.click()
 
-    const screenshot = await screenshoter({
+    const screenshot = await takeScreenshot({
       logger,
       driver,
       region: {type: 'xpath', selector: '//XCUIElementTypeTable[1]'},

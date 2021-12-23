@@ -4,6 +4,33 @@
 ## Unreleased
 
 
+## 3.3.4 - 2021/12/23
+
+- updated to @applitools/snippets@2.1.12 (from 2.1.11)
+
+## 3.3.3 - 2021/12/22
+
+- improve default rotation and scaling logic
+- improve scroll into viewport algorithm
+- fix lazy handling of image rotation
+- updated to @applitools/snippets@2.1.11 (from 2.1.10)
+- updated to @applitools/utils@1.2.5 (from 1.2.4)
+
+## 3.3.2 - 2021/12/20
+
+- add basic support of webview screenshots on ios
+- updated to @applitools/snippets@2.1.10 (from 2.1.8)
+
+## 3.3.1 - 2021/12/17
+
+- no changes
+
+## 3.3.0 - 2021/12/16
+
+- fix ios web screenshots on pages without viewport meta tag
+- improve native apps support
+- updated to @applitools/snippets@2.1.8 (from 2.1.7)
+
 ## 3.2.9 - 2021/11/14
 
 - add support of scrollable elements that change its size during scrolling

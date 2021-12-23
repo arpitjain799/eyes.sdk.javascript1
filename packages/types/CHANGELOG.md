@@ -3,6 +3,15 @@
 ## Unreleased
 
 
+## 1.0.23 - 2021/12/22
+
+- add `orientation` property to `DriverInfo` type
+
+## 1.0.22 - 2021/12/16
+
+- add `type` method to `SpecDriver` type to automate typing a value in a text field
+- add `safeArea` property to `DriverInfo` type
+
 ## 1.0.21 - 2021/11/23
 
 - add `ignoreGitMergeBase` to `EyesOpenConfig` type

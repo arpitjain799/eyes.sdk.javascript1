@@ -21,7 +21,7 @@ export function region(location: Location, size: RectangleSize) {
 export function isEmpty(size: RectangleSize): boolean
 export function isEmpty(region: Region): boolean
 export function isEmpty(sizeOrRegion: RectangleSize | Region): boolean {
-  return sizeOrRegion.width === 0 && sizeOrRegion.height === 0
+  return sizeOrRegion.width === 0 || sizeOrRegion.height === 0
 }
 
 export function round(region: Region): Region
@@ -40,14 +40,48 @@ export function round(target: Region | RectangleSize | Location): typeof target 
   return result
 }
 
-export function rotate(region: Region, degree: number): Region
-export function rotate(size: RectangleSize, degree: number): RectangleSize
-export function rotate(target: Region | RectangleSize, degree: number): typeof target {
-  const result = {...target}
-  const rotate = Boolean(Math.floor(degree / 90) % 2)
-  if (rotate) {
-    result.width = target.height
-    result.height = target.width
+export function rotate(size: RectangleSize, degrees: number): RectangleSize
+export function rotate(region: Region, degrees: number, size: RectangleSize): Region
+export function rotate(location: Location, degrees: number, size: RectangleSize): RectangleSize
+export function rotate(
+  target: Region | RectangleSize | Location,
+  degrees: number,
+  size?: RectangleSize,
+): typeof target {
+  degrees = (360 + degrees) % 360
+  const result = {} as any
+  if (types.has(target, ['width', 'height'])) {
+    // rotate size
+    if (degrees === 90 || degrees === 270) {
+      result.width = target.height
+      result.height = target.width
+    } else {
+      result.width = target.width
+      result.height = target.height
+    }
+  }
+  if (types.has(target, ['x', 'y'])) {
+    const hasSize = types.has(target, ['width', 'height'])
+    // rotate coordinate system around a target
+    if (degrees === 0) {
+      result.x = target.x
+      result.y = target.y
+    } else if (degrees === 90) {
+      result.x = size.height - target.y
+      result.y = target.x
+      if (hasSize) result.x -= result.width
+    } else if (degrees === 180) {
+      result.x = size.width - target.x
+      result.y = size.height - target.y
+      if (hasSize) {
+        result.x -= result.width
+        result.y -= result.height
+      }
+    } else if (degrees === 270) {
+      result.x = target.y
+      result.y = size.width - target.x
+      if (hasSize) result.y -= result.height
+    }
   }
   return result
 }
@@ -99,10 +133,8 @@ export function intersect(region1: Region, region2: Region): Region {
 
 export function isIntersected(region1: Region, region2: Region): boolean {
   return (
-    ((region1.x <= region2.x && region2.x <= region1.x + region1.width) ||
-      (region2.x <= region1.x && region1.x <= region2.y + region2.width)) &&
-    ((region1.y <= region2.y && region2.y <= region1.y + region1.height) ||
-      (region2.y <= region1.y && region1.y <= region2.y + region2.height))
+    (region1.x <= region2.x ? region2.x < region1.x + region1.width : region1.x < region2.y + region2.width) &&
+    (region1.y <= region2.y ? region2.y < region1.y + region1.height : region1.y < region2.y + region2.height)
   )
 }
 

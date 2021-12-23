@@ -3,6 +3,8 @@ import type {SpecUtils} from './utils'
 import * as utils from '@applitools/utils'
 import {Context, ContextReference} from './context'
 import {Element} from './element'
+import {HelperIOS} from './helper-ios'
+import {HelperAndroid} from './helper-android'
 import {makeSpecUtils} from './utils'
 import {parseUserAgent} from './user-agent'
 import {parseCapabilities} from './capabilities'
@@ -18,6 +20,9 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
   private _driverInfo: types.DriverInfo
   private _logger: any
   private _utils: SpecUtils<TDriver, TContext, TElement, TSelector>
+  private _helper?:
+    | HelperAndroid<TDriver, TContext, TElement, TSelector>
+    | HelperIOS<TDriver, TContext, TElement, TSelector>
 
   protected readonly _spec: types.SpecDriver<TDriver, TContext, TElement, TSelector>
 
@@ -57,6 +62,9 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
   get mainContext(): Context<TDriver, TContext, TElement, TSelector> {
     return this._mainContext
   }
+  get helper() {
+    return this._helper
+  }
   get features() {
     return this._driverInfo?.features
   }
@@ -77,6 +85,9 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
   }
   get userAgent(): string {
     return this._driverInfo?.userAgent
+  }
+  get orientation(): 'portrait' | 'landscape' {
+    return this._driverInfo.orientation
   }
   get pixelRatio(): number {
     return this._driverInfo.pixelRatio ?? 1
@@ -130,7 +141,7 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
         const userAgentInfo = parseUserAgent(this._driverInfo.userAgent)
         this._driverInfo.browserName = userAgentInfo.browserName ?? this._driverInfo.browserName
         this._driverInfo.browserVersion = userAgentInfo.browserVersion ?? this._driverInfo.browserVersion
-        if (!this._driverInfo.isMobile) {
+        if (this._driverInfo.isMobile) {
           this._driverInfo.platformName ??= userAgentInfo.platformName
           this._driverInfo.platformVersion ??= userAgentInfo.platformVersion
         } else {
@@ -143,29 +154,59 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
       this._driverInfo.features.allCookies ??=
         /chrome/i.test(this._driverInfo.browserName) && !this._driverInfo.isMobile
     } else {
-      if (this.isNative) {
-        const barsHeight = await this._spec.getBarsHeight?.(this.target).catch(() => undefined as never)
+      const barsHeight = await this._spec.getBarsHeight?.(this.target).catch(() => undefined as never)
+      const displaySize = await this.getDisplaySize()
 
-        if (barsHeight) {
+      // calculate status and navigation bars sizes
+      if (barsHeight) {
+        // when status bar is overlapping content on android it returns status bar height equal to viewport height
+        if (this.isAndroid && barsHeight.statusBarHeight / this.pixelRatio < displaySize.height) {
           this._driverInfo.statusBarHeight = Math.max(this._driverInfo.statusBarHeight, barsHeight.statusBarHeight)
-          this._driverInfo.navigationBarHeight = Math.max(
-            this._driverInfo.navigationBarHeight,
-            barsHeight.navigationBarHeight,
-          )
         }
-        if (this.isAndroid) {
-          this._driverInfo.statusBarHeight /= this.pixelRatio
-          this._driverInfo.navigationBarHeight /= this.pixelRatio
-        }
+        this._driverInfo.navigationBarHeight = Math.max(
+          this._driverInfo.navigationBarHeight,
+          barsHeight.navigationBarHeight,
+        )
+      }
+      if (this.isAndroid) {
+        this._driverInfo.statusBarHeight /= this.pixelRatio
+        this._driverInfo.navigationBarHeight /= this.pixelRatio
       }
 
+      // calculate viewport size
       if (!this._driverInfo.viewportSize) {
-        const displaySize = await this.getDisplaySize()
         this._driverInfo.viewportSize = {
           width: displaySize.width,
           height: displaySize.height - this._driverInfo.statusBarHeight,
         }
       }
+
+      // calculate safe area
+      if (this.isIOS && !this._driverInfo.safeArea) {
+        this._driverInfo.safeArea = {x: 0, y: 0, ...displaySize}
+        const topElement = await this.element({type: 'class name', selector: 'XCUIElementTypeNavigationBar'})
+        if (topElement) {
+          const topRegion = await this._spec.getElementRegion(this.target, topElement.target)
+          const topOffset = topRegion.y + topRegion.height
+          this._driverInfo.safeArea.y = topOffset
+          this._driverInfo.safeArea.height -= topOffset
+        }
+        const bottomElement = await this.element({type: 'class name', selector: 'XCUIElementTypeTabBar'})
+        if (bottomElement) {
+          const bottomRegion = await this._spec.getElementRegion(this.target, bottomElement.target)
+          const bottomOffset = bottomRegion.height
+          this._driverInfo.safeArea.height -= bottomOffset
+        }
+      }
+
+      // init helper lib
+      this._helper = this.isIOS
+        ? await HelperIOS.make({spec: this._spec, driver: this, logger: this._logger})
+        : await HelperAndroid.make({spec: this._spec, driver: this, logger: this._logger})
+    }
+
+    if (this.isMobile) {
+      this._driverInfo.orientation ??= await this.getOrientation().catch(() => undefined)
     }
 
     this._logger.log('Combined driver info', this._driverInfo)
@@ -352,7 +393,13 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
   async normalizeRegion(region: types.Region): Promise<types.Region> {
     if (this.isWeb || !utils.types.has(this._driverInfo, ['viewportSize', 'statusBarHeight'])) return region
     const scaledRegion = this.isAndroid ? utils.geometry.scale(region, 1 / this.pixelRatio) : region
-    return utils.geometry.offsetNegative(scaledRegion, {x: 0, y: this.statusBarHeight})
+    const safeRegion = this.isIOS ? utils.geometry.intersect(scaledRegion, this._driverInfo.safeArea) : scaledRegion
+    const offsetRegion = utils.geometry.offsetNegative(safeRegion, {x: 0, y: this.statusBarHeight})
+    if (offsetRegion.y < 0) {
+      offsetRegion.height += offsetRegion.y
+      offsetRegion.y = 0
+    }
+    return offsetRegion
   }
 
   async getRegionInViewport(
@@ -375,9 +422,12 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
     return this.currentContext.execute(script, arg)
   }
 
-  async takeScreenshot(): Promise<Buffer | string> {
-    const data = await this._spec.takeScreenshot(this.target)
-    return utils.types.isString(data) ? data.replace(/[\r\n]+/g, '') : data
+  async takeScreenshot(): Promise<Buffer> {
+    const image = await this._spec.takeScreenshot(this.target)
+    if (utils.types.isString(image)) {
+      return Buffer.from(image.replace(/[\r\n]+/g, ''), 'base64')
+    }
+    return image
   }
 
   async getViewportSize(): Promise<types.Size> {
@@ -434,9 +484,13 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
       }
       this._logger.log(`Attempt #${attempt} to set viewport size by setting window size to`, requiredWindowSize)
       await this._spec.setWindowSize(this.target, requiredWindowSize)
-      await utils.general.sleep(3000)
-      currentWindowSize = requiredWindowSize
+
+      const prevViewportSize = currentViewportSize
       currentViewportSize = await this.getViewportSize()
+      if (utils.geometry.equals(currentViewportSize, prevViewportSize)) {
+        currentViewportSize = await this.getViewportSize()
+      }
+      currentWindowSize = requiredWindowSize
       if (utils.geometry.equals(currentViewportSize, requiredViewportSize)) return
       this._logger.log(`Attempt #${attempt} to set viewport size failed. Current viewport:`, currentViewportSize)
     }
@@ -445,13 +499,13 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
   }
 
   async getDisplaySize(): Promise<types.Size> {
-    if (this.isWeb) return
+    if (this.isWeb && !this.isMobile) return
     const size = await this._spec.getWindowSize(this.target)
     return this.isAndroid ? utils.geometry.scale(size, 1 / this.pixelRatio) : size
   }
 
   async getOrientation(): Promise<'portrait' | 'landscape'> {
-    if (this.isWeb) return
+    if (this.isWeb && !this.isMobile) return
     const orientation = this._spec.getOrientation(this.target)
     this._logger.log('Extracted device orientation:', orientation)
     return orientation

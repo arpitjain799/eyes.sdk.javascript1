@@ -1,6 +1,6 @@
 {
   "name": "@applitools/eyes-universal",
-  "version": "0.2.0",
+  "version": "0.2.3",
   "description": "Applitools Eyes Universal SDK",
   "keywords": [
     "applitools",
@@ -41,20 +41,20 @@
     "lint": "eslint '**/*.ts'",
     "build": "yarn build:dist && yarn build:bin && yarn build:zip && yarn build:tgz",
     "build:dist": "tsc",
-    "build:bin": "pkg ./dist/cli.js --out-path ./bin --compress GZip --targets node14-linux-x64,node14-macos-x64,node14-win-x64 && mv ./bin/cli-macos ./bin/eyes-universal-macos && mv ./bin/cli-linux ./bin/eyes-universal-linux && mv ./bin/cli-win.exe ./bin/eyes-universal-win.exe",
+    "build:bin": "pkg ./dist/cli.js --out-path ./bin --compress GZip --targets node16-linux-x64,node16-macos-x64,node16-win-x64 && mv ./bin/cli-macos ./bin/eyes-universal-macos && mv ./bin/cli-linux ./bin/eyes-universal-linux && mv ./bin/cli-win.exe ./bin/eyes-universal-win.exe",
     "build:zip": "zip -j ./bin/eyes-universal.zip ./bin/eyes-universal-linux ./bin/eyes-universal-macos ./bin/eyes-universal-win.exe",
     "build:tgz": "tar -czf ./bin/eyes-universal.tar.gz -C ./bin ./eyes-universal-linux ./eyes-universal-macos ./eyes-universal-win.exe",
     "test": "echo 'mocha ./test/**/*.spec.js --no-timeouts'",
     "deps": "bongo deps",
     "preversion": "bongo preversion && yarn build",
-    "version": "bongo version",
+    "version": "yarn build && bongo version",
     "postversion": "bongo postversion"
   },
   "dependencies": {
-    "@applitools/eyes-sdk-core": "12.24.4",
-    "@applitools/logger": "1.0.6",
-    "@applitools/utils": "1.2.4",
-    "@applitools/visual-grid-client": "15.8.48",
+    "@applitools/eyes-sdk-core": "12.24.9",
+    "@applitools/logger": "1.0.8",
+    "@applitools/utils": "1.2.5",
+    "@applitools/visual-grid-client": "15.8.55",
     "webdriver": "7.7.3",
     "ws": "7.4.6",
     "yargs": "16.1.0"
@@ -62,8 +62,8 @@
   "devDependencies": {
     "@applitools/sdk-coverage-tests": "^2.3.16",
     "@applitools/sdk-release-kit": "^0.13.4",
-    "@applitools/test-utils": "^1.0.9",
-    "@applitools/types": "1.0.21",
+    "@applitools/test-utils": "^1.0.10",
+    "@applitools/types": "1.0.23",
     "@types/ws": "^7.4.4",
     "@types/yargs": "^17.0.0",
     "@typescript-eslint/eslint-plugin": "^4.15.1",

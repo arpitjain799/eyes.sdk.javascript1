@@ -4,6 +4,28 @@
 ## Unreleased
 
 
+## 2.1.12 - 2021/12/22
+
+- round fractional values in `getViewportSize`
+
+## 2.1.11 - 2021/12/22
+
+- add neutral color border around marker in `addPageMarker`
+- improve handling of pages without viewport tag in `addPageMarker` and `getViewportSize`
+
+## 2.1.10 - 2021/12/20
+
+- overwrite `transform` style property with `!important` in `translateTo`
+
+## 2.1.9 - 2021/12/17
+
+- fix `scrollTo` which was returning the wrong actual scroll position due to `scroll-behavior: smooth` style on the scrollable element
+
+## 2.1.8 - 2021/12/16
+
+- fix `addPageMarker` to handle different pixel densities
+- change shape and size of marker added by `addPageMarker`
+
 ## 2.1.7 - 2021/9/9
 
 - fix `getShadowRoot` to follow convention for arguments

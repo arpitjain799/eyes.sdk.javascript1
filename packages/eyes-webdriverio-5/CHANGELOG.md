@@ -3,6 +3,29 @@
 ## Unreleased
 
 
+## 5.34.6 - 2021/12/23
+
+- updated to @applitools/eyes-sdk-core@12.24.9 (from 12.24.7)
+- updated to @applitools/visual-grid-client@15.8.55 (from 15.8.53)
+
+## 5.34.5 - 2021/12/20
+
+- updated to @applitools/eyes-sdk-core@12.24.7 (from 12.24.6)
+- updated to @applitools/spec-driver-webdriverio@1.2.3 (from 1.2.2)
+- updated to @applitools/visual-grid-client@15.8.53 (from 15.8.52)
+- updated to @applitools/spec-driver-webdriverio@1.2.5 (from 1.2.3)
+
+## 5.34.4 - 2021/12/17
+
+- updated to @applitools/eyes-sdk-core@12.24.6 (from 12.24.5)
+- updated to @applitools/visual-grid-client@15.8.52 (from 15.8.49)
+
+## 5.34.3 - 2021/12/7
+
+- updated to @applitools/eyes-sdk-core@12.24.5 (from 12.24.2)
+- updated to @applitools/visual-grid-client@15.8.49 (from 15.8.47)
+- updated to @applitools/spec-driver-webdriverio@1.2.2 (from 1.2.1)
+
 ## 5.34.2 - 2021/11/18
 
 - updated to @applitools/eyes-sdk-core@12.24.2 (from 12.24.1)

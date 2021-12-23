@@ -3,6 +3,44 @@
 ## Unreleased
 
 
+## 1.4.7 - 2021/12/22
+
+- updated to @applitools/snippets@2.1.12 (from 2.1.11)
+
+## 1.4.6 - 2021/12/22
+
+- extract device orientation in `Driver`'s `init` and provide readonly access through the `orientation` getter of the `Driver`
+- updated to @applitools/snippets@2.1.11 (from 2.1.10)
+- updated to @applitools/types@1.0.23 (from 1.0.22)
+- updated to @applitools/utils@1.2.5 (from 1.2.4)
+
+## 1.4.5 - 2021/12/20
+
+- improve native android app scrolling performance
+- fix bug with `Buffer.from` and base64
+- updated to @applitools/snippets@2.1.10 (from 2.1.9)
+
+## 1.4.3 - 2021/12/17
+
+- convert base64 result of `spec.takeScreenshot` to `Buffer` before return it from `Driver`'s `takeScreenshot` method
+- updated to @applitools/snippets@2.1.9 (from 2.1.8)
+
+## 1.4.2 - 2021/12/16
+
+- fix exports subpathes
+
+## 1.4.1 - 2021/12/16
+
+- updated to @applitools/snippets@2.1.8 (from 2.1.7)
+
+## 1.4.0 - 2021/12/16
+
+- improve native apps scrolling automation
+- fix ios safe area related issues
+- add helper library abstraction to cover appium edge cases
+- made `setViewportSize` more reliable in worst case scenario and faster in best case scenario
+- updated to @applitools/types@1.0.22 (from 1.0.21)
+
 ## 1.3.5 - 2021/11/23
 
 - updated to @applitools/types@1.0.21 (from 1.0.20)

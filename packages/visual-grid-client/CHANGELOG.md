@@ -3,6 +3,33 @@
 ## Unreleased
 
 
+## 15.8.55 - 2021/12/23
+
+- updated to @applitools/eyes-sdk-core@12.24.9 (from 12.24.8)
+
+## 15.8.54 - 2021/12/22
+
+- updated to @applitools/eyes-sdk-core@12.24.8 (from 12.24.7)
+- updated to @applitools/logger@1.0.8 (from 1.0.7)
+
+## 15.8.53 - 2021/12/20
+
+- updated to @applitools/eyes-sdk-core@12.24.7 (from 12.24.6)
+
+## 15.8.52 - 2021/12/16
+
+- update `debug` dependency to 4.3.3
+- updated to @applitools/eyes-sdk-core@12.24.6 (from 12.24.5)
+- updated to @applitools/logger@1.0.7 (from 1.0.6)
+- updated to @applitools/logger@1.0.7 (from 1.0.6)
+## 15.8.51 - 2021/12/16
+
+- update @applitools/jsdom to 1.0.4 (based on jsdom@19.0.0) in order to avoid deprecated dependencies
+
+ ## 15.8.50 - 2021/12/9
+
+- add more logs for resources fetching
+
 ## 15.8.49 - 2021/11/23
 
 - updated to @applitools/eyes-sdk-core@12.24.5 (from 12.24.4)

@@ -210,7 +210,11 @@ export async function getCapabilities(browser: Driver): Promise<Record<string, a
   return browser.getSession?.() ?? browser.capabilities
 }
 export async function getDriverInfo(browser: Driver): Promise<DriverInfo> {
-  return {sessionId: browser.sessionId}
+  const info = {sessionId: browser.sessionId} as any
+  if (browser.getContext) {
+    info.isNative = !/^WEBVIEW_/.test(await browser.getContext())
+  }
+  return info
 }
 export async function getTitle(browser: Driver): Promise<string> {
   return browser.getTitle()

@@ -3,6 +3,37 @@
 ## Unreleased
 
 
+## 12.24.9 - 2021/12/23
+
+- updated to @applitools/driver@1.4.7 (from 1.4.6)
+- updated to @applitools/screenshoter@3.3.4 (from 3.3.3)
+- updated to @applitools/snippets@2.1.12 (from 2.1.11)
+
+## 12.24.8 - 2021/12/22
+
+- updated to @applitools/driver@1.4.6 (from 1.4.5)
+- updated to @applitools/logger@1.0.8 (from 1.0.7)
+- updated to @applitools/screenshoter@3.3.3 (from 3.3.2)
+- updated to @applitools/snippets@2.1.11 (from 2.1.10)
+- updated to @applitools/types@1.0.23 (from 1.0.22)
+- updated to @applitools/utils@1.2.5 (from 1.2.4)
+
+## 12.24.7 - 2021/12/20
+
+- updated to @applitools/driver@1.4.5 (from 1.4.2)
+- updated to @applitools/screenshoter@3.3.2 (from 3.3.1)
+- updated to @applitools/snippets@2.1.10 (from 2.1.8)
+
+## 12.24.6 - 2021/12/16
+
+- update `debug` dependency to 4.3.3
+- updated to @applitools/dom-capture@11.1.0 (from 11.0.2)
+- updated to @applitools/driver@1.4.2 (from 1.3.5)
+- updated to @applitools/logger@1.0.7 (from 1.0.6)
+- updated to @applitools/screenshoter@3.3.1 (from 3.2.9)
+- updated to @applitools/snippets@2.1.8 (from 2.1.7)
+- updated to @applitools/types@1.0.22 (from 1.0.21)
+
 ## 12.24.5 - 2021/11/23
 
 - updated to @applitools/logger@1.0.6 (from 1.0.5)

@@ -1,12 +1,19 @@
 # Changelog
 
+- improve `geometry.rotate` to also rotate coordinates
+- fix `geometry.isEmpty`
+- fix `geometry.isIntersected`
+
 ## Unreleased
 
-- remove isGoogleFont method form utils and transfer it to rGridResource
 
- ## 1.2.4 - 2021/10/27
+## 1.2.5 - 2021/12/22
 
- - add a method to validate that a url is a google font resource
+- remove `guard.isGoogleFont` method form utils and transfer it to rGridResource
+
+## 1.2.4 - 2021/10/27
+
+- add a method to validate that a url is a google font resource
 
 ## 1.2.3 - 2021/9/9
 

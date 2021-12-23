@@ -3,7 +3,7 @@ const pixelmatch = require('pixelmatch')
 const {Driver} = require('@applitools/driver')
 const spec = require('@applitools/spec-driver-webdriverio')
 const makeImage = require('../../src/image')
-const screenshoter = require('../../index')
+const takeScreenshot = require('../../index')
 
 const env = {
   android: {
@@ -20,6 +20,17 @@ const env = {
       username: process.env.SAUCE_USERNAME,
       accessKey: process.env.SAUCE_ACCESS_KEY,
     },
+
+    // url: 'http://0.0.0.0:4723/wd/hub',
+    // capabilities: {
+    //   deviceName: 'Google Pixel 3a XL',
+    //   platformName: 'Android',
+    //   platformVersion: '10.0',
+    //   automationName: 'uiautomator2',
+    //   nativeWebScreenshot: true,
+    //   avd: 'Pixel_3a_XL',
+    //   app: 'https://applitools.jfrog.io/artifactory/Examples/android/1.3/app-debug.apk',
+    // },
   },
   androidx: {
     url: 'https://ondemand.saucelabs.com/wd/hub',
@@ -31,10 +42,20 @@ const env = {
       appiumVersion: '1.20.2',
       deviceName: 'Google Pixel 3a XL GoogleAPI Emulator',
       automationName: 'uiautomator2',
-      app: 'https://applitools.jfrog.io/artifactory/Examples/androidx/1.2.0/app_androidx.apk',
+      app: 'https://applitools.jfrog.io/artifactory/Examples/androidx/1.3.1/app_androidx.apk',
       username: process.env.SAUCE_USERNAME,
       accessKey: process.env.SAUCE_ACCESS_KEY,
     },
+
+    // url: 'http://0.0.0.0:4723/wd/hub',
+    // capabilities: {
+    //   deviceName: 'Google Pixel 3a XL',
+    //   platformName: 'Android',
+    //   platformVersion: '10.0',
+    //   automationName: 'uiautomator2',
+    //   avd: 'Pixel_3a_XL',
+    //   app: 'https://applitools.jfrog.io/artifactory/Examples/androidx/1.3.3/app_androidx.apk',
+    // },
   },
 }
 
@@ -90,6 +111,10 @@ describe('screenshoter', () => {
       return fullApp({type: 'non-scrollable'})
     })
 
+    it.skip('take webview screenshot', () => {
+      return webview()
+    })
+
     it('take region screenshot', () => {
       return region()
     })
@@ -122,6 +147,18 @@ describe('screenshoter', () => {
       return fullApp({type: 'recycler', x: true})
     })
 
+    it('take full app screenshot (collapsing layout)', () => {
+      return fullApp({type: 'collapsing', x: true})
+    })
+
+    it.skip('take full app screenshot (pager)', () => {
+      return fullApp({type: 'pager', x: true})
+    })
+
+    it.skip('take full app screenshot (overlapped status bar)', () => {
+      return fullApp({type: 'overlapped', x: true})
+    })
+
     it('take full element screenshot', () => {
       return fullElement()
     })
@@ -130,7 +167,7 @@ describe('screenshoter', () => {
   async function app(options = {}) {
     const expectedPath = `./test/fixtures/android/app${options.withStatusBar ? '-statusbar' : ''}.png`
 
-    const screenshot = await screenshoter({logger, driver, wait: 1500, ...options})
+    const screenshot = await takeScreenshot({logger, driver, wait: 1500, ...options})
     try {
       if (options.withStatusBar) await sanitizeStatusBar(screenshot.image)
       const actual = await screenshot.image.toObject()
@@ -142,8 +179,18 @@ describe('screenshoter', () => {
     }
   }
   async function fullApp({type, x, ...options} = {}) {
-    let buttonSelector, expectedPath
-    if (type === 'recycler') {
+    let buttonSelector, expectedPath, scrollingElementSelector
+    if (type === 'pager') {
+      buttonSelector = {type: 'id', selector: 'btn_view_pager_2_activity'}
+      expectedPath = `./test/fixtures/android/x-app-fully-pager${options.withStatusBar ? '-statusbar' : ''}.png`
+    } else if (type === 'overlapped') {
+      buttonSelector = {type: 'id', selector: 'btn_recycler_view_under_status_bar_activity'}
+      expectedPath = `./test/fixtures/android/x-app-fully-overlapped${options.withStatusBar ? '-statusbar' : ''}.png`
+    } else if (type === 'collapsing') {
+      buttonSelector = {type: 'id', selector: 'btn_recycler_view_nested_collapsing'}
+      scrollingElementSelector = {type: 'id', selector: 'recyclerView'}
+      expectedPath = `./test/fixtures/android/x-app-fully-collapsing${options.withStatusBar ? '-statusbar' : ''}.png`
+    } else if (type === 'recycler') {
       if (x) {
         buttonSelector = {type: 'id', selector: 'btn_recycler_view_activity'}
         expectedPath = `./test/fixtures/android/x-app-fully-recycler${options.withStatusBar ? '-statusbar' : ''}.png`
@@ -152,7 +199,7 @@ describe('screenshoter', () => {
         expectedPath = `./test/fixtures/android/app-fully-recycler${options.withStatusBar ? '-statusbar' : ''}.png`
       }
     } else if (type === 'non-scrollable') {
-      buttonSelector = {type: 'id', selector: 'btn_edit_text'}
+      buttonSelector = {type: 'id', selector: 'btn_activity_as_dialog'}
       expectedPath = `./test/fixtures/android/app-fully-non-scrollable${options.withStatusBar ? '-statusbar' : ''}.png`
     } else {
       buttonSelector = {type: 'id', selector: 'btn_scroll_view_footer_header'}
@@ -162,7 +209,13 @@ describe('screenshoter', () => {
     const button = await driver.element(buttonSelector)
     await button.click()
 
-    const screenshot = await screenshoter({
+    await driver.init()
+
+    if (scrollingElementSelector) {
+      await driver.currentContext.setScrollingElement(scrollingElementSelector)
+    }
+
+    const screenshot = await takeScreenshot({
       logger,
       driver,
       fully: true,
@@ -181,8 +234,28 @@ describe('screenshoter', () => {
       throw err
     }
   }
+  async function webview(options) {
+    const expectedPath = `./test/fixtures/android/webview.png`
+    const buttonSelector = {type: 'id', selector: 'btn_web_view'}
+
+    const button = await driver.element(buttonSelector)
+    await button.click()
+    await driver.target.switchContext('WEBVIEW')
+
+    await driver.init()
+
+    const screenshot = await takeScreenshot({logger, driver, wait: 1500, ...options})
+    try {
+      const actual = await screenshot.image.toObject()
+      const expected = await makeImage(expectedPath).toObject()
+      assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
+    } catch (err) {
+      await screenshot.image.debug({path: './logs', name: 'webview_failed', suffix: Date.now()})
+      throw err
+    }
+  }
   async function region(options) {
-    const screenshot = await screenshoter({
+    const screenshot = await takeScreenshot({
       logger,
       driver,
       region: {x: 30, y: 500, height: 100, width: 200},
@@ -199,7 +272,7 @@ describe('screenshoter', () => {
     }
   }
   async function fullRegion(options) {
-    const screenshot = await screenshoter({
+    const screenshot = await takeScreenshot({
       logger,
       driver,
       region: {x: 30, y: 10, height: 700, width: 200},
@@ -217,7 +290,7 @@ describe('screenshoter', () => {
     }
   }
   async function element(options) {
-    const screenshot = await screenshoter({
+    const screenshot = await takeScreenshot({
       logger,
       driver,
       region: {type: 'id', selector: 'btn_recycler_view'},
@@ -240,7 +313,7 @@ describe('screenshoter', () => {
     })
     await button.click()
 
-    const screenshot = await screenshoter({
+    const screenshot = await takeScreenshot({
       logger,
       driver,
       region: {type: 'id', selector: 'recyclerView'},
