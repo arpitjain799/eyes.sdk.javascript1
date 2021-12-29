@@ -117,7 +117,7 @@ async function link({
         const nestedResults =
           depth < maxDepth ? await task(dependency, packages, {depth: depth + 1}) : []
         const commands = ['yarn link']
-        if (runInstall) commands.push('yarn install')
+        if (runInstall) commands.push('yarn install --production')
         if (runBuild && dependency.hasBuild) commands.push('yarn build')
         exec(commands.join(' && '), {cwd: dependency.path}, async (error, stdout, stderr) => {
           resolve([{target, dependency, error, stdout, stderr}, ...nestedResults])
