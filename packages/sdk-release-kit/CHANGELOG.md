@@ -3,6 +3,30 @@
 ## Unreleased
 
 
+## 0.13.10 - 2021/12/28
+
+- updated to @applitools/utils@1.2.11 (from 1.2.10)
+
+## 0.13.9 - 2021/12/28
+
+- updated to @applitools/utils@1.2.10 (from 1.2.9)
+
+## 0.13.8 - 2021/12/28
+
+- updated to @applitools/utils@1.2.9 (from 1.2.8)
+
+## 0.13.7 - 2021/12/28
+
+- updated to @applitools/utils@1.2.8 (from 1.2.7)
+
+## 0.13.6 - 2021/12/28
+
+- updated to @applitools/utils@1.2.7 (from 1.2.6)
+
+## 0.13.5 - 2021/12/28
+
+- updated to @applitools/utils@1.2.6 (from 1.2.4)
+
 ## 0.13.4 - 2021/10/27
 
 - updated to @applitools/utils@1.2.4 (from 1.2.3)

@@ -40,32 +40,32 @@ jobs:
     outputs:
       packages: ${{steps.setup.outputs.packages}}
     steps:
-      - uses: actions/checkout@v2
+      - name: Check-out repository
+        uses: actions/checkout@v2
       - name: Setup
         uses: ./.github/actions/parser
         id: setup
         with:
           packages: ${{github.event.inputs.packages}}
           allow-variations: true
-      - name: Debug log
-        run: echo "${{toJSON(github.event.inputs)}}"
   test:
     needs: setup
     strategy:
       matrix: 
         include: ${{fromJSON(needs.setup.outputs.packages)}}
       fail-fast: false
-    runs-on: ubuntu-latest
+    runs-on: ${{matrix.os}}
     name: ${{matrix.displayName}}
     env: ${{matrix.env}}
     steps:
       - name: Check-out repository
         uses: actions/checkout@v2
       - name: Setup Node.js
-        uses: actions/setup-node@v2 
+        uses: actions/setup-node@v2
         with:
-          node-version: lts/*
+          node-version: ${{matrix.node}}
       - name: Setup xvfb
+        if: ${{matrix.xvfb}}
         run: |
           sudo apt-get install -y xvfb
           Xvfb -ac $DISPLAY -screen 0 1280x1024x16 &

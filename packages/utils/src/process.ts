@@ -73,8 +73,12 @@ export async function executeProcess(
 }
 
 export async function sh(command: string, options?: {spawnOptions?: SpawnOptions; timeout?: number}) {
-  return await executeProcess('/bin/bash', ['-c', command], {
+  return await executeProcess(command, [], {
     ...options,
-    spawnOptions: {stdio: 'inherit', ...options?.spawnOptions},
+    spawnOptions: {
+      stdio: 'inherit',
+      shell: process.platform === 'win32' ? 'C:\\Program Files\\Git\\bin\\bash.exe' : '/bin/bash',
+      ...options?.spawnOptions,
+    },
   })
 }

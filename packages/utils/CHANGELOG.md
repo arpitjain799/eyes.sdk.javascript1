@@ -1,14 +1,37 @@
 # Changelog
 
-- improve `geometry.rotate` to also rotate coordinates
-- fix `geometry.isEmpty`
-- fix `geometry.isIntersected`
-
 ## Unreleased
 
 
+## 1.2.11 - 2021/12/28
+
+- use git bush shell on windows
+
+## 1.2.10 - 2021/12/28
+
+- use default shell on windows
+
+## 1.2.9 - 2021/12/28
+
+- use default shell on windows
+
+## 1.2.8 - 2021/12/28
+
+- use default shell on windows
+
+## 1.2.7 - 2021/12/28
+
+- use `shell` option
+
+## 1.2.6 - 2021/12/28
+
+- add support for windows bash command execution
+
 ## 1.2.5 - 2021/12/22
 
+- improve `geometry.rotate` to also rotate coordinates
+- fix `geometry.isEmpty`
+- fix `geometry.isIntersected`
 - remove `guard.isGoogleFont` method form utils and transfer it to rGridResource
 
 ## 1.2.4 - 2021/10/27
