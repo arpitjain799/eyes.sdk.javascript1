@@ -3,6 +3,7 @@ const {mochaGrep} = require('@applitools/test-utils')
 const tags = {
   wd: [
     'headfull',
+    'jsonwire',
     'webdriver',
     'mobile',
     'native',
@@ -16,7 +17,10 @@ const tags = {
   ],
   cdp: ['chrome', 'all-cookies']
 }
+if (Number(process.env.APPLITOOLS_WEBDRIVERIO_MAJOR_VERSION) >= 7) tags.wd.push('jsonwire')
+
 const protocol = process.env.APPLITOOLS_WEBDRIVERIO_PROTOCOL in tags ? process.env.APPLITOOLS_WEBDRIVERIO_PROTOCOL : 'wd'
+
 
 module.exports = {
   spec: [
