@@ -8,6 +8,7 @@ const tags = {
     'mobile',
     'native',
     'native-selectors',
+    'cached-selectors',
     'chrome',
     'firefox',
     'ie',
@@ -15,7 +16,7 @@ const tags = {
     'safari',
     'all-cookies'
   ],
-  cdp: ['chrome', 'all-cookies']
+  cdp: ['chrome', 'all-cookies', 'cached-selectors']
 }
 if (Number(process.env.APPLITOOLS_WEBDRIVERIO_MAJOR_VERSION) >= 7) tags.wd.push('jsonwire')
 

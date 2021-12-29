@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- pass test config, env, and meta to test function to modify behavior
 
 ## 2.3.16 - 2021/11/9
 
