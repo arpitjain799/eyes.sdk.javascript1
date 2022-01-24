@@ -5,7 +5,7 @@ const {TestResultsError, TestResultsFormatter} = require('@applitools/eyes-sdk-c
 const uniq = require('./uniq');
 const concurrencyMsg = require('./concurrencyMsg');
 
-function processResults({results = [], totalTime, testConcurrency}) {
+function processResults({results = [], totalTime, testConcurrency, saveNewTests = true}) {
   let outputStr = '\n';
   const formatter = new TestResultsFormatter();
 
@@ -13,6 +13,8 @@ function processResults({results = [], totalTime, testConcurrency}) {
   testResults = flatten(testResults).filter(r => r.constructor.name !== 'Error');
   const unresolved = testResults.filter(r => r.getIsDifferent());
   const passedOrNew = testResults.filter(r => !r.getIsDifferent());
+  const newTests = testResults.filter(r => r.getIsNew());
+  const warnForUnsavedNewTests = !!(!saveNewTests && newTests.length);
 
   let errors = results.map(({title, resultsOrErr}) =>
     Array.isArray(resultsOrErr)
@@ -31,10 +33,10 @@ function processResults({results = [], totalTime, testConcurrency}) {
 
   outputStr += '[EYES: TEST RESULTS]:\n\n';
   if (passedOrNew.length > 0) {
-    outputStr += testResultsOutput(passedOrNew);
+    outputStr += testResultsOutput(passedOrNew, warnForUnsavedNewTests);
   }
   if (unresolved.length > 0) {
-    outputStr += testResultsOutput(unresolved);
+    outputStr += testResultsOutput(unresolved, warnForUnsavedNewTests);
   }
   if (errors.length) {
     const sortedErrors = errors.sort((a, b) => a.title.localeCompare(b.title));
@@ -70,8 +72,16 @@ function processResults({results = [], totalTime, testConcurrency}) {
         errors.length > 1 ? '' : 'an '
       }unexpected error${errors.length > 1 ? 's' : ''}.`,
     );
-  } else if (passedOrNew.length) {
+  } else if (passedOrNew.length && !warnForUnsavedNewTests) {
     outputStr += chalk.green(`\nNo differences were found!`);
+  }
+  if (warnForUnsavedNewTests) {
+    newTests.forEach(result => {
+      outputStr += chalk.red(
+        `\nTest '${result.getName()}' is new! Please approve the new baseline.`,
+      );
+    });
+    outputStr += `\n`;
   }
 
   if (hasResults) {
@@ -93,7 +103,9 @@ function processResults({results = [], totalTime, testConcurrency}) {
       }),
     );
   });
-  const exitCode = passedOrNew.length && !errors.length && !unresolved.length ? 0 : 1;
+  const exitCode =
+    !warnForUnsavedNewTests && passedOrNew.length && !errors.length && !unresolved.length ? 0 : 1;
+
   return {
     outputStr,
     formatter,
@@ -101,7 +113,7 @@ function processResults({results = [], totalTime, testConcurrency}) {
   };
 }
 
-function testResultsOutput(results) {
+function testResultsOutput(results, warnForUnsavedNewTests) {
   let outputStr = '';
   const sortedTestResults = results.sort((a, b) => a.getName().localeCompare(b.getName()));
   sortedTestResults.forEach(result => {
@@ -110,7 +122,8 @@ function testResultsOutput(results) {
       .toString()}] - `;
 
     if (result.getIsNew()) {
-      outputStr += `${storyTitle}${chalk.blue('New')}\n`;
+      const newResColor = warnForUnsavedNewTests ? 'orange' : 'blue';
+      outputStr += `${storyTitle}${chalk.keyword(newResColor)('New')}\n`;
     } else if (result.isPassed()) {
       outputStr += `${storyTitle}${chalk.green('Passed')}\n`;
     } else {

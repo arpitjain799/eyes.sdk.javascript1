@@ -50,6 +50,9 @@ function generateConfig({argv = {}, defaultConfig = {}, externalConfigParams = [
   if (result.storyDataGap === undefined) {
     result.storyDataGap = result.testConcurrency;
   }
+  if (result.saveNewTests === undefined) {
+    result.saveNewTests = true;
+  }
   return result;
 }
 
