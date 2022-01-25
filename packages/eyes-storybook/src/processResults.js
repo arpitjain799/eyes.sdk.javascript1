@@ -2,19 +2,21 @@
 const flatten = require('lodash.flatten');
 const chalk = require('./chalkify');
 const {TestResultsError, TestResultsFormatter} = require('@applitools/eyes-sdk-core');
+const utils = require('@applitools/utils');
 const uniq = require('./uniq');
 const concurrencyMsg = require('./concurrencyMsg');
 
 function processResults({results = [], totalTime, testConcurrency, saveNewTests = true}) {
   let outputStr = '\n';
   const formatter = new TestResultsFormatter();
-
+  const _toMany = utils.general.toMany;
   let testResults = results.map(r => r.resultsOrErr);
   testResults = flatten(testResults).filter(r => r.constructor.name !== 'Error');
   const unresolved = testResults.filter(r => r.getIsDifferent());
   const passedOrNew = testResults.filter(r => !r.getIsDifferent());
   const newTests = testResults.filter(r => r.getIsNew());
-  const warnForUnsavedNewTests = !!(!saveNewTests && newTests.length);
+  const newTestsSize = newTests.length;
+  const warnForUnsavedNewTests = !!(!saveNewTests && newTestsSize);
 
   let errors = results.map(({title, resultsOrErr}) =>
     Array.isArray(resultsOrErr)
@@ -54,34 +56,42 @@ function processResults({results = [], totalTime, testConcurrency, saveNewTests 
 
   if (errors.length && !unresolved.length) {
     outputStr += chalk.red(
-      `\nA total of ${errors.length} stor${
-        errors.length > 1 ? 'ies' : 'y'
-      } failed for unexpected error${errors.length > 1 ? 's' : ''}.`,
+      `\nA total of ${errors.length} stor${_toMany(errors, [
+        'ies',
+        'y',
+      ])} failed for unexpected error${_toMany(errors)}.`,
     );
   } else if (unresolved.length && !errors.length) {
     outputStr += chalk.keyword('orange')(
-      `\nA total of ${unresolved.length} difference${
-        unresolved.length > 1 ? 's were' : ' was'
-      } found.`,
+      `\nA total of ${unresolved.length} difference${_toMany(unresolved, [
+        's were',
+        ' was',
+      ])} found.`,
     );
   } else if (unresolved.length || errors.length) {
     outputStr += chalk.red(
-      `\nA total of ${unresolved.length} difference${
-        unresolved.length > 1 ? 's were' : ' was'
-      } found and ${errors.length} stor${errors.length > 1 ? 'ies' : 'y'} failed for ${
-        errors.length > 1 ? '' : 'an '
-      }unexpected error${errors.length > 1 ? 's' : ''}.`,
+      `\nA total of ${unresolved.length} difference${_toMany(unresolved, [
+        's were',
+        ' was',
+      ])} found and ${errors.length} stor${_toMany(errors, [
+        'ies',
+        'y',
+      ])} failed for ${_toMany(errors, ['', 'an '])}unexpected error${_toMany(errors)}.`,
     );
   } else if (passedOrNew.length && !warnForUnsavedNewTests) {
     outputStr += chalk.green(`\nNo differences were found!`);
   }
   if (warnForUnsavedNewTests) {
-    newTests.forEach(result => {
-      outputStr += chalk.red(
-        `\nTest '${result.getName()}' is new! Please approve the new baseline.`,
-      );
-    });
-    outputStr += `\n`;
+    const countText =
+      newTestsSize > 1
+        ? `are ${newTestsSize} new tests`
+        : `is a new test: '${newTests[0].getName()}'`;
+    outputStr += chalk.red(
+      `\n'SaveNewTests' was set as false and there ${countText}. Please approve ${_toMany(
+        newTestsSize,
+        ['their', 'its'],
+      )} baseline${_toMany(newTestsSize)} in Eyes.\n`,
+    );
   }
 
   if (hasResults) {
