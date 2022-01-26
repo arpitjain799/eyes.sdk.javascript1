@@ -50,6 +50,8 @@ before(async () => {
   cy.then({timeout: 86400000}, async () => {
     if (!connectedToUniversal) {
       await socket.connect(`ws://localhost:${Cypress.config('universalPort')}/eyes`);
+
+      
       connectedToUniversal = true;
       await socket.emit('Core.makeSDK', {
         name: 'eyes.cypress',
@@ -57,6 +59,7 @@ before(async () => {
         commands: Object.keys(spec),
         cwd: process.cwd(),
       });
+     
       manager = await socket.request(
         'Core.makeManager',
         Object.assign(
@@ -65,10 +68,11 @@ before(async () => {
           {legacy: false, type: 'vg'},
         ),
       );
-      sendRequest({
+      await sendRequest({
         command: 'sendManager',
         data: manager,
       });
+      socket.unref
     }
   });
 });
@@ -83,7 +87,7 @@ if (shouldUseBrowserHooks) {
       // });
 
       // both commands should be in after global hooks
-      socket.request('EyesManager.closeAllEyes', {manager: manager, throwErr});
+      await socket.request('EyesManager.closeAllEyes', {manager: manager, throwErr});
       // // need to look into options
       // await socket.request('Core.closeBatches', options)
     });
@@ -195,9 +199,7 @@ Cypress.Commands.add('eyesClose', async () => {
     return;
   }
   
-  return socket.request('Eyes.close', {eyes, throwErr});
-
-  
+  return await socket.request('Eyes.close', {eyes, throwErr});
 });
 
 function fillDefaultBrowserName(browser) {
