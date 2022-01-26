@@ -30,7 +30,6 @@ then call the browser after hook with closeAllEyes
 */
 
 let manager, eyes;
-let checks = [];
 
 function getGlobalConfigProperty(prop) {
   const property = Cypress.config(prop);
@@ -180,11 +179,11 @@ Cypress.Commands.add('eyesCheckWindow', args => {
     //toCheckWindowConfiguration to convert user input , but the other way around.
     // need to consider fully, rn, it's true by default but, we probably need to change that.
 
-     checks.push(socket.request('Eyes.check', {
+     await socket.request('Eyes.check', {
       eyes,
       settings: checkArgs,
       config: config,
-    }));
+    });
 
   })
 });
@@ -195,9 +194,9 @@ Cypress.Commands.add('eyesClose', async () => {
     isCurrentTestDisabled = false;
     return;
   }
-  await Promise.all(checks).then(() => {
-    return socket.request('Eyes.close', {eyes, throwErr});
-  })
+  
+  return socket.request('Eyes.close', {eyes, throwErr});
+
   
 });
 

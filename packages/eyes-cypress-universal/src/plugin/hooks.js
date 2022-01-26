@@ -1,6 +1,7 @@
 'use strict';
 const axios = require('axios');
-const Socket = require('../browser/socket');
+const makeSocket = require('./webSocket')
+
 
 function makeGlobalRunHooks() {
   let waitForBatch;
@@ -12,16 +13,22 @@ function makeGlobalRunHooks() {
 
     'after:run': async ({config}) => {
       if (!config.isTextTerminal) return;
-
+      const socket = makeSocket()
       try {
-        const throwErr = Cypress.config('failCypressOnDiff');
-        const socket = new Socket();
-        socket.connect(`http://localhost:${Cypress.config('universalPort')}/eyes`);
+        const throwErr = false
+        const results = []
+        //Cypress.config('failCypressOnDiff');
+        // const socket = new Socket();
+        // socket.connect(`http://localhost:${config.universalPort}/eyes`);
 
-        const resp = axios.get(`https/localhost:${config.localServerPort}/eyes/getAllManagers`);
-        const managers = resp && resp.managers ? resp.managers : [];
+        // const webSocket = new WebSocket(`ws://localhost:${config.universalPort}/eyes`)
+        socket.connect(`http://localhost:${config.universalPort}/eyes`)
+
+        const resp = await axios.get(`https://localhost:${config.localServerPort}/eyes/getAllManagers`);
+        const managers = resp && resp.data && resp.data.managers ? resp.data.managers : [];
         for (const manager of managers) {
-          socket.request('EyesManager.closeAllEyes', {manager, throwErr});
+          const currRes = await socket.request('EyesManager.closeAllEyes', {manager, throwErr});
+          results.push(currRes)
         }
         // fillout options
         socket.request('Core.closeBatches', options);
