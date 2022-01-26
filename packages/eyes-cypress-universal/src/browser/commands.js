@@ -30,6 +30,7 @@ then call the browser after hook with closeAllEyes
 */
 
 let manager, eyes;
+let checks = [];
 
 function getGlobalConfigProperty(prop) {
   const property = Cypress.config(prop);
@@ -141,58 +142,63 @@ Cypress.Commands.add('eyesOpen', function(args = {}) {
   );
 });
 
-Cypress.Commands.add('eyesCheckWindow', async args => {
-  Cypress.log({name: 'Eyes: check window'});
-  if (isCurrentTestDisabled) return;
-  const eyesOpenArgs = getGlobalConfigProperty('eyesOpenArgs');
-  const defaultBrowser = {
-    width: getGlobalConfigProperty('viewportWidth'),
-    height: getGlobalConfigProperty('viewportHeight'),
-  };
-  const globalArgs = {
-    browser: getGlobalConfigProperty('eyesBrowser'),
-    layoutBreakpoints: getGlobalConfigProperty('eyesLayoutBreakpoints'),
-    waitBeforeCapture: getGlobalConfigProperty('eyesWaitBeforeCapture'),
-  };
+Cypress.Commands.add('eyesCheckWindow', args => {
+  cy.then({timeout: 86400000}, async () => {
+    Cypress.log({name: 'Eyes: check window'});
+    if (isCurrentTestDisabled) return;
+    const eyesOpenArgs = getGlobalConfigProperty('eyesOpenArgs');
+    const defaultBrowser = {
+      width: getGlobalConfigProperty('viewportWidth'),
+      height: getGlobalConfigProperty('viewportHeight'),
+    };
+    const globalArgs = {
+      browser: getGlobalConfigProperty('eyesBrowser'),
+      layoutBreakpoints: getGlobalConfigProperty('eyesLayoutBreakpoints'),
+      waitBeforeCapture: getGlobalConfigProperty('eyesWaitBeforeCapture'),
+    };
 
-  const browser = eyesOpenArgs.browser || globalArgs.browser || defaultBrowser;
-  const layoutBreakpoints =
-    (args && args.layoutBreakpoints) ||
-    (eyesOpenArgs && eyesOpenArgs.layoutBreakpoints) ||
-    globalArgs.layoutBreakpoints;
+    const browser = eyesOpenArgs.browser || globalArgs.browser || defaultBrowser;
+    const layoutBreakpoints =
+      (args && args.layoutBreakpoints) ||
+      (eyesOpenArgs && eyesOpenArgs.layoutBreakpoints) ||
+      globalArgs.layoutBreakpoints;
 
-  const waitBeforeCapture =
-    (args && args.waitBeforeCapture) ||
-    (eyesOpenArgs && eyesOpenArgs.waitBeforeCapture) ||
-    globalArgs.waitBeforeCapture;
+    const waitBeforeCapture =
+      (args && args.waitBeforeCapture) ||
+      (eyesOpenArgs && eyesOpenArgs.waitBeforeCapture) ||
+      globalArgs.waitBeforeCapture;
 
-  const checkArgs = {layoutBreakpoints, browser, waitBeforeCapture};
-  if (typeof args === 'object') {
-    Object.assign(checkArgs, args);
-  } else {
-    Object.assign(checkArgs, {tag: args});
-  }
+    const checkArgs = {layoutBreakpoints, browser, waitBeforeCapture};
+    if (typeof args === 'object') {
+      Object.assign(checkArgs, args);
+    } else {
+      Object.assign(checkArgs, {tag: args});
+    }
 
-  const config = toCheckWindowConfiguration(checkArgs);
+    const config = toCheckWindowConfiguration(checkArgs);
 
-  //toCheckWindowConfiguration to convert user input , but the other way around.
-  // need to consider fully, rn, it's true by default but, we probably need to change that.
+    //toCheckWindowConfiguration to convert user input , but the other way around.
+    // need to consider fully, rn, it's true by default but, we probably need to change that.
 
-  socket.request('Eyes.check', {
-    eyes,
-    settings: checkArgs,
-    config: config,
-  });
+     checks.push(socket.request('Eyes.check', {
+      eyes,
+      settings: checkArgs,
+      config: config,
+    }));
+
+  })
 });
 
-Cypress.Commands.add('eyesClose', () => {
+Cypress.Commands.add('eyesClose', async () => {
   Cypress.log({name: 'Eyes: close'});
   if (isCurrentTestDisabled) {
     isCurrentTestDisabled = false;
     return;
   }
-
-  return socket.request('Eyes.close', {eyes, throwErr});
+  await Promise.all(checks).then(() => {
+    return socket.request('Eyes.close', {eyes, throwErr});
+  })
+  
 });
 
 function fillDefaultBrowserName(browser) {

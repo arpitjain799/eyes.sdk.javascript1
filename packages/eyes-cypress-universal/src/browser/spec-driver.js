@@ -8,26 +8,21 @@ function setRootContext() {
 }
 
 function executeScript(context, script, arg = {}) {
-  if (
+    let scriptToExecute
+    let args = arg
+    if (
     script.includes('dom-snapshot') ||
     script.includes('dom-capture') ||
     script.includes('dom-shared')
   ) {
-    const executor = new Function('arg', script);
-    const executorWrapper = `
-        function executorWrapper() { console.log(window.location.href); return  ${executor(
-          JSON.stringify(arg),
-        )} } executorWrapper()`;
-    const pollResult = window.parent[0].eval(executorWrapper);
-    // const hrefScript = 'function goo() { return window.location.href } goo()'
-    // const href1 = window.eval(hrefScript)
-    // const href2 = window.parent[0].eval(hrefScript)
-    return JSON.stringify(pollResult);
+        scriptToExecute = script
+        args = Object.assign({doc: window.parent[0].document}, arg)
   } else {
-    const scriptToExecute = script.slice(15).slice(0, -2);
-    const executor = new Function('arg', scriptToExecute);
-    return executor(arg);
+        scriptToExecute = script.slice(15).slice(0, -2);
   }
+
+  const executor = new Function('arg', scriptToExecute);
+  return executor(args);
 }
 
 function isDriver(driver) {
