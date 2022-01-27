@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-
+- convert cypress to work on top of universal
 ## 3.23.5 - 2022/1/6
 
 - updated to @applitools/dom-snapshot@4.5.12 (from 4.5.11)
