@@ -1,7 +1,5 @@
 /* global Cypress,cy,window,before,after,navigator */
 'use strict';
-const makeHandleCypressViewport = require('./makeHandleCypressViewport');
-const handleCypressViewport = makeHandleCypressViewport({cy});
 const makeSend = require('./makeSend');
 const send = makeSend(Cypress.config('localServerPort'), window.fetch);
 const makeSendRequest = require('./sendRequest');
@@ -42,44 +40,51 @@ const shouldUseBrowserHooks =
   (getGlobalConfigProperty('isInteractive') ||
     !getGlobalConfigProperty('eyesIsGlobalHooksSupported'));
 
-before(async () => {
+before(() => {
   // sendRequest({
   //   command: 'batchStart',
   //   data: {isInteractive: getGlobalConfigProperty('isInteractive')},
   // });
-  cy.then({timeout: 86400000}, async () => {
+  console.log('#### before 1');
+  cy.then({timeout: 86400000}, () => {
+    console.log('#### before 2');
     if (!connectedToUniversal) {
-      await socket.connect(`ws://localhost:${Cypress.config('universalPort')}/eyes`);
-
-      
+      console.log('#### before 3');
+      socket.connect(`ws://localhost:${Cypress.config('universalPort')}/eyes`);
+      console.log('#### before 4');
       connectedToUniversal = true;
-      await socket.emit('Core.makeSDK', {
+      socket.emit('Core.makeSDK', {
         name: 'eyes.cypress',
         version: require('../../package.json').version,
         commands: Object.keys(spec),
-        cwd: process.cwd(),
       });
-     
-      manager = await socket.request(
-        'Core.makeManager',
-        Object.assign(
-          {},
-          {concurrency: Cypress.config('eyesTestConcurrency')},
-          {legacy: false, type: 'vg'},
-        ),
-      );
-      await sendRequest({
-        command: 'sendManager',
-        data: manager,
-      });
-      socket.unref
+      console.log('#### before 5');
+      return socket
+        .request('Core.makeManager', {
+          concurrency: Cypress.config('eyesTestConcurrency'),
+          type: 'vg',
+        })
+        .then(managerRef => {
+          console.log('#### before 6');
+          manager = managerRef;
+          return sendRequest({
+            command: 'sendManager',
+            data: manager,
+          });
+        })
+        .then(ret => {
+          console.log('#### before 7');
+          return ret;
+        });
     }
   });
 });
 
 if (shouldUseBrowserHooks) {
-  after(async () => {
-    cy.then({timeout: 86400000}, async () => {
+  after(() => {
+    console.log('@@@ after 1');
+    cy.then({timeout: 86400000}, () => {
+      console.log('@@@ after 2');
       // return batchEnd().catch(e => {
       //   if (!!getGlobalConfigProperty('eyesFailCypressOnDiff')) {
       //     throw e;
@@ -87,7 +92,7 @@ if (shouldUseBrowserHooks) {
       // });
 
       // both commands should be in after global hooks
-      await socket.request('EyesManager.closeAllEyes', {manager: manager, throwErr});
+      return socket.request('EyesManager.closeAllEyes', {manager, throwErr});
       // // need to look into options
       // await socket.request('Core.closeBatches', options)
     });
@@ -129,20 +134,23 @@ Cypress.Commands.add('eyesOpen', function(args = {}) {
     }
   }
 
-  return handleCypressViewport(browser).then({timeout: 15000}, async () =>
-    // sendRequest({
-    //   command: 'open',
-    //   data: Object.assign({testName}, args, {browser, userAgent}),
-    // }),
-    cy.then({timeout: 86400000}, async () => {
-      const driverRef = refer.ref(Cypress);
-      eyes = await socket.request('EyesManager.openEyes', {
-        manager: manager,
+  const driverRef = refer.ref(cy);
+
+  return cy
+    .then({timeout: 15000}, () => {
+      // sendRequest({
+      //   command: 'open',
+      //   data: Object.assign({testName}, args, {browser, userAgent}),
+      // }),
+      return socket.request('EyesManager.openEyes', {
+        manager,
         driver: driverRef,
         config: Object.assign({testName}, args, {browser, userAgent}),
       });
-    }),
-  );
+    })
+    .then(eyesRef => {
+      eyes = eyesRef;
+    });
 });
 
 Cypress.Commands.add('eyesCheckWindow', args => {
@@ -183,13 +191,12 @@ Cypress.Commands.add('eyesCheckWindow', args => {
     //toCheckWindowConfiguration to convert user input , but the other way around.
     // need to consider fully, rn, it's true by default but, we probably need to change that.
 
-     await socket.request('Eyes.check', {
+    await socket.request('Eyes.check', {
       eyes,
       settings: checkArgs,
       config: config,
     });
-
-  })
+  });
 });
 
 Cypress.Commands.add('eyesClose', async () => {
@@ -198,7 +205,7 @@ Cypress.Commands.add('eyesClose', async () => {
     isCurrentTestDisabled = false;
     return;
   }
-  
+
   return await socket.request('Eyes.close', {eyes, throwErr});
 });
 

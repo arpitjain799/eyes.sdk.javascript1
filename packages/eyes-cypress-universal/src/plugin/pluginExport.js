@@ -10,25 +10,31 @@ function makePluginExport({startServer, eyesConfig, globalHooks}) {
     const pluginModuleExports = pluginModule.exports;
     pluginModule.exports = async function(...args) {
       const {localServerPort, closeServer} = await startServer();
+      console.log('##### localServerPort', localServerPort);
 
       // fork a new process that start universal server
-      const server = childProcess.spawn('node', [path.resolve(__dirname,'../../node_modules/@applitools/eyes-universal/dist/cli.js')], {
-        detached: true,
-        stdio: ['ignore', 'pipe', 'ignore'],
-      })
+      const server = childProcess.spawn(
+        'node',
+        [path.resolve(__dirname, '../../node_modules/@applitools/eyes-universal/dist/cli.js')],
+        {
+          detached: true,
+          stdio: ['ignore', 'pipe', 'ignore'],
+        },
+      );
       const waitForServerResponse = new Promise(resolve => {
         server.stdout.once('data', data => {
-        ;(server.stdout).unref()
-        const [port] = String(data).split('\n', 1)
-        resolve(port)
-      })
-    })
-    const universalPort = await waitForServerResponse;
-    server.unref()
-      
+          server.stdout.unref();
+          const [port] = String(data).split('\n', 1);
+          console.log('@@@ port', port);
+          resolve(port);
+        });
+      });
+      const universalPort = await waitForServerResponse;
+      server.unref();
+
       closeEyesServer = closeEyesServer = function() {
         this.send('close server');
-      }
+      };
 
       const [origOn, config] = args;
       const isGlobalHookCalledFromUserHandlerMap = new Map();
