@@ -12,11 +12,13 @@ function startApp({managersUtils, logger = console} = {}) {
   app.post('/eyes/sendManager', express.json({limit: '100mb'}), async (req, res) => {
     try {
       managersUtils.setManager(req.body);
+      res.status(200).send({success: true});
     } catch (ex) {
       logger.log('[server] error in eyes api:', ex);
       res.status(200).send({success: false, error: ex.message});
     }
   });
+
 
   app.get('/eyes/getAllManagers', async (req, res) => {
     try {
