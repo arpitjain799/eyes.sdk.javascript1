@@ -1,6 +1,7 @@
 # Change Log
 
 ## Unreleased
+- updated to @applitools/types@1.0.24 (from 1.0.23)
 
 
 
