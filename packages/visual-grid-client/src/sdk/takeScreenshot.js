@@ -28,7 +28,7 @@ async function takeScreenshot({
     resultsUrl: renderInfo.resultsUrl,
   })
 
-  const {createRGridDOMAndGetResourceMapping, render, waitForRenderedStatus} = makeRenderer({
+  const {createResourceMapping, render, waitForRenderedStatus} = makeRenderer({
     apiKey,
     showLogs,
     serverUrl,
@@ -39,16 +39,13 @@ async function takeScreenshot({
   const renderRequests = await Promise.all(
     snapshots.map(async (snapshot, index) => {
       const {resourceUrls, resourceContents, frames, cdt} = deserializeDomSnapshotResult(snapshot)
-      const {rGridDom, allResources} = await createRGridDOMAndGetResourceMapping({
-        resourceUrls,
-        resourceContents,
-        frames,
-        cdt,
+      const {dom, resources} = await createResourceMapping({
+        snapshot: {cdt, frames, resourceUrls, resourceContents},
       })
       return createRenderRequest({
         url,
-        dom: rGridDom,
-        resources: Object.values(allResources),
+        dom,
+        resources,
         browser: browsers[index],
         renderInfo: renderingInfo,
         sizeMode,

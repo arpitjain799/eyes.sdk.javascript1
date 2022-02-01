@@ -8,17 +8,15 @@ const {
 } = require('@applitools/eyes-sdk-core/shared')
 const {makeLogger} = require('@applitools/logger')
 const {ptimeoutWithError, presult} = require('@applitools/functional-commons')
-const makeGetAllResources = require('./getAllResources')
-const extractCssResources = require('./extractCssResources')
-const makeFetchResource = require('./fetchResource')
-const createResourceCache = require('./createResourceCache')
+const makeFetchResource = require('./resources/fetchResource')
+const makeProcessResources = require('./resources/processResources')
+const makePutResources = require('./resources/putResources')
+const makeCreateResourceMapping = require('./resources/createResourceMapping')
 const makeWaitForRenderedStatus = require('./waitForRenderedStatus')
 const makeGetRenderStatus = require('./getRenderStatus')
-const makePutResources = require('./putResources')
 const makeGetRenderJobInfo = require('./getRenderJobInfo')
 const makeRender = require('./render')
 const makeOpenEyes = require('./openEyes')
-const makeCreateRGridDOMAndGetResourceMapping = require('./createRGridDOMAndGetResourceMapping')
 const makeCloseBatch = require('./makeCloseBatch')
 const makeTestWindow = require('./makeTestWindow')
 const transactionThroat = require('./transactionThroat')
@@ -143,40 +141,29 @@ function makeRenderingGridClient({
     doGetIosDevicesSizes,
   } = getRenderMethods(renderWrapper)
 
-  const resourceCache = createResourceCache()
-  const fetchCache = createResourceCache()
-
   const fetchWithTimeout = (url, opt) =>
     ptimeoutWithError(fetch(url, opt), fetchResourceTimeout, 'fetch timed out')
-  const fetchResource = makeFetchResource({logger, fetchCache, fetch: fetchWithTimeout})
+  const fetchResource = makeFetchResource({fetch: fetchWithTimeout, logger})
   const putResources = makePutResources({
-    logger,
     doPutResource,
     doCheckResources,
-    fetchCache,
-    resourceCache,
     timeout: putResourcesTimeout,
+    logger,
   })
+  const processResources = makeProcessResources({putResources, fetchResource, logger})
+  const createResourceMapping = makeCreateResourceMapping({processResources, logger})
+
   const render = makeRender({logger, doRenderBatch, timeout: renderTimeout})
   const getRenderJobInfo = makeGetRenderJobInfo({doGetRenderJobInfo, timeout: renderJobInfoTimeout})
   const getRenderStatus = makeGetRenderStatus({
-    logger,
     doGetRenderStatus,
     getStatusInterval: renderStatusInterval,
+    logger,
   })
   const waitForRenderedStatus = makeWaitForRenderedStatus({
     timeout: renderStatusTimeout,
-    logger,
     getRenderStatus,
-  })
-  const getAllResources = makeGetAllResources({
-    resourceCache,
-    extractCssResources,
-    fetchResource,
     logger,
-  })
-  const createRGridDOMAndGetResourceMapping = makeCreateRGridDOMAndGetResourceMapping({
-    getAllResources,
   })
 
   const batchInfo = batch
@@ -217,13 +204,12 @@ function makeRenderingGridClient({
     ignoreBaseline,
     serverUrl,
     logger,
-    putResources,
     getRenderJobInfo,
     render,
     waitForRenderedStatus,
     concurrentRendersPerTest,
     getInitialData,
-    createRGridDOMAndGetResourceMapping,
+    createResourceMapping,
     eyesTransactionThroat,
     agentId,
     userAgent,
