@@ -1,5 +1,4 @@
 const absolutizeUrl = require('../absolutizeUrl')
-const resourceType = require('../resourceType')
 const createResource = require('./createResource')
 const extractCssResources = require('./extractCssDependencyUrls')
 const extractSvgResources = require('./extractSvgDependencyUrls')
@@ -130,12 +129,12 @@ function makeProcessResources({fetchResource, putResources, resourceCache = new 
   }
 
   async function extractDependencyUrls(resource) {
-    const rType = resourceType(resource.type)
+    const dependantType = getDependentResourceType(resource.type)
     try {
       let dependencyUrls = []
-      if (rType === 'CSS') {
+      if (dependantType === 'CSS') {
         dependencyUrls = extractCssResources(resource.value.toString())
-      } else if (rType === 'SVG') {
+      } else if (dependantType === 'SVG') {
         dependencyUrls = extractSvgResources(resource.value.toString())
       }
       return dependencyUrls.reduce((dependencyUrls, dependencyUrl) => {
@@ -145,9 +144,14 @@ function makeProcessResources({fetchResource, putResources, resourceCache = new 
         return dependencyUrls
       }, [])
     } catch (e) {
-      logger.log(`could not parse ${rType} ${resource.url}`, e)
+      logger.log(`could not parse ${dependantType} ${resource.url}`, e)
       return []
     }
+  }
+
+  function getDependentResourceType(contentType) {
+    if (/text\/css/.test(contentType)) return 'CSS'
+    else if (/image\/svg/.test(contentType)) return 'SVG'
   }
 }
 
