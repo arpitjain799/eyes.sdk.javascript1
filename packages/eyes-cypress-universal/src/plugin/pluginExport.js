@@ -24,11 +24,12 @@ function makePluginExport({startServer, eyesConfig, globalHooks}) {
       })
     })
     const universalPort = await waitForServerResponse;
+  
     server.unref()
-      
-      closeEyesServer = closeEyesServer = function() {
-        this.send('close server');
-      }
+        
+    closeEyesServer = closeEyesServer = function() {
+      this.send('close server');
+    }
 
       const [origOn, config] = args;
       const isGlobalHookCalledFromUserHandlerMap = new Map();
@@ -41,6 +42,8 @@ function makePluginExport({startServer, eyesConfig, globalHooks}) {
           }
         }
       }
+
+
       return Object.assign({}, eyesConfig, {universalPort, localServerPort}, moduleExportsResult);
 
       // This piece of code exists because at the point of writing, Cypress does not support multiple event handlers:

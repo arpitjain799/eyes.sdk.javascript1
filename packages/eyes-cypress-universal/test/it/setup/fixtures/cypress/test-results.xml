@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Mocha Tests" time="0.8880" tests="1" failures="0">
+  <testsuite name="Root Suite" timestamp="2022-02-02T01:34:22" tests="0" file="integrations/findElement.spec.js" time="0.0000" failures="0">
+  </testsuite>
+  <testsuite name="spec: findElement" timestamp="2022-02-02T01:34:22" tests="1" time="0.8880" failures="0">
+    <testcase name="spec: findElement works for findElements" time="0.8880" classname="works for findElements">
+    </testcase>
+  </testsuite>
+</testsuites>

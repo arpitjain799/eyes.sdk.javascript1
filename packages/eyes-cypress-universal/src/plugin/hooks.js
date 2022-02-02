@@ -23,7 +23,7 @@ function makeGlobalRunHooks() {
 
         // const webSocket = new WebSocket(`ws://localhost:${config.universalPort}/eyes`)
         socket.connect(`http://localhost:${config.universalPort}/eyes`)
-
+        socket.unref()
         const resp = await axios.get(`https://localhost:${config.localServerPort}/eyes/getAllManagers`);
         const managers = resp && resp.data && resp.data.managers ? resp.data.managers : [];
         for (const manager of managers) {
