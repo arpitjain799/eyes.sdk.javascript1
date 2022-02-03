@@ -3,7 +3,7 @@ Cypress.on('uncaught:exception', () => {});
 
 describe('Play Cypress', () => {
   it('Play Cypress', () => {
-    cy.visit('http://localhost:5555/breakpoints.html', {
+    cy.visit('https://example.org', {
       failOnStatusCode: false,
     });
     cy.eyesOpen({

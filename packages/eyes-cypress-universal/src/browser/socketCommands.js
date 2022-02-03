@@ -1,4 +1,4 @@
-const spec = require('./spec-driver');
+const spec = require('../../dist/browser/spec-driver');
 
 function socketCommands(socket, refer) {
   socket.command('Driver.extractContext', async target => {
@@ -6,7 +6,7 @@ function socketCommands(socket, refer) {
     return refer.deref(res);
   });
 
-  socket.command('Driver.executeScript', async ({context, script, arg}) => {
+  socket.command('Driver.executeScript', ({context, script, arg}) => {
     return spec.executeScript(context, script, arg);
   });
   socket.command('Driver.mainContext', context => {

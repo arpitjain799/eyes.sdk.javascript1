@@ -14,16 +14,16 @@ export function executeScript(context: Context, script: string, arg = {}) {
         script.includes('dom-snapshot') ||
         script.includes('dom-capture') ||
         script.includes('dom-shared')
-      ) {
-        scriptToExecute = script;
-        args = Object.assign({doc}, arg);
-      } else {
-        scriptToExecute = script.slice(15).slice(0, -2);
-      }
-
-      const executor = new Function('arg', scriptToExecute);
-      //return executor(args);
-      resolve(executor(args));
+        ) {
+          scriptToExecute = script;
+          args = Object.assign({doc}, arg);
+        } else {
+          scriptToExecute = script.slice(15).slice(0, -2);
+        }
+        
+        const executor = new Function('arg', scriptToExecute);
+        //return executor(args);
+        resolve(executor(args));
     });
   });
 }
