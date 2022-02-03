@@ -1,6 +1,6 @@
 {
   "name": "@applitools/eyes-cypress",
-  "version": "3.23.6",
+  "version": "3.23.7",
   "main": "index.js",
   "license": "SEE LICENSE IN LICENSE",
   "bin": {
@@ -48,7 +48,8 @@
     "chalk": "3.0.0",
     "cors": "2.8.5",
     "express": "4.17.1",
-    "lodash.flatten": "4.4.0"
+    "lodash.flatten": "4.4.0",
+    "throat": "6.0.1"
   },
   "devDependencies": {
     "@applitools/scripts": "^1.1.0",
@@ -68,7 +69,7 @@
     "mocha": "^8.0.1",
     "morgan": "^1.9.1",
     "ncp": "^2.0.0",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.7",
     "prettier": "^1.19.1",
     "typescript": "^3.9.2"
   },
