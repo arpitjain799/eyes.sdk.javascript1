@@ -4,6 +4,8 @@
 - updated to @applitools/types@1.0.24 (from 1.0.23)
 - allow setting 'setImageCut' also after eyes.open
 
+### 🐛 BUG FIX
+- fix window fully screenshot on native apps was taking screenshot of scrollable element, instead of a whole window
 
 ## 13.0.0 - 2022/1/19
 
