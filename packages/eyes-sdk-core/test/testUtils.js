@@ -4,7 +4,6 @@
 const fs = require('fs')
 const path = require('path')
 const {EyesBase} = require('../index')
-const makeCheck = require('../lib/new/check')
 
 const getResourcePath = fileName => path.resolve(__dirname, 'fixtures', fileName)
 
@@ -93,45 +92,6 @@ function resetEnvVars() {
   })
 }
 
-function makeSetCut({ eyes }) {
-  return async function setCut(cut) {
-    eyes.setCut(cut)
-  }
-}
-function makeGetCut({ eyes }) {
-  return async function getCut() {
-    return eyes.getCut()
-  }
-}
-class EyesMock {
-  constructor() {
-    this.appName = 'App',
-      this.testName = 'TestImageCut'
-    this._configuration = {
-      mergeConfig: () => { }
-    }
-  }
-  check() {
-    return this;
-  }
-  setCut(cut) {
-    this.cut = cut;
-  }
-  getCut() {
-    return this.cut;
-  }
-  toJSON() { }
-}
-function EyesMockWithCutFunc() {
-  const eyes = new EyesMock()
-  return {
-    check: makeCheck({ eyes }),
-    setCut: makeSetCut({ eyes }),
-    getCut: makeGetCut({ eyes }),
-  }
-}
-
-
 exports.getResourcePath = getResourcePath
 exports.getResource = getResource
 exports.getResourceAsText = getResourceAsText
@@ -141,4 +101,3 @@ exports.imageMock2String = imageMock2String
 exports.getResourcePath = getResourcePath
 exports.getResource = getResource
 exports.resetEnvVars = resetEnvVars
-exports.EyesMockWithCutFunc = EyesMockWithCutFunc
