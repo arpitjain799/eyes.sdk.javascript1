@@ -9,7 +9,7 @@ const concurrencyMsg = require('./concurrencyMsg');
 function processResults({results = [], totalTime, testConcurrency, saveNewTests = true}) {
   let outputStr = '\n';
   const formatter = new TestResultsFormatter();
-  const _toMany = utils.general.toMany;
+  const pluralize = utils.general.pluralize;
   let testResults = results.map(r => r.resultsOrErr);
   testResults = flatten(testResults).filter(r => r.constructor.name !== 'Error');
   const unresolved = testResults.filter(r => r.getIsDifferent());
@@ -56,42 +56,41 @@ function processResults({results = [], totalTime, testConcurrency, saveNewTests 
 
   if (errors.length && !unresolved.length) {
     outputStr += chalk.red(
-      `\nA total of ${errors.length} stor${_toMany(errors, [
+      `\nA total of ${errors.length} stor${pluralize(errors, [
         'ies',
         'y',
-      ])} failed for unexpected error${_toMany(errors)}.`,
+      ])} failed for unexpected error${pluralize(errors)}.`,
     );
   } else if (unresolved.length && !errors.length) {
     outputStr += chalk.keyword('orange')(
-      `\nA total of ${unresolved.length} difference${_toMany(unresolved, [
+      `\nA total of ${unresolved.length} difference${pluralize(unresolved, [
         's were',
         ' was',
       ])} found.`,
     );
   } else if (unresolved.length || errors.length) {
     outputStr += chalk.red(
-      `\nA total of ${unresolved.length} difference${_toMany(unresolved, [
+      `\nA total of ${unresolved.length} difference${pluralize(unresolved, [
         's were',
         ' was',
-      ])} found and ${errors.length} stor${_toMany(errors, [
+      ])} found and ${errors.length} stor${pluralize(errors, [
         'ies',
         'y',
-      ])} failed for ${_toMany(errors, ['', 'an '])}unexpected error${_toMany(errors)}.`,
+      ])} failed for ${pluralize(errors, ['', 'an '])}unexpected error${pluralize(errors)}.`,
     );
-  } else if (passedOrNew.length && !warnForUnsavedNewTests) {
-    outputStr += chalk.green(`\nNo differences were found!`);
-  }
-  if (warnForUnsavedNewTests) {
+  } else if (warnForUnsavedNewTests) {
     const countText =
       newTestsSize > 1
         ? `are ${newTestsSize} new tests`
         : `is a new test: '${newTests[0].getName()}'`;
     outputStr += chalk.red(
-      `\n'SaveNewTests' was set as false and there ${countText}. Please approve ${_toMany(
+      `\n'saveNewTests' was set to false and there ${countText}. Please approve ${pluralize(
         newTestsSize,
         ['their', 'its'],
-      )} baseline${_toMany(newTestsSize)} in Eyes.\n`,
+      )} baseline${pluralize(newTestsSize)} in Eyes dashboard.\n`,
     );
+  } else if (passedOrNew.length && !warnForUnsavedNewTests) {
+    outputStr += chalk.green(`\nNo differences were found!`);
   }
 
   if (hasResults) {

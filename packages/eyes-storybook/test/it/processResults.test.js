@@ -332,8 +332,6 @@ describe('processResults', () => {
     ];
     const {outputStr, exitCode} = processResults({
       results,
-      totalTime: 10000,
-      concurrency: 1,
       saveNewTests: false,
     });
     await snap(outputStr, 'two new without saving');
@@ -358,9 +356,6 @@ describe('processResults', () => {
     ];
     const {outputStr, exitCode} = processResults({
       results,
-      totalTime: 10000,
-      concurrency: 1,
-      saveNewTests: true,
     });
     await snap(outputStr, 'new with saving');
     expect(exitCode).to.eql(0);
