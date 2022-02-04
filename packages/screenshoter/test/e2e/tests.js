@@ -59,6 +59,7 @@ exports.makeDriver = async function makeDriver({type, x, local = true, orientati
         automationName: 'uiautomator2',
         nativeWebScreenshot: true,
         avdLaunchTimeout: 300000,
+        avdReadyTimeout: 300000,
         orientation: orientation ? orientation.toUpperCase() : 'PORTRAIT',
         app: 'https://applitools.jfrog.io/artifactory/Examples/android/1.3/app-debug.apk',
       },
