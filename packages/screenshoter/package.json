@@ -37,7 +37,7 @@
     "test:e2e": "mocha ./test/e2e/**/*.spec.js --no-timeouts --parallel --jobs 1",
     "setup": "yarn android:setup && yarn appium:setup",
     "android:setup": "yes | sdkmanager --licenses > /dev/null && sdkmanager --install 'cmdline-tools;latest' 'system-images;android-32;google_apis;x86_64' > /dev/null && avdmanager create avd --force --name Pixel_3a_XL --device pixel_3a_xl --package 'system-images;android-32;google_apis;x86_64'",
-    "appium:setup": "appium --address 127.0.0.1 --port 4723 --base-path /wd/hub > /dev/null &",
+    "appium:setup": "appium --address 127.0.0.1 --port 4723 --base-path /wd/hub --log-level error &",
     "docker:setup": "node ../scripts/scripts/generate-docker-compose-config.js && docker-compose up -d",
     "docker:teardown": "docker-compose down",
     "deps": "bongo deps",
