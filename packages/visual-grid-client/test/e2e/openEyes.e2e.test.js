@@ -103,6 +103,7 @@ describe('openEyes', () => {
       scriptHooks,
       ignore: [{selector: 'div[class*="bg-"]'}],
       floating: [{selector: 'img[src*="smurfs.jpg"]', maxUpOffset: 3}],
+      // TODO TEMP ==> //pageId: 'my-page',
     })
 
     const [errArr, results] = await presult(close())

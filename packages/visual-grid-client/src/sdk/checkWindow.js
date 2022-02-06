@@ -51,6 +51,7 @@ function makeCheckWindow({
     enablePatterns,
     ignoreDisplacements,
     visualGridOptions = _visualGridOptions,
+    pageId,
     closeAfterMatch,
     throwEx = true,
     variationGroupId,
@@ -179,6 +180,7 @@ function makeCheckWindow({
         scriptHooks,
         sendDom,
         visualGridOptions,
+        includeFullPageSize: !!pageId,
       })
 
       if (!wrapper.getAppEnvironment()) {
@@ -240,6 +242,7 @@ function makeCheckWindow({
         imageLocation: screenshotUrl,
         domLocation,
         selectorRegions,
+        fullPageSize,
         imagePositionInActiveFrame: imageLocation,
       } = renderStatusResult
 
@@ -286,13 +289,17 @@ function makeCheckWindow({
       }
 
       logger.verbose(`running wrapper.checkWindow for test ${testName} stepCount #${currStepCount}`)
-
+      const pageCoverageInfo = pageId && {
+        pageId,
+        ...fullPageSize,
+      }
       const checkArgs = {
         screenshotUrl,
         tag,
         domUrl: domLocation,
         checkSettings,
         imageLocation,
+        pageCoverageInfo,
         url,
         closeAfterMatch,
         throwEx,
