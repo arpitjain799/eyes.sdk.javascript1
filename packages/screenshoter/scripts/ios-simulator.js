@@ -1,12 +1,12 @@
 const utils = require('@applitools/utils')
 
-run()
+main()
 
-async function run() {
+async function main() {
   const {stdout} = await utils.process.sh(`xcrun simctl list --json devices available`, {spawnOptions: {stdio: 'pipe'}})
   const list = JSON.parse(stdout)
 
-  // console.log(list.devices)
+  console.log(list.devices['com.apple.CoreSimulator.SimRuntime.iOS-14-5'])
 
   const device = list.devices['com.apple.CoreSimulator.SimRuntime.iOS-14-5'].find(device => {
     return device.name === 'iPhone 11 Pro'
