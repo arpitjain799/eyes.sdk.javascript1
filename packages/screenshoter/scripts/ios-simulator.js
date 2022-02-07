@@ -16,8 +16,6 @@ async function main({device, osVersion, xcodeVersion, jobs}) {
     console.log(`Failed set Xcode version to ${xcodeVersion}`)
   }
 
-  await utils.process.sh('xcrun simctl list')
-
   console.log(`Installing runtime for iOS ${osVersion}...`)
   try {
     await utils.process.sh(`xcversion simulators --install='iOS ${osVersion}' --no-progress`, {
