@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- updated to @applitools/logger@1.0.10 (from 1.0.9)
 
 
 ## 1.1.7 - 2022/1/20

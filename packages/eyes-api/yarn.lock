@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@applitools/logger@1.0.9":
-  version "1.0.9"
-  resolved "https://registry.yarnpkg.com/@applitools/logger/-/logger-1.0.9.tgz#85947ec5cea1c3c2566aae9d18de118ff205b570"
-  integrity sha512-zquJDUK/UOJp6DLMJg56plWQOaSNCsibnAQAkfINVpG9TFdopG1UoMMJWP9vJK91IvIXH9tdHuP3CROrb0SRNQ==
+"@applitools/logger@1.0.10":
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/@applitools/logger/-/logger-1.0.10.tgz#1d17e90b2e3ab8a54aaed5af6006405f3e9076b4"
+  integrity sha512-+VQk6MHQQSkGz+PGYyaEmVmkO1mnV2NI4UqnRKRS0waN0RwLoFp/fA0+t+aqrFX26oONhmPoLo90CjsaaVeNsg==
   dependencies:
     "@applitools/utils" "1.2.11"
     chalk "3.0.0"
