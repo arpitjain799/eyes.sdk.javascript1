@@ -13,7 +13,7 @@ const {resolve} = require('path')
 const testLogger = require('../util/testLogger')
 const {getTestInfo} = require('@applitools/test-utils')
 
-describe('openEyes', () => {
+describe('eyesCheckWindowWithPageCover', () => {
   let baseUrl, closeServer, openEyes
   const apiKey = process.env.APPLITOOLS_API_KEY // TODO bad for tests. what to do
   let browser, page
@@ -76,18 +76,17 @@ describe('openEyes', () => {
     }
   })
 
-  it('passes with correct screenshot', async () => {
+  it(`adding pageId to 'eyes.check' should result pageCoverageInfo`, async () => {
     await page.goto(`${baseUrl}/test.html`)
 
     const {cdt, url, resourceContents, resourceUrls} = await processPage()
 
     const {checkWindow, close} = await openEyes({
-      appName: 'some app',
-      testName: 'passes with correct screenshot',
+      appName: 'some app including pageId',
+      testName: 'added pageId to checkWindow',
       browser: [
-        {width: 640, height: 480, name: 'chrome'},
+        // {width: 640, height: 480, name: 'chrome'},
         {width: 800, height: 600, name: 'firefox'},
-        {deviceName: 'iPhone X'},
       ],
       showLogs: process.env.APPLITOOLS_SHOW_LOGS,
     })
@@ -103,114 +102,16 @@ describe('openEyes', () => {
       scriptHooks,
       ignore: [{selector: 'div[class*="bg-"]'}],
       floating: [{selector: 'img[src*="smurfs.jpg"]', maxUpOffset: 3}],
+      pageId: 'my-page',
     })
 
     const [errArr, results] = await presult(close())
     errArr && console.log(errArr)
-    expect(errArr).to.be.undefined
-
-    expect(results.length).to.eq(3)
-    expect(results.map(r => r.getStatus())).to.eql(['Passed', 'Passed', 'Passed'])
-
-    const expectedIgnoreRegions = [
-      [
-        {left: 8, top: 412, width: 151, height: 227},
-        {left: 8, top: 667, width: 151, height: 227},
-        {left: 8, top: 922, width: 151, height: 227},
-      ],
-      [
-        {left: 8, top: 418, width: 151, height: 227},
-        {left: 8, top: 674, width: 151, height: 227},
-        {left: 8, top: 930, width: 151, height: 227},
-      ],
-      [
-        {left: 8, top: 471, width: 151, height: 227},
-        {left: 8, top: 726, width: 151, height: 227},
-        {left: 8, top: 981, width: 151, height: 227},
-      ],
-    ]
-
-    const expectedFloatingRegions = [
-      [
-        {
-          maxLeftOffset: 0,
-          maxRightOffset: 0,
-          maxUpOffset: 3,
-          maxDownOffset: 0,
-          left: 8,
-          top: 163,
-          width: 151,
-          height: 227,
-        },
-      ],
-      [
-        {
-          maxLeftOffset: 0,
-          maxRightOffset: 0,
-          maxUpOffset: 3,
-          maxDownOffset: 0,
-          left: 8,
-          top: 168,
-          width: 151,
-          height: 227,
-        },
-      ],
-      [
-        {
-          maxLeftOffset: 0,
-          maxRightOffset: 0,
-          maxUpOffset: 3,
-          maxDownOffset: 0,
-          left: 8,
-          top: 221,
-          width: 151,
-          height: 227,
-        },
-      ],
-    ]
-
     for (const [index, testResults] of results.entries()) {
       const testData = await getTestInfo(testResults.toJSON(), apiKey)
-      expect(testData.actualAppOutput[0].imageMatchSettings.ignore).to.eql(
-        expectedIgnoreRegions[index],
-      )
-      expect(testData.actualAppOutput[0].imageMatchSettings.floating).to.eql(
-        expectedFloatingRegions[index],
-      )
+      //console.log('testData', index, testData.actualAppOutput[0])
+      expect(testData.actualAppOutput[0].pageCoverageInfo.width).to.eql(800)
+      expect(testData.actualAppOutput[0].pageCoverageInfo.height).to.eql(600)
     }
-  })
-
-  it('fails with incorrect screenshot', async () => {
-    await page.goto(`${baseUrl}/test.html`)
-
-    const {cdt, url, resourceContents, resourceUrls} = await processPage()
-
-    const {checkWindow, close} = await openEyes({
-      appName: 'some app',
-      testName: 'fails with incorrect screenshot',
-      browser: [
-        {width: 640, height: 480, name: 'chrome'},
-        {width: 800, height: 600, name: 'firefox'},
-        {deviceName: 'iPhone X'},
-      ],
-      showLogs: process.env.APPLITOOLS_SHOW_LOGS,
-    })
-
-    const scriptHooks = {
-      beforeCaptureScreenshot: "document.body.style.backgroundColor = 'gold'",
-    }
-
-    cdt.find(node => node.nodeValue === "hi, I'm red").nodeValue = 'WRONG TEXT'
-
-    checkWindow({
-      snapshot: {resourceUrls, resourceContents, cdt},
-      tag: 'first',
-      url,
-      scriptHooks,
-    })
-
-    const [results] = await presult(close())
-    expect(results.length).to.eq(3)
-    results.map(r => expect(r).to.be.instanceOf(DiffsFoundError))
   })
 })
