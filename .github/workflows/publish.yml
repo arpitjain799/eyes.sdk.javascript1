@@ -197,11 +197,11 @@ jobs:
           name: screenshoter-logs
           retention-days: 2
           path: packages/${{fromJSON(needs.setup.outputs.packages).screenshoter.dirname}}/logs
-      - name: Publish to NPM
-        uses: ./.github/actions/publish
-        with:
-          package: ${{fromJSON(needs.setup.outputs.packages).screenshoter.dirname}}
-          version: ${{fromJSON(needs.setup.outputs.packages).screenshoter.releaseVersion}}
+      # - name: Publish to NPM
+      #   uses: ./.github/actions/publish
+      #   with:
+      #     package: ${{fromJSON(needs.setup.outputs.packages).screenshoter.dirname}}
+      #     version: ${{fromJSON(needs.setup.outputs.packages).screenshoter.releaseVersion}}
   driver:
     needs: [setup, types, utils, snippets]
     if: ${{fromJSON(needs.setup.outputs.packages).driver && !failure() && !cancelled()}}
