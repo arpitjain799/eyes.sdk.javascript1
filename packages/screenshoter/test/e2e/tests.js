@@ -40,7 +40,7 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger})
       capabilities: {
         udid: iosSimulatorIds[workerId],
         wdaLocalPort: 8100 + workerId,
-        derivedDataPath: `/Users/jonahss/Library/Developer/Xcode/DerivedData/Appium-${workerId}`,
+        derivedDataPath: `~/Library/Developer/Xcode/DerivedData/Appium-${workerId}`,
         browserName: app === 'safari' ? app : '',
         app: apps[app || type],
         deviceName: 'iPhone 11 Pro',
