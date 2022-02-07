@@ -19,7 +19,7 @@ async function main({device, osVersion, xcodeVersion, jobs}) {
   const runtimesOutput = await utils.process.sh(`xcrun simctl list runtimes --json`, {spawnOptions: {stdio: 'pipe'}})
   const runtimes = JSON.parse(runtimesOutput.stdout)
 
-  if (runtimes.some(runtime => runtime.name === `iOS ${osVersion}`)) {
+  if (runtimes.runtimes.some(runtime => runtime.name === `iOS ${osVersion}`)) {
     console.log(`Runtime for iOS ${osVersion} already installed.`)
   } else {
     console.log(`Installing runtime for iOS ${osVersion}...`)
