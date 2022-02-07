@@ -125,17 +125,11 @@ exports.makeDriver = async function makeDriver({type, x, local = true, orientati
 
 async function sanitizeAndroidStatusBar(image) {
   const leftPatchImage = makeImage({
-    width: 120,
-    height: 18,
-    data: Buffer.alloc(120 * 18 * 4, Buffer.from([0, 0xed, 0xed, 0xff])),
+    width: 425,
+    height: 17,
+    data: Buffer.alloc(425 * 17 * 4, Buffer.from([0, 0xed, 0xed, 0xff])),
   })
-  await image.copy(leftPatchImage, {x: 18, y: 3})
-  const rightPatchImage = makeImage({
-    width: 50,
-    height: 18,
-    data: Buffer.alloc(50 * 18 * 4, Buffer.from([0, 0xed, 0xed, 0xff])),
-  })
-  await image.copy(rightPatchImage, {x: 369, y: 3})
+  await image.copy(leftPatchImage, {x: 3, y: 3})
 }
 
 async function sanitizeIOSStatusBar(image) {
