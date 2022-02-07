@@ -1,6 +1,10 @@
 const utils = require('@applitools/utils')
 
-main()
+main({
+  device: 'iPhone 11 Pro',
+  osVersion: '14.5', // android 10
+  jobs: process.env.MOCHA_JOBS ? Number(process.env.MOCHA_JOBS) : 2,
+})
 
 async function main() {
   const {stdout} = await utils.process.sh(`xcrun simctl list --json devices available`, {spawnOptions: {stdio: 'pipe'}})
