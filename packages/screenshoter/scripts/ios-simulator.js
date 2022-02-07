@@ -4,10 +4,20 @@ const utils = require('@applitools/utils')
 main({
   device: 'iPhone 11 Pro',
   osVersion: '14.5',
+  xcodeVersion: '12.5.1',
   jobs: process.env.MOCHA_JOBS ? Number(process.env.MOCHA_JOBS) : 2,
 })
 
-async function main({device, osVersion, jobs}) {
+async function main({device, osVersion, xcodeVersion, jobs}) {
+  console.log(`Setting Xcode version to ${xcodeVersion}...`)
+  try {
+    await utils.process.sh(`xcversion select ${xcodeVersion}`, {spawnOptions: {stdio: 'pipe'}})
+  } catch (err) {
+    console.log(`Failed set Xcode version to ${xcodeVersion}`)
+  }
+
+  await utils.process.sh('xcrun simctl list')
+
   console.log(`Installing runtime for iOS ${osVersion}...`)
   try {
     await utils.process.sh(`xcversion simulators --install='iOS ${osVersion}' --no-progress`, {

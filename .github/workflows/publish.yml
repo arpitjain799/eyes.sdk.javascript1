@@ -180,12 +180,6 @@ jobs:
           node-version: lts/*
       - name: Add cli tools to PATH
         run: echo "$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/tools/bin:$ANDROID_HOME/emulator" >> "${GITHUB_PATH}"
-      - name: Cache iOS dependencies
-        uses: actions/cache@v2
-        with:
-          key: ios-14-5-simulator
-          path: |
-            '/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 14.5.simruntime'
       - name: Run tests
         uses: ./.github/actions/tests
         with:
