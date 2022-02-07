@@ -25,7 +25,7 @@ async function main({device, apiLevel, port, jobs}) {
     Array.from({length: jobs}, (_, index) => runEmulator({device, apiLevel, port, index})),
   )
 
-  fs.writeFileSync('./.env', `ANDROID_EMULATOR_UDID=${emulatorIds.join(',')}`, {flag: 'a'})
+  fs.writeFileSync('./.env', `ANDROID_EMULATOR_UDID=${emulatorIds.join(',')}\n`, {flag: 'a'})
 
   console.log('Done! All emulators are ready to use.')
 }
@@ -40,12 +40,12 @@ async function runEmulator({device, apiLevel, port, index}) {
     {spawnOptions: {stdio: 'pipe'}},
   )
 
-  console.log(`Running emulator on port ${adbPort}...`)
+  console.log(`Running emulator for device with name ${avdName}...`)
   await utils.process.sh(`emulator -no-boot-anim -ports ${adbPort},${adbPort + 1} -avd ${avdName} &`, {
     spawnOptions: {detached: true, stdio: 'ignore'},
   })
 
-  console.log(`Waiting for the emulator on port ${adbPort} to boot...`)
+  console.log(`Waiting for the emulator for device with name ${avdName} to boot...`)
   const emulatorId = `emulator-${adbPort}`
   let isBooted = false
   do {

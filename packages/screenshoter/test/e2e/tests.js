@@ -6,6 +6,7 @@ const makeImage = require('../../src/image')
 const takeScreenshot = require('../../src/take-screenshot')
 
 exports.makeDriver = async function makeDriver({type, app, orientation, logger}) {
+  const workerId = process.env.MOCHA_WORKER_ID ? Number(process.env.MOCHA_WORKER_ID) : 0
   const androidEmulatorIds = process.env.ANDROID_EMULATOR_UDID
     ? process.env.ANDROID_EMULATOR_UDID.split(',')
     : ['emulator-5554']
@@ -20,7 +21,7 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger})
     android: {
       url: 'http://0.0.0.0:4723/wd/hub',
       capabilities: {
-        udid: androidEmulatorIds[process.env.MOCHA_WORKER_ID || 0],
+        udid: androidEmulatorIds[workerId],
         browserName: app === 'chrome' ? app : '',
         app: apps[app || type],
         deviceName: 'Google Pixel 3a XL',
@@ -34,7 +35,8 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger})
     ios: {
       url: 'http://0.0.0.0:4723/wd/hub',
       capabilities: {
-        udid: iosSimulatorIds[process.env.MOCHA_WORKER_ID || 0],
+        udid: iosSimulatorIds[workerId],
+        wdaLocalPort: 8100 + workerId,
         browserName: app === 'safari' ? app : '',
         app: apps[app || type],
         deviceName: 'iPhone 11 Pro',
