@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- PageCoverage - add support to 'pageId' as 'includeFullPageSize' in order to retrieve the 'fullPageSize'
 
 ## 15.8.63 - 2022/2/4
 
