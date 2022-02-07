@@ -9,12 +9,12 @@ main({
 })
 
 async function main({device, apiLevel, port, jobs}) {
-  console.log('Accepting android sdk licenses...')
+  console.log('Accepting Android SDK licenses...')
   await utils.process.sh(`yes | sdkmanager --licenses`, {
     spawnOptions: {stdio: 'pipe'},
   })
 
-  console.log('Installing required dependencies...')
+  console.log('Installing dependencies...')
   await utils.process.sh(
     `sdkmanager --install 'emulator' 'cmdline-tools;latest' 'platforms;android-${apiLevel}' 'system-images;android-${apiLevel};google_apis;x86_64'`,
     {spawnOptions: {stdio: 'pipe'}},
@@ -34,18 +34,18 @@ async function runEmulator({device, apiLevel, port, index}) {
   const adbPort = port + index * 2
   const deviceName = device.toLowerCase().replace(/\s/g, '_')
   const avdName = `${deviceName}_${adbPort}`
-  console.log(`Creating AVD (android virtual device) with name ${avdName}...`)
+  console.log(`Creating emulator with name "${avdName}"...`)
   await utils.process.sh(
     `avdmanager create avd --force --name ${avdName} --device ${deviceName} --package 'system-images;android-${apiLevel};google_apis;x86_64'`,
     {spawnOptions: {stdio: 'pipe'}},
   )
 
-  console.log(`Running emulator for device with name ${avdName}...`)
+  console.log(`Running emulator with name "${avdName}"...`)
   await utils.process.sh(`emulator -no-boot-anim -ports ${adbPort},${adbPort + 1} -avd ${avdName} &`, {
     spawnOptions: {detached: true, stdio: 'ignore'},
   })
 
-  console.log(`Waiting for the emulator for device with name ${avdName} to boot...`)
+  console.log(`Waiting for the emulator with name "${avdName}" to boot...`)
   const emulatorId = `emulator-${adbPort}`
   let isBooted = false
   do {

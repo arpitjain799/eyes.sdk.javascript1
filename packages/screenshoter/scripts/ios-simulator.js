@@ -16,13 +16,20 @@ async function main({device, osVersion, xcodeVersion, jobs}) {
     console.log(`Failed set Xcode version to ${xcodeVersion}`)
   }
 
-  console.log(`Installing runtime for iOS ${osVersion}...`)
-  try {
-    await utils.process.sh(`xcversion simulators --install='iOS ${osVersion}' --no-progress`, {
-      spawnOptions: {stdio: 'pipe'},
-    })
-  } catch (err) {
-    if (!err.stdout.includes('Simulator is already installed')) throw err
+  const runtimesOutput = await utils.process.sh(`xcrun simctl list runtimes --json`, {spawnOptions: {stdio: 'pipe'}})
+  const runtimes = JSON.parse(runtimesOutput.stdout)
+
+  if (runtimes.some(runtime => runtime.name === `iOS ${osVersion}`)) {
+    console.log(`Runtime for iOS ${osVersion} already installed.`)
+  } else {
+    console.log(`Installing runtime for iOS ${osVersion}...`)
+    try {
+      await utils.process.sh(`xcversion simulators --install='iOS ${osVersion}' --no-progress`, {
+        spawnOptions: {stdio: 'pipe'},
+      })
+    } catch (err) {
+      if (!err.stdout.includes('Simulator is already installed')) throw err
+    }
   }
 
   console.log('Running simulators...')
@@ -36,7 +43,7 @@ async function main({device, osVersion, xcodeVersion, jobs}) {
 }
 
 async function runSimulator({device, osVersion, index}) {
-  console.log(`Looking for devices for ${device} and iOS ${osVersion}...`)
+  console.log(`Looking for simulators for ${device} with iOS ${osVersion}...`)
   const listOutput = await utils.process.sh(`xcrun simctl list --json`, {spawnOptions: {stdio: 'pipe'}})
   const list = JSON.parse(listOutput.stdout)
   const runtime = list.runtimes.find(runtime => runtime.name === `iOS ${osVersion}`)
@@ -49,14 +56,14 @@ async function runSimulator({device, osVersion, index}) {
   if (devices[index]) {
     simulatorId = devices[index].udid
     simulatorName = devices[index].name
-    console.log(`Already existed device for ${device} and iOS ${osVersion} found with name ${devices[index].name}`)
+    console.log(`Simulator for ${device} with iOS ${osVersion} was found with name "${devices[index].name}"`)
     if (devices[index].state === 'Booted') {
-      console.log(`Simulator for device with name ${simulatorName} already booted`)
+      console.log(`Simulator with name "${simulatorName}" already booted.`)
       return simulatorId
     }
   } else {
     simulatorName = `${device} (index: ${index})`
-    console.log(`Creating device with name ${simulatorName}...`)
+    console.log(`Creating simulator with name "${simulatorName}"...`)
     const createOutput = await utils.process.sh(
       `xcrun simctl create '${simulatorName}' '${deviceType.identifier}' '${runtime.identifier}'`,
       {spawnOptions: {stdio: 'pipe'}},
@@ -64,10 +71,10 @@ async function runSimulator({device, osVersion, index}) {
     simulatorId = createOutput.stdout.replace(/[\t\r\n\s]+/g, '')
   }
 
-  console.log(`Running simulator for device with name ${simulatorName}...`)
+  console.log(`Running simulator with name "${simulatorName}"...`)
   await utils.process.sh(`xcrun simctl boot '${simulatorId}'`, {spawnOptions: {stdio: 'pipe'}})
 
-  console.log(`Waiting for the simulator with name ${simulatorName} to boot...`)
+  console.log(`Waiting for the simulator with name "${simulatorName}" to boot...`)
   await utils.process.sh(`xcrun simctl bootstatus '${simulatorId}'`, {spawnOptions: {stdio: 'pipe'}})
 
   return simulatorId
