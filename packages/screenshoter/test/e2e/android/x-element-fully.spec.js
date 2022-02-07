@@ -5,7 +5,7 @@ describe('screenshoter androidx app', () => {
   let driver, destroyDriver
 
   before(async () => {
-    ;[driver, destroyDriver] = await makeDriver({type: 'android', x: true, logger})
+    ;[driver, destroyDriver] = await makeDriver({type: 'android', app: 'androidx', logger})
   })
 
   after(async () => {

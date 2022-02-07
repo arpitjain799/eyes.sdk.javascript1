@@ -71,6 +71,12 @@ runs:
 
         echo "::group::Setting up test environment"
         npm run setup --if-present
+        if [ -e .env ]
+        then
+          set -o allexport
+          source .env
+          set +o allexport
+        fi
         echo "::endgroup::"
 
         echo "::group::Running tests"

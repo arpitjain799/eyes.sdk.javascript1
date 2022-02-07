@@ -5,121 +5,47 @@ const {Driver} = require('@applitools/driver')
 const makeImage = require('../../src/image')
 const takeScreenshot = require('../../src/take-screenshot')
 
-exports.makeDriver = async function makeDriver({type, x, local = true, orientation, logger}) {
+exports.makeDriver = async function makeDriver({type, app, orientation, logger}) {
+  const androidEmulatorIds = process.env.ANDROID_EMULATOR_UDID
+    ? process.env.ANDROID_EMULATOR_UDID.split(',')
+    : ['emulator-5554']
+  const iosSimulatorIds = process.env.IOS_SIMULATOR_UDID ? process.env.IOS_SIMULATOR_UDID.split(',') : []
+  const apps = {
+    android: 'https://applitools.jfrog.io/artifactory/Examples/android/1.3/app-debug.apk',
+    androidx: 'https://applitools.jfrog.io/artifactory/Examples/androidx/1.3.3/app_androidx.apk',
+    ios: 'https://applitools.jfrog.io/artifactory/Examples/IOSTestApp/1.9/app/IOSTestApp.zip',
+  }
+
   const envs = {
-    'ios-web': {
-      url: 'https://ondemand.saucelabs.com/wd/hub',
-      capabilities: {
-        name: 'iOS Web Screenshoter Test',
-        deviceName: 'iPhone 11 Pro Simulator',
-        browserName: 'safari',
-        platformName: 'iOS',
-        platformVersion: '14.5',
-        appiumVersion: '1.20.1',
-        automationName: 'XCUITest',
-        deviceOrientation: orientation ? orientation.toUpperCase() : 'PORTRAIT',
-        username: process.env.SAUCE_USERNAME,
-        accessKey: process.env.SAUCE_ACCESS_KEY,
-      },
-    },
-    'ios-web-local': {
-      url: 'http://0.0.0.0:4723/wd/hub',
-      capabilities: {
-        deviceName: 'iPhone 11 Pro',
-        browserName: 'safari',
-        platformName: 'iOS',
-        platformVersion: '14.5',
-        automationName: 'XCUITest',
-        orientation: orientation ? orientation.toUpperCase() : 'PORTRAIT',
-      },
-    },
     android: {
-      url: 'https://ondemand.saucelabs.com/wd/hub',
-      capabilities: {
-        name: 'Android Screenshoter Test',
-        browserName: '',
-        platformName: 'Android',
-        platformVersion: '7.0',
-        appiumVersion: '1.20.2',
-        deviceName: 'Samsung Galaxy S8 FHD GoogleAPI Emulator',
-        automationName: 'uiautomator2',
-        deviceOrientation: orientation ? orientation.toUpperCase() : 'PORTRAIT',
-        app: 'https://applitools.jfrog.io/artifactory/Examples/android/1.3/app-debug.apk',
-        username: process.env.SAUCE_USERNAME,
-        accessKey: process.env.SAUCE_ACCESS_KEY,
-      },
-    },
-    'android-local': {
       url: 'http://0.0.0.0:4723/wd/hub',
       capabilities: {
-        avd: 'Pixel_3a_XL',
+        udid: androidEmulatorIds[process.env.MOCHA_WORKER_ID || 0],
+        browserName: app === 'chrome' ? app : '',
+        app: apps[app || type],
         deviceName: 'Google Pixel 3a XL',
         platformName: 'Android',
         platformVersion: '10.0',
         automationName: 'uiautomator2',
+        orientation: orientation ? orientation.toUpperCase() : 'PORTRAIT',
         nativeWebScreenshot: true,
-        avdLaunchTimeout: 300000,
-        avdReadyTimeout: 300000,
-        orientation: orientation ? orientation.toUpperCase() : 'PORTRAIT',
-        app: 'https://applitools.jfrog.io/artifactory/Examples/android/1.3/app-debug.apk',
-      },
-    },
-    'android-x': {
-      url: 'https://ondemand.saucelabs.com/wd/hub',
-      capabilities: {
-        name: 'AndroidX Screenshoter Test',
-        browserName: '',
-        platformName: 'Android',
-        platformVersion: '10.0',
-        appiumVersion: '1.20.2',
-        deviceName: 'Google Pixel 3a XL GoogleAPI Emulator',
-        automationName: 'uiautomator2',
-        deviceOrientation: orientation ? orientation.toUpperCase() : 'PORTRAIT',
-        app: 'https://applitools.jfrog.io/artifactory/Examples/androidx/1.3.1/app_androidx.apk',
-        username: process.env.SAUCE_USERNAME,
-        accessKey: process.env.SAUCE_ACCESS_KEY,
-      },
-    },
-    'android-x-local': {
-      url: 'http://0.0.0.0:4723/wd/hub',
-      capabilities: {
-        avd: 'Pixel_3a_XL',
-        deviceName: 'Google Pixel 3a XL',
-        platformName: 'Android',
-        platformVersion: '10.0',
-        automationName: 'uiautomator2',
-        orientation: orientation ? orientation.toUpperCase() : 'PORTRAIT',
-        app: 'https://applitools.jfrog.io/artifactory/Examples/androidx/1.3.3/app_androidx.apk',
       },
     },
     ios: {
-      url: 'https://ondemand.saucelabs.com/wd/hub',
-      capabilities: {
-        name: 'iOS Screenshoter Test',
-        deviceName: 'iPhone 11 Pro Simulator',
-        platformName: 'iOS',
-        platformVersion: '14.5',
-        appiumVersion: '1.21.0',
-        automationName: 'XCUITest',
-        deviceOrientation: orientation ? orientation.toUpperCase() : 'PORTRAIT',
-        app: 'https://applitools.jfrog.io/artifactory/Examples/IOSTestApp/1.9/app/IOSTestApp.zip',
-        username: process.env.SAUCE_USERNAME,
-        accessKey: process.env.SAUCE_ACCESS_KEY,
-      },
-    },
-    'ios-local': {
       url: 'http://0.0.0.0:4723/wd/hub',
       capabilities: {
+        udid: iosSimulatorIds[process.env.MOCHA_WORKER_ID || 0],
+        browserName: app === 'safari' ? app : '',
+        app: apps[app || type],
         deviceName: 'iPhone 11 Pro',
         platformName: 'iOS',
         platformVersion: '14.5',
         automationName: 'XCUITest',
         orientation: orientation ? orientation.toUpperCase() : 'PORTRAIT',
-        app: 'https://applitools.jfrog.io/artifactory/Examples/IOSTestApp/1.9/app/IOSTestApp.zip',
       },
     },
   }
-  const [browser, destroyBrowser] = await spec.build(envs[`${type}${x ? '-x' : ''}${local ? '-local' : ''}`])
+  const [browser, destroyBrowser] = await spec.build(envs[type])
   return [await new Driver({driver: browser, spec, logger}).init(), destroyBrowser]
 }
 
