@@ -1,4 +1,4 @@
-const {makeDriver, test} = require('../tests')
+const {makeDriver, sleep, test} = require('../e2e')
 
 describe('screenshoter androidx app', () => {
   const logger = {log: () => {}, warn: () => {}, error: () => {}, verbose: () => {}}
@@ -12,17 +12,18 @@ describe('screenshoter androidx app', () => {
     await destroyDriver()
   })
 
-  it('take full app screenshot (collapsing layout)', async () => {
-    const button = await driver.element({type: 'id', selector: 'btn_recycler_view_nested_collapsing'})
+  it('take full element screenshot', async () => {
+    const button = await driver.element({type: 'id', selector: 'btn_recycler_view_in_scroll_view_activity'})
     await button.click()
-    await driver.init()
-    await driver.currentContext.setScrollingElement({type: 'id', selector: 'recyclerView'})
+    await sleep(3000)
 
-    await test({
+    await driver.init()
+
+    return test({
       type: 'android',
-      tag: 'x-app-fully-collapsing',
+      tag: 'element-fully',
+      region: {type: 'id', selector: 'recyclerView'},
       fully: true,
-      framed: true,
       scrollingMode: 'scroll',
       wait: 1500,
       driver,
