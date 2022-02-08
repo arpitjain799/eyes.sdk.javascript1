@@ -85,8 +85,8 @@ describe('eyesCheckWindowWithPageCover', () => {
       appName: 'some app including pageId',
       testName: 'added pageId to checkWindow',
       browser: [
-        // {width: 640, height: 480, name: 'chrome'},
-        {width: 800, height: 600, name: 'firefox'},
+        //{width: 640, height: 480, name: 'chrome'},
+        {width: 400, height: 600, name: 'firefox'}, // <= making the dimentions smaller than the content in order to ensure result captures the real content size
       ],
       showLogs: process.env.APPLITOOLS_SHOW_LOGS,
     })
@@ -110,8 +110,11 @@ describe('eyesCheckWindowWithPageCover', () => {
     for (const [index, testResults] of results.entries()) {
       const testData = await getTestInfo(testResults.toJSON(), apiKey)
       //console.log('testData', index, testData.actualAppOutput[0])
-      expect(testData.actualAppOutput[0].pageCoverageInfo.width).to.eql(800)
-      expect(testData.actualAppOutput[0].pageCoverageInfo.height).to.eql(600)
+      expect(testData.actualAppOutput[0].pageCoverageInfo.width).to.eq(450, 'Width match content')
+      expect(testData.actualAppOutput[0].pageCoverageInfo.height).to.eq(
+        1680,
+        'Height match content',
+      )
     }
   })
 })
