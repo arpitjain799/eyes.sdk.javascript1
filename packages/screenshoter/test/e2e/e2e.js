@@ -88,6 +88,7 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger})
         autoAcceptAlerts: false,
         autoDismissAlerts: false,
         webviewConnectRetries: 12,
+        startIWDP: true,
         usePrebuiltWDA: true,
         isHeadless: true,
         browserName: app === 'safari' ? app : '',
