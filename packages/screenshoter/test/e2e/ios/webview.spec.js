@@ -1,7 +1,7 @@
 const utils = require('@applitools/utils')
 const {makeDriver, test} = require('../tests')
 
-describe('screenshoter ios app', () => {
+describe.skip('screenshoter ios app', () => {
   const logger = {log: () => {}, warn: () => {}, error: () => {}, verbose: () => {}}
   let driver, destroyDriver
 
