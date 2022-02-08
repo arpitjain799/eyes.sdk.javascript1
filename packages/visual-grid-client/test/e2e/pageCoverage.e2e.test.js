@@ -87,7 +87,7 @@ describe('eyesCheckWindowWithPageCover', () => {
       testName: 'added pageId to checkWindow',
       browser: [
         //{width: 640, height: 480, name: 'chrome'},
-        {width: 400, height: 600, name: 'firefox'}, 
+        {width: 400, height: 600, name: 'firefox'},
       ],
       showLogs: process.env.APPLITOOLS_SHOW_LOGS,
     })
@@ -111,10 +111,7 @@ describe('eyesCheckWindowWithPageCover', () => {
     for (const [index, testResults] of results.entries()) {
       const testData = await getTestInfo(testResults.toJSON(), apiKey)
       console.log('testData', index, testData.actualAppOutput[0])
-      expect(testData.actualAppOutput[0].pageCoverageInfo.pageId).to.eq(
-        pageId,
-        'match pageId',
-      )
+      expect(testData.actualAppOutput[0].pageCoverageInfo.pageId).to.eq(pageId, 'match pageId')
     }
   })
 })

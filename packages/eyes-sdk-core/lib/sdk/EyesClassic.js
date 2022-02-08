@@ -246,7 +246,7 @@ class EyesClassic extends EyesCore {
     const rect = await element.getElementRect()
     return rect
   }
-  
+
   async getPageCoverageInfo() {
     return this.pageCoverageInfo
   }

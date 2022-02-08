@@ -67,7 +67,12 @@ class PageInfo {
    * @override
    */
   toJSON() {
-    return {pageId: this._pageId, width: this._width, height: this._height, imagePositionInPage: this._imagePositionInPage.toJSON()}
+    return {
+      pageId: this._pageId,
+      width: this._width,
+      height: this._height,
+      imagePositionInPage: this._imagePositionInPage.toJSON(),
+    }
   }
 
   /**
