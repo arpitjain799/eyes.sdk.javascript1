@@ -39,7 +39,10 @@ exports.test = async function test({type, tag, driver, ...options} = {}) {
     const expected = await makeImage(`./test/fixtures/${type}/${tag}.png`).toObject()
     assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
   } catch (err) {
-    await screenshot.image.debug({path: './logs', name: `${type}-${tag}`})
+    await screenshot.image.debug({
+      path: './logs',
+      name: `${type}--${tag}` + options.scrollingMode === 'css' ? '-css' : '',
+    })
     throw err
   }
 }
@@ -82,7 +85,8 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger})
         wdaLocalPort: 8100 + workerId,
         mjpegServerPort: 9100 + workerId,
         derivedDataPath: `~/Library/Developer/Xcode/DerivedData/Appium-${workerId}`,
-        newCommandTimeout: 90000,
+        autoWebviewTimeout: 10000,
+        webviewConnectRetries: 12,
         usePrebuiltWDA: true,
         isHeadless: true,
         browserName: app === 'safari' ? app : '',
