@@ -43,7 +43,7 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger})
         udid: iosSimulatorIds[workerId],
         wdaLocalPort: 8100 + workerId,
         mjpegServerPort: 9100 + workerId,
-        // derivedDataPath: `~/Library/Developer/Xcode/DerivedData/Appium-${workerId}`,
+        derivedDataPath: `~/Library/Developer/Xcode/DerivedData/Appium-${workerId}`,
         isHeadless: true,
         showXcodeLog: true,
         browserName: app === 'safari' ? app : '',

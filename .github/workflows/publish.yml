@@ -180,6 +180,11 @@ jobs:
           node-version: lts/*
       - name: Add cli tools to PATH
         run: echo "$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/tools/bin:$ANDROID_HOME/emulator" >> "${GITHUB_PATH}"
+      - name: Cache IOS dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/Library/Developer/Xcode/DerivedData/Appium-*
+          key: xcode-12.5.1
       - name: Run tests
         uses: ./.github/actions/tests
         with:
