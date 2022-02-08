@@ -189,13 +189,13 @@ jobs:
         uses: ./.github/actions/tests
         with:
           package: ${{fromJSON(needs.setup.outputs.packages).screenshoter.dirname}}
-      - name: Upload debug artifacts
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: screenshoter-logs
-          retention-days: 2
-          path: packages/${{fromJSON(needs.setup.outputs.packages).screenshoter.dirname}}/logs
+      # - name: Upload debug artifacts
+      #   if: always()
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: screenshoter-logs
+      #     retention-days: 2
+      #     path: packages/${{fromJSON(needs.setup.outputs.packages).screenshoter.dirname}}/logs
       - name: Publish to NPM
         uses: ./.github/actions/publish
         with:
