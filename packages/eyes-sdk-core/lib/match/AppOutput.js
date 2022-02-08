@@ -31,6 +31,7 @@ class AppOutput {
     this._imageLocation = new Location(imageLocation)
     if (pageCoverageInfo) {
       this._pageCoverageInfo = new PageInfo(pageCoverageInfo)
+      this._pageCoverageInfo.setImagePositionInPage(this._imageLocation)
     }
   }
 

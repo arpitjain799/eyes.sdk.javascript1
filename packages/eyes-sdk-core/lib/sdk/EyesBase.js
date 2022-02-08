@@ -2048,7 +2048,7 @@ class EyesBase {
   }
 
   /**
-   * in case defined: pageId + pageCoverage width + pageCoverage height
+   * in case defined: pageId + pageCoverage width + pageCoverage height + imagePositionInPage
    *
    * @protected
    * @return {Promise<?PageInfo>}

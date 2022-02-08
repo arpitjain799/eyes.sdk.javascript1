@@ -5,6 +5,7 @@ const createRenderRequest = require('./createRenderRequest')
 const isInvalidAccessibility = require('./isInvalidAccessibility')
 const calculateSelectorsToFindRegionsFor = require('./calculateSelectorsToFindRegionsFor')
 const makeWaitForTestEnd = require('./makeWaitForTestEnd')
+const {Location} = require('@applitools/eyes-sdk-core/shared') 
 
 function makeCheckWindow({
   globalState,
@@ -292,6 +293,8 @@ function makeCheckWindow({
       const pageCoverageInfo = pageId && {
         pageId,
         ...fullPageSize,
+        imagePositionInPage: Location.ZERO,
+
       }
       const checkArgs = {
         screenshotUrl,

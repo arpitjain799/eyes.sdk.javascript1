@@ -6,7 +6,7 @@ const puppeteer = require('puppeteer')
 const makeRenderingGridClient = require('../../src/sdk/renderingGridClient')
 const {testServerInProcess} = require('@applitools/test-server')
 const {presult} = require('@applitools/functional-commons')
-const {DiffsFoundError, deserializeDomSnapshotResult} = require('@applitools/eyes-sdk-core/shared')
+const {deserializeDomSnapshotResult} = require('@applitools/eyes-sdk-core/shared')
 const {getProcessPageAndSerialize} = require('@applitools/dom-snapshot')
 const fs = require('fs')
 const {resolve} = require('path')
@@ -14,7 +14,10 @@ const testLogger = require('../util/testLogger')
 const {getTestInfo} = require('@applitools/test-utils')
 
 describe('eyesCheckWindowWithPageCover', () => {
-  let baseUrl, closeServer, openEyes
+  let baseUrl,
+    closeServer,
+    openEyes,
+    pageId = 'my-page'
   const apiKey = process.env.APPLITOOLS_API_KEY // TODO bad for tests. what to do
   let browser, page
   let processPage
@@ -38,8 +41,6 @@ describe('eyesCheckWindowWithPageCover', () => {
 
     browser = await puppeteer.launch()
     page = await browser.newPage()
-
-    await page.setCookie({name: 'auth', value: 'secret', url: baseUrl})
 
     const processPageAndSerializeScript = await getProcessPageAndSerialize()
     processPage = () =>
@@ -86,7 +87,7 @@ describe('eyesCheckWindowWithPageCover', () => {
       testName: 'added pageId to checkWindow',
       browser: [
         //{width: 640, height: 480, name: 'chrome'},
-        {width: 400, height: 600, name: 'firefox'}, // <= making the dimentions smaller than the content in order to ensure result captures the real content size
+        {width: 400, height: 600, name: 'firefox'}, 
       ],
       showLogs: process.env.APPLITOOLS_SHOW_LOGS,
     })
@@ -102,18 +103,17 @@ describe('eyesCheckWindowWithPageCover', () => {
       scriptHooks,
       ignore: [{selector: 'div[class*="bg-"]'}],
       floating: [{selector: 'img[src*="smurfs.jpg"]', maxUpOffset: 3}],
-      pageId: 'my-page',
+      pageId,
     })
 
     const [errArr, results] = await presult(close())
     errArr && console.log(errArr)
     for (const [index, testResults] of results.entries()) {
       const testData = await getTestInfo(testResults.toJSON(), apiKey)
-      //console.log('testData', index, testData.actualAppOutput[0])
-      expect(testData.actualAppOutput[0].pageCoverageInfo.width).to.eq(450, 'Width match content')
-      expect(testData.actualAppOutput[0].pageCoverageInfo.height).to.eq(
-        1680,
-        'Height match content',
+      console.log('testData', index, testData.actualAppOutput[0])
+      expect(testData.actualAppOutput[0].pageCoverageInfo.pageId).to.eq(
+        pageId,
+        'match pageId',
       )
     }
   })

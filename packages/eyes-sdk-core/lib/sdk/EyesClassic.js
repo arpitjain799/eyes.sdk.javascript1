@@ -81,8 +81,17 @@ class EyesClassic extends EyesCore {
     await this._context.main.setScrollingElement(this._scrollRootElement)
     await this._context.setScrollingElement(checkSettings.scrollRootElement)
 
-    this._checkSettings = checkSettings
+    if (checkSettings.pageId) {
+      const contentSize = await this._context.getContentSize()
+      this.pageCoverageInfo = {
+        pageId: checkSettings.pageId,
+        width: contentSize.width,
+        height: contentSize.height,
+        imagePositionInPage: Location.ZERO,
+      }
+    }
 
+    this._checkSettings = checkSettings
     return await this.checkWindowBase({
       name: checkSettings.name,
       url: await this._driver.getUrl(),
@@ -119,7 +128,6 @@ class EyesClassic extends EyesCore {
         rotation: this.getRotation(),
       },
     }
-
     let dom
     const screenshot = await takeScreenshot({
       ...screenshotSettings,
@@ -143,9 +151,7 @@ class EyesClassic extends EyesCore {
       debug: this.getDebugScreenshots(),
       logger: this._logger,
     })
-
     this._imageLocation = new Location(Math.round(screenshot.region.x), Math.round(screenshot.region.y))
-
     this._matchSettings = await CheckSettingsUtils.toMatchSettings({
       checkSettings: this._checkSettings,
       configuration: this._configuration,
@@ -239,6 +245,10 @@ class EyesClassic extends EyesCore {
     const element = await this._driver.element(locator)
     const rect = await element.getElementRect()
     return rect
+  }
+  
+  async getPageCoverageInfo() {
+    return this.pageCoverageInfo
   }
 }
 
