@@ -70,17 +70,11 @@ async function sanitizeAndroidStatusBar(image) {
 
 async function sanitizeIOSStatusBar(image) {
   const leftPatchImage = makeImage({
-    width: 50,
-    height: 16,
-    data: Buffer.alloc(50 * 16 * 4, Buffer.from([0, 0xed, 0xed, 0xff])),
+    width: 360,
+    height: 17,
+    data: Buffer.alloc(360 * 17 * 4, Buffer.from([0, 0xed, 0xed, 0xff])),
   })
-  await image.copy(leftPatchImage, {x: 18, y: 15})
-  const rightPatchImage = makeImage({
-    width: 75,
-    height: 16,
-    data: Buffer.alloc(75 * 16 * 4, Buffer.from([0, 0xed, 0xed, 0xff])),
-  })
-  await image.copy(rightPatchImage, {x: 290, y: 15})
+  await image.copy(leftPatchImage, {x: 15, y: 15})
 }
 
 exports.test = async function test({type, tag, driver, ...options} = {}) {

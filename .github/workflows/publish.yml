@@ -184,24 +184,24 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/Library/Developer/Xcode/DerivedData/Appium-*
-          key: xcode-12.5.1
+          key: xcode-12.5.1-derived-data
       - name: Run tests
         uses: ./.github/actions/tests
         with:
           package: ${{fromJSON(needs.setup.outputs.packages).screenshoter.dirname}}
           jobs: 2
-      - name: Upload debug artifacts
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: screenshoter-logs
-          retention-days: 2
-          path: packages/${{fromJSON(needs.setup.outputs.packages).screenshoter.dirname}}/logs
-      - name: Publish to NPM
-        uses: ./.github/actions/publish
-        with:
-          package: ${{fromJSON(needs.setup.outputs.packages).screenshoter.dirname}}
-          version: ${{fromJSON(needs.setup.outputs.packages).screenshoter.releaseVersion}}
+      # - name: Upload debug artifacts
+      #   if: always()
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: screenshoter-logs
+      #     retention-days: 2
+      #     path: packages/${{fromJSON(needs.setup.outputs.packages).screenshoter.dirname}}/logs
+      # - name: Publish to NPM
+      #   uses: ./.github/actions/publish
+      #   with:
+      #     package: ${{fromJSON(needs.setup.outputs.packages).screenshoter.dirname}}
+      #     version: ${{fromJSON(needs.setup.outputs.packages).screenshoter.releaseVersion}}
   driver:
     needs: [setup, types, utils, snippets]
     if: ${{fromJSON(needs.setup.outputs.packages).driver && !failure() && !cancelled()}}
