@@ -25,6 +25,8 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger})
         udid: androidEmulatorIds[workerId],
         systemPort: 8200 + workerId,
         chromedriverPort: 9515 + workerId,
+        adbExecTimeout: 50000,
+        isHeadless: true,
         browserName: app === 'chrome' ? app : '',
         app: apps[app || type],
         deviceName: 'Google Pixel 3a XL',
@@ -40,7 +42,9 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger})
       capabilities: {
         udid: iosSimulatorIds[workerId],
         wdaLocalPort: 8100 + workerId,
+        mjpegServerPort: 9100 + workerId,
         derivedDataPath: `~/Library/Developer/Xcode/DerivedData/Appium-${workerId}`,
+        isHeadless: true,
         browserName: app === 'safari' ? app : '',
         app: apps[app || type],
         deviceName: 'iPhone 11 Pro',
