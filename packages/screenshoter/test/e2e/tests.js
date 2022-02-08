@@ -7,7 +7,6 @@ const takeScreenshot = require('../../src/take-screenshot')
 
 exports.makeDriver = async function makeDriver({type, app, orientation, logger}) {
   const workerId = process.env.MOCHA_WORKER_ID ? Number(process.env.MOCHA_WORKER_ID) : 0
-  console.log(workerId)
   const androidEmulatorIds = process.env.ANDROID_EMULATOR_UDID
     ? process.env.ANDROID_EMULATOR_UDID.split(',')
     : ['emulator-5554']
@@ -45,7 +44,6 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger})
         mjpegServerPort: 9100 + workerId,
         derivedDataPath: `~/Library/Developer/Xcode/DerivedData/Appium-${workerId}`,
         usePrebuiltWDA: true,
-        showXcodeLog: true,
         isHeadless: true,
         browserName: app === 'safari' ? app : '',
         app: apps[app || type],

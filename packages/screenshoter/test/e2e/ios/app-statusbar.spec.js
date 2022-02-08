@@ -21,6 +21,7 @@ describe('screenshoter ios app', () => {
       type: 'ios',
       tag: 'app',
       withStatusBar: true,
+      wait: 1500,
       driver,
       logger,
     })

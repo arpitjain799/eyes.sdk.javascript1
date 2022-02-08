@@ -20,6 +20,7 @@ describe('screenshoter ios app', () => {
     await test({
       type: 'ios',
       tag: 'app',
+      wait: 1500,
       driver,
       logger,
     })
