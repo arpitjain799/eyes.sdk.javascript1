@@ -60,7 +60,7 @@
     "png-async": "0.9.4"
   },
   "devDependencies": {
-    "@applitools/driver": "1.4.10",
+    "@applitools/driver": "1.4.11",
     "@applitools/sdk-release-kit": "0.13.11",
     "@applitools/spec-driver-webdriverio": "1.2.6",
     "@applitools/test-utils": "1.0.11",
