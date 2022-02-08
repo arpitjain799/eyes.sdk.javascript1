@@ -144,6 +144,15 @@
     "@applitools/utils" "1.2.5"
     png-async "0.9.4"
 
+"@applitools/screenshoter@3.3.5":
+  version "3.3.5"
+  resolved "https://registry.yarnpkg.com/@applitools/screenshoter/-/screenshoter-3.3.5.tgz#9f0448e88d8d36ba69d60addbe0b6cec6a27b78c"
+  integrity sha512-nNT9QzNfvRMqEPMrJiObCNftjJObuzS/+/x9K/3d54Y8RA8dvJ0pdwiDiAAmiba+bASxSz7mHsVNHv+5F6yZsQ==
+  dependencies:
+    "@applitools/snippets" "2.1.12"
+    "@applitools/utils" "1.2.11"
+    png-async "0.9.4"
+
 "@applitools/sdk-fake-eyes-server@2.1.1":
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/@applitools/sdk-fake-eyes-server/-/sdk-fake-eyes-server-2.1.1.tgz#a0c5d270a57f8ea97f974565a4273d3066fc6529"
