@@ -19,6 +19,7 @@ describe('screenshoter ios web', () => {
     await test({
       type: 'ios-web',
       tag: 'page-fully',
+      wait: 1500,
       fully: true,
       driver,
       logger,
