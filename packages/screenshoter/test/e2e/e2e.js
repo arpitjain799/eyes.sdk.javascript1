@@ -1,9 +1,48 @@
 const assert = require('assert')
 const pixelmatch = require('pixelmatch')
+const utils = require('@applitools/utils')
 const spec = require('@applitools/spec-driver-webdriverio')
 const {Driver} = require('@applitools/driver')
 const makeImage = require('../../src/image')
 const takeScreenshot = require('../../src/take-screenshot')
+
+async function sanitizeAndroidStatusBar(image) {
+  const leftPatchImage = makeImage({
+    width: 425,
+    height: 17,
+    data: Buffer.alloc(425 * 17 * 4, Buffer.from([0, 0xed, 0xed, 0xff])),
+  })
+  await image.copy(leftPatchImage, {x: 3, y: 3})
+}
+
+async function sanitizeIOSStatusBar(image) {
+  const leftPatchImage = makeImage({
+    width: 360,
+    height: 17,
+    data: Buffer.alloc(360 * 17 * 4, Buffer.from([0, 0xed, 0xed, 0xff])),
+  })
+  await image.copy(leftPatchImage, {x: 15, y: 15})
+}
+
+exports.sleep = utils.general.sleep
+
+exports.test = async function test({type, tag, driver, ...options} = {}) {
+  if (options.withStatusBar) tag += '-statusbar'
+
+  const screenshot = await takeScreenshot({driver, ...options})
+  try {
+    if (options.withStatusBar) {
+      if (type === 'android') await sanitizeAndroidStatusBar(screenshot.image)
+      else if (type === 'ios') await sanitizeIOSStatusBar(screenshot.image)
+    }
+    const actual = await screenshot.image.toObject()
+    const expected = await makeImage(`./test/fixtures/${type}/${tag}.png`).toObject()
+    assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
+  } catch (err) {
+    await screenshot.image.debug({path: './logs', name: `${type}-${tag}`})
+    throw err
+  }
+}
 
 exports.makeDriver = async function makeDriver({type, app, orientation, logger}) {
   const workerId = process.env.MOCHA_WORKER_ID ? Number(process.env.MOCHA_WORKER_ID) : 0
@@ -57,40 +96,4 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger})
   }
   const [browser, destroyBrowser] = await spec.build(envs[type])
   return [await new Driver({driver: browser, spec, logger}).init(), destroyBrowser]
-}
-
-async function sanitizeAndroidStatusBar(image) {
-  const leftPatchImage = makeImage({
-    width: 425,
-    height: 17,
-    data: Buffer.alloc(425 * 17 * 4, Buffer.from([0, 0xed, 0xed, 0xff])),
-  })
-  await image.copy(leftPatchImage, {x: 3, y: 3})
-}
-
-async function sanitizeIOSStatusBar(image) {
-  const leftPatchImage = makeImage({
-    width: 360,
-    height: 17,
-    data: Buffer.alloc(360 * 17 * 4, Buffer.from([0, 0xed, 0xed, 0xff])),
-  })
-  await image.copy(leftPatchImage, {x: 15, y: 15})
-}
-
-exports.test = async function test({type, tag, driver, ...options} = {}) {
-  if (options.withStatusBar) tag += '-statusbar'
-
-  const screenshot = await takeScreenshot({driver, ...options})
-  try {
-    if (options.withStatusBar) {
-      if (type === 'android') await sanitizeAndroidStatusBar(screenshot.image)
-      else if (type === 'ios') await sanitizeIOSStatusBar(screenshot.image)
-    }
-    const actual = await screenshot.image.toObject()
-    const expected = await makeImage(`./test/fixtures/${type}/${tag}.png`).toObject()
-    assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
-  } catch (err) {
-    await screenshot.image.debug({path: './logs', name: `${type}-${tag}`})
-    throw err
-  }
 }
