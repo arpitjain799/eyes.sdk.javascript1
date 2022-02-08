@@ -82,6 +82,7 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger})
         wdaLocalPort: 8100 + workerId,
         mjpegServerPort: 9100 + workerId,
         derivedDataPath: `~/Library/Developer/Xcode/DerivedData/Appium-${workerId}`,
+        newCommandTimeout: 90000,
         usePrebuiltWDA: true,
         isHeadless: true,
         browserName: app === 'safari' ? app : '',

@@ -14,7 +14,7 @@ describe('screenshoter ios web', () => {
 
   it('take viewport screenshot with landscape orientation', async () => {
     await driver.visit('https://applitools.github.io/demo/TestPages/PageWithBurgerMenu/')
-    await sleep(3000)
+    await sleep(5000)
 
     await test({
       type: 'ios-web',
