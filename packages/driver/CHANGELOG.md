@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+
+## 1.4.12 - 2022/2/8
+
 - fix usage of `-ios class chain` selectors
 
 ## 1.4.11 - 2022/2/8
