@@ -47,7 +47,7 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger})
         // isHeadless: true,
         browserName: app === 'safari' ? app : '',
         app: apps[app || type],
-        deviceName: 'iPhone 11 Pro',
+        deviceName: 'iPhone 12',
         platformName: 'iOS',
         platformVersion: '14.5',
         automationName: 'XCUITest',

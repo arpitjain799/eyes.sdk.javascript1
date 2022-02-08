@@ -189,8 +189,7 @@ jobs:
         uses: ./.github/actions/tests
         with:
           package: ${{fromJSON(needs.setup.outputs.packages).screenshoter.dirname}}
-        env:
-          MOCHA_JOBS: 2
+          jobs: 2
       - name: Upload debug artifacts
         if: always()
         uses: actions/upload-artifact@v2

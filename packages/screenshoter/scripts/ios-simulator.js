@@ -2,7 +2,7 @@ const fs = require('fs')
 const utils = require('@applitools/utils')
 
 main({
-  device: 'iPhone 11 Pro',
+  device: 'iPhone 12',
   osVersion: '14.5',
   xcodeVersion: '12.5.1',
   jobs: process.env.MOCHA_JOBS ? Number(process.env.MOCHA_JOBS) : 1,
