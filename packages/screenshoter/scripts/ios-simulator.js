@@ -3,8 +3,8 @@ const utils = require('@applitools/utils')
 
 main({
   device: 'iPhone 11 Pro',
-  osVersion: '14.5',
-  xcodeVersion: '12.5.1',
+  osVersion: '15.2',
+  xcodeVersion: '13.2',
   jobs: process.env.MOCHA_JOBS ? Number(process.env.MOCHA_JOBS) : 1,
 })
 
