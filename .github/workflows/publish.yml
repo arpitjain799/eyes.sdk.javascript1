@@ -184,12 +184,14 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/Library/Developer/Xcode/DerivedData/Appium-*
-          key: xcode-12.5.1-derived-data
-      - name: Run tests
-        uses: ./.github/actions/tests
-        with:
-          package: ${{fromJSON(needs.setup.outputs.packages).screenshoter.dirname}}
-          jobs: 2
+          key: device-12.5.1
+      - name: Add cli tools to PATH
+        run: cp -R ~/Library/Developer/Xcode/DerivedData/Appium-0 ~/Library/Developer/Xcode/DerivedData/Appium-1
+      # - name: Run tests
+      #   uses: ./.github/actions/tests
+      #   with:
+      #     package: ${{fromJSON(needs.setup.outputs.packages).screenshoter.dirname}}
+      #     jobs: 2
       # - name: Upload debug artifacts
       #   if: always()
       #   uses: actions/upload-artifact@v2
