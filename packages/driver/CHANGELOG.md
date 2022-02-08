@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+
+## 1.4.11 - 2022/2/8
+
 - use `-ios class chain` selectors instead of `class name` for iOS specific elements
 
 ## 1.4.10 - 2022/2/4
