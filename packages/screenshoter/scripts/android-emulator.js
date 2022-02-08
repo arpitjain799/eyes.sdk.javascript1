@@ -5,7 +5,7 @@ main({
   device: 'Pixel 3a XL',
   apiLevel: 29, // android 10
   port: 5555,
-  jobs: process.env.MOCHA_JOBS ? Number(process.env.MOCHA_JOBS) : 2,
+  jobs: process.env.MOCHA_JOBS ? Number(process.env.MOCHA_JOBS) : 1,
 })
 
 async function main({device, apiLevel, port, jobs}) {

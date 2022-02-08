@@ -5,7 +5,7 @@ main({
   device: 'iPhone 11 Pro',
   osVersion: '14.5',
   xcodeVersion: '12.5.1',
-  jobs: process.env.MOCHA_JOBS ? Number(process.env.MOCHA_JOBS) : 2,
+  jobs: process.env.MOCHA_JOBS ? Number(process.env.MOCHA_JOBS) : 1,
 })
 
 async function main({device, osVersion, xcodeVersion, jobs}) {
