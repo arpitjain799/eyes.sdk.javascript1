@@ -32,7 +32,7 @@
   ],
   "scripts": {
     "lint": "eslint . --ext .js",
-    "test": "yarn test:it && yarn test:e2e",
+    "test": "yarn test:it && yarn test:e2e:ios",
     "test:it": "mocha ./test/it/*.spec.js --no-timeouts",
     "test:e2e": "mocha ./test/e2e/**/*.spec.js --no-timeouts --parallel --jobs ${MOCHA_JOBS:-1}",
     "test:e2e:android": "mocha ./test/e2e/android/*.spec.js --no-timeouts --parallel --jobs ${MOCHA_JOBS:-1}",
