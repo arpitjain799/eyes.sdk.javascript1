@@ -184,9 +184,14 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/Library/Developer/Xcode/DerivedData/Appium-*
-          key: device-12.5.1
+          key: xcode-12.5.1
       - name: Add cli tools to PATH
         run: cp -R ~/Library/Developer/Xcode/DerivedData/Appium-0 ~/Library/Developer/Xcode/DerivedData/Appium-1
+      - name: Cache IOS dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/Library/Developer/Xcode/DerivedData/Appium-*
+          key: xcode-12.5.1-dependencies
       # - name: Run tests
       #   uses: ./.github/actions/tests
       #   with:
