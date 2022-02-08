@@ -16,6 +16,15 @@ async function main({device, osVersion, xcodeVersion, jobs}) {
     console.log(`Failed set Xcode version to ${xcodeVersion}`)
   }
 
+  try {
+    console.log(`Setting reasonable defaults...`)
+    await utils.process.sh(`xcrun defaults write com.apple.universalaccess reduceTransparency -bool true`, {
+      spawnOptions: {stdio: 'pipe'},
+    })
+  } catch (err) {
+    console.log(`Failed set reasonable defaults.`)
+  }
+
   const runtimesOutput = await utils.process.sh(`xcrun simctl list runtimes --json`, {spawnOptions: {stdio: 'pipe'}})
   const runtimes = JSON.parse(runtimesOutput.stdout)
 
