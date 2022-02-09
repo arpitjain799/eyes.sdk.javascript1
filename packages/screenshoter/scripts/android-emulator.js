@@ -41,9 +41,10 @@ async function runEmulator({device, apiLevel, port, index}) {
   )
 
   console.log(`Running emulator with name "${avdName}"...`)
-  await utils.process.sh(`emulator -no-boot-anim -ports ${adbPort},${adbPort + 1} -avd ${avdName} &`, {
-    spawnOptions: {detached: true, stdio: 'ignore'},
-  })
+  await utils.process.sh(
+    `emulator -noaudio -no-window -no-boot-anim -ports ${adbPort},${adbPort + 1} -avd ${avdName} &`,
+    {spawnOptions: {detached: true, stdio: 'ignore'}},
+  )
 
   console.log(`Waiting for the emulator with name "${avdName}" to boot...`)
   const emulatorId = `emulator-${adbPort}`

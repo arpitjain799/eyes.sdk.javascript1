@@ -84,5 +84,5 @@ runs:
         echo "::endgroup::"
 
         echo "::group::Sending reports"
-        if [ "${{inputs.sandbox}}" = "sandbox" ]; then npm run report --if-present -- --sandbox; else npm run report --if-present || true; fi
+        if [ "${{inputs.sandbox}}" = "sandbox" ]; then npm run report --if-present -- --sandbox; else npm run report --if-present; fi
         echo "::endgroup::"
