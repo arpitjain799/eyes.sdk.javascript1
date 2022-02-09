@@ -70,6 +70,7 @@ jobs:
     needs: [test-it]
     strategy:
       max-parallel: 3
+      fail-fast: false
       matrix:
         include:
           - name: web

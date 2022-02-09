@@ -41,7 +41,7 @@
     "setup": "yarn docker:setup && yarn android:setup && yarn ios:setup && yarn appium:setup",
     "setup:web": "yarn docker:setup",
     "setup:android": "yarn android:setup && yarn appium:setup",
-    "setup:io": "yarn ios:setup && yarn appium:setup",
+    "setup:ios": "yarn ios:setup && yarn appium:setup",
     "android:setup": "node ./scripts/android-emulator.js",
     "docker:setup": "node ../scripts/scripts/generate-docker-compose-config.js && docker-compose up -d",
     "docker:teardown": "docker-compose down",
