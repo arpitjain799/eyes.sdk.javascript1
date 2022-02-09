@@ -56,7 +56,7 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger})
   const iosSimulatorIds = process.env.IOS_SIMULATOR_UDID ? process.env.IOS_SIMULATOR_UDID.split(',') : []
   const apps = {
     android: 'https://applitools.jfrog.io/artifactory/Examples/android/1.3/app-debug.apk',
-    androidx: 'https://applitools.jfrog.io/artifactory/Examples/androidx/1.3.3/app_androidx.apk',
+    androidx: 'https://applitools.jfrog.io/artifactory/Examples/androidx/1.3.4/app_androidx.apk',
     ios: 'https://applitools.jfrog.io/artifactory/Examples/IOSTestApp/1.9/app/IOSTestApp.zip',
   }
 
@@ -76,7 +76,8 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger})
         mjpegServerPort: 9100 + workerId,
         chromedriverPort: 9515 + workerId,
         adbExecTimeout: 50000,
-        uiautomator2ServerLaunchTimeout: 80000,
+        // uiautomator2ServerLaunchTimeout: 80000,
+        nativeWebScreenshot: true,
         isHeadless: true,
         browserName: app === 'chrome' ? app : '',
         app: apps[app || type],
@@ -85,7 +86,6 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger})
         platformVersion: '10.0',
         automationName: 'uiautomator2',
         orientation: orientation ? orientation.toUpperCase() : 'PORTRAIT',
-        nativeWebScreenshot: true,
       },
     },
     ios: {
