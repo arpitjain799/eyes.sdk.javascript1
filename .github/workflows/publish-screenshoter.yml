@@ -79,11 +79,9 @@ jobs:
           - name: android
             os: macos-latest
             jobs: 2
-            remote: sauce
           - name: ios
             os: macos-latest
             jobs: 2
-            remote: local
     name: 'Test e2e (${{matrix.name}})'
     runs-on: ${{matrix.os}}
     steps:
@@ -114,7 +112,7 @@ jobs:
         with:
           package: ${{env.PACKAGE_DIR}}
           test-type: e2e:${{matrix.name}}
-          setup-type: ${{matrix.name == 'web' && matrix.name || 'none'}}
+          setup-type: ${{matrix.name}}
           jobs: ${{matrix.jobs}}
           remote: ${{matrix.remote}}
       - name: Upload testing artifacts
