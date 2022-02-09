@@ -122,7 +122,7 @@ jobs:
           remote: ${{matrix.remote}}
       - name: stop android simulators
         if: ${{matrix.name == 'android'}}
-        run: cd ./packages/screenshoter && yarn android:shutdown
+        run: cd ./packages/screenshoter && yarn android:shutdown && sleep 120
       - name: Upload testing artifacts
         if: always()
         uses: actions/upload-artifact@v2
