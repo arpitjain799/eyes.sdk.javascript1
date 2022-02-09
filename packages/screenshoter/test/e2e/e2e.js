@@ -52,7 +52,7 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger})
   console.log(`makeDriver called for worker #${process.env.MOCHA_WORKER_ID}`, workerId)
   const androidEmulatorIds = process.env.ANDROID_EMULATOR_UDID
     ? process.env.ANDROID_EMULATOR_UDID.split(',')
-    : ['emulator-5554']
+    : ['emulator-5555']
   const iosSimulatorIds = process.env.IOS_SIMULATOR_UDID ? process.env.IOS_SIMULATOR_UDID.split(',') : []
   const apps = {
     android: 'https://applitools.jfrog.io/artifactory/Examples/android/1.3/app-debug.apk',
@@ -72,6 +72,7 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger})
       url: 'http://0.0.0.0:4723/wd/hub',
       capabilities: {
         udid: androidEmulatorIds[workerId],
+        automationName: 'espresso',
         systemPort: 8200 + workerId,
         mjpegServerPort: 9100 + workerId,
         chromedriverPort: 9515 + workerId,
@@ -86,6 +87,20 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger})
         platformVersion: '10.0',
         automationName: 'uiautomator2',
         orientation: orientation ? orientation.toUpperCase() : 'PORTRAIT',
+      },
+    },
+    'android-sauce': {
+      url: 'https://ondemand.saucelabs.com:443/wd/hub',
+      capabilities: {
+        appiumVersion: '1.20.2',
+        username: process.env.SAUCE_USERNAME,
+        accessKey: process.env.SAUCE_ACCESS_KEY,
+        browserName: app === 'chrome' ? app : '',
+        app: apps[app || type],
+        deviceName: 'Google Pixel 3a XL GoogleAPI Emulator',
+        platformName: 'Android',
+        platformVersion: '10.0',
+        deviceOrientation: orientation ? orientation.toUpperCase() : 'PORTRAIT',
       },
     },
     ios: {
@@ -108,7 +123,23 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger})
         orientation: orientation ? orientation.toUpperCase() : 'PORTRAIT',
       },
     },
+    'ios-sauce': {
+      url: 'https://ondemand.saucelabs.com:443/wd/hub',
+      capabilities: {
+        appiumVersion: '1.20.0',
+        username: process.env.SAUCE_USERNAME,
+        accessKey: process.env.SAUCE_ACCESS_KEY,
+        browserName: app === 'safari' ? app : '',
+        app: apps[app || type],
+        deviceName: 'iPhone 12 Simulator',
+        platformName: 'iOS',
+        platformVersion: '14.5',
+        deviceOrientation: orientation ? orientation.toUpperCase() : 'PORTRAIT',
+      },
+    },
   }
-  const [browser, destroyBrowser] = await spec.build(envs[type])
+  const [browser, destroyBrowser] = await spec.build(
+    envs[process.env.APPLITOOLS_TEST_REMOTE === 'sauce' ? `${type}-sauce` : type],
+  )
   return [await new Driver({driver: browser, spec, logger}).init(), destroyBrowser]
 }

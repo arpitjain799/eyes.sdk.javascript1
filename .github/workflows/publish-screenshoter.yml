@@ -79,9 +79,11 @@ jobs:
           - name: android
             os: macos-latest
             jobs: 1
+            remote: sauce
           - name: ios
             os: macos-latest
-            jobs: 3
+            jobs: 2
+            remote: sauce
     name: 'Test e2e (${{matrix.name}})'
     runs-on: ${{matrix.os}}
     steps:
@@ -93,16 +95,16 @@ jobs:
           node-version: lts/*
           registry-url: https://registry.npmjs.org
       - name: Add Android cli tools to PATH
-        if: ${{matrix.name == 'android'}}
+        if: ${{matrix.name == 'android' && matrix.remote == 'local'}}
         run: echo "$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/tools/bin:$ANDROID_HOME/emulator" >> "${GITHUB_PATH}"
       - name: Cache Android dependencies
-        if: ${{matrix.name == 'android'}}
+        if: ${{matrix.name == 'android' && matrix.remote == 'local'}}
         uses: actions/cache@v2
         with:
           path: ~/.android/avd
           key: android-api-29-dependencies
       - name: Cache IOS dependencies
-        if: ${{matrix.name == 'ios'}}
+        if: ${{matrix.name == 'ios' && matrix.remote == 'local'}}
         uses: actions/cache@v2
         with:
           path: ~/Library/Developer/Xcode/DerivedData/Appium-*
@@ -112,8 +114,9 @@ jobs:
         with:
           package: ${{env.PACKAGE_DIR}}
           test-type: e2e:${{matrix.name}}
-          setup-type: ${{matrix.name}}
+          setup-type: ${{matrix.name == 'web' && matrix.name || 'none'}}
           jobs: ${{matrix.jobs}}
+          remote: ${{matrix.remote}}
       - name: Upload testing artifacts
         if: always()
         uses: actions/upload-artifact@v2
