@@ -16,7 +16,7 @@ async function main({device, apiLevel, port, jobs}) {
 
   console.log('Installing dependencies...')
   await utils.process.sh(
-    `sdkmanager --install 'emulator' 'cmdline-tools;latest' 'platforms;android-${apiLevel}' 'system-images;android-${apiLevel};google_apis;x86_64'`,
+    `sdkmanager --install 'emulator' 'cmdline-tools;latest' 'build-tools;29.0.3' 'platform-tools' 'platforms;android-${apiLevel}' 'system-images;android-${apiLevel};google_apis;x86_64'`,
     {spawnOptions: {stdio: 'pipe'}},
   )
 
