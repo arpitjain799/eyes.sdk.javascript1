@@ -92,6 +92,7 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger})
     'android-sauce': {
       url: 'https://ondemand.saucelabs.com:443/wd/hub',
       capabilities: {
+        name: 'Android screenshoter',
         appiumVersion: '1.20.2',
         username: process.env.SAUCE_USERNAME,
         accessKey: process.env.SAUCE_ACCESS_KEY,
@@ -126,6 +127,7 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger})
     'ios-sauce': {
       url: 'https://ondemand.saucelabs.com:443/wd/hub',
       capabilities: {
+        name: 'IOS screenshoter',
         appiumVersion: '1.20.0',
         username: process.env.SAUCE_USERNAME,
         accessKey: process.env.SAUCE_ACCESS_KEY,

@@ -78,12 +78,12 @@ jobs:
             jobs: 15
           - name: android
             os: macos-latest
-            jobs: 1
+            jobs: 2
             remote: sauce
           - name: ios
             os: macos-latest
             jobs: 2
-            remote: sauce
+            remote: local
     name: 'Test e2e (${{matrix.name}})'
     runs-on: ${{matrix.os}}
     steps:
