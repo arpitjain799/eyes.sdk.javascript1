@@ -11,8 +11,8 @@ function makePluginExport({startServer, eyesConfig, globalHooks}) {
     pluginModule.exports = async function(...args) {
       const {localServerPort, closeServer} = await startServer();
 
-      // fork a new process that start universal server
-      const server = childProcess.spawn('node', [path.resolve(__dirname,'../../node_modules/@applitools/eyes-universal/dist/cli.js')], {
+      // spawn a new process that start universal server
+      const server = childProcess.spawn('node', [require.resolve('@applitools/eyes-universal/dist/cli.js')], {
         detached: true,
         stdio: ['ignore', 'pipe', 'ignore'],
       })
