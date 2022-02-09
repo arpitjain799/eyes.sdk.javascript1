@@ -41,7 +41,7 @@ exports.test = async function test({type, tag, driver, ...options} = {}) {
   } catch (err) {
     await screenshot.image.debug({
       path: './logs',
-      name: `${type}--${tag}` + options.scrollingMode === 'css' ? '-css' : '',
+      name: `${type}--${tag}` + (options.scrollingMode === 'css' ? '-css' : ''),
     })
     throw err
   }
@@ -85,11 +85,9 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger})
         wdaLocalPort: 8100 + workerId,
         mjpegServerPort: 9100 + workerId,
         derivedDataPath: `~/Library/Developer/Xcode/DerivedData/Appium-${workerId}`,
-        autoAcceptAlerts: false,
-        autoDismissAlerts: false,
         webviewConnectRetries: 12,
-        startIWDP: true,
         usePrebuiltWDA: true,
+        launchTimeout: 180000,
         isHeadless: true,
         browserName: app === 'safari' ? app : '',
         app: apps[app || type],
