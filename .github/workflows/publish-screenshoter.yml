@@ -48,28 +48,28 @@ jobs:
         run: |
           yarn install
           npx bongo release-pre-check --skip-deps --skip-commit --skip-verify-installed-versions
-  test-it:
-    needs: [verify]
-    name: 'Test integration'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check-out repository
-        uses: actions/checkout@v2
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: lts/*
-          registry-url: https://registry.npmjs.org
-      - name: Run tests
-        uses: ./.github/actions/tests
-        with:
-          package: ${{env.PACKAGE_DIR}}
-          test-type: it
-          setup-type: none
+  # test-it:
+  #   needs: [verify]
+  #   name: 'Test integration'
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Check-out repository
+  #       uses: actions/checkout@v2
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v2
+  #       with:
+  #         node-version: lts/*
+  #         registry-url: https://registry.npmjs.org
+  #     - name: Run tests
+  #       uses: ./.github/actions/tests
+  #       with:
+  #         package: ${{env.PACKAGE_DIR}}
+  #         test-type: it
+  #         setup-type: none
   test-e2e:
-    needs: [test-it]
+    # needs: [test-it]
+    needs: [verify]
     strategy:
-      max-parallel: 3
       fail-fast: false
       matrix:
         include:
@@ -78,10 +78,10 @@ jobs:
             jobs: 15
           - name: android
             os: macos-latest
-            jobs: 2
+            jobs: 1
           - name: ios
             os: macos-latest
-            jobs: 2
+            jobs: 1
     name: 'Test e2e (${{matrix.name}})'
     runs-on: ${{matrix.os}}
     steps:
