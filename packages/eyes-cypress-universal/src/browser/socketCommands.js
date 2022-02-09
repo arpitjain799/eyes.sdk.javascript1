@@ -1,13 +1,8 @@
 const spec = require('../../dist/browser/spec-driver');
 
 function socketCommands(socket, refer) {
-  socket.command('Driver.extractContext', async target => {
-    const res = spec.extractContext();
-    return refer.deref(res);
-  });
-
-  socket.command('Driver.executeScript', ({context, script, arg}) => {
-    return spec.executeScript(context, script, arg);
+  socket.command('Driver.executeScript', ({context, script, arg = []}) => {
+    return spec.executeScript(refer.deref(context), script, derefArgs(arg));
   });
   socket.command('Driver.mainContext', context => {
     const mainContext = spec.mainContext(refer.deref(context));
@@ -25,15 +20,43 @@ function socketCommands(socket, refer) {
   socket.command('Driver.setViewportSize', vs => {
     spec.setViewportSize(vs);
   });
-  socket.command('Driver.findElement', element => {
-    const res = spec.findElement(refer.deref(element));
+  socket.command('Driver.findElement', ({selector}) => {
+    const res = spec.findElement(refer.deref(selector));
     return refer.ref(res);
+  });
+  socket.command('Driver.findElements', ({selector}) => {
+    const elements = spec.findElements(refer.deref(selector));
+    let result = []
+    for(const el of elements){
+      result.push(refer.ref(el))
+    }
+    return result
   });
 
   socket.command('Driver.parentContext', currentContext => {
     const context = spec.parentContext(refer.deref(currentContext));
     return refer.ref(context);
   });
+
+  function derefArgs(arg){
+    if(Array.isArray(arg)) {
+    const derefArg = [];
+    for (const argument of arg) {
+      if(Array.isArray(argument)){
+        const arr = [];
+        for(const entry of argument){
+          arr.push(refer.deref(entry))
+        }
+        derefArg.push(refer.deref(arr))
+      } else {
+      derefArg.push(refer.deref(argument))
+      } 
+    }
+    return derefArg
+    } else {
+      return arg
+    }
+  }
 }
 
 module.exports = {socketCommands};

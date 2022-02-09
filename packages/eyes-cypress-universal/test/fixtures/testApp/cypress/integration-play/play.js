@@ -12,6 +12,13 @@ describe('Play Cypress', () => {
     cy.eyesCheckWindow({
       tag: 'Play Cypress',
     });
+    cy.eyesCheckWindow({
+      target: 'region',
+      selector: {
+        type: 'css',
+        selector: 'body > div > h1' 
+      }
+    });
     cy.eyesClose();
   });
 });

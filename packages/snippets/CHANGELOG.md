@@ -2,7 +2,7 @@
 # Changelog
 
 ## Unreleased
-
+- adjust addElementIds, clearupElementIds and getContextInfo to work with Cypress Universal
 
 ## 2.1.12 - 2021/12/22
 

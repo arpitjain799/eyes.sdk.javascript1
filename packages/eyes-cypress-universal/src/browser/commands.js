@@ -130,7 +130,7 @@ Cypress.Commands.add('eyesOpen', function(args = {}) {
   }
 
   return cy.then({timeout: 86400000}, async () => {
-    const driverRef = refer.ref(cy);
+    const driverRef = refer.ref(cy.state('window').document);
     eyes = await socket.request('EyesManager.openEyes', {
       manager,
       driver: driverRef,
@@ -179,8 +179,7 @@ Cypress.Commands.add('eyesCheckWindow', args =>
 
     return socket.request('Eyes.check', {
       eyes,
-      settings: checkArgs,
-      config: config,
+      settings: config,
     });
   }),
 );
@@ -211,6 +210,7 @@ function validateBrowser(browser) {
 
 function toCheckWindowConfiguration(config) {
   // check for other values to map
+  let regionSettings = {}
   const checkSettings = {
     name: config.tag,
     disableBrowserFetching: Cypress.config('eyesDisableBrowserFetching'),
@@ -219,9 +219,15 @@ function toCheckWindowConfiguration(config) {
     hooks: config.scriptHooks,
   };
 
-  return checkSettings;
+  if(config.target && config.target === 'region'){
+    regionSettings = {
+      region: config.selector
+    } 
+  }
+
+  return Object.assign({}, checkSettings, regionSettings);
 }
 
 function setRootContext() {
-  window.document['applitools-marker'] = 'root-context';
+  cy.state('window').document['applitools-marker'] = 'root-context';
 }

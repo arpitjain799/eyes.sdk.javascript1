@@ -1,81 +1,53 @@
-export type Selector = {selector: string};
-export type Driver = Cypress.Browser;
+// need to check for more possible structures of selector
+export type Selector = { selector: {selector: string } } ;
 export type Context = Document;
 export type Element = JQuery | HTMLElement;
 
-export function executeScript(context: Context, script: string, arg = {}) {
-  // if(!Cypress.dom.isDocument(context)) return
+//@ts-ignore
+let document: Context
 
-  return new Promise(resolve => {
-    cy.document().then(doc => {
-      let scriptToExecute;
-      let args = arg;
+export function executeScript(context: Context, script: string, arg: any) {
+      //@ts-ignore
+      document = document ? document : cy.state('window').document 
       if (
         script.includes('dom-snapshot') ||
         script.includes('dom-capture') ||
         script.includes('dom-shared')
         ) {
-          scriptToExecute = script;
-          args = Object.assign({doc}, arg);
+            const scriptToExecute = script;
+            const args = Object.assign({doc: document}, arg);
+            const executor = new Function('arg', scriptToExecute);
+            return executor(args)
         } else {
-          scriptToExecute = script.slice(15).slice(0, -2);
+            const evalScript = prepareSnippet(script, arg)
+            const res = document.defaultView.eval(evalScript)
+            return res
+
         }
         
-        const executor = new Function('arg', scriptToExecute);
-        //return executor(args);
-        resolve(executor(args));
-    });
-  });
 }
 
-export function executeScript2(context: Driver, script: string, arg = {}) {
-  // if(!Cypress.dom.isDocument(context)) return
-
-      let scriptToExecute;
-      let args = arg;
-      if (
-        script.includes('dom-snapshot') ||
-        script.includes('dom-capture') ||
-        script.includes('dom-shared')
-      ) {
-        scriptToExecute = script;
-        args = Object.assign({doc: window.parent[0].document}, arg);
-      } else {
-        scriptToExecute = script.slice(15).slice(0, -2);
-      }
-
-      const executor = new Function('arg', scriptToExecute);
-      return executor(args);
-}
-
-export function isDriver(driver: Driver) {
-  return driver.hasOwnProperty('browser');
-}
-
-export function extractContext() {
-  return window.parent[0].document;
+export function isDriver(driver: Context): boolean {
+  return typeof(driver) === typeof(Document)
 }
 
 export function parentContext(currentContext: Context) {
-  return window.parent[0].document;
+  return currentContext === document ? currentContext : document.defaultView.top.document
 }
 
-export function mainContext(driver: Driver) {
-  return window.parent[0].document;
+export function mainContext(): Context {
+  return document
 }
 
-export function transformSelector() {}
-
-export function isElement(element: Element) {
-  // return typeof element === 'object ' && element.hasOwnProperty('specWindow');
+export function isElement(element: Element): boolean {
   return Cypress.dom.isElement(element);
 }
 
-export function isSelector(selector: Selector) {
+export function isSelector(selector: Selector): boolean {
   return selector.hasOwnProperty('selector');
 }
 
-export function getViewportSize(driver: Driver) {
+export function getViewportSize(): Object {
   const viewportSize = {
     width: Cypress.config('viewportWidth'),
     height: Cypress.config('viewportHeight'),
@@ -84,21 +56,43 @@ export function getViewportSize(driver: Driver) {
 }
 
 export function setViewportSize(vs: any) {
-  cy.viewport(vs.size.width, vs.size.height);
+  //@ts-ignore
+  Cypress.action('cy:viewport:changed', { viewportWidth: vs.size.width, viewportHeight: vs.size.height });
 }
 
 export function findElement(element: Selector) {
-  // need to check if the element is selector or HTMLElement
-
-  return new Promise(resolve => { 
-    cy.get(element.selector).then((el) => {
-      resolve(el);
-    })
-  })
+  if(isSelector(element)){
+    return transformSelector(element)
+  }
 }
 
 export function findElements(element: Selector){
-  return new Promise(resolve => {
-    cy.get(element.selector).then((elements) => resolve(elements));
-  })
+  return [findElement(element)]
 }
+
+// utils
+
+function transformSelector(selector: Selector) {
+  if(selector.hasOwnProperty('selector')) {
+    if(selector.selector.hasOwnProperty('selector') && typeof(selector.selector.selector) === 'string')
+      return selector.selector.selector
+    else if (typeof(selector.selector) == 'string')
+      return selector.selector
+  }
+}
+
+function prepareSnippet(script: string, arg: any){
+  // remove new lines from script
+  let prepScirpt = script.replace(/(\r\n|\n|\r)/gm, "");
+  prepScirpt = prepScirpt.replace('function(arg)', 'function func(arg)')
+  prepScirpt = prepScirpt.concat(' return func(arg)')
+  prepScirpt = prepScirpt.replace(/'/g, "\\'")
+  const evalScript = `let snippet = '${prepScirpt}'
+  let func = new Function('arg', snippet)
+  func(${JSON.stringify(arg)})
+  `
+  return evalScript
+}
+
+
+
