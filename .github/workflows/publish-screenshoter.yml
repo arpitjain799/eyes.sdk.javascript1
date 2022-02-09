@@ -93,10 +93,10 @@ jobs:
           node-version: lts/*
           registry-url: https://registry.npmjs.org
       - name: Add Android cli tools to PATH
-        if: ${{matrix.name == 'android' && matrix.remote == 'local'}}
+        if: ${{matrix.name == 'android'}}
         run: echo "$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/tools/bin:$ANDROID_HOME/emulator" >> "${GITHUB_PATH}"
       - name: Cache Android dependencies
-        if: ${{matrix.name == 'android' && matrix.remote == 'local'}}
+        if: ${{matrix.name == 'android'}}
         uses: actions/cache@v2
         with:
           path: ~/.android/avd
