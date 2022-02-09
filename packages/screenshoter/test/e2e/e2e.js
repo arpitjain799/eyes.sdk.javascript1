@@ -115,7 +115,7 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger})
         derivedDataPath: `~/Library/Developer/Xcode/DerivedData/Appium-${workerId}`,
         launchTimeout: 100000,
         webviewConnectRetries: 16,
-        usePrebuiltWDA: true,
+        // usePrebuiltWDA: true,
         isHeadless: true,
         browserName: app === 'safari' ? app : '',
         app: apps[app || type],
