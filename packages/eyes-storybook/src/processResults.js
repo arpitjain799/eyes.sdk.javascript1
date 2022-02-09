@@ -89,7 +89,7 @@ function processResults({results = [], totalTime, testConcurrency, saveNewTests 
         ['their', 'its'],
       )} baseline${pluralize(newTestsSize)} in Eyes dashboard.\n`,
     );
-  } else if (passedOrNew.length && !warnForUnsavedNewTests) {
+  } else if (passedOrNew.length) {
     outputStr += chalk.green(`\nNo differences were found!`);
   }
 
