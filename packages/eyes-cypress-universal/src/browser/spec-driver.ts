@@ -18,8 +18,7 @@ export function executeScript(context: Context, script: string, arg: any): any {
         }
 
         const executor = new context.defaultView.Function('arg', scriptToExecute);
-        const res = executor(arg)
-        return res
+        return executor(arg)
 }
 
 export function isDriver(driver: Context): boolean {
@@ -54,15 +53,14 @@ export function setViewportSize(vs: any): void{
 
 export function findElement(context: Context, element: Selector) {
   if(isSelector(element)) {
-    const res = context.querySelector(element)
-    return res
+    return context.querySelector(element)
   }
 }
 
 export function findElements(context: Context, element: Selector){
   if(isSelector(element)) {
-    const res = context.querySelectorAll(element)
-    return Object.values(res)
+    const elements = context.querySelectorAll(element)
+    return Object.values(elements)
   }
 }
 
