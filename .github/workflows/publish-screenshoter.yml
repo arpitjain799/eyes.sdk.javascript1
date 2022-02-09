@@ -77,10 +77,10 @@ jobs:
             jobs: 15
           - name: android
             os: macos-latest
-            jobs: 1
+            jobs: 2
           - name: ios
             os: macos-latest
-            jobs: 1
+            jobs: 2
     name: 'Test e2e (${{matrix.name}})'
     runs-on: ${{matrix.os}}
     steps:
@@ -122,7 +122,7 @@ jobs:
           remote: ${{matrix.remote}}
       - name: stop android simulators
         if: ${{matrix.name == 'android'}}
-        run: yarn android:shutdown
+        run: cd ./packages/screenshoter && yarn android:shutdown
       - name: Upload testing artifacts
         if: always()
         uses: actions/upload-artifact@v2
