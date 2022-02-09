@@ -77,7 +77,7 @@ runs:
         then
           if [ "${{inputs.setup-type}}" != "none" ]; then npm run setup:${{inputs.setup-type}}; fi
         else
-          then npm run setup --if-present
+          npm run setup --if-present
         fi
         if [ -e .env ]
         then
