@@ -99,13 +99,13 @@ jobs:
         if: ${{matrix.name == 'android'}}
         uses: actions/cache@v2
         with:
-          path: ~/.android/avd
+          path: ~/.android/avd/*
           key: android-api-29-dependencies
       - name: Cache IOS dependencies
-        if: ${{matrix.name == 'ios' && matrix.remote == 'local'}}
+        if: ${{matrix.name == 'ios'}}
         uses: actions/cache@v2
         with:
-          path: ~/Library/Developer/Xcode/DerivedData/Appium-*
+          path: ~/Library/Developer/Xcode/DerivedData/*
           key: xcode-12.5.1-dependencies
       - name: Run tests
         uses: ./.github/actions/tests
