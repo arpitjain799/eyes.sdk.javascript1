@@ -43,7 +43,7 @@
     "setup:android": "yarn android:setup && yarn appium:setup",
     "setup:ios": "yarn ios:setup && yarn appium:setup",
     "android:setup": "node ./scripts/android-emulator.js",
-    "android:shutdown": "adb -s emulator-5555 emu kill && adb -s emulator-5557 emu kill",
+    "android:shutdown": "adb -s emulator-5555 emu kill || true && adb -s emulator-5557 emu kill || true",
     "docker:setup": "node ../scripts/scripts/generate-docker-compose-config.js && docker-compose up -d",
     "docker:teardown": "docker-compose down",
     "ios:setup": "node ./scripts/ios-simulator.js",
