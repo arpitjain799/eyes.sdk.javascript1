@@ -73,6 +73,7 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger})
       capabilities: {
         udid: androidEmulatorIds[workerId],
         systemPort: 8200 + workerId,
+        mjpegServerPort: 9100 + workerId,
         chromedriverPort: 9515 + workerId,
         adbExecTimeout: 50000,
         uiautomator2ServerLaunchTimeout: 80000,
@@ -94,9 +95,9 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger})
         wdaLocalPort: 8100 + workerId,
         mjpegServerPort: 9100 + workerId,
         derivedDataPath: `~/Library/Developer/Xcode/DerivedData/Appium-${workerId}`,
+        launchTimeout: 100000,
         webviewConnectRetries: 16,
         usePrebuiltWDA: true,
-        launchTimeout: 100000,
         isHeadless: true,
         browserName: app === 'safari' ? app : '',
         app: apps[app || type],
