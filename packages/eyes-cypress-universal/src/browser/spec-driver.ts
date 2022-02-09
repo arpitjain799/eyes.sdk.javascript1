@@ -1,38 +1,34 @@
 // need to check for more possible structures of selector
-export type Selector = { selector: {selector: string } } ;
+// commonSelector (look at playwrigh)
+export type Selector = string;
 export type Context = Document;
-export type Element = JQuery | HTMLElement;
+export type Element = HTMLElement;
 
-//@ts-ignore
-let document: Context
-
-export function executeScript(context: Context, script: string, arg: any) {
-      //@ts-ignore
-      document = document ? document : cy.state('window').document 
+export function executeScript(context: Context, script: string, arg: any): any {
+      let scriptToExecute;
       if (
         script.includes('dom-snapshot') ||
         script.includes('dom-capture') ||
         script.includes('dom-shared')
         ) {
-            const scriptToExecute = script;
-            const args = Object.assign({doc: document}, arg);
-            const executor = new Function('arg', scriptToExecute);
-            return executor(args)
+            scriptToExecute = script
         } else {
-            const evalScript = prepareSnippet(script, arg)
-            const res = document.defaultView.eval(evalScript)
-            return res
-
+            const prepScirpt = script.replace('function(arg)', 'function func(arg)')
+            scriptToExecute = prepScirpt.concat(' return func(arg)')
         }
-        
+
+        const executor = new context.defaultView.Function('arg', scriptToExecute);
+        const res = executor(arg)
+        return res
 }
 
 export function isDriver(driver: Context): boolean {
   return typeof(driver) === typeof(Document)
 }
 
-export function parentContext(currentContext: Context) {
-  return currentContext === document ? currentContext : document.defaultView.top.document
+export function parentContext(currentContext: Context): Context {
+  //@ts-ignore
+  return currentContext === cy.state('window').document ? currentContext : document.defaultView.top.document
 }
 
 export function mainContext(): Context {
@@ -43,10 +39,6 @@ export function isElement(element: Element): boolean {
   return Cypress.dom.isElement(element);
 }
 
-export function isSelector(selector: Selector): boolean {
-  return selector.hasOwnProperty('selector');
-}
-
 export function getViewportSize(): Object {
   const viewportSize = {
     width: Cypress.config('viewportWidth'),
@@ -55,44 +47,45 @@ export function getViewportSize(): Object {
   return viewportSize;
 }
 
-export function setViewportSize(vs: any) {
+export function setViewportSize(vs: any): void{
   //@ts-ignore
   Cypress.action('cy:viewport:changed', { viewportWidth: vs.size.width, viewportHeight: vs.size.height });
 }
 
-export function findElement(element: Selector) {
-  if(isSelector(element)){
-    return transformSelector(element)
+export function findElement(context: Context, element: Selector) {
+  if(isSelector(element)) {
+    const res = context.querySelector(element)
+    return res
   }
 }
 
-export function findElements(element: Selector){
-  return [findElement(element)]
-}
-
-// utils
-
-function transformSelector(selector: Selector) {
-  if(selector.hasOwnProperty('selector')) {
-    if(selector.selector.hasOwnProperty('selector') && typeof(selector.selector.selector) === 'string')
-      return selector.selector.selector
-    else if (typeof(selector.selector) == 'string')
-      return selector.selector
+export function findElements(context: Context, element: Selector){
+  if(isSelector(element)) {
+    const res = context.querySelectorAll(element)
+    return Object.values(res)
   }
 }
 
-function prepareSnippet(script: string, arg: any){
-  // remove new lines from script
-  let prepScirpt = script.replace(/(\r\n|\n|\r)/gm, "");
-  prepScirpt = prepScirpt.replace('function(arg)', 'function func(arg)')
-  prepScirpt = prepScirpt.concat(' return func(arg)')
-  prepScirpt = prepScirpt.replace(/'/g, "\\'")
-  const evalScript = `let snippet = '${prepScirpt}'
-  let func = new Function('arg', snippet)
-  func(${JSON.stringify(arg)})
-  `
-  return evalScript
+export function isSelector(selector: Selector): boolean {
+  return typeof(selector) === 'string';
 }
 
+export function getTitle(context: Context): string{
+  return context.title
+}
 
+export function getUrl(context: Context): string{
+  return context.location.href
+}
 
+export function childContext(_context: Context, element: HTMLIFrameElement): Context{
+  return element.contentDocument
+}
+
+export function getCookies(context: Context){
+  return context.cookie
+}
+
+// export function takeScreenshot(page: Driver): Promise<Buffer>;
+
+// export function visit(page: Driver, url: string): Promise<void>; (??)

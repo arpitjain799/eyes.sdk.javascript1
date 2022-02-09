@@ -24,8 +24,7 @@ function makePluginExport({startServer, eyesConfig, globalHooks}) {
       })
     })
     const universalPort = await waitForServerResponse;
-  
-    server.unref()
+
         
     closeEyesServer = closeEyesServer = function() {
       this.send('close server');
