@@ -15,7 +15,7 @@ describe('screenshoter androidx app', () => {
   it('take full app screenshot on screen with collapsing header', async () => {
     const button = await driver.element({type: 'id', selector: 'btn_recycler_view_nested_collapsing'})
     await button.click()
-    await sleep(3000)
+    await sleep(5000)
 
     await driver.init()
     await driver.currentContext.setScrollingElement({type: 'id', selector: 'recyclerView'})
