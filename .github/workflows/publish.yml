@@ -198,7 +198,7 @@ jobs:
         uses: ./.github/actions/tests
         with:
           package: ${{fromJSON(needs.setup.outputs.packages).screenshoter.dirname}}
-          jobs: 2
+          jobs: 1
       - name: Upload debug artifacts
         if: always()
         uses: actions/upload-artifact@v2
