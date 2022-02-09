@@ -73,7 +73,7 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger})
       capabilities: {
         udid: androidEmulatorIds[workerId],
         automationName: 'espresso',
-        systemPort: 8200 + workerId,
+        systemPort: 82000 + workerId,
         mjpegServerPort: 9100 + workerId,
         chromedriverPort: 9515 + workerId,
         adbExecTimeout: 30000,
@@ -148,5 +148,12 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger})
   const [browser, destroyBrowser] = await spec.build(
     envs[process.env.APPLITOOLS_TEST_REMOTE === 'sauce' ? `${type}-sauce` : type],
   )
-  return [await new Driver({driver: browser, spec, logger}).init(), destroyBrowser]
+  const driver = await new Driver({driver: browser, spec, logger}).init()
+  return [
+    driver,
+    async () => {
+      if (driver.isNative) await browser.closeApp()
+      await destroyBrowser()
+    },
+  ]
 }
