@@ -430,7 +430,7 @@ describe('CheckSettingsUtils', () => {
 
     assert.deepStrictEqual(checkWindowConfiguration.variationGroupId, 'variant-id')
   })
-  
+
   it('toCheckWindowConfiguration handles pageId', () => {
     const checkSettings = {pageId: 'my-page'}
 
@@ -439,7 +439,6 @@ describe('CheckSettingsUtils', () => {
       configuration: new Configuration(),
     })
 
-    console.log('checkWindowConfiguration', checkWindowConfiguration)
     assert.deepStrictEqual(checkWindowConfiguration.pageId, 'my-page')
   })
 
