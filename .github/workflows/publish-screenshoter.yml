@@ -104,6 +104,12 @@ jobs:
         if: ${{matrix.name == 'ios'}}
         uses: actions/cache@v2
         with:
+          path: ~/Library/Developer/Xcode/DerivedData/Appium-*
+          key: xcode-12.5.1-dependencies
+      - name: Cache IOS dependencies
+        if: ${{matrix.name == 'ios'}}
+        uses: actions/cache@v2
+        with:
           path: ~/Library/Developer/Xcode/DerivedData/*
           key: xcode-12.5.1-dependencies
       - name: Run tests
