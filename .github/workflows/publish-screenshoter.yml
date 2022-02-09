@@ -78,10 +78,10 @@ jobs:
             jobs: 15
           - name: android
             os: macos-latest
-            jobs: 1
+            jobs: 2
           - name: ios
             os: macos-latest
-            jobs: 1
+            jobs: 2
     name: 'Test e2e (${{matrix.name}})'
     runs-on: ${{matrix.os}}
     steps:

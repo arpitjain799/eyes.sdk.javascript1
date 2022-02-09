@@ -49,6 +49,7 @@ exports.test = async function test({type, tag, driver, ...options} = {}) {
 
 exports.makeDriver = async function makeDriver({type, app, orientation, logger}) {
   const workerId = process.env.MOCHA_WORKER_ID ? Number(process.env.MOCHA_WORKER_ID) : 0
+  console.log(`makeDriver called for worker #${process.env.MOCHA_WORKER_ID}`, workerId)
   const androidEmulatorIds = process.env.ANDROID_EMULATOR_UDID
     ? process.env.ANDROID_EMULATOR_UDID.split(',')
     : ['emulator-5554']
@@ -60,11 +61,18 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger})
   }
 
   const envs = {
+    chrome: {
+      url: 'http://localhost:4444/wd/hub',
+      capabilities: {
+        browserName: 'chrome',
+        'goog:chromeOptions': {args: ['headless']},
+      },
+    },
     android: {
       url: 'http://0.0.0.0:4723/wd/hub',
       capabilities: {
         udid: androidEmulatorIds[workerId],
-        systemPort: 8300 + workerId,
+        systemPort: 8200 + workerId,
         chromedriverPort: 9515 + workerId,
         adbExecTimeout: 50000,
         uiautomator2ServerLaunchTimeout: 60000,
