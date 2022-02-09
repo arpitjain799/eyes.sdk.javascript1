@@ -75,7 +75,7 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger})
         systemPort: 8200 + workerId,
         chromedriverPort: 9515 + workerId,
         adbExecTimeout: 50000,
-        uiautomator2ServerLaunchTimeout: 60000,
+        uiautomator2ServerLaunchTimeout: 80000,
         isHeadless: true,
         browserName: app === 'chrome' ? app : '',
         app: apps[app || type],
