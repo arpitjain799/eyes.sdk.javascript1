@@ -50,7 +50,7 @@ jobs:
           npx bongo release-pre-check --skip-deps --skip-commit --skip-verify-installed-versions
   test-it:
     needs: [verify]
-    name: 'Test IT'
+    name: 'Test integration'
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
@@ -77,12 +77,12 @@ jobs:
             os: ubuntu-latest
             jobs: 15
           - name: android
-            os: ubuntu-latest
+            os: macos-latest
             jobs: 2
           - name: ios
             os: macos-latest
             jobs: 2
-    name: 'Test E2E (${{matrix.name}})'
+    name: 'Test e2e (${{matrix.name}})'
     runs-on: ${{matrix.os}}
     steps:
       - name: Check-out repository
