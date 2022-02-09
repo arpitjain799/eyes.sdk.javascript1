@@ -430,6 +430,18 @@ describe('CheckSettingsUtils', () => {
 
     assert.deepStrictEqual(checkWindowConfiguration.variationGroupId, 'variant-id')
   })
+  
+  it('toCheckWindowConfiguration handles pageId', () => {
+    const checkSettings = {pageId: 'my-page'}
+
+    const checkWindowConfiguration = CheckSettingsUtils.toCheckWindowConfiguration({
+      checkSettings,
+      configuration: new Configuration(),
+    })
+
+    console.log('checkWindowConfiguration', checkWindowConfiguration)
+    assert.deepStrictEqual(checkWindowConfiguration.pageId, 'my-page')
+  })
 
   describe('toMatchSettings', () => {
     let mockDriver,
