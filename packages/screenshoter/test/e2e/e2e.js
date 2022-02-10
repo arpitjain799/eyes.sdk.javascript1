@@ -73,8 +73,7 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger})
       url: 'http://0.0.0.0:4723/wd/hub',
       capabilities: {
         udid: androidEmulatorIds[workerId],
-        automationName: 'espresso',
-        systemPort: 8900 + workerId,
+        systemPort: 8200 + workerId,
         mjpegServerPort: 9100 + workerId,
         chromedriverPort: 9515 + workerId,
         adbExecTimeout: 30000,
