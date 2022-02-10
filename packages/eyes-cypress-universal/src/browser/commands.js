@@ -14,7 +14,6 @@ const {socketCommands} = require('./socketCommands');
 const refer = new Refer();
 const socket = new Socket();
 const throwErr = Cypress.config('failCypressOnDiff');
-let connectedToUniversal = false;
 socketCommands(socket, refer);
 
 /*
@@ -48,9 +47,7 @@ before(() => {
   //   data: {isInteractive: getGlobalConfigProperty('isInteractive')},
   // });
   return cy.then({timeout: 86400000}, async () => {
-    if (!connectedToUniversal) {
       await socket.connect(`ws://localhost:${Cypress.config('universalPort')}/eyes`);
-      connectedToUniversal = true;
       await socket.emit('Core.makeSDK', {
         name: 'eyes.cypress',
         version: require('../../package.json').version,
@@ -70,7 +67,6 @@ before(() => {
         command: 'sendManager',
         data: manager,
       });
-    }
   });
 });
 
