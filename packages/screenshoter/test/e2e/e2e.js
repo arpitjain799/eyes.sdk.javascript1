@@ -1,4 +1,5 @@
 const assert = require('assert')
+const webdriverio = require('webdriverio')
 const pixelmatch = require('pixelmatch')
 const utils = require('@applitools/utils')
 const spec = require('@applitools/spec-driver-webdriverio')
@@ -77,11 +78,11 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger})
         mjpegServerPort: 9100 + workerId,
         chromedriverPort: 9515 + workerId,
         adbExecTimeout: 30000,
-        uiautomator2ServerLaunchTimeout: 180000,
+        uiautomator2ServerLaunchTimeout: 240000,
         newCommandTimeout: 0,
         nativeWebScreenshot: true,
         skipUnlock: true,
-        noReset: true,
+        // noReset: true,
         isHeadless: true,
         browserName: app === 'chrome' ? app : '',
         app: apps[app || type],
@@ -118,7 +119,7 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger})
         newCommandTimeout: 0,
         webviewConnectRetries: 16,
         usePrebuiltWDA: true,
-        noReset: true,
+        // noReset: true,
         isHeadless: true,
         browserName: app === 'safari' ? app : '',
         app: apps[app || type],
@@ -145,15 +146,19 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger})
       },
     },
   }
-  const [browser, destroyBrowser] = await spec.build(
-    envs[process.env.APPLITOOLS_TEST_REMOTE === 'sauce' ? `${type}-sauce` : type],
-  )
+  const env = envs[process.env.APPLITOOLS_TEST_REMOTE === 'sauce' ? `${type}-sauce` : type]
+  const url = new URL(env.url)
+  const browser = await webdriverio.remote({
+    protocol: url.protocol ? url.protocol.replace(/:$/, '') : undefined,
+    hostname: url.hostname,
+    port: Number(url.port),
+    path: url.pathname,
+    capabilities: env.capabilities,
+    logLevel: 'silent',
+    connectionRetryCount: 0,
+    connectionRetryTimeout: 240000,
+  })
+
   const driver = await new Driver({driver: browser, spec, logger}).init()
-  return [
-    driver,
-    async () => {
-      if (driver.isNative) await browser.closeApp()
-      await destroyBrowser()
-    },
-  ]
+  return [driver, async () => browser.deleteSession()]
 }
