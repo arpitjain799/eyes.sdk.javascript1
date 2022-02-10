@@ -39,9 +39,11 @@ export function isElement(element: Element): boolean {
 }
 
 export function getViewportSize(): Object {
+  //@ts-ignore
+  const CurrWindow = cy.state('window')
   const viewportSize = {
-    width: Cypress.config('viewportWidth'),
-    height: Cypress.config('viewportHeight'),
+    width: Math.max(CurrWindow.document.documentElement.clientWidth || 0, CurrWindow.innerWidth || 0),
+    height: Math.max(CurrWindow.document.documentElement.clientHeight || 0, CurrWindow.innerHeight || 0)
   };
   return viewportSize;
 }
@@ -81,9 +83,11 @@ export function childContext(_context: Context, element: HTMLIFrameElement): Con
 }
 
 export function getCookies(context: Context){
-  return context.cookie
+  return context.cookie.split(';')
 }
 
 // export function takeScreenshot(page: Driver): Promise<Buffer>;
 
 // export function visit(page: Driver, url: string): Promise<void>; (??)
+
+// export function isStaleElementError(err: any): boolean;

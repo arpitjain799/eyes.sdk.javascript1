@@ -20,8 +20,8 @@ describe('spec-driver', () => {
 
       });
 
-    it('works for executeScript', async () => {
-        await runCypress('executeScript')
+    it('works for spec-driver.spec.js', async () => {
+        await runCypress('spec-driver')
         .then((results) => {
             expect(results.runs[0].tests[0].state).to.equal( 'passed');
           })
@@ -30,19 +30,7 @@ describe('spec-driver', () => {
           })
     })
 
-    it.only('works for findElement', async () => {
-        await runCypress('findElement')
-        .then((results) => {
-            for(const test of results.runs[0].tests) {
-                expect(test.state).to.equal( 'passed');
-            }
-        })
-        .catch((err) => {
-            console.error(err)
-        })
-    })
-
-    it.skip('playground', async () => {
+    it.only('playground', async () => {
         await openCypress()
     })
 })
