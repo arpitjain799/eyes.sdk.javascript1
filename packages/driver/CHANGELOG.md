@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- fix android helper
 
 ## 1.4.12 - 2022/2/8
 
