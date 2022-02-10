@@ -75,7 +75,7 @@
   "dependencies": {
     "@applitools/snippets": "2.1.12",
     "@applitools/types": "1.0.24",
-    "@applitools/utils": "1.2.11"
+    "@applitools/utils": "1.2.12"
   },
   "devDependencies": {
     "@applitools/sdk-release-kit": "0.13.11",
