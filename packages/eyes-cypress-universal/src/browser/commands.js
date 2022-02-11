@@ -46,28 +46,28 @@ before(() => {
   //   command: 'batchStart',
   //   data: {isInteractive: getGlobalConfigProperty('isInteractive')},
   // });
-  return cy.then({timeout: 86400000}, async () => {
-      await socket.connect(`ws://localhost:${Cypress.config('universalPort')}/eyes`);
-      await socket.emit('Core.makeSDK', {
-        name: 'eyes.cypress',
-        version: require('../../package.json').version,
-        commands: Object.keys(spec),
-        cwd: process.cwd(),
-      });
+  // return cy.then({timeout: 86400000}, async () => {
+  //     await socket.connect(`ws://localhost:${Cypress.config('universalPort')}/eyes`);
+  //     await socket.emit('Core.makeSDK', {
+  //       name: 'eyes.cypress',
+  //       version: require('../../package.json').version,
+  //       commands: Object.keys(spec),
+  //       cwd: process.cwd(),
+  //     });
 
-      manager = await socket.request(
-        'Core.makeManager',
-        Object.assign(
-          {},
-          {concurrency: Cypress.config('eyesTestConcurrency')},
-          {legacy: false, type: 'vg'},
-        ),
-      );
-      await sendRequest({
-        command: 'sendManager',
-        data: manager,
-      });
-  });
+  //     manager = await socket.request(
+  //       'Core.makeManager',
+  //       Object.assign(
+  //         {},
+  //         {concurrency: Cypress.config('eyesTestConcurrency')},
+  //         {legacy: false, type: 'vg'},
+  //       ),
+  //     );
+  //     await sendRequest({
+  //       command: 'sendManager',
+  //       data: manager,
+  //     });
+  // });
 });
 
 Cypress.Commands.add('eyesGetAllTestResults', async () => {
@@ -127,6 +127,26 @@ Cypress.Commands.add('eyesOpen', function(args = {}) {
 
   return cy.then({timeout: 86400000}, async () => {
     const driverRef = refer.ref(cy.state('window').document);
+    await socket.connect(`ws://localhost:${Cypress.config('universalPort')}/eyes`);
+    await socket.emit('Core.makeSDK', {
+      name: 'eyes.cypress',
+      version: require('../../package.json').version,
+      commands: Object.keys(spec),
+      cwd: process.cwd(),
+    });
+
+    manager = await socket.request(
+      'Core.makeManager',
+      Object.assign(
+        {},
+        {concurrency: Cypress.config('eyesTestConcurrency')},
+        {legacy: false, type: 'vg'},
+      ),
+    );
+    await sendRequest({
+      command: 'sendManager',
+      data: manager,
+    });
     eyes = await socket.request('EyesManager.openEyes', {
       manager,
       driver: driverRef,
