@@ -44,6 +44,15 @@
     "@applitools/types" "1.0.24"
     "@applitools/utils" "1.2.11"
 
+"@applitools/driver@1.4.12":
+  version "1.4.12"
+  resolved "https://registry.yarnpkg.com/@applitools/driver/-/driver-1.4.12.tgz#9cefab587a436a55a66abfc7265950cb5b84c1af"
+  integrity sha512-MrE6LQ2JCKXaJOKB4lPTnx0JahdlrcYjJMW3+mslksETTD10O8PWpzNxmuQQt9v+hkF3joNa8CUlMhA0fiQarA==
+  dependencies:
+    "@applitools/snippets" "2.1.12"
+    "@applitools/types" "1.0.24"
+    "@applitools/utils" "1.2.11"
+
 "@applitools/eyes-api@1.1.7":
   version "1.1.7"
   resolved "https://registry.yarnpkg.com/@applitools/eyes-api/-/eyes-api-1.1.7.tgz#9bba39b7675d8dd4153f6b7f6b8544e2c1441639"
@@ -64,6 +73,29 @@
     "@applitools/isomorphic-fetch" "3.0.0"
     "@applitools/logger" "1.0.10"
     "@applitools/screenshoter" "3.3.4"
+    "@applitools/snippets" "2.1.12"
+    "@applitools/types" "1.0.24"
+    "@applitools/utils" "1.2.11"
+    axios "0.21.4"
+    chalk "3.0.0"
+    cosmiconfig "6.0.0"
+    dateformat "3.0.3"
+    debug "4.3.3"
+    deepmerge "4.2.2"
+    stack-trace "0.0.10"
+    tunnel "0.0.6"
+
+"@applitools/eyes-sdk-core@13.0.2":
+  version "13.0.2"
+  resolved "https://registry.yarnpkg.com/@applitools/eyes-sdk-core/-/eyes-sdk-core-13.0.2.tgz#acf0b05899ddeec6f2aa3785f73b28f5005c8395"
+  integrity sha512-uNXpjdzukFDafaYHLh9P15b+IW0J9SEkS9Gl3LViODktiwwmqoSWPDW6OSCiOO014mcCjLT+eh8GOMZi9r22tA==
+  dependencies:
+    "@applitools/dom-capture" "11.1.0"
+    "@applitools/dom-snapshot" "4.5.12"
+    "@applitools/driver" "1.4.12"
+    "@applitools/isomorphic-fetch" "3.0.0"
+    "@applitools/logger" "1.0.10"
+    "@applitools/screenshoter" "3.3.5"
     "@applitools/snippets" "2.1.12"
     "@applitools/types" "1.0.24"
     "@applitools/utils" "1.2.11"
@@ -166,6 +198,15 @@
     "@applitools/utils" "1.2.5"
     png-async "0.9.4"
 
+"@applitools/screenshoter@3.3.5":
+  version "3.3.5"
+  resolved "https://registry.yarnpkg.com/@applitools/screenshoter/-/screenshoter-3.3.5.tgz#9f0448e88d8d36ba69d60addbe0b6cec6a27b78c"
+  integrity sha512-nNT9QzNfvRMqEPMrJiObCNftjJObuzS/+/x9K/3d54Y8RA8dvJ0pdwiDiAAmiba+bASxSz7mHsVNHv+5F6yZsQ==
+  dependencies:
+    "@applitools/snippets" "2.1.12"
+    "@applitools/utils" "1.2.11"
+    png-async "0.9.4"
+
 "@applitools/scripts@1.1.0":
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@applitools/scripts/-/scripts-1.1.0.tgz#cd0c87760f101bb27dfc42c7d07705f0557bca37"
@@ -222,13 +263,13 @@
   resolved "https://registry.yarnpkg.com/@applitools/snippets/-/snippets-2.1.12.tgz#878d034358243cd1647326570988b5e90a8b9c11"
   integrity sha512-XFj9ZMJ8VNNzAuCdGqgmC+SEZY61jRahAiZ/W1dgyJJrEIWmkEm/8USq/3n1mJbbyDV8VhT6+aSikqoanzPETQ==
 
-"@applitools/spec-driver-webdriverio@1.2.6":
-  version "1.2.6"
-  resolved "https://registry.yarnpkg.com/@applitools/spec-driver-webdriverio/-/spec-driver-webdriverio-1.2.6.tgz#d801debacd6f5ce3263fcafe40e9beb5ef0d0049"
-  integrity sha512-2lfR8XvZw/01AKXmcpyaPYy82+fRRf2UIGhC5Zy5RM+yBb8yqcPGFlVGyzL/mnw3SAz7CbGawNYZy7vKnACX2Q==
+"@applitools/spec-driver-webdriverio@1.2.7":
+  version "1.2.7"
+  resolved "https://registry.yarnpkg.com/@applitools/spec-driver-webdriverio/-/spec-driver-webdriverio-1.2.7.tgz#778676a35fae3761e8639fe9d0c5b8d9625737f0"
+  integrity sha512-LaVUVXAOZeJxdz3TmI0s3W97U6KPTQenLgTA4QdSIqb5s3iPQu/YZmNj8MEHFfbuv/yGkej0S+hJU9rtpJtLUQ==
   dependencies:
-    "@applitools/types" "1.0.23"
-    "@applitools/utils" "1.2.11"
+    "@applitools/types" "1.0.24"
+    "@applitools/utils" "1.2.12"
 
 "@applitools/test-server@1.0.8":
   version "1.0.8"
@@ -260,11 +301,6 @@
     chalk "4.1.1"
     node-fetch "2.6.1"
 
-"@applitools/types@1.0.23":
-  version "1.0.23"
-  resolved "https://registry.yarnpkg.com/@applitools/types/-/types-1.0.23.tgz#52b103d7537b3281c9c01c2ffcfa2fad99a6c650"
-  integrity sha512-Pa/PRHSI3eJ40E6rFlpaj+mjNR6VEpklrSv1ARymZUtSZjGgqW7Khhxaj85UgarPEpC3V/cgiFjmuhzVwGmJhw==
-
 "@applitools/types@1.0.24":
   version "1.0.24"
   resolved "https://registry.yarnpkg.com/@applitools/types/-/types-1.0.24.tgz#96bfe0a83a88f48cf9e805b1e36d6b73be25c8f7"
@@ -274,6 +310,11 @@
   version "1.2.11"
   resolved "https://registry.yarnpkg.com/@applitools/utils/-/utils-1.2.11.tgz#e4981090149ee7cf327a04fb939f3a4c8a2fa0c1"
   integrity sha512-khBpPL+wtoF6wlGq6YNK0dWSz0lAfsnKZ3/7dubIQ9d7EZvsvbRqAfw1iJ+vHlBFMeUx3UhQ+5MbEgXaf+WC5w==
+
+"@applitools/utils@1.2.12":
+  version "1.2.12"
+  resolved "https://registry.yarnpkg.com/@applitools/utils/-/utils-1.2.12.tgz#c5c882e5ec9d29bad889406e2e8430cd76712de8"
+  integrity sha512-M/nV9BEbFi4A5VlHNEzZG3uaQKEeGNIpLDc1+lKmCN/nhrSCbKOQqVBVb1iNwKfWETcW4FxRbVa+lbaDhUt/+Q==
 
 "@applitools/utils@1.2.4":
   version "1.2.4"
