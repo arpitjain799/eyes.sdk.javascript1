@@ -1,6 +1,6 @@
 {
   "name": "@applitools/eyes-cypress",
-  "version": "3.23.5",
+  "version": "3.23.7",
   "main": "index.js",
   "license": "SEE LICENSE IN LICENSE",
   "bin": {
@@ -16,6 +16,7 @@
     "cypress": "cd test/fixtures/testApp && cypress open --config integrationFolder=cypress/integration-play,pluginsFile=cypress/plugins/index-play.js,supportFile=cypress/support/index-play.js",
     "cypress:run": "cd test/fixtures/testApp && cypress run --config integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js",
     "cypress:play": "cd test/fixtures/testApp && cypress run --config integrationFolder=cypress/integration-play,pluginsFile=cypress/plugins/index-play.js,supportFile=cypress/support/index-run.js --spec=cypress/integration-play/play.js",
+    "gh:publish": "gh workflow run publish-cypress.yml --ref $(git rev-parse --abbrev-ref HEAD)",
     "preversion": "bongo preversion --skip-deps",
     "version": "bongo version",
     "postversion": "bongo postversion --skip-release-notification",
@@ -42,16 +43,17 @@
     "@applitools/dom-snapshot": "4.5.12",
     "@applitools/functional-commons": "1.6.0",
     "@applitools/logger": "1.0.9",
-    "@applitools/visual-grid-client": "15.8.57",
+    "@applitools/visual-grid-client": "15.8.62",
     "body-parser": "1.19.0",
     "chalk": "3.0.0",
     "cors": "2.8.5",
     "express": "4.17.1",
-    "lodash.flatten": "4.4.0"
+    "lodash.flatten": "4.4.0",
+    "throat": "6.0.1"
   },
   "devDependencies": {
     "@applitools/scripts": "^1.1.0",
-    "@applitools/sdk-release-kit": "0.13.10",
+    "@applitools/sdk-release-kit": "0.13.11",
     "@applitools/snaptdout": "1.0.1",
     "@applitools/test-server": "1.0.8",
     "chai": "^4.2.0",
@@ -67,7 +69,7 @@
     "mocha": "^8.0.1",
     "morgan": "^1.9.1",
     "ncp": "^2.0.0",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.7",
     "prettier": "^1.19.1",
     "typescript": "^3.9.2"
   },

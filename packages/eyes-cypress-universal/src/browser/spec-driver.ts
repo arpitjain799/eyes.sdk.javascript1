@@ -31,7 +31,8 @@ export function parentContext(currentContext: Context): Context {
 }
 
 export function mainContext(): Context {
-  return document
+  //@ts-ignore
+  return cy.state('window').document
 }
 
 export function isElement(element: Element): boolean {
@@ -40,10 +41,10 @@ export function isElement(element: Element): boolean {
 
 export function getViewportSize(): Object {
   //@ts-ignore
-  const CurrWindow = cy.state('window')
+  const currWindow = cy.state('window')
   const viewportSize = {
-    width: Math.max(CurrWindow.document.documentElement.clientWidth || 0, CurrWindow.innerWidth || 0),
-    height: Math.max(CurrWindow.document.documentElement.clientHeight || 0, CurrWindow.innerHeight || 0)
+    width: Math.max(currWindow.document.documentElement.clientWidth || 0, currWindow.innerWidth || 0),
+    height: Math.max(currWindow.document.documentElement.clientHeight || 0, currWindow.innerHeight || 0)
   };
   return viewportSize;
 }
@@ -82,6 +83,7 @@ export function childContext(_context: Context, element: HTMLIFrameElement): Con
   return element.contentDocument
 }
 
+// https://github.com/applitools/eyes.sdk.javascript1/blob/15c887a5a4f939f689f463c2875669edc8daf2f5/packages/types/src/driver.ts#L28
 export function getCookies(context: Context){
   return context.cookie.split(';')
 }

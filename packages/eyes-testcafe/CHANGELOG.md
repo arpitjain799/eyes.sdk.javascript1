@@ -3,6 +3,27 @@
 ## Unreleased
 
 
+## 1.15.3 - 2022/1/24
+
+- updated 'Agent ID' to 'eyes.testcafe' (from 'eyes.webdriverio')
+- updated to @applitools/eyes-api@1.1.7 (from 1.1.6)
+- updated to @applitools/eyes-sdk-core@13.0.0 (from 12.24.13)
+- updated to @applitools/visual-grid-client@15.8.62 (from 15.8.60)
+
+## 1.15.2 - 2022/1/14
+
+- remove `esModuleInterop` ts compile option
+
+## 1.15.1 - 2022/1/13
+
+- set failTestcafeOnDiff default value to true
+- updated to @applitools/eyes-api@1.1.6 (from 1.1.0)
+- updated to @applitools/eyes-sdk-core@12.24.9 (from 12.23.3)
+- updated to @applitools/utils@1.2.11 (from 1.2.2)
+- updated to @applitools/visual-grid-client@15.8.55 (from 15.8.24)
+- updated to @applitools/eyes-sdk-core@12.24.13 (from 12.24.9)
+- updated to @applitools/visual-grid-client@15.8.60 (from 15.8.55)
+
 ## 1.15.0 - 2021/9/6
 
 - updated to @applitools/eyes-api@1.1.0 (from 1.0.7)

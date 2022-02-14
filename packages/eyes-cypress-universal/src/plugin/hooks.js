@@ -17,6 +17,7 @@ function makeGlobalRunHooks() {
       try {
         const throwErr = false
         const results = []
+  
         //Cypress.config('failCypressOnDiff');
         // const socket = new Socket();
         // socket.connect(`http://localhost:${config.universalPort}/eyes`);
@@ -27,8 +28,8 @@ function makeGlobalRunHooks() {
         const resp = await axios.get(`https://localhost:${config.localServerPort}/eyes/getAllManagers`);
         const managers = resp && resp.data && resp.data.managers ? resp.data.managers : [];
         for (const manager of managers) {
-          const currRes = await socket.request('EyesManager.closeAllEyes', {manager, throwErr});
-          results.push(currRes)
+           const currRes = await socket.request('EyesManager.closeAllEyes', {manager, throwErr});
+            results.push(currRes)
         }
         // fillout options
         socket.request('Core.closeBatches', options);
@@ -37,6 +38,7 @@ function makeGlobalRunHooks() {
           throw e;
         }
       }
+
     },
   };
 }

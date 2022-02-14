@@ -15,6 +15,7 @@ const refer = new Refer();
 const socket = new Socket();
 const throwErr = Cypress.config('failCypressOnDiff');
 socketCommands(socket, refer);
+let eyesOpen = false;
 
 /*
 
@@ -54,7 +55,6 @@ before(() => {
   //       commands: Object.keys(spec),
   //       cwd: process.cwd(),
   //     });
-
   //     manager = await socket.request(
   //       'Core.makeManager',
   //       Object.assign(
@@ -71,7 +71,7 @@ before(() => {
 });
 
 Cypress.Commands.add('eyesGetAllTestResults', async () => {
-  return socket.request('EyesManager.closeAllEyes', {manager: manager, throwErr});
+  return socket.request('EyesManager.closeAllEyes', {manager, throwErr});
 });
 
 // if (shouldUseBrowserHooks) {
@@ -127,26 +127,28 @@ Cypress.Commands.add('eyesOpen', function(args = {}) {
 
   return cy.then({timeout: 86400000}, async () => {
     const driverRef = refer.ref(cy.state('window').document);
-    await socket.connect(`ws://localhost:${Cypress.config('universalPort')}/eyes`);
-    await socket.emit('Core.makeSDK', {
-      name: 'eyes.cypress',
-      version: require('../../package.json').version,
-      commands: Object.keys(spec),
-      cwd: process.cwd(),
-    });
+    if (!eyesOpen) {
+      await socket.connect(`ws://localhost:${Cypress.config('universalPort')}/eyes`);
+      await socket.emit('Core.makeSDK', {
+        name: 'eyes.cypress',
+        version: require('../../package.json').version,
+        commands: Object.keys(spec),
+        cwd: process.cwd(),
+      });
 
-    manager = await socket.request(
-      'Core.makeManager',
-      Object.assign(
-        {},
-        {concurrency: Cypress.config('eyesTestConcurrency')},
-        {legacy: false, type: 'vg'},
-      ),
-    );
-    await sendRequest({
-      command: 'sendManager',
-      data: manager,
-    });
+      manager = await socket.request(
+        'Core.makeManager',
+        Object.assign(
+          {},
+          {concurrency: Cypress.config('eyesTestConcurrency')},
+          {legacy: false, type: 'vg'},
+        ),
+      );
+      await sendRequest({
+        command: 'sendManager',
+        data: manager,
+      });
+    }
     eyes = await socket.request('EyesManager.openEyes', {
       manager,
       driver: driverRef,
@@ -226,21 +228,64 @@ function validateBrowser(browser) {
 
 function toCheckWindowConfiguration(config) {
   // check for other values to map
-  let regionSettings = {}
+  let regionSettings = {};
+  let shadowDomSettings = {};
   const checkSettings = {
     name: config.tag,
     disableBrowserFetching: Cypress.config('eyesDisableBrowserFetching'),
     visualGridOptions: config.visualGridOptions,
     layoutBreakpoints: config.layoutBreakpoints,
     hooks: config.scriptHooks,
+    ignoreRegions: config.ignore,
+    floatingRegions: config.floating,
+    strictRegions: config.strict,
+    layoutRegions: config.layout,
+    contentRegions: config.content,
+    accessibilityRegions: config.accessibility,
   };
+  
+  // [{#has-shadow-root}, {#has-shadow-root-nested > div}, {h1}]
+  // shadow dom structure example for
+  // {
+  //   selector: "#has-shadow-root",
+  //   shadow: {
+  //     selector: "#has-shadow-root-nested > div",
+  //     shadow: "div",
+  //   },
+  // }
 
-  if(config.target && config.target === 'region'){
-    regionSettings = {
-      region: config.selector
-    } 
+  if(config.target == 'region'){
+    if(!Array.isArray(config.selector)){
+      regionSettings = {
+        region: config.selector
+      }
+    } else {
+      const selectors =  config.selector
+      // const finalRegion  = {shadow: selectors[selectors.length - 1]}
+      const shadow = selectors[selectors.length - 1]
+      for(let i = selectors.length - 2; i > -1; i--){
+        if(i === selectors.length - 2){
+          shadowDomSettings = {
+              shadow: {
+                selector: selectors[i], 
+                shadow
+              }
+          }
+        } else {
+          shadowDomSettings = {
+            selector: selectors[i],
+            shadow: shadowDomSettings
+          }
+        }
+      }
+      regionSettings = {
+       region: shadowDomSettings.shadow
+      }
+        
+    }
   }
 
+  // return checkSettings
   return Object.assign({}, checkSettings, regionSettings);
 }
 
