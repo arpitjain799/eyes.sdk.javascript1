@@ -3,6 +3,7 @@ const isGlobalHooksSupported = require('./isGlobalHooksSupported');
 const {presult} = require('@applitools/functional-commons');
 const childProcess = require('child_process');
 const path = require('path');
+const {makeServerProcess} = require('@applitools/eyes-universal')
 
 function makePluginExport({startServer, eyesConfig, globalHooks}) {
   return function pluginExport(pluginModule) {
@@ -11,22 +12,8 @@ function makePluginExport({startServer, eyesConfig, globalHooks}) {
     pluginModule.exports = async function(...args) {
       const {localServerPort, closeServer} = await startServer();
 
-      const server = childProcess.spawn('node', [require.resolve('@applitools/eyes-universal/dist/cli.js')], {
-        detached: true,
-        stdio: ['ignore', 'pipe', 'ignore'],
-      })
-      const waitForServerResponse = new Promise(resolve => {
-        server.stdout.once('data', data => {
-        ;(server.stdout).unref()
-        const [port] = String(data).split('\n', 1)
-        resolve(port)
-      })
-    })
+      const {port: universalPort} = await makeServerProcess()
 
-    // for when we are running without the UI
-    server.unref()
-
-    const universalPort = await waitForServerResponse;
 
         
     closeEyesServer = closeEyesServer = function() {

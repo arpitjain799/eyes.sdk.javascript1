@@ -244,44 +244,27 @@ function toCheckWindowConfiguration(config) {
     accessibilityRegions: config.accessibility,
   };
   
-  // [{#has-shadow-root}, {#has-shadow-root-nested > div}, {h1}]
-  // shadow dom structure example for
-  // {
-  //   selector: "#has-shadow-root",
-  //   shadow: {
-  //     selector: "#has-shadow-root-nested > div",
-  //     shadow: "div",
-  //   },
-  // }
 
-  if(config.target == 'region'){
+  if(config.target == 'region'){ 
     if(!Array.isArray(config.selector)){
       regionSettings = {
         region: config.selector
       }
     } else {
       const selectors =  config.selector
-      // const finalRegion  = {shadow: selectors[selectors.length - 1]}
-      const shadow = selectors[selectors.length - 1]
-      for(let i = selectors.length - 2; i > -1; i--){
-        if(i === selectors.length - 2){
-          shadowDomSettings = {
-              shadow: {
-                selector: selectors[i], 
-                shadow
-              }
-          }
+      for(let i = selectors.length - 1; i > -1; i--) {
+        if(i === selectors.length - 1) {
+          shadowDomSettings['shadow'] = selectors[i].selector
         } else {
-          shadowDomSettings = {
-            selector: selectors[i],
-            shadow: shadowDomSettings
-          }
+          const prevSettings = Object.assign({}, shadowDomSettings)
+          shadowDomSettings['selector'] = selectors[i].selector
+          if(!prevSettings.hasOwnProperty('selector'))
+            shadowDomSettings['shadow'] = prevSettings.shadow
+          else
+            shadowDomSettings['shadow'] = prevSettings
         }
       }
-      regionSettings = {
-       region: shadowDomSettings.shadow
-      }
-        
+      regionSettings = { region: shadowDomSettings}
     }
   }
 

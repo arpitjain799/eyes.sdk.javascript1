@@ -2,7 +2,14 @@ const spec = require('../../dist/browser/spec-driver');
 
 function socketCommands(socket, refer) {
   socket.command('Driver.executeScript', ({context, script, arg = []}) => {
-    return spec.executeScript(refer.deref(context), script, derefArgs(arg));
+    const res =  spec.executeScript(refer.deref(context), script, derefArgs(arg));
+    // we need to ref in case we return a dom element but not in other cases
+    if(script.includes('shadowRoot') && !script.includes('dom-snapshot')){
+      return refer.ref(res)
+    } else {
+      return res
+    }
+
   });
   socket.command('Driver.mainContext', context => {
     const mainContext = spec.mainContext(refer.deref(context));
@@ -20,9 +27,10 @@ function socketCommands(socket, refer) {
   socket.command('Driver.setViewportSize', vs => {
     spec.setViewportSize(vs);
   });
-  socket.command('Driver.findElement', ({context, selector}) => {
+  socket.command('Driver.findElement', ({context, selector, parent}) => {
     if(isSelector(selector)) {
-      const res = spec.findElement(refer.deref(context), transformSelector(refer.deref(selector)));
+      const derefParent  = parent ? refer.deref(parent) : parent
+      const res = spec.findElement(refer.deref(context), transformSelector(refer.deref(selector)), derefParent);
       return refer.ref(res);
     } else{
       // add some error handling here 
@@ -30,14 +38,15 @@ function socketCommands(socket, refer) {
     }
 
   });
-  socket.command('Driver.findElements', ({context, selector}) => {
+  socket.command('Driver.findElements', ({context, selector, parent}) => {
     if(isSelector(selector)) {
-    const elements = spec.findElements(refer.deref(context), transformSelector(refer.deref(selector)));
-    let result = []
-    for(const el of elements){
-      result.push(refer.ref(el))
-    }
-    return result
+      const derefParent = parent ? refer.deref(parent) : parent
+      const elements = spec.findElements(refer.deref(context), transformSelector(refer.deref(selector)), derefParent);
+      let result = []
+      for(const el of elements){
+        result.push(refer.ref(el))
+      }
+      return result
   } else {
     // add some error handling here
   }
