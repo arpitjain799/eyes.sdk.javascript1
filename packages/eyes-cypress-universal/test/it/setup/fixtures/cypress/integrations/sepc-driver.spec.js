@@ -12,20 +12,35 @@ describe('spec: executeScript',async () => {
 })
 
 describe('spec: findElement', () => {
-    it('works for findElement', () => {
+    it('works for findElement css selector', () => {
         const selector = 'body > div > div.section.button-section > button'
         cy.visit('https://www.applitools.com/helloworld').then(() => {        
             const button = spec.findElement(cy.state('window').document, selector)
-            console.log(button)
             expect(button.outerText).to.equal("Click me!")
         })
     })
 
-    it('works for findElements', () => {
+    it('works for findElement xpath', () => {
+        const xpath = '/html/body/div/div[3]/button'
+        cy.visit('https://www.applitools.com/helloworld').then(() => {        
+            const button = spec.findElement(cy.state('window').document, xpath, 'xpath')
+            expect(button.outerText).to.equal("Click me!")
+        })
+    })
+
+    it('works for findElements with css selector', () => {
         const selector = 'div'
         cy.visit('https://www.applitools.com/helloworld').then(() => {
             const divs = spec.findElements(cy.state('window').document, selector)
             expect(divs.length).to.equal(7)
+        })
+    })
+
+    it.only('works for findElements with xpath', () => {
+        const xpath = '/html/body/div/div[3]'
+        cy.visit('https://www.applitools.com/helloworld').then(() => {
+            const divs = spec.findElements(cy.state('window').document, xpath, 'xpath')
+            expect(divs.length).to.equal(1)
         })
     })
 })

@@ -30,18 +30,19 @@ function socketCommands(socket, refer) {
   socket.command('Driver.findElement', ({context, selector, parent}) => {
     if(isSelector(selector)) {
       const derefParent  = parent ? refer.deref(parent) : parent
-      const res = spec.findElement(refer.deref(context), transformSelector(refer.deref(selector)), derefParent);
+      const type = selector.selector.type ? selector.selector.type.toLowerCase() : 'css'
+      const res = spec.findElement(refer.deref(context), transformSelector(refer.deref(selector)), type, derefParent);
       return refer.ref(res);
     } else{
       // add some error handling here 
-
     }
 
   });
   socket.command('Driver.findElements', ({context, selector, parent}) => {
     if(isSelector(selector)) {
       const derefParent = parent ? refer.deref(parent) : parent
-      const elements = spec.findElements(refer.deref(context), transformSelector(refer.deref(selector)), derefParent);
+      const type = selector.selector.type ? selector.selector.type.toLowerCase() : 'css'
+      const elements = spec.findElements(refer.deref(context), transformSelector(refer.deref(selector)), type, derefParent);
       let result = []
       for(const el of elements){
         result.push(refer.ref(el))

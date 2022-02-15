@@ -13,26 +13,26 @@ function makeGlobalRunHooks() {
 
     'after:run': async ({config}) => {
       if (!config.isTextTerminal) return;
-      const socket = makeSocket()
+      // const socket = makeSocket()
       try {
-        const throwErr = false
-        const results = []
+        // const throwErr = false
+        // const results = []
   
         //Cypress.config('failCypressOnDiff');
         // const socket = new Socket();
         // socket.connect(`http://localhost:${config.universalPort}/eyes`);
 
         // const webSocket = new WebSocket(`ws://localhost:${config.universalPort}/eyes`)
-        socket.connect(`http://localhost:${config.universalPort}/eyes`)
-        socket.unref()
-        const resp = await axios.get(`https://localhost:${config.localServerPort}/eyes/getAllManagers`);
-        const managers = resp && resp.data && resp.data.managers ? resp.data.managers : [];
-        for (const manager of managers) {
-           const currRes = await socket.request('EyesManager.closeAllEyes', {manager, throwErr});
-            results.push(currRes)
-        }
+        // socket.connect(`http://localhost:${config.universalPort}/eyes`)
+        // socket.unref()
+        // const resp = await axios.get(`https://localhost:${config.localServerPort}/eyes/getAllManagers`);
+        // const managers = resp && resp.data && resp.data.managers ? resp.data.managers : [];
+        // for (const manager of managers) {
+        //    const currRes = await socket.request('EyesManager.closeAllEyes', {manager, throwErr});
+        //     results.push(currRes)
+        // }
         // fillout options
-        socket.request('Core.closeBatches', options);
+        // socket.request('Core.closeBatches', options);
       } catch (e) {
         if (!!config.eyesFailCypressOnDiff) {
           throw e;

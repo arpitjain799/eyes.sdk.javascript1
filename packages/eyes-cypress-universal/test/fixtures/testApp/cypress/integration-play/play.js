@@ -25,7 +25,7 @@ describe('Play Cypress', () => {
       console.log(results)
     })
   });
-  it.only('test region in shadow DOM', () => {
+  it('test region in shadow DOM', () => {
     cy.visit('https://applitools.github.io/demo/TestPages/ShadowDOM/index.html');
     cy.eyesOpen({
       appName: 'some app',
@@ -33,13 +33,13 @@ describe('Play Cypress', () => {
       browser: {width: 800, height: 600},
     });
 
-    // cy.eyesCheckWindow({
-    //   target: 'region',
-    //   selector: {
-    //     type: 'css',
-    //     selector: '#has-shadow-root'
-    //   }
-    // });
+    cy.eyesCheckWindow({
+      target: 'region',
+      selector: {
+        type: 'css',
+        selector: '#has-shadow-root'
+      }
+    });
     cy.eyesCheckWindow({
       target: 'region',
       selector: [{
@@ -55,4 +55,5 @@ describe('Play Cypress', () => {
   });
     cy.eyesClose();
   });
+  
 });

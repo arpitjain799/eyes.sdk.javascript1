@@ -54,22 +54,32 @@ export function setViewportSize(vs: any): void{
   Cypress.action('cy:viewport:changed', { viewportWidth: vs.size.width, viewportHeight: vs.size.height });
 }
 
-export function findElement(context: Context, element: Selector, parent: Context) {
+export function findElement(context: Context, element: Selector, type: string, parent: Context) {
   if(isSelector(element)) {
     if(parent){
       return parent.querySelector(element)
+    } 
+    if(type === 'css')
+      return context.querySelector(element)
+    else {
+      return context.evaluate(element, context, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
     }
-    return context.querySelector(element)
   }
 }
 
-export function findElements(context: Context, element: Selector, parent: Context){
+export function findElements(context: Context, element: Selector, type: string, parent: Context){
   if(isSelector(element)) {
     let elements
     if(parent) {
-     elements = parent.querySelectorAll(element)
+      elements = parent.querySelectorAll(element)
     } else {
-      elements = context.querySelectorAll(element)
+      if(type === 'css') {
+        elements = context.querySelectorAll(element)
+      }
+      else {
+        elements = context.evaluate(element, context, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue
+        return [elements]
+      }
     }
     return Object.values(elements)
   }

@@ -17,17 +17,6 @@ const throwErr = Cypress.config('failCypressOnDiff');
 socketCommands(socket, refer);
 let eyesOpen = false;
 
-/*
-
-DOTO:
-1) need to add another api for getAllTestResults. if a user call it , 
-then call the browser after hook with closeAllEyes
-2) Always call before hook shouldUseBrowserHook, should not affect before. 
-3) After: getTestResult OR global hooks are not supported 
-4) Check if isInteractive is still relevant and where does it fit 
-5) before hook: call an endpoint to add the manager that was just created
-
-*/
 
 let manager, eyes;
 
@@ -42,53 +31,25 @@ const shouldUseBrowserHooks =
   (getGlobalConfigProperty('isInteractive') ||
     !getGlobalConfigProperty('eyesIsGlobalHooksSupported'));
 
-before(() => {
-  // sendRequest({
-  //   command: 'batchStart',
-  //   data: {isInteractive: getGlobalConfigProperty('isInteractive')},
-  // });
-  // return cy.then({timeout: 86400000}, async () => {
-  //     await socket.connect(`ws://localhost:${Cypress.config('universalPort')}/eyes`);
-  //     await socket.emit('Core.makeSDK', {
-  //       name: 'eyes.cypress',
-  //       version: require('../../package.json').version,
-  //       commands: Object.keys(spec),
-  //       cwd: process.cwd(),
-  //     });
-  //     manager = await socket.request(
-  //       'Core.makeManager',
-  //       Object.assign(
-  //         {},
-  //         {concurrency: Cypress.config('eyesTestConcurrency')},
-  //         {legacy: false, type: 'vg'},
-  //       ),
-  //     );
-  //     await sendRequest({
-  //       command: 'sendManager',
-  //       data: manager,
-  //     });
-  // });
-});
-
 Cypress.Commands.add('eyesGetAllTestResults', async () => {
   return socket.request('EyesManager.closeAllEyes', {manager, throwErr});
 });
 
-// if (shouldUseBrowserHooks) {
-after(() => {
-  // cy.then({timeout: 86400000}, async () => {
-  // return batchEnd().catch(e => {
-  //   if (!!getGlobalConfigProperty('eyesFailCypressOnDiff')) {
-  //     throw e;
-  //   }
-  // });
-  // both commands should be in after global hooks
-  // // need to look into options
-  // await socket.request('EyesManager.closeAllEyes', {manager: manager, throwErr});
-  // await socket.request('Core.closeBatches', options)
-  // });
-});
-// }
+if (shouldUseBrowserHooks) {
+  after(() => {
+    // cy.then({timeout: 86400000}, async () => {
+    // return batchEnd().catch(e => {
+    //   if (!!getGlobalConfigProperty('eyesFailCypressOnDiff')) {
+    //     throw e;
+    //   }
+    // });
+    // both commands should be in after global hooks
+    // // need to look into options
+    socket.request('EyesManager.closeAllEyes', {manager, throwErr});
+    socket.request('Core.closeBatches')
+    // });
+  });
+}
 
 let isCurrentTestDisabled;
 
@@ -243,7 +204,6 @@ function toCheckWindowConfiguration(config) {
     contentRegions: config.content,
     accessibilityRegions: config.accessibility,
   };
-  
 
   if(config.target == 'region'){ 
     if(!Array.isArray(config.selector)){
@@ -264,11 +224,10 @@ function toCheckWindowConfiguration(config) {
             shadowDomSettings['shadow'] = prevSettings
         }
       }
-      regionSettings = { region: shadowDomSettings}
+      regionSettings = { region: shadowDomSettings }
     }
   }
 
-  // return checkSettings
   return Object.assign({}, checkSettings, regionSettings);
 }
 
