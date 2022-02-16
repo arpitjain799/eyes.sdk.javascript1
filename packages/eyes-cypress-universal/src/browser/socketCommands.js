@@ -59,10 +59,6 @@ function socketCommands(socket, refer) {
     return refer.ref(context);
   });
 
-  socket.command('Driver.getCookies', (context) => {
-    return spec.getCookies(refer.deref(context.driver))
-  })
-
   socket.command('Driver.getUrl', (context) => {
     return spec.getUrl(refer.deref(context))
   })
@@ -74,6 +70,11 @@ function socketCommands(socket, refer) {
   socket.command('Driver.childContext', ({context, element}) => {
     return spec.childContext(refer.deref(context), refer.deref(element))
   }) 
+
+  socket.command('Driver.getCookies', async () => {
+    const res = await spec.getCookies()
+    return res
+  })
   
 
   // utils

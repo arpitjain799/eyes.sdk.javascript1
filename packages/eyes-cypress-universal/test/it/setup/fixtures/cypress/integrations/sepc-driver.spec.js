@@ -36,7 +36,7 @@ describe('spec: findElement', () => {
         })
     })
 
-    it.only('works for findElements with xpath', () => {
+    it('works for findElements with xpath', () => {
         const xpath = '/html/body/div/div[3]'
         cy.visit('https://www.applitools.com/helloworld').then(() => {
             const divs = spec.findElements(cy.state('window').document, xpath, 'xpath')
@@ -55,3 +55,27 @@ describe('spec: get set viewportsize', () => {
         expect(vsAfterResizing.width).to.be.equal(originalVS.width + 100)
     })
 })
+
+
+describe('spec: getCookies', () => {
+    it.only('works for getCookies', () => {
+        const cookie = {
+            name: 'hello',
+            value: 'world',
+            domain: 'google.com',
+            path: '/',
+            expiry: 4025208067,
+            httpOnly: true,
+            secure: true,
+            sameSite: 'Lax',
+          }
+        cy.visit('https://www.applitools.com/helloworld').then(async () => {
+            cy.state('window').document.cookie = "username=John Doe; expires=Thu, 18 Dec 2013 12:00:00 UTC; domain: test.com";
+            const returnedCookies = await spec.getCookies()
+            console.log(returnedCookies)
+            console.log(returnedCookies.filter(c => {c.domain === 'test.com'}))
+        })
+    })
+})
+
+

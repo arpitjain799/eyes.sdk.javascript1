@@ -5,7 +5,7 @@ const childProcess = require('child_process');
 const path = require('path');
 const {makeServerProcess} = require('@applitools/eyes-universal')
 
-function makePluginExport({startServer, eyesConfig, globalHooks}) {
+function makePluginExport({startServer, eyesConfig, settings, globalHooks}) {
   return function pluginExport(pluginModule) {
     let closeEyesServer;
     const pluginModuleExports = pluginModule.exports;
@@ -33,7 +33,7 @@ function makePluginExport({startServer, eyesConfig, globalHooks}) {
       }
 
 
-      return Object.assign({}, eyesConfig, {universalPort, localServerPort}, moduleExportsResult);
+      return Object.assign({}, eyesConfig, {universalPort, localServerPort}, {config: settings}, moduleExportsResult);
 
       // This piece of code exists because at the point of writing, Cypress does not support multiple event handlers:
       // https://github.com/cypress-io/cypress/issues/5240#issuecomment-948277554

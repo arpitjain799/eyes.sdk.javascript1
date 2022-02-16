@@ -15,7 +15,7 @@ const refer = new Refer();
 const socket = new Socket();
 const throwErr = Cypress.config('failCypressOnDiff');
 socketCommands(socket, refer);
-let eyesOpen = false;
+let connectedToUniversal = false;
 
 
 let manager, eyes;
@@ -31,7 +31,8 @@ const shouldUseBrowserHooks =
   (getGlobalConfigProperty('isInteractive') ||
     !getGlobalConfigProperty('eyesIsGlobalHooksSupported'));
 
-Cypress.Commands.add('eyesGetAllTestResults', async () => {
+Cypress.Commands.add('eyesGetAllTestResults', () => {
+  // make sure to leave batch open
   return socket.request('EyesManager.closeAllEyes', {manager, throwErr});
 });
 
@@ -45,8 +46,10 @@ if (shouldUseBrowserHooks) {
     // });
     // both commands should be in after global hooks
     // // need to look into options
+    
+    // make sure to not close batch
     socket.request('EyesManager.closeAllEyes', {manager, throwErr});
-    socket.request('Core.closeBatches')
+    
     // });
   });
 }
@@ -88,8 +91,9 @@ Cypress.Commands.add('eyesOpen', function(args = {}) {
 
   return cy.then({timeout: 86400000}, async () => {
     const driverRef = refer.ref(cy.state('window').document);
-    if (!eyesOpen) {
+    if (!connectedToUniversal) {
       await socket.connect(`ws://localhost:${Cypress.config('universalPort')}/eyes`);
+      connectedToUniversal = true
       await socket.emit('Core.makeSDK', {
         name: 'eyes.cypress',
         version: require('../../package.json').version,
@@ -113,7 +117,7 @@ Cypress.Commands.add('eyesOpen', function(args = {}) {
     eyes = await socket.request('EyesManager.openEyes', {
       manager,
       driver: driverRef,
-      config: Object.assign({testName}, args, {browser, userAgent}),
+      config: Object.assign({testName}, args, {browser, userAgent}, Cypress.config('config')),
     });
   });
 });

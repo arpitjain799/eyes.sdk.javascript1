@@ -101,9 +101,9 @@ export function childContext(_context: Context, element: HTMLIFrameElement): Con
   return element.contentDocument
 }
 
-// https://github.com/applitools/eyes.sdk.javascript1/blob/15c887a5a4f939f689f463c2875669edc8daf2f5/packages/types/src/driver.ts#L28
-export function getCookies(context: Context){
-  return context.cookie.split(';')
+export function getCookies(){
+  //@ts-ignore
+  return Cypress.automation('get:cookies', {})
 }
 
 // export function takeScreenshot(page: Driver): Promise<Buffer>;

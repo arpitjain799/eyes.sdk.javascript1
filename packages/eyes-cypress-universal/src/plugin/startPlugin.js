@@ -18,4 +18,4 @@ const managersUtils = makeManagersStorage();
 const app = startApp({managersUtils, logger});
 const startServer = makeStartServer({app, logger});
 
-module.exports = makePluginExport({startServer, eyesConfig, globalHooks});
+module.exports = makePluginExport({startServer, eyesConfig, settings: config, globalHooks});
