@@ -101,7 +101,7 @@ Cypress.Commands.add('eyesOpen', function(args = {}) {
         cwd: process.cwd(),
       });
 
-      manager = await socket.request(
+      manager = manager || await socket.request(
         'Core.makeManager',
         Object.assign(
           {},
@@ -117,7 +117,7 @@ Cypress.Commands.add('eyesOpen', function(args = {}) {
     eyes = await socket.request('EyesManager.openEyes', {
       manager,
       driver: driverRef,
-      config: Object.assign({testName}, args, {browser, userAgent}, Cypress.config('config')),
+      config: Object.assign({testName}, args, {browser, userAgent}, Cypress.config('config'), {dontCloseBatches: true}), // batches will be closed by the plugin. Should we condition it on the existence of batch.id?
     });
   });
 });

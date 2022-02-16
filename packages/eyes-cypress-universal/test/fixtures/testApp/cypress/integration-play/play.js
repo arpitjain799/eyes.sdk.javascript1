@@ -2,7 +2,7 @@
 Cypress.on('uncaught:exception', () => {});
 
 describe('Play Cypress', () => {
-  it.only('Play Cypress', () => {
+  it('Play Cypress', () => {
     cy.visit('https://example.org', {
       failOnStatusCode: false,
     });
@@ -15,9 +15,9 @@ describe('Play Cypress', () => {
       layout: [{selector: 'body > div > h1'},   {top: 100, left: 0, width: 1000, height: 100},]
     });
     cy.eyesClose();
-    cy.eyesGetAllTestResults().then((results) => {
-      console.log(results)
-    })
+    // cy.eyesGetAllTestResults().then((results) => {
+    //   console.log(results)
+    // })
   });
   it('Play Cypress checkRegion', () => {
     cy.visit('https://example.org', {
@@ -35,9 +35,9 @@ describe('Play Cypress', () => {
       }
     });
     cy.eyesClose();
-    cy.eyesGetAllTestResults().then((results) => {
-      console.log(results)
-    })
+    // cy.eyesGetAllTestResults().then((results) => {
+    //   console.log(results)
+    // })
   });
   it.skip('test region in shadow DOM', () => {
     cy.visit('https://applitools.github.io/demo/TestPages/ShadowDOM/index.html');
