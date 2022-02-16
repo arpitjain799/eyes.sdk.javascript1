@@ -11,7 +11,7 @@ describe('pluginExport', () => {
 
   async function startServer() {
     return {
-      eyesPort: 123,
+      localServerPort: 123,
     };
   }
 
@@ -26,7 +26,7 @@ describe('pluginExport', () => {
     process.env = prevEnv;
   });
 
-  it.only('sets eyesLegcyHooks', async () => {
+  it('sets eyesLegcyHooks', async () => {
     const pluginExport = makePluginExport({startServer, eyesConfig, globalHooks});
     let __module = {
       exports: () => ({bla: 'blah'}),
@@ -36,15 +36,18 @@ describe('pluginExport', () => {
     const ret = await __module.exports(() => {}, {});
     expect(ret).to.eql({
       bla: 'blah',
-      eyesPort: 123,
+      localServerPort: 123,
       eyesDisableBrowserFetching: false,
       eyesLayoutBreakpoints: undefined,
       eyesFailCypressOnDiff: true,
       eyesIsDisabled: false,
       eyesIsGlobalHooksSupported: false,
+      config: undefined,
       eyesBrowser: undefined,
       eyesTestConcurrency: 5,
       eyesWaitBeforeCapture: undefined,
+      universalPort: 21077,
+      tapDirPath: undefined,
     });
 
     __module = {
@@ -58,17 +61,21 @@ describe('pluginExport', () => {
     pluginExport(__module);
     const ret2 = await __module.exports(() => {}, {});
     expect(ret2).to.eql({
-      eyesPort: 123,
+      localServerPort: 123,
       eyesDisableBrowserFetching: false,
       eyesLayoutBreakpoints: undefined,
       eyesFailCypressOnDiff: true,
       eyesIsDisabled: false,
       eyesIsGlobalHooksSupported: false,
+      config: undefined,
       eyesBrowser: undefined,
       eyesTestConcurrency: 5,
       version: '6.5.0',
       experimentalRunEvents: true,
       eyesWaitBeforeCapture: undefined,
+      universalPort: 21077,
+      tapDirPath: undefined,
+
     });
   });
 
@@ -85,15 +92,18 @@ describe('pluginExport', () => {
     const ret = await __module.exports(() => {}, {});
     expect(ret).to.eql({
       bla: 'bla',
-      eyesPort: 123,
+      localServerPort: 123,
       eyesDisableBrowserFetching: false,
       eyesLayoutBreakpoints: undefined,
       eyesFailCypressOnDiff: true,
       eyesIsDisabled: false,
       eyesIsGlobalHooksSupported: false,
+      config: undefined,
       eyesBrowser: undefined,
       eyesTestConcurrency: 5,
       eyesWaitBeforeCapture: undefined,
+      universalPort: 21077,
+      tapDirPath: undefined,
     });
   });
 
@@ -108,15 +118,18 @@ describe('pluginExport', () => {
     const ret = await __module.exports(() => {}, {});
     expect(ret).to.eql({
       bla: 'ret',
-      eyesPort: 123,
+      localServerPort: 123,
       eyesIsDisabled: true,
       eyesIsGlobalHooksSupported: false,
       eyesDisableBrowserFetching: false,
       eyesLayoutBreakpoints: undefined,
       eyesFailCypressOnDiff: true,
+      config: undefined,
       eyesBrowser: undefined,
       eyesTestConcurrency: 5,
       eyesWaitBeforeCapture: undefined,
+      universalPort: 21077,
+      tapDirPath: undefined,
     });
   });
 
@@ -131,15 +144,18 @@ describe('pluginExport', () => {
     const ret = await __module.exports(() => {}, {});
     expect(ret).to.eql({
       bla: 'ret',
-      eyesPort: 123,
+      localServerPort: 123,
       eyesDisableBrowserFetching: false,
       eyesLayoutBreakpoints: undefined,
       eyesIsDisabled: false,
       eyesIsGlobalHooksSupported: false,
       eyesFailCypressOnDiff: false,
+      config: undefined,
       eyesBrowser: undefined,
       eyesTestConcurrency: 5,
       eyesWaitBeforeCapture: undefined,
+      universalPort: 21077,
+      tapDirPath: undefined,
     });
   });
 
@@ -154,15 +170,18 @@ describe('pluginExport', () => {
     const ret = await __module.exports(() => {}, {});
     expect(ret).to.eql({
       bla: 'ret',
-      eyesPort: 123,
+      localServerPort: 123,
       eyesDisableBrowserFetching: true,
       eyesLayoutBreakpoints: undefined,
       eyesIsDisabled: false,
       eyesIsGlobalHooksSupported: false,
       eyesFailCypressOnDiff: true,
+      config: undefined,
       eyesBrowser: undefined,
       eyesTestConcurrency: 5,
       eyesWaitBeforeCapture: undefined,
+      universalPort: 21077,
+      tapDirPath: undefined,
     });
   });
 });

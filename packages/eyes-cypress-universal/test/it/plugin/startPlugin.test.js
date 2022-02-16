@@ -18,8 +18,8 @@ describe('start plugin', () => {
   });
 
   it('starts plugin server and patches module exports', async () => {
-    const {eyesPort} = await __module.exports(() => {}, 'test');
-    const resp = await fetch(`https://localhost:${eyesPort}/hb`);
+    const {localServerPort} = await __module.exports(() => {}, 'test');
+    const resp = await fetch(`https://localhost:${localServerPort}/hb`);
     expect(resp.status).to.equal(200);
   });
 

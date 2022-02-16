@@ -11,14 +11,9 @@ function makePluginExport({startServer, eyesConfig, settings, globalHooks}) {
     const pluginModuleExports = pluginModule.exports;
     pluginModule.exports = async function(...args) {
       const {localServerPort, closeServer} = await startServer();
-
+      closeEyesServer = closeServer;
       const {port: universalPort} = await makeServerProcess()
 
-
-        
-    closeEyesServer = closeEyesServer = function() {
-      this.send('close server');
-    }
 
       const [origOn, config] = args;
       const isGlobalHookCalledFromUserHandlerMap = new Map();
@@ -60,7 +55,7 @@ function makePluginExport({startServer, eyesConfig, settings, globalHooks}) {
       }
     };
     return function getCloseServer() {
-      return closeEyesServer.bind(server);
+      return closeEyesServer;
     };
   };
 }

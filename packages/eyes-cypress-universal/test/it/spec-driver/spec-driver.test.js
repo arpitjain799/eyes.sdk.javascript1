@@ -20,7 +20,7 @@ describe('spec-driver', () => {
 
       });
 
-    it('works for spec-driver.spec.js', async () => {
+    it.skip('works for spec-driver.spec.js', async () => {
         await runCypress('spec-driver')
         .then((results) => {
             expect(results.runs[0].tests[0].state).to.equal( 'passed');
@@ -30,7 +30,7 @@ describe('spec-driver', () => {
           })
     })
 
-    it.only('playground', async () => {
+    it.skip('playground', async () => {
         await openCypress()
     })
 })
