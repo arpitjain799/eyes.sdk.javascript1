@@ -1,7 +1,6 @@
 'use strict'
 
 const Location = require('../geometry/Location')
-const PageInfo = require('../page/PageInfo')
 /**
  * An application output (title, image, etc).
  *
@@ -17,7 +16,7 @@ class AppOutput {
    * @param {string} [output.domUrl] - URL that points to a dom capture of the provided screenshot
    * @param {Location} [output.imageLocation] - Location of the provided screenshot relative to the logical full-page
    *   screenshot (e.g. in checkRegion)
-   * @param {PageInfo} [output.pageCoverageInfo] - pageId + pageCoverage width + pageCoverage height
+   * @param {object} [output.pageCoverageInfo] - pageId + pageCoverage width + pageCoverage height
    */
   constructor({title, screenshot, screenshotUrl, domUrl, imageLocation, pageCoverageInfo} = {}) {
     if (arguments.length > 1) {
@@ -30,8 +29,8 @@ class AppOutput {
     this._domUrl = domUrl
     this._imageLocation = new Location(imageLocation)
     if (pageCoverageInfo) {
-      this._pageCoverageInfo = new PageInfo(pageCoverageInfo)
-      this._pageCoverageInfo.setImagePositionInPage(this._imageLocation)
+      this._pageCoverageInfo = pageCoverageInfo
+      //this._pageCoverageInfo.setImagePositionInPage(this._imageLocation)
     }
   }
 
@@ -106,14 +105,14 @@ class AppOutput {
   }
 
   /**
-   * @return {PageInfo}
+   * @return {object}
    */
   getPageCoverageInfo() {
     return this._pageCoverageInfo
   }
 
   /**
-   * @param {PageInfo} value
+   * @param {object} value
    */
   setPageCoverageInfo(value) {
     this._pageCoverageInfo = value
@@ -144,7 +143,7 @@ class AppOutput {
     }
 
     if (this._pageCoverageInfo) {
-      object.pageCoverageInfo = this._pageCoverageInfo.toJSON()
+      object.pageCoverageInfo = this._pageCoverageInfo
     }
     return object
   }

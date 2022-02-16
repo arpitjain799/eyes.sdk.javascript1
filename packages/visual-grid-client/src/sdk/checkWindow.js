@@ -293,7 +293,7 @@ function makeCheckWindow({
       const pageCoverageInfo = pageId && {
         pageId,
         ...fullPageSize,
-        imagePositionInPage: Location.ZERO,
+        imagePositionInPage: imageLocation ? new Location(imageLocation) : Location.ZERO,
       }
       const checkArgs = {
         screenshotUrl,

@@ -86,7 +86,7 @@ describe('eyesCheckWindowWithPageCover', () => {
       appName: 'some app including pageId',
       testName: 'added pageId to checkWindow',
       browser: [
-        //{width: 640, height: 480, name: 'chrome'},
+        {width: 640, height: 480, name: 'chrome'},
         {width: 400, height: 600, name: 'firefox'},
       ],
       showLogs: process.env.APPLITOOLS_SHOW_LOGS,
@@ -101,8 +101,12 @@ describe('eyesCheckWindowWithPageCover', () => {
       tag: 'first',
       url,
       scriptHooks,
-      ignore: [{selector: 'div[class*="bg-"]'}],
-      floating: [{selector: 'img[src*="smurfs.jpg"]', maxUpOffset: 3}],
+      target: 'region',
+      //region: {width: 200, height: 400, x: 20, y: 77},
+      selector: 'div[class*="auth-nested"]',
+      //selector: 'div[class*="region"]',
+      // ignore: [{selector: 'div[class*="bg-"]'}],
+      // floating: [{selector: 'img[src*="smurfs.jpg"]', maxUpOffset: 3}],
       pageId,
     })
 

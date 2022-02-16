@@ -1906,6 +1906,7 @@ class EyesBase {
       imageLocation,
       pageCoverageInfo,
     })
+    console.log('>> AppOutput', appOutput.toJSON())
     this._logger.log('Done!')
     return {screenshot, appOutput, matchSettings: this.getMatchSettings()}
   }
@@ -2051,7 +2052,7 @@ class EyesBase {
    * in case defined: pageId + pageCoverage width + pageCoverage height + imagePositionInPage
    *
    * @protected
-   * @return {Promise<?PageInfo>}
+   * @return {Promise<?object>}
    */
   async getPageCoverageInfo() {
     return undefined
