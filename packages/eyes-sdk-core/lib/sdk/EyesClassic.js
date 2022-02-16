@@ -3,7 +3,6 @@ const takeScreenshot = require('@applitools/screenshoter')
 const {Driver} = require('@applitools/driver')
 const TypeUtils = require('../utils/TypeUtils')
 const ArgumentGuard = require('../utils/ArgumentGuard')
-const Region = require('../geometry/Region')
 const Location = require('../geometry/Location')
 const FailureReports = require('../FailureReports')
 const ClassicRunner = require('../runner/ClassicRunner')
@@ -83,16 +82,18 @@ class EyesClassic extends EyesCore {
     await this._context.setScrollingElement(checkSettings.scrollRootElement)
     if (checkSettings.pageId) {
       const checkSettingsRegion = checkSettings.region
-      let imagePositionInPage = Location.ZERO;
+      let imagePositionInPage = Location.ZERO
       if (checkSettingsRegion) {
-        const isRegion = TypeUtils.isPlainObject(checkSettingsRegion) && TypeUtils.has(checkSettingsRegion, ['x', 'y', 'width', 'height'])
-        if (isRegion){
+        const isRegion =
+          TypeUtils.isPlainObject(checkSettingsRegion) &&
+          TypeUtils.has(checkSettingsRegion, ['x', 'y', 'width', 'height'])
+        if (isRegion) {
           imagePositionInPage = new Location(checkSettingsRegion.x, checkSettingsRegion.y)
-        }else{
+        } else {
           const elt = await this._context.element(checkSettingsRegion)
           const {x, y} = await elt.getClientRegion()
           imagePositionInPage = new Location(Math.round(x), Math.round(y))
-        } 
+        }
       }
       const contentSize = await this._context.getContentSize()
       this.pageCoverageInfo = {
