@@ -86,7 +86,6 @@ class EyesClassic extends EyesCore {
         pageId: checkSettings.pageId,
         width: contentSize.width,
         height: contentSize.height,
-        imagePositionInPage: Location.ZERO,
       }
     }
 
@@ -252,9 +251,6 @@ class EyesClassic extends EyesCore {
     return rect
   }
 
-  async getPageCoverageInfo() {
-    return this.pageCoverageInfo
-  }
 }
 
 module.exports = EyesClassic

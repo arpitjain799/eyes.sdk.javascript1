@@ -1897,14 +1897,13 @@ class EyesBase {
 
     const title = await this.getTitle()
     const imageLocation = await this.getImageLocation()
-    const pageCoverageInfo = await this.getPageCoverageInfo()
 
     const appOutput = new AppOutput({
       title,
       screenshotUrl,
       domUrl,
       imageLocation,
-      pageCoverageInfo,
+      pageCoverageInfo: this.pageCoverageInfo,
     })
     this._logger.log('Done!')
     return {screenshot, appOutput, matchSettings: this.getMatchSettings()}
@@ -2044,16 +2043,6 @@ class EyesBase {
    * @return {Promise<?Location>}
    */
   async getImageLocation() {
-    return undefined
-  }
-
-  /**
-   * in case defined: pageId + pageCoverage width + pageCoverage height + imagePositionInPage
-   *
-   * @protected
-   * @return {Promise<?object>}
-   */
-  async getPageCoverageInfo() {
     return undefined
   }
 
