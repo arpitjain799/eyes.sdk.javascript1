@@ -1,6 +1,7 @@
 'use strict';
 const {configParams, ConfigUtils, TypeUtils} = require('@applitools/visual-grid-client');
 const DEFAULT_TEST_CONCURRENCY = 5;
+const uuid = require('uuid');
 
 function makeConfig() {
   const config = ConfigUtils.getConfig({
@@ -13,6 +14,9 @@ function makeConfig() {
     ],
   });
 
+  if(!config.batch){
+    config.batch = {id: uuid.v4()}
+  }
   if (config.failCypressOnDiff === '0') {
     config.failCypressOnDiff = false;
   }

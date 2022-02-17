@@ -18,7 +18,7 @@ function socketCommands(socket, refer) {
     return spec.isElement(element);
   });
   socket.command('Driver.isSelector', selector => {
-    return spec.isElement(selector);
+    return spec.isSelector(selector);
   });
   socket.command('Driver.getViewportSize', () => {
     return spec.getViewportSize();

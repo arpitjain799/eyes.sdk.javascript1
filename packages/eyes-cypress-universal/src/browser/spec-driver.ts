@@ -7,7 +7,7 @@ export type Context = Document;
 export type Element = HTMLElement;
 
 export function executeScript(context: Context, script: string, arg: any): any {     
-      if(!context.defaultView){
+      if(!context.defaultView) {
         //@ts-ignore
         context = cy.state('window').document
         //@ts-ignore
@@ -45,6 +45,7 @@ export function mainContext(): Context {
 }
 
 export function isElement(element: Element): boolean {
+  //@ts-ignore
   return Cypress.dom.isElement(element);
 }
 
