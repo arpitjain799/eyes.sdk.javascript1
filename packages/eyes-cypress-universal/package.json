@@ -15,7 +15,9 @@
     "lint": "eslint '**/*.js'",
     "test": "yarn test:unit && yarn test:it && yarn test:e2e && yarn lint",
     "cypress": "cypress open --config-file test/fixtures/cypress-play.json",
+    "cypress:new": "node_modules/cypress-new/bin/cypress open --config-file test/fixtures/cypress-play.json",
     "cypress:run": "cypress run --config-file test/fixtures/cypress-play.json --spec=test/fixtures/testApp/cypress/integration-play/play.js",
+    "cypress:run:new": "node_modules/cypress-new/bin/cypress run --config-file test/fixtures/cypress-play.json --spec=test/fixtures/testApp/cypress/integration-play/play.js",
     "cypress:play": "cd test/fixtures/testApp && cypress run --config integrationFolder=cypress/integration-play,pluginsFile=cypress/plugins/index-play.js,supportFile=cypress/support/index-run.js --spec=cypress/integration-play/play.js",
     "preversion": "bongo preversion --skip-deps",
     "version": "bongo version",
@@ -51,6 +53,7 @@
     "cors": "2.8.5",
     "express": "4.17.1",
     "lodash.flatten": "4.4.0",
+    "uuid": "^8.3.2",
     "ws": "^8.5.0"
   },
   "devDependencies": {
@@ -68,6 +71,7 @@
     "chai-spies": "1.0.0",
     "cookie-parser": "1.4.4",
     "cypress": "6.5.0",
+    "cypress-new": "npm:cypress@9",
     "eslint": "6.8.0",
     "eslint-plugin-mocha-no-only": "1.1.0",
     "eslint-plugin-node": "7.0.1",

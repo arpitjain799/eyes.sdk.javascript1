@@ -31,19 +31,9 @@ Cypress.Commands.add('eyesGetAllTestResults', () => {
 
 if (shouldUseBrowserHooks) {
   after(() => {
-    // cy.then({timeout: 86400000}, async () => {
-    // return batchEnd().catch(e => {
-    //   if (!!getGlobalConfigProperty('eyesFailCypressOnDiff')) {
-    //     throw e;
-    //   }
-    // });
-    // both commands should be in after global hooks
-    // // need to look into options
-
-    // make sure to not close batch
-    socket.request('EyesManager.closeAllEyes', {manager, throwErr});
-
-    // });
+    cy.then({timeout: 86400000}, () => {
+      return socket.request('EyesManager.closeAllEyes', {manager, throwErr});
+    });
   });
 }
 
@@ -167,8 +157,10 @@ Cypress.Commands.add('eyesClose', () => {
     return;
   }
 
-  // probably we don't need to return this in order to not wait on the close promise
-  return socket.request('Eyes.close', {eyes, throwErr});
+  // intentionally not returning the result in order to not wait on the close promise
+  socket.request('Eyes.close', {eyes, throwErr: false}).catch(err => {
+    console.log('Error in cy.eyesClose', err);
+  });
 });
 
 function fillDefaultBrowserName(browser) {

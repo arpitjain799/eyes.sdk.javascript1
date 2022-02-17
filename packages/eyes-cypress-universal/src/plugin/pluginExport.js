@@ -1,14 +1,17 @@
 'use strict';
 const isGlobalHooksSupported = require('./isGlobalHooksSupported');
 const {presult} = require('@applitools/functional-commons');
+const makeGlobalRunHooks = require('./hooks');
 
-function makePluginExport({startServer, eyesConfig, settings, globalHooks}) {
+function makePluginExport({startServer, eyesConfig, settings}) {
   return function pluginExport(pluginModule) {
     let eyesServer;
     const pluginModuleExports = pluginModule.exports;
     pluginModule.exports = async function(...args) {
-      const {server, port} = await startServer();
+      const {server, port, closeAllEyes} = await startServer();
       eyesServer = server;
+
+      const globalHooks = makeGlobalRunHooks({closeAllEyes});
 
       const [origOn, config] = args;
       const isGlobalHookCalledFromUserHandlerMap = new Map();
