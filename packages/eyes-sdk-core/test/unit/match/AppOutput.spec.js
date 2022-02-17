@@ -23,6 +23,6 @@ describe('AppOutput', () => {
     assert.deepStrictEqual(new Location(10, 30), ao.getImageLocation())
     assert.strictEqual('some fake base64 screenshot serialized', ao.getScreenshot64())
     assert.strictEqual('abc', ao.getScreenshotUrl())
-    assert.deepStrictEqual(ao.getPageCoverageInfo().getImagePositionInPage(), ao.getImageLocation())
+    assert.deepStrictEqual(ao.getPageCoverageInfo().pageId, pageCoverageInfo.pageId)
   })
 })
