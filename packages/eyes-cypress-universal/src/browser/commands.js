@@ -1,11 +1,5 @@
-/* global Cypress,cy,window,before,after,navigator */
+/* global Cypress,cy,after,navigator */
 'use strict';
-const makeHandleCypressViewport = require('./makeHandleCypressViewport');
-const handleCypressViewport = makeHandleCypressViewport({cy});
-const makeSend = require('./makeSend');
-const send = makeSend(Cypress.config('localServerPort'), window.fetch);
-const makeSendRequest = require('./sendRequest');
-const sendRequest = makeSendRequest(send);
 const spec = require('../../dist/browser/spec-driver');
 const Refer = require('./refer');
 const Socket = require('./socket');
@@ -91,9 +85,9 @@ Cypress.Commands.add('eyesOpen', function(args = {}) {
   return cy.then({timeout: 86400000}, async () => {
     const driverRef = refer.ref(cy.state('window').document);
     if (!connectedToUniversal) {
-      await socket.connect(`ws://localhost:${Cypress.config('universalPort')}/eyes`);
+      socket.connect(`ws://localhost:${Cypress.config('eyesPort')}/eyes`);
       connectedToUniversal = true;
-      await socket.emit('Core.makeSDK', {
+      socket.emit('Core.makeSDK', {
         name: 'eyes.cypress',
         version: require('../../package.json').version,
         commands: Object.keys(spec),
@@ -110,10 +104,6 @@ Cypress.Commands.add('eyesOpen', function(args = {}) {
             {legacy: false, type: 'vg'},
           ),
         ));
-      await sendRequest({
-        command: 'sendManager',
-        data: manager,
-      });
     }
     eyes = await socket.request('EyesManager.openEyes', {
       manager,

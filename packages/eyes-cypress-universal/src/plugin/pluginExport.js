@@ -1,19 +1,14 @@
 'use strict';
 const isGlobalHooksSupported = require('./isGlobalHooksSupported');
 const {presult} = require('@applitools/functional-commons');
-const childProcess = require('child_process');
-const path = require('path');
-const {makeServerProcess} = require('@applitools/eyes-universal')
 
 function makePluginExport({startServer, eyesConfig, settings, globalHooks}) {
   return function pluginExport(pluginModule) {
-    let closeEyesServer;
+    let eyesServer;
     const pluginModuleExports = pluginModule.exports;
     pluginModule.exports = async function(...args) {
-      const {localServerPort, closeServer} = await startServer();
-      closeEyesServer = closeServer;
-      const {port: universalPort} = await makeServerProcess()
-
+      const {server, port} = await startServer();
+      eyesServer = server;
 
       const [origOn, config] = args;
       const isGlobalHookCalledFromUserHandlerMap = new Map();
@@ -27,8 +22,7 @@ function makePluginExport({startServer, eyesConfig, settings, globalHooks}) {
         }
       }
 
-
-      return Object.assign({}, eyesConfig, {universalPort, localServerPort}, {config: settings}, moduleExportsResult);
+      return Object.assign({}, eyesConfig, {eyesPort: port, config: settings}, moduleExportsResult);
 
       // This piece of code exists because at the point of writing, Cypress does not support multiple event handlers:
       // https://github.com/cypress-io/cypress/issues/5240#issuecomment-948277554
@@ -55,7 +49,7 @@ function makePluginExport({startServer, eyesConfig, settings, globalHooks}) {
       }
     };
     return function getCloseServer() {
-      return closeEyesServer;
+      return eyesServer.close();
     };
   };
 }
