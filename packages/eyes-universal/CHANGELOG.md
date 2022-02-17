@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- add support to pageCoverage by adding pageId to eyes-check
 
 ## 1.0.9 - 2022/2/16
 
