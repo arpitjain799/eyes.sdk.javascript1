@@ -2,17 +2,42 @@
 Cypress.on('uncaught:exception', () => {});
 
 describe('Play Cypress', () => {
+  beforeEach(() => {
+    cy.setCookie('auth', 'secret');
+    cy.eyesOpen({
+      appName: 'some app2',
+      browser: {width: 1024, height: 768},
+      // showLogs: true,
+    });
+  });
+  it.only('region absolute', () => {
+    cy.visit('http://localhost:8080/test.html');
+    cy.get('.absolutely').then($el => {
+      const {left, top, width, height} = $el[0].getBoundingClientRect();
+      cy.eyesCheckWindow({
+        tag: 'region',
+        target: 'region',
+        region: {left, top, width, height},
+      });
+    });
+  });
+
+  afterEach(() => {
+    cy.eyesClose();
+  });
+
   it('Play Cypress', () => {
+    
+    cy.eyesOpen({
+      appName: 'Play Cypress',
+      testName: 'Check Window',
+     // browser: [{width: 1200, height: 900}]
+    });
     cy.visit('https://example.org', {
       failOnStatusCode: false,
     });
-    cy.eyesOpen({
-      appName: 'Play Cypress',
-      testName: 'Check Window 2'
-    });
     cy.eyesCheckWindow({
       tag: 'Play Cypress',
-      layout: [{selector: 'body > div > h1'},   {top: 100, left: 0, width: 1000, height: 100},]
     });
     cy.eyesClose();
     // cy.eyesGetAllTestResults().then((results) => {

@@ -19,7 +19,6 @@ function startApp({managersUtils, logger = console} = {}) {
     }
   });
 
-
   app.get('/eyes/getAllManagers', async (req, res) => {
     try {
       res.status(200).send({success: true, managers: managersUtils.getAllManagers()});

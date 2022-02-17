@@ -1,22 +1,26 @@
 {
-    "include": ["src"],
-    "compilerOptions": {
-      "rootDir": "src",
-      "outDir": "dist",
-      "declaration": true,
-      "declarationMap": false,
-      "sourceMap": false,
-      "target": "es2017",
-      "lib": ["es2017", "dom"],
-      "types": ["cypress", "node"],
-      "module": "commonjs",
-      "esModuleInterop": true,
-      "noImplicitAny": true,
-      "downlevelIteration": true,
-      "plugins": [{
-        "allowModules": ["cypress"],
-        "afterDeclarations": true,
-    }],
+  "include": ["src"],
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "declarationDir": "types",
+    "declaration": true,
+    "declarationMap": false,
+    "sourceMap": false,
+
+    "module": "commonjs",
+    "target": "es2017",
+    "esModuleInterop": true,
+    "noImplicitAny": true,
+    "downlevelIteration": true,
+    "stripInternal": false,
+    "removeComments": false,
+    "plugins": [{
+      "transform": "@applitools/api-extractor",
+      "afterDeclarations": true,
+      "rootFile": "./index.ts",
+      "allowModules": ["@applitools/types", "cypress"],
+    }]
   },
   "ts-node": {"transpileOnly": true},
 }

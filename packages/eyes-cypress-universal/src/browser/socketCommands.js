@@ -2,14 +2,13 @@ const spec = require('../../dist/browser/spec-driver');
 
 function socketCommands(socket, refer) {
   socket.command('Driver.executeScript', ({context, script, arg = []}) => {
-    const res =  spec.executeScript(refer.deref(context), script, derefArgs(arg));
+    const res = spec.executeScript(refer.deref(context), script, derefArgs(arg));
     // we need to ref in case we return a dom element but not in other cases
-    if(script.includes('shadowRoot') && !script.includes('dom-snapshot')){
-      return refer.ref(res)
+    if (script.includes('shadowRoot') && !script.includes('dom-snapshot')) {
+      return refer.ref(res);
     } else {
-      return res
+      return res;
     }
-
   });
   socket.command('Driver.mainContext', context => {
     const mainContext = spec.mainContext(refer.deref(context));
@@ -28,30 +27,38 @@ function socketCommands(socket, refer) {
     spec.setViewportSize(vs);
   });
   socket.command('Driver.findElement', ({context, selector, parent}) => {
-    if(isSelector(selector)) {
-      const derefParent  = parent ? refer.deref(parent) : parent
-      const type = selector.selector.type ? selector.selector.type.toLowerCase() : 'css'
-      const res = spec.findElement(refer.deref(context), transformSelector(refer.deref(selector)), type, derefParent);
+    if (isSelector(selector)) {
+      const derefParent = parent ? refer.deref(parent) : parent;
+      const type = selector.selector.type ? selector.selector.type.toLowerCase() : 'css';
+      const res = spec.findElement(
+        refer.deref(context),
+        transformSelector(refer.deref(selector)),
+        type,
+        derefParent,
+      );
       return refer.ref(res);
-    } else{
-      // add some error handling here 
+    } else {
+      // add some error handling here
     }
-
   });
   socket.command('Driver.findElements', ({context, selector, parent}) => {
-    if(isSelector(selector)) {
-      const derefParent = parent ? refer.deref(parent) : parent
-      const type = selector.selector.type ? selector.selector.type.toLowerCase() : 'css'
-      const elements = spec.findElements(refer.deref(context), transformSelector(refer.deref(selector)), type, derefParent);
-      let result = []
-      for(const el of elements){
-        result.push(refer.ref(el))
+    if (isSelector(selector)) {
+      const derefParent = parent ? refer.deref(parent) : parent;
+      const type = selector.selector.type ? selector.selector.type.toLowerCase() : 'css';
+      const elements = spec.findElements(
+        refer.deref(context),
+        transformSelector(refer.deref(selector)),
+        type,
+        derefParent,
+      );
+      let result = [];
+      for (const el of elements) {
+        result.push(refer.ref(el));
       }
-      return result
-  } else {
-    // add some error handling here
-  }
-
+      return result;
+    } else {
+      // add some error handling here
+    }
   });
 
   socket.command('Driver.parentContext', currentContext => {
@@ -59,58 +66,54 @@ function socketCommands(socket, refer) {
     return refer.ref(context);
   });
 
-  socket.command('Driver.getUrl', (context) => {
-    return spec.getUrl(refer.deref(context))
-  })
+  socket.command('Driver.getUrl', context => {
+    return spec.getUrl(refer.deref(context));
+  });
 
-  socket.command('Driver.getTitle', (context) => {
-    return spec.getTitle(refer.deref(context.driver))
-  })
+  socket.command('Driver.getTitle', context => {
+    return spec.getTitle(refer.deref(context.driver));
+  });
 
   socket.command('Driver.childContext', ({context, element}) => {
-    return spec.childContext(refer.deref(context), refer.deref(element))
-  }) 
+    return spec.childContext(refer.deref(context), refer.deref(element));
+  });
 
   socket.command('Driver.getCookies', async () => {
-    const res = await spec.getCookies()
-    return res
-  })
-  
+    return await spec.getCookies();
+  });
 
   // utils
-  function derefArgs(arg){
-    if(Array.isArray(arg)) {
-    const derefArg = [];
-    for (const argument of arg) {
-      if(Array.isArray(argument)){
-        const arr = [];
-        for(const entry of argument){
-          arr.push(refer.deref(entry))
+  function derefArgs(arg) {
+    if (Array.isArray(arg)) {
+      const derefArg = [];
+      for (const argument of arg) {
+        if (Array.isArray(argument)) {
+          const arr = [];
+          for (const entry of argument) {
+            arr.push(refer.deref(entry));
+          }
+          derefArg.push(refer.deref(arr));
+        } else {
+          derefArg.push(refer.deref(argument));
         }
-        derefArg.push(refer.deref(arr))
-      } else {
-      derefArg.push(refer.deref(argument))
-      } 
-    }
-    return derefArg
+      }
+      return derefArg;
     } else {
-      return arg
+      return arg;
     }
   }
 
   function transformSelector(selector) {
-    if(isSelector(selector)) {
-      if(isSelector(selector.selector) && typeof(selector.selector.selector) === 'string')
-        return selector.selector.selector
-      else if (typeof(selector.selector) == 'string')
-        return selector.selector
+    if (isSelector(selector)) {
+      if (isSelector(selector.selector) && typeof selector.selector.selector === 'string')
+        return selector.selector.selector;
+      else if (typeof selector.selector == 'string') return selector.selector;
     }
   }
 
   function isSelector(selector) {
     return selector.hasOwnProperty('selector');
   }
-
 }
 
 module.exports = {socketCommands};

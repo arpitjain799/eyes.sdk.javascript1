@@ -53,7 +53,7 @@ Cypress.Commands.add('eyesOpen', function(args = {}) {
     name: 'chrome',
   };
 
-  const browser =
+  let browser =
     validateBrowser(eyesOpenBrowser) || validateBrowser(globalBrowser) || defaultBrowser;
 
   if (Cypress.config('eyesIsDisabled') && isDisabled === false) {
@@ -69,11 +69,13 @@ Cypress.Commands.add('eyesOpen', function(args = {}) {
       browser.forEach(fillDefaultBrowserName);
     } else {
       fillDefaultBrowserName(browser);
+      browser = [browser];
     }
   }
 
   return cy.then({timeout: 86400000}, async () => {
     const driverRef = refer.ref(cy.state('window').document);
+
     if (!connectedToUniversal) {
       socket.connect(`ws://localhost:${Cypress.config('eyesPort')}/eyes`);
       connectedToUniversal = true;
@@ -95,12 +97,18 @@ Cypress.Commands.add('eyesOpen', function(args = {}) {
           ),
         ));
     }
+    // args.browsersInfo = args.browser
+    // delete args.browser
     eyes = await socket.request('EyesManager.openEyes', {
       manager,
       driver: driverRef,
-      config: Object.assign({testName}, args, {browser, userAgent}, Cypress.config('config'), {
-        dontCloseBatches: true,
-      }), // batches will be closed by the plugin. Should we condition it on the existence of batch.id?
+      config: Object.assign(
+        {testName},
+        args,
+        {browsersInfo: browser, userAgent},
+        Cypress.config('appliConfFile'),
+        {dontCloseBatches: true},
+      ), // batches will be closed by the plugin. Should we condition it on the existence of batch.id?
     });
   });
 });
@@ -151,15 +159,17 @@ Cypress.Commands.add('eyesCheckWindow', args =>
 );
 
 Cypress.Commands.add('eyesClose', () => {
-  Cypress.log({name: 'Eyes: close'});
-  if (isCurrentTestDisabled) {
-    isCurrentTestDisabled = false;
-    return;
-  }
+  return cy.then({timeout: 86400000}, () => {
+    Cypress.log({name: 'Eyes: close'});
+    if (isCurrentTestDisabled) {
+      isCurrentTestDisabled = false;
+      return;
+    }
 
-  // intentionally not returning the result in order to not wait on the close promise
-  socket.request('Eyes.close', {eyes, throwErr: false}).catch(err => {
-    console.log('Error in cy.eyesClose', err);
+    // intentionally not returning the result in order to not wait on the close promise
+    socket.request('Eyes.close', {eyes, throwErr: false}).catch(err => {
+      console.log('Error in cy.eyesClose', err);
+    });
   });
 });
 
@@ -192,13 +202,20 @@ function toCheckWindowConfiguration(config) {
     layoutRegions: config.layout,
     contentRegions: config.content,
     accessibilityRegions: config.accessibility,
+    waitBeforeCapture: config.waitBeforeCapture,
   };
 
-  if (config.target == 'region') {
+  if (config.target === 'region') {
     if (!Array.isArray(config.selector)) {
-      regionSettings = {
-        region: config.selector,
-      };
+      if (!config.hasOwnProperty('selector')) {
+        regionSettings = {
+          region: config.region,
+        };
+      } else {
+        regionSettings = {
+          region: config.selector,
+        };
+      }
     } else {
       const selectors = config.selector;
       for (let i = selectors.length - 1; i > -1; i--) {

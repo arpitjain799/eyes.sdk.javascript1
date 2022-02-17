@@ -1,10 +1,19 @@
 // need to check for more possible structures of selector
 // commonSelector (look at playwrigh)
+import type {Cookie} from '@applitools/types'
+
 export type Selector = string;
 export type Context = Document;
 export type Element = HTMLElement;
 
-export function executeScript(context: Context, script: string, arg: any): any {
+export function executeScript(context: Context, script: string, arg: any): any {     
+      if(!context.defaultView){
+        //@ts-ignore
+        context = cy.state('window').document
+        //@ts-ignore
+        context['applitools-marker'] = 'root-context';
+      }
+
       let scriptToExecute;
       if (
         script.includes('dom-snapshot') ||
@@ -49,7 +58,7 @@ export function getViewportSize(): Object {
   return viewportSize;
 }
 
-export function setViewportSize(vs: any): void{
+export function setViewportSize(vs: any): void {
   //@ts-ignore
   Cypress.action('cy:viewport:changed', { viewportWidth: vs.size.width, viewportHeight: vs.size.height });
 }
@@ -101,7 +110,7 @@ export function childContext(_context: Context, element: HTMLIFrameElement): Con
   return element.contentDocument
 }
 
-export function getCookies(){
+export function getCookies(): Array<Cookie> {
   //@ts-ignore
   return Cypress.automation('get:cookies', {})
 }
