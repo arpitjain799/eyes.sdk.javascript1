@@ -1,22 +1,17 @@
 'use strict';
 const {configParams, ConfigUtils, TypeUtils} = require('@applitools/visual-grid-client');
-const {version: packageVersion} = require('../../package.json');
-const agentId = `eyes-cypress/${packageVersion}`;
 const DEFAULT_TEST_CONCURRENCY = 5;
 
 function makeConfig() {
-  const config = Object.assign(
-    {agentId},
-    ConfigUtils.getConfig({
-      configParams: [
-        ...configParams,
-        'failCypressOnDiff',
-        'tapDirPath',
-        'disableBrowserFetching',
-        'testConcurrency',
-      ],
-    }),
-  );
+  const config = ConfigUtils.getConfig({
+    configParams: [
+      ...configParams,
+      'failCypressOnDiff',
+      'tapDirPath',
+      'disableBrowserFetching',
+      'testConcurrency',
+    ],
+  });
 
   if (config.failCypressOnDiff === '0') {
     config.failCypressOnDiff = false;
