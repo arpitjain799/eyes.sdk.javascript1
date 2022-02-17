@@ -17,7 +17,6 @@ const throwErr = Cypress.config('failCypressOnDiff');
 socketCommands(socket, refer);
 let connectedToUniversal = false;
 
-
 let manager, eyes;
 
 function getGlobalConfigProperty(prop) {
@@ -46,10 +45,10 @@ if (shouldUseBrowserHooks) {
     // });
     // both commands should be in after global hooks
     // // need to look into options
-    
+
     // make sure to not close batch
     socket.request('EyesManager.closeAllEyes', {manager, throwErr});
-    
+
     // });
   });
 }
@@ -93,7 +92,7 @@ Cypress.Commands.add('eyesOpen', function(args = {}) {
     const driverRef = refer.ref(cy.state('window').document);
     if (!connectedToUniversal) {
       await socket.connect(`ws://localhost:${Cypress.config('universalPort')}/eyes`);
-      connectedToUniversal = true
+      connectedToUniversal = true;
       await socket.emit('Core.makeSDK', {
         name: 'eyes.cypress',
         version: require('../../package.json').version,
@@ -101,14 +100,16 @@ Cypress.Commands.add('eyesOpen', function(args = {}) {
         cwd: process.cwd(),
       });
 
-      manager = manager || await socket.request(
-        'Core.makeManager',
-        Object.assign(
-          {},
-          {concurrency: Cypress.config('eyesTestConcurrency')},
-          {legacy: false, type: 'vg'},
-        ),
-      );
+      manager =
+        manager ||
+        (await socket.request(
+          'Core.makeManager',
+          Object.assign(
+            {},
+            {concurrency: Cypress.config('eyesTestConcurrency')},
+            {legacy: false, type: 'vg'},
+          ),
+        ));
       await sendRequest({
         command: 'sendManager',
         data: manager,
@@ -117,7 +118,9 @@ Cypress.Commands.add('eyesOpen', function(args = {}) {
     eyes = await socket.request('EyesManager.openEyes', {
       manager,
       driver: driverRef,
-      config: Object.assign({testName}, args, {browser, userAgent}, Cypress.config('config'), {dontCloseBatches: true}), // batches will be closed by the plugin. Should we condition it on the existence of batch.id?
+      config: Object.assign({testName}, args, {browser, userAgent}, Cypress.config('config'), {
+        dontCloseBatches: true,
+      }), // batches will be closed by the plugin. Should we condition it on the existence of batch.id?
     });
   });
 });
@@ -209,26 +212,25 @@ function toCheckWindowConfiguration(config) {
     accessibilityRegions: config.accessibility,
   };
 
-  if(config.target == 'region'){ 
-    if(!Array.isArray(config.selector)){
+  if (config.target == 'region') {
+    if (!Array.isArray(config.selector)) {
       regionSettings = {
-        region: config.selector
-      }
+        region: config.selector,
+      };
     } else {
-      const selectors =  config.selector
-      for(let i = selectors.length - 1; i > -1; i--) {
-        if(i === selectors.length - 1) {
-          shadowDomSettings['shadow'] = selectors[i].selector
+      const selectors = config.selector;
+      for (let i = selectors.length - 1; i > -1; i--) {
+        if (i === selectors.length - 1) {
+          shadowDomSettings['shadow'] = selectors[i].selector;
         } else {
-          const prevSettings = Object.assign({}, shadowDomSettings)
-          shadowDomSettings['selector'] = selectors[i].selector
-          if(!prevSettings.hasOwnProperty('selector'))
-            shadowDomSettings['shadow'] = prevSettings.shadow
-          else
-            shadowDomSettings['shadow'] = prevSettings
+          const prevSettings = Object.assign({}, shadowDomSettings);
+          shadowDomSettings['selector'] = selectors[i].selector;
+          if (!prevSettings.hasOwnProperty('selector'))
+            shadowDomSettings['shadow'] = prevSettings.shadow;
+          else shadowDomSettings['shadow'] = prevSettings;
         }
       }
-      regionSettings = { region: shadowDomSettings }
+      regionSettings = {region: shadowDomSettings};
     }
   }
 
