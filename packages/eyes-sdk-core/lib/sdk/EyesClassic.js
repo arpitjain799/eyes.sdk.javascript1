@@ -81,26 +81,12 @@ class EyesClassic extends EyesCore {
     await this._context.main.setScrollingElement(this._scrollRootElement)
     await this._context.setScrollingElement(checkSettings.scrollRootElement)
     if (checkSettings.pageId) {
-      const checkSettingsRegion = checkSettings.region
-      let imagePositionInPage = Location.ZERO
-      if (checkSettingsRegion) {
-        const isRegion =
-          TypeUtils.isPlainObject(checkSettingsRegion) &&
-          TypeUtils.has(checkSettingsRegion, ['x', 'y', 'width', 'height'])
-        if (isRegion) {
-          imagePositionInPage = new Location(checkSettingsRegion.x, checkSettingsRegion.y)
-        } else {
-          const elt = await this._context.element(checkSettingsRegion)
-          const {x, y} = await elt.getClientRegion()
-          imagePositionInPage = new Location(Math.round(x), Math.round(y))
-        }
-      }
       const contentSize = await this._context.getContentSize()
       this.pageCoverageInfo = {
         pageId: checkSettings.pageId,
         width: contentSize.width,
         height: contentSize.height,
-        imagePositionInPage,
+        imagePositionInPage: Location.ZERO,
       }
     }
 
@@ -142,7 +128,7 @@ class EyesClassic extends EyesCore {
       },
     }
     let dom
-    // AMIT let afterScreenShotScrollingOffeset = {x:0,y:0}
+    let afterScreenShotScrollingOffeset = {x: 0, y: 0}
     const screenshot = await takeScreenshot({
       ...screenshotSettings,
       driver: this._driver,
@@ -160,18 +146,17 @@ class EyesClassic extends EyesCore {
             }
             dom = await takeDomCapture(this._logger, driver.mainContext).catch(() => null)
           }
-          // AMIT const scrollingElement = await driver.currentContext.getScrollingElement()
-          // AMIT afterScreenShotScrollingOffeset = await scrollingElement.getScrollOffset()
+          const scrollingElement = await driver.currentContext.getScrollingElement()
+          afterScreenShotScrollingOffeset = await scrollingElement.getScrollOffset()
         },
       },
       debug: this.getDebugScreenshots(),
       logger: this._logger,
     })
     this._imageLocation = new Location(Math.round(screenshot.region.x), Math.round(screenshot.region.y))
-    //console.log('region y >>', screenshot.region.y, 'elt y >>', afterScreenShotScrollingOffeset.y, '=', Math.round(afterScreenShotScrollingOffeset.y + screenshot.region.y))
-    // AMIT const imagePositionInPage_x = Math.round(afterScreenShotScrollingOffeset.x + screenshot.region.x);
-    // AMIT const imagePositionInPage_y = Math.round(afterScreenShotScrollingOffeset.y + screenshot.region.y);
-    // AMIT this.pageCoverageInfo.imagePositionInPage = new Location(imagePositionInPage_x, imagePositionInPage_y)
+    const imagePositionInPage_x = Math.round(afterScreenShotScrollingOffeset.x + screenshot.region.x)
+    const imagePositionInPage_y = Math.round(afterScreenShotScrollingOffeset.y + screenshot.region.y)
+    this.pageCoverageInfo.imagePositionInPage = new Location(imagePositionInPage_x, imagePositionInPage_y)
     this._matchSettings = await CheckSettingsUtils.toMatchSettings({
       checkSettings: this._checkSettings,
       configuration: this._configuration,

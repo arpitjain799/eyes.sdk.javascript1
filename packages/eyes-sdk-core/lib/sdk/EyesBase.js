@@ -1906,7 +1906,6 @@ class EyesBase {
       imageLocation,
       pageCoverageInfo,
     })
-    console.log('>> AppOutput', appOutput.toJSON())
     this._logger.log('Done!')
     return {screenshot, appOutput, matchSettings: this.getMatchSettings()}
   }
