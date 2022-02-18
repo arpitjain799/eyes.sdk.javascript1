@@ -3,7 +3,7 @@ const isGlobalHooksSupported = require('./isGlobalHooksSupported');
 const {presult} = require('@applitools/functional-commons');
 const makeGlobalRunHooks = require('./hooks');
 
-function makePluginExport({startServer, eyesConfig, settings}) {
+function makePluginExport({startServer, eyesConfig}) {
   return function pluginExport(pluginModule) {
     let eyesServer;
     const pluginModuleExports = pluginModule.exports;
@@ -25,7 +25,7 @@ function makePluginExport({startServer, eyesConfig, settings}) {
         }
       }
 
-      return Object.assign({}, eyesConfig, {eyesPort: port, config: settings}, moduleExportsResult);
+      return Object.assign({}, eyesConfig, {eyesPort: port}, moduleExportsResult);
 
       // This piece of code exists because at the point of writing, Cypress does not support multiple event handlers:
       // https://github.com/cypress-io/cypress/issues/5240#issuecomment-948277554

@@ -11,7 +11,7 @@ describe('pluginExport', () => {
 
   async function startServer() {
     return {
-      localServerPort: 123,
+      port: 123,
     };
   }
 
@@ -36,17 +36,15 @@ describe('pluginExport', () => {
     const ret = await __module.exports(() => {}, {});
     expect(ret).to.eql({
       bla: 'blah',
-      localServerPort: 123,
+      eyesPort: 123,
       eyesDisableBrowserFetching: false,
       eyesLayoutBreakpoints: undefined,
       eyesFailCypressOnDiff: true,
       eyesIsDisabled: false,
       eyesIsGlobalHooksSupported: false,
-      config: undefined,
       eyesBrowser: undefined,
       eyesTestConcurrency: 5,
       eyesWaitBeforeCapture: undefined,
-      universalPort: 21077,
       tapDirPath: undefined,
     });
 
@@ -61,19 +59,17 @@ describe('pluginExport', () => {
     pluginExport(__module);
     const ret2 = await __module.exports(() => {}, {});
     expect(ret2).to.eql({
-      localServerPort: 123,
+      eyesPort: 123,
       eyesDisableBrowserFetching: false,
       eyesLayoutBreakpoints: undefined,
       eyesFailCypressOnDiff: true,
       eyesIsDisabled: false,
       eyesIsGlobalHooksSupported: false,
-      config: undefined,
       eyesBrowser: undefined,
       eyesTestConcurrency: 5,
       version: '6.5.0',
       experimentalRunEvents: true,
       eyesWaitBeforeCapture: undefined,
-      universalPort: 21077,
       tapDirPath: undefined,
 
     });
@@ -92,17 +88,15 @@ describe('pluginExport', () => {
     const ret = await __module.exports(() => {}, {});
     expect(ret).to.eql({
       bla: 'bla',
-      localServerPort: 123,
+      eyesPort: 123,
       eyesDisableBrowserFetching: false,
       eyesLayoutBreakpoints: undefined,
       eyesFailCypressOnDiff: true,
       eyesIsDisabled: false,
       eyesIsGlobalHooksSupported: false,
-      config: undefined,
       eyesBrowser: undefined,
       eyesTestConcurrency: 5,
       eyesWaitBeforeCapture: undefined,
-      universalPort: 21077,
       tapDirPath: undefined,
     });
   });
@@ -118,17 +112,15 @@ describe('pluginExport', () => {
     const ret = await __module.exports(() => {}, {});
     expect(ret).to.eql({
       bla: 'ret',
-      localServerPort: 123,
+      eyesPort: 123,
       eyesIsDisabled: true,
       eyesIsGlobalHooksSupported: false,
       eyesDisableBrowserFetching: false,
       eyesLayoutBreakpoints: undefined,
       eyesFailCypressOnDiff: true,
-      config: undefined,
       eyesBrowser: undefined,
       eyesTestConcurrency: 5,
       eyesWaitBeforeCapture: undefined,
-      universalPort: 21077,
       tapDirPath: undefined,
     });
   });
@@ -144,17 +136,15 @@ describe('pluginExport', () => {
     const ret = await __module.exports(() => {}, {});
     expect(ret).to.eql({
       bla: 'ret',
-      localServerPort: 123,
+      eyesPort: 123,
       eyesDisableBrowserFetching: false,
       eyesLayoutBreakpoints: undefined,
       eyesIsDisabled: false,
       eyesIsGlobalHooksSupported: false,
       eyesFailCypressOnDiff: false,
-      config: undefined,
       eyesBrowser: undefined,
       eyesTestConcurrency: 5,
       eyesWaitBeforeCapture: undefined,
-      universalPort: 21077,
       tapDirPath: undefined,
     });
   });
@@ -170,17 +160,15 @@ describe('pluginExport', () => {
     const ret = await __module.exports(() => {}, {});
     expect(ret).to.eql({
       bla: 'ret',
-      localServerPort: 123,
+      eyesPort: 123,
       eyesDisableBrowserFetching: true,
       eyesLayoutBreakpoints: undefined,
       eyesIsDisabled: false,
       eyesIsGlobalHooksSupported: false,
       eyesFailCypressOnDiff: true,
-      config: undefined,
       eyesBrowser: undefined,
       eyesTestConcurrency: 5,
       eyesWaitBeforeCapture: undefined,
-      universalPort: 21077,
       tapDirPath: undefined,
     });
   });

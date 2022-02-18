@@ -7,12 +7,7 @@ export type Context = Document;
 export type Element = HTMLElement;
 
 export function executeScript(context: Context, script: string, arg: any): any {     
-      if(!context.defaultView) {
-        //@ts-ignore
-        context = cy.state('window').document
-        //@ts-ignore
-        context['applitools-marker'] = 'root-context';
-      }
+      context = getCurrenctContext(context)
 
       let scriptToExecute;
       if (
@@ -35,6 +30,7 @@ export function isDriver(driver: Context): boolean {
 }
 
 export function parentContext(currentContext: Context): Context {
+  currentContext = getCurrenctContext(currentContext)
   //@ts-ignore
   return currentContext === cy.state('window').document ? currentContext : document.defaultView.top.document
 }
@@ -65,6 +61,7 @@ export function setViewportSize(vs: any): void {
 }
 
 export function findElement(context: Context, element: Selector, type: string, parent: Context) {
+  context = getCurrenctContext(context)
   if(isSelector(element)) {
     if(parent){
       return parent.querySelector(element)
@@ -78,6 +75,7 @@ export function findElement(context: Context, element: Selector, type: string, p
 }
 
 export function findElements(context: Context, element: Selector, type: string, parent: Context){
+  context = getCurrenctContext(context)
   if(isSelector(element)) {
     let elements
     if(parent) {
@@ -99,21 +97,34 @@ export function isSelector(selector: Selector): boolean {
   return typeof(selector) === 'string';
 }
 
-export function getTitle(context: Context): string{
+export function getTitle(context: Context): string {
+  context = getCurrenctContext(context)
   return context.title
 }
 
-export function getUrl(context: Context): string{
+export function getUrl(context: Context): string {
+  context = getCurrenctContext(context)
   return context.location.href
 }
 
-export function childContext(_context: Context, element: HTMLIFrameElement): Context{
+export function childContext(_context: Context, element: HTMLIFrameElement): Context {
   return element.contentDocument
 }
 
 export function getCookies(): Array<Cookie> {
   //@ts-ignore
   return Cypress.automation('get:cookies', {})
+}
+
+// we need to method to reset the context in case the user called open before visit
+function getCurrenctContext(context: Context){
+  if(!context.defaultView) {
+    //@ts-ignore
+    const currContext = cy.state('window').document
+    //@ts-ignore
+    currContext['applitools-marker'] = 'root-context';
+    return currContext
+  } else return context
 }
 
 // export function takeScreenshot(page: Driver): Promise<Buffer>;

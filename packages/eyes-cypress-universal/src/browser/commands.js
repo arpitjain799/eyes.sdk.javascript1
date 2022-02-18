@@ -31,6 +31,7 @@ Cypress.Commands.add('eyesGetAllTestResults', () => {
 
 if (shouldUseBrowserHooks) {
   after(() => {
+    if(!manager) return
     cy.then({timeout: 86400000}, () => {
       return socket.request('EyesManager.closeAllEyes', {manager, throwErr});
     });

@@ -1,18 +1,13 @@
 'use strict';
 const {describe, it} = require('mocha');
 const {expect} = require('chai');
-const fetch = require('../../util/fetchWithNoCAVerify');
 const makeStartServer = require('../../../src/plugin/server');
-const express = require('express');
 
 describe('plugin server', () => {
   it('starts at a random port', async () => {
-    const app = express();
-    app.get('/bla', (_req, res) => res.sendStatus(200));
-    const startServer = makeStartServer({app, logger: console});
-    const {localServerPort, closeServer} = await startServer();
-    const resp = await fetch(`https://localhost:${localServerPort}/bla`);
-    expect(resp.status).to.equal(200);
-    await closeServer();
+    const startServer = makeStartServer();
+    const {port, server} = await startServer();
+    expect(port).to.not.be.NaN
+    server.close()
   });
 });

@@ -5,7 +5,7 @@ const path = require('path');
 const {exec} = require('child_process');
 const {promisify: p} = require('util');
 const pexec = p(exec);
-const {expect} = require('chai');
+const {assert} = require('chai');
 
 describe('spec-driver', () => {
     before(async () => {
@@ -20,10 +20,16 @@ describe('spec-driver', () => {
 
       });
 
-    it.skip('works for spec-driver.spec.js', async () => {
+    it('works for spec-driver.spec.js', async () => {
         await runCypress('spec-driver')
         .then((results) => {
-            expect(results.runs[0].tests[0].state).to.equal( 'passed');
+            const tests = results.runs[0].tests
+            for(const res of tests){
+                if(res.state != 'passed'){
+                    throw `${res.title[0]} finished with status ${res.state}`
+                }
+            }
+            assert(true)
           })
           .catch((err) => {
             console.error(err)
@@ -43,7 +49,7 @@ function runCypress(spec){
         spec: `./integrations/${spec}.spec.js`,
         config: {
         video: false,
-        pluginsFile: path.resolve(__dirname, '../setup/fixtures/cypress/plugins/index-bla-plugin.js'),
+        pluginsFile: path.resolve(__dirname, '../setup/fixtures/cypress/plugins/index-spec-driver-plugin.js'),
         supportFile: path.resolve(__dirname, '../setup/fixtures/cypress/support/spec-driver.js'),
         integrationFolder: path.resolve(__dirname, '../setup/fixtures/cypress/integrations')
         },
@@ -56,7 +62,7 @@ function openCypress(){
         browser: 'chrome',
         config: {
         video: false,
-        pluginsFile: path.resolve(__dirname, '../setup/fixtures/cypress/plugins/index-bla-plugin.js'),
+        pluginsFile: path.resolve(__dirname, '../setup/fixtures/cypress/plugins/index-spec-driver-plugin.js'),
         supportFile: path.resolve(__dirname, '../setup/fixtures/cypress/support/spec-driver.js'),
         integrationFolder: path.resolve(__dirname, '../setup/fixtures/cypress/integrations')
         },

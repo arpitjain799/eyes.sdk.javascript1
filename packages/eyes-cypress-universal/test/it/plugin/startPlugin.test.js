@@ -14,14 +14,9 @@ describe('start plugin', () => {
 
   afterEach(async () => {
     __module = null;
-    await getCloseServer()();
+    await getCloseServer();
   });
 
-  it('starts plugin server and patches module exports', async () => {
-    const {localServerPort} = await __module.exports(() => {}, 'test');
-    const resp = await fetch(`https://localhost:${localServerPort}/hb`);
-    expect(resp.status).to.equal(200);
-  });
 
   it('patches module exports with correct pref', async () => {
     const {eyesIsDisabled, eyesFailCypressOnDiff} = await __module.exports(() => {}, 'test');
