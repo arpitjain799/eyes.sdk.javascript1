@@ -38,7 +38,7 @@ function socketCommands(socket, refer) {
       );
       return refer.ref(res);
     } else {
-      // add some error handling here
+      throw `selector is not in the correct format`
     }
   });
   socket.command('Driver.findElements', ({context, selector, parent}) => {
@@ -57,7 +57,7 @@ function socketCommands(socket, refer) {
       }
       return result;
     } else {
-      // add some error handling here
+      throw `selector is not in the correct format`
     }
   });
 
