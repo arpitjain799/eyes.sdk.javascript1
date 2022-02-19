@@ -31,9 +31,15 @@ Cypress.Commands.add('eyesGetAllTestResults', () => {
 
 if (shouldUseBrowserHooks) {
   after(() => {
-    if(!manager) return
-    cy.then({timeout: 86400000}, () => {
-      return socket.request('EyesManager.closeAllEyes', {manager, throwErr});
+    if (!manager) return;
+    return cy.then({timeout: 86400000}, async () => {
+      const resultConfig = {
+        showLogs: Cypress.config('appliConfFile').showLogs,
+        eyesFailCypressOnDiff: Cypress.config('eyesFailCypressOnDiff'),
+        isTextTerminal: Cypress.config('isTextTerminal'),
+      };
+      const testResults = await socket.request('EyesManager.closeAllEyes', {manager, throwErr});
+      await socket.request('Test.printTestResults', {testResults, resultConfig});
     });
   });
 }
@@ -192,6 +198,7 @@ function toCheckWindowConfiguration(config) {
   let regionSettings = {};
   let shadowDomSettings = {};
   const checkSettings = {
+    ignoreDisplacements: config.ignoreDisplacements,
     name: config.tag,
     disableBrowserFetching: Cypress.config('eyesDisableBrowserFetching'),
     visualGridOptions: config.visualGridOptions,

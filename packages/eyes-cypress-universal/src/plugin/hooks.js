@@ -6,15 +6,10 @@ function makeGlobalRunHooks({closeAllEyes}) {
       if (!config.isTextTerminal) return;
     },
 
-    'after:run': async ({config}) => {
+    'after:run': ({config}) => {
       if (!config.isTextTerminal) return;
-      try {
-        await closeAllEyes();
-      } catch (e) {
-        if (!!config.eyesFailCypressOnDiff) {
-          throw e;
-        }
-      }
+      const resultConfig = {showLogs: config.showLogs, eyesFailCypressOnDiff: config.eyesFailCypressOnDiff, isTextTerminal: config.isTextTerminal}
+      closeAllEyes(resultConfig);
     },
   };
 }
