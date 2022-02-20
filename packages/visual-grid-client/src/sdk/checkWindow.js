@@ -304,7 +304,7 @@ function makeCheckWindow({
         checkArgs.pageCoverageInfo = {
           pageId,
           ...fullPageSize,
-          imagePositionInPage: {x: imageLocation.x || 0, y: imageLocation.y || 0},
+          imagePositionInPage: {x: imageLocation.x, y: imageLocation.y},
         }
       }
 
