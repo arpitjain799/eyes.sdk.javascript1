@@ -10,7 +10,7 @@ describe('AppOutput', () => {
       pageId: 'my-page',
       width: 800,
       height: 1200,
-      imagePositionInPage: Location.ZERO,
+      imagePositionInPage: {x:10, y:20},
     }
     const ao = new AppOutput({
       title: 'title',
@@ -23,6 +23,6 @@ describe('AppOutput', () => {
     assert.deepStrictEqual(new Location(10, 30), ao.getImageLocation())
     assert.strictEqual('some fake base64 screenshot serialized', ao.getScreenshot64())
     assert.strictEqual('abc', ao.getScreenshotUrl())
-    assert.deepStrictEqual(ao.getPageCoverageInfo().pageId, pageCoverageInfo.pageId)
+    assert.deepStrictEqual(ao.getPageCoverageInfo(), pageCoverageInfo)
   })
 })

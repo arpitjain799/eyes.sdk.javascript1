@@ -127,7 +127,7 @@ class EyesClassic extends EyesCore {
       },
     }
     let dom
-    let afterScreenShotScrollingOffeset = {x: 0, y: 0}
+    let afterScreenShotScrollingOffeset = null
     const screenshot = await takeScreenshot({
       ...screenshotSettings,
       driver: this._driver,
@@ -145,17 +145,22 @@ class EyesClassic extends EyesCore {
             }
             dom = await takeDomCapture(this._logger, driver.mainContext).catch(() => null)
           }
-          const scrollingElement = await driver.currentContext.getScrollingElement()
-          afterScreenShotScrollingOffeset = await scrollingElement.getScrollOffset()
+          if (this._checkSettings.pageId){
+            const scrollingElement = await driver.currentContext.getScrollingElement()
+            afterScreenShotScrollingOffeset = await scrollingElement.getScrollOffset()
+          }
+            
         },
       },
       debug: this.getDebugScreenshots(),
       logger: this._logger,
     })
     this._imageLocation = new Location(Math.round(screenshot.region.x), Math.round(screenshot.region.y))
-    const imagePositionInPage_x = Math.round(afterScreenShotScrollingOffeset.x + screenshot.region.x)
-    const imagePositionInPage_y = Math.round(afterScreenShotScrollingOffeset.y + screenshot.region.y)
-    this.pageCoverageInfo.imagePositionInPage = new Location(imagePositionInPage_x, imagePositionInPage_y)
+    if (afterScreenShotScrollingOffeset){
+      const imagePositionInPage_x = Math.round(afterScreenShotScrollingOffeset.x + screenshot.region.x)
+      const imagePositionInPage_y = Math.round(afterScreenShotScrollingOffeset.y + screenshot.region.y)
+      this.pageCoverageInfo.imagePositionInPage = {x: imagePositionInPage_x, y: imagePositionInPage_y}
+    }
     this._matchSettings = await CheckSettingsUtils.toMatchSettings({
       checkSettings: this._checkSettings,
       configuration: this._configuration,

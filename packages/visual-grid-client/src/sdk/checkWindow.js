@@ -290,21 +290,22 @@ function makeCheckWindow({
       }
 
       logger.verbose(`running wrapper.checkWindow for test ${testName} stepCount #${currStepCount}`)
-      const pageCoverageInfo = pageId && {
-        pageId,
-        ...fullPageSize,
-        imagePositionInPage: imageLocation ? new Location(imageLocation) : Location.ZERO,
-      }
       const checkArgs = {
         screenshotUrl,
         tag,
         domUrl: domLocation,
         checkSettings,
         imageLocation,
-        pageCoverageInfo,
         url,
         closeAfterMatch,
         throwEx,
+      }
+      if(pageId){
+        checkArgs.pageCoverageInfo = {
+          pageId,
+          ...fullPageSize,
+          imagePositionInPage: {x: imageLocation.x || 0, y: imageLocation.y || 0},
+        }
       }
 
       return wrapper.checkWindow(checkArgs)
