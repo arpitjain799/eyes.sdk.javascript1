@@ -4,6 +4,12 @@
 ## Unreleased
 - adjust getContextInfo to work with Cypress Universal
 
+## 2.1.13 - 2022/2/15
+
+- add `getViewportScale` snippet
+- remove auto scaling from `getViewportSize` and `addPageMarker`
+- marker mask and size have to be passed as arguments in `addPageMarker`
+
 ## 2.1.12 - 2021/12/22
 
 - round fractional values in `getViewportSize`
