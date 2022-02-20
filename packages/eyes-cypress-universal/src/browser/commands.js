@@ -39,7 +39,7 @@ if (shouldUseBrowserHooks) {
         isTextTerminal: Cypress.config('isTextTerminal'),
       };
       const testResults = await socket.request('EyesManager.closeAllEyes', {manager, throwErr});
-      await socket.request('Test.printTestResults', {testResults, resultConfig});
+      socket.request('Test.printTestResults', {testResults, resultConfig});
     });
   });
 }
@@ -114,7 +114,7 @@ Cypress.Commands.add('eyesOpen', function(args = {}) {
         args,
         {browsersInfo: browser, userAgent},
         Cypress.config('appliConfFile'),
-        {dontCloseBatches: true},
+        {dontCloseBatches: !shouldUseBrowserHooks},
       ), // batches will be closed by the plugin. Should we condition it on the existence of batch.id?
     });
   });

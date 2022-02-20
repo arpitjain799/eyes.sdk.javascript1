@@ -13,9 +13,10 @@ function makeStartServer() {
     const {port: universalPort} = await makeServerProcess();
 
     const managers = [];
+    let socketWithUniversal
 
     server.on('connection', socketWithClient => {
-      const socketWithUniversal = connectSocket(`ws://localhost:${universalPort}/eyes`);
+      socketWithUniversal = connectSocket(`ws://localhost:${universalPort}/eyes`);
 
       socketWithUniversal.setPassthroughListener(message => {
         console.log('<== ', message.toString().slice(0, 400));
@@ -38,10 +39,10 @@ function makeStartServer() {
     
     });
 
-    return {server, port, closeAllEyes};
+    return {server, port, closeAllEyes, printTestResults, closeBatches};
 
-    async function closeAllEyes(resultConfig) {
-      const testResults = await Promise.all(
+   function closeAllEyes(resultConfig) {
+      return Promise.all(
         managers.map(({manager, socketWithUniversal}) =>
           socketWithUniversal.request('EyesManager.closeAllEyes', {
             manager,
@@ -49,8 +50,11 @@ function makeStartServer() {
           }),
         ),
       );
-      printTestResults({testResults, resultConfig})
     }
+
+  function closeBatches(batchIds){
+    return socketWithUniversal.request('Core.closeBatches', {settings: {batchIds}})
+  }
 
   function printTestResults(testResultsArr){
     const logger = makeLogger({level: testResultsArr.resultConfig.showLogs ? 'info' : 'silent', label: 'eyes'});
