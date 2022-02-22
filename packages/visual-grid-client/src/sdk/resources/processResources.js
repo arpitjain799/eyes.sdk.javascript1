@@ -1,3 +1,4 @@
+const {URL} = require('url')
 const absolutizeUrl = require('../absolutizeUrl')
 const createResource = require('./createResource')
 const extractCssResources = require('./extractCssDependencyUrls')

@@ -1,3 +1,4 @@
+/* eslint-disable node/no-unsupported-features/node-builtins */
 const {expect} = require('chai')
 const makePutResources = require('../../../src/sdk/resources/putResources')
 const createResource = require('../../../src/sdk/resources/createResource')
