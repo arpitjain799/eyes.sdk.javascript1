@@ -37,6 +37,8 @@ if (shouldUseBrowserHooks) {
         showLogs: Cypress.config('appliConfFile').showLogs,
         eyesFailCypressOnDiff: Cypress.config('eyesFailCypressOnDiff'),
         isTextTerminal: Cypress.config('isTextTerminal'),
+        tapDirPath: Cypress.config('appliConfFile').tapDirPath,
+        tapFileName: Cypress.config('appliConfFile').tapFileName
       };
       const testResults = await socket.request('EyesManager.closeAllEyes', {manager, throwErr});
       socket.request('Test.printTestResults', {testResults, resultConfig});
@@ -176,8 +178,7 @@ Cypress.Commands.add('eyesClose', () => {
       return;
     }
 
-    // intentionally not returning the result in order to not wait on the close promise
-    socket.request('Eyes.close', {eyes, throwErr: false}).catch(err => {
+    return socket.request('Eyes.close', {eyes, throwErr: false}).catch(err => {
       console.log('Error in cy.eyesClose', err);
     });
   });

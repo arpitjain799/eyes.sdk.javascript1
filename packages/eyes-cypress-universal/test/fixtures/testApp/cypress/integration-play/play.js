@@ -2,7 +2,7 @@
 Cypress.on('uncaught:exception', () => {});
 
 describe('Play Cypress', () => {
-  it('Play Cypress', () => {
+  it.only('Play Cypress', () => {
     
     cy.eyesOpen({
       appName: 'Play Cypress',

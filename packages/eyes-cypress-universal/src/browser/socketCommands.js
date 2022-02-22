@@ -1,3 +1,4 @@
+
 const spec = require('../../dist/browser/spec-driver');
 
 function socketCommands(socket, refer) {
@@ -83,21 +84,18 @@ function socketCommands(socket, refer) {
   });
 
   // utils
-  function derefArgs(arg) {
+  
+  function derefArgs(arg){
     if (Array.isArray(arg)) {
       const derefArg = [];
       for (const argument of arg) {
-        if (Array.isArray(argument)) {
-          const arr = [];
-          for (const entry of argument) {
-            arr.push(refer.deref(entry));
-          }
-          derefArg.push(refer.deref(arr));
-        } else {
+        if (Array.isArray(argument)){
+          derefArg.push(derefArgs(argument))
+        } else{
           derefArg.push(refer.deref(argument));
         }
       }
-      return derefArg;
+      return derefArg
     } else {
       return arg;
     }

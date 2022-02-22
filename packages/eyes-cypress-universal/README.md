@@ -194,6 +194,7 @@ Applitools will take screenshots and perform the visual comparisons in the backg
     - [variationGroupId](#variationGroupId)
     - [waitBeforeCapture](#waitBeforeCapture)
   - [Close](#Close)
+  - [GetAllTestResults](#GetAllTestResults)
 - [Concurrency](#Concurrency)
 - [Advanced configuration](#Advanced-configuration)
   - [Scoped configuration](#Here-are-the-available-configuration-properties)
@@ -518,6 +519,15 @@ Close receives no arguments.
 cy.eyesClose();
 ```
 
+#### GetAllTestResults
+
+Returns an object with the applitools test results from a given test / test file.
+This should be called after `close`
+
+```js
+ cy.eyesGetAllTestResults()
+ ```
+
 ## Concurrency
 
 The default level of concurrency for free accounts is `5`. This means that only up to 5 visual tests can run in parallel, and therefore the execution might be slow.
@@ -574,6 +584,7 @@ The following configuration properties cannot be defined using the first method 
 | `isDisabled`              | false                       | If true, all calls to Eyes-Cypress commands will be silently ignored. |
 | `failCypressOnDiff`       | true                        | If true, then the Cypress test fails if an eyes visual test fails. If false and an eyes test fails, then the Cypress test does not fail. 
 | `tapDirPath`              | undefined                   | Directory path of a results file. If set, then a [TAP](https://en.wikipedia.org/wiki/Test_Anything_Protocol#Specification) file is created in this directory, the tap file name is created with the name [ISO-DATE](https://en.wikipedia.org/wiki/ISO_8601)\-eyes.tap and contains the Eyes test results (Note that because of a current Cypress [limitation](https://github.com/cypress-io/cypress-documentation/issues/818) the results are scoped per spec file, this means that the results file is created once for each spec file).|
+| `tapFileName`              | [ISO-DATE](https://en.wikipedia.org/wiki/ISO_8601)\-eyes.tap                   | The name of the tap file that is created in case `tapDirPath` is set
 | `testConcurrency`             | 5                          | The maximum number of tests that can run concurrently. The default value is the allowed amount for free accounts. For paid accounts, set this number to the quota set for your account. |
 |`dontCloseBatches`| false | If true, batches are not closed for  [notifyOnCompletion](#advanced-configuration).|
 |`disableBrowserFetching`| false | If true, page resources for rendering on the UFG will be fetched from outside of the browser.|

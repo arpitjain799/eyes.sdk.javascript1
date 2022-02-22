@@ -9,6 +9,7 @@ function makeConfig() {
       ...configParams,
       'failCypressOnDiff',
       'tapDirPath',
+      'tapFileName',
       'disableBrowserFetching',
       'testConcurrency',
     ],
