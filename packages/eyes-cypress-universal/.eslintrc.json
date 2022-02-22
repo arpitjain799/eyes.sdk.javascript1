@@ -1,7 +1,6 @@
 {
   "ignorePatterns": [
     "node_modules/",
-    "node_modules/@applitools/types/types/*.d.ts",
     "dist/",
     "logs",
     "tmp/",
