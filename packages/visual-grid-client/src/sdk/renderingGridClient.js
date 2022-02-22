@@ -150,7 +150,13 @@ function makeRenderingGridClient({
     timeout: putResourcesTimeout,
     logger,
   })
-  const processResources = makeProcessResources({putResources, fetchResource, logger})
+  const resourceCache = new Map()
+  const processResources = makeProcessResources({
+    putResources,
+    fetchResource,
+    resourceCache,
+    logger,
+  })
   const createResourceMapping = makeCreateResourceMapping({processResources, logger})
 
   const render = makeRender({logger, doRenderBatch, timeout: renderTimeout})
@@ -299,7 +305,7 @@ function makeRenderingGridClient({
   }
 
   function getResourceUrlsInCache() {
-    return resourceCache.getKeys()
+    return Array.from(resourceCache.keys())
   }
 
   async function getSetRenderInfo() {
