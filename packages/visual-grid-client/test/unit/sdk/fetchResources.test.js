@@ -1,4 +1,5 @@
 /* global fetch */
+/* eslint-disable node/no-unsupported-features/node-builtins */
 require('@applitools/isomorphic-fetch')
 const {expect} = require('chai')
 const assert = require('assert')

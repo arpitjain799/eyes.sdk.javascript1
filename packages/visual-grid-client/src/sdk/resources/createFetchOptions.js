@@ -1,6 +1,5 @@
 'use strict'
 const {getTunnelAgentFromProxy} = require('@applitools/eyes-sdk-core/shared')
-const userAgents = require('./userAgents')
 const createResourceCookieHeader = require('./createResourceCookieHeader')
 
 function createFetchOptions(resource, {referer, userAgent, proxy, cookies}) {
@@ -8,9 +7,7 @@ function createFetchOptions(resource, {referer, userAgent, proxy, cookies}) {
 
   fetchOptions.headers['Referer'] = referer
 
-  fetchOptions.headers['User-Agent'] = resource.browserName
-    ? userAgents[resource.browserName]
-    : userAgent
+  fetchOptions.headers['User-Agent'] = resource.userAgent || userAgent
 
   if (proxy && proxy.getIsHttpOnly()) {
     fetchOptions.agent = getTunnelAgentFromProxy(proxy.toProxyObject())

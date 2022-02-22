@@ -7,7 +7,6 @@ const makeProcessResources = require('../../../src/sdk/resources/processResource
 const makeFetchResource = require('../../../src/sdk/resources/fetchResource')
 const makePutResources = require('../../../src/sdk/resources/putResources')
 const createResource = require('../../../src/sdk/resources/createResource')
-const userAgents = require('../../../src/sdk/resources/userAgents')
 const logger = require('../../util/testLogger')
 const {loadFixtureBuffer} = require('../../util/loadFixture')
 const getTestCssResources = require('../../util/getTestCssResources')
@@ -563,7 +562,9 @@ describe('processResources', () => {
       resources: {[googleFontUrl]: createResource({url: googleFontUrl, browserName: 'ie11'})},
     })
 
-    expect(resources.mapping[googleFontUrl].contentType).to.eql(`application/${userAgents.IE}`)
+    expect(resources.mapping[googleFontUrl].contentType).to.eql(
+      `application/Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; .NET4.0C; .NET4.0E; .NET CLR 2.0.50727; .NET CLR 3.0.30729; .NET CLR 3.5.30729; rv:11.0) like Gecko`,
+    )
   })
 
   it('handles resources with errorStatusCode (non-200 resources) from prefilled resources', async () => {
@@ -726,7 +727,7 @@ describe('processResources', () => {
     })
 
     expect(resources.mapping[googleFontResource.url].contentType).to.equal(
-      `application/${userAgents.IE}`,
+      `application/Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; .NET4.0C; .NET4.0E; .NET CLR 2.0.50727; .NET CLR 3.0.30729; .NET CLR 3.5.30729; rv:11.0) like Gecko`,
     )
     expect(resources.mapping[standardResource.url].contentType).to.equal(
       `application/${mainUserAgent}`,
@@ -741,7 +742,7 @@ describe('processResources', () => {
     })
 
     expect(resourcesFromCache.mapping[googleFontResource.url].contentType).to.equal(
-      `application/${userAgents.IE}`,
+      `application/Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; .NET4.0C; .NET4.0E; .NET CLR 2.0.50727; .NET CLR 3.0.30729; .NET CLR 3.5.30729; rv:11.0) like Gecko`,
     )
     expect(resourcesFromCache.mapping[standardResource.url].contentType).to.equal(
       `application/${mainUserAgent}`,

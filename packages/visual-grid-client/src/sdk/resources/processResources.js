@@ -1,3 +1,4 @@
+const {URL} = require('url')
 const absolutizeUrl = require('../absolutizeUrl')
 const createResource = require('./createResource')
 const extractCssResources = require('./extractCssDependencyUrls')
@@ -12,25 +13,27 @@ function makeProcessResources({fetchResource, putResources, resourceCache = new 
     cookies,
     proxy,
   }) {
-    const processedResources = await Object.keys(resources).reduce(async (result, url) => {
-      const resource = resources[url]
-      if ('value' in resource || resource.errorStatusCode) {
-        // process prefilled resource
-        const processedResource = await processPreResource({resource})
-        return result.then(result => Object.assign(result, {[url]: processedResource}))
-      } else {
-        // process url resource with dependencies
-        const processedResourceWithDependencies = await processUrlResourceWithDependencies({
-          resource,
-          referer,
-          browserName,
-          userAgent,
-          cookies,
-          proxy,
-        })
-        return result.then(result => Object.assign(result, processedResourceWithDependencies))
-      }
-    }, Promise.resolve({}))
+    const processedResources = await Object.entries(resources).reduce(
+      async (processedResourcesPromise, [url, resource]) => {
+        if ('value' in resource || resource.errorStatusCode) {
+          // process prefilled resource
+          const processedResource = await processPreResource({resource})
+          return Object.assign(await processedResourcesPromise, {[url]: processedResource})
+        } else {
+          // process url resource with dependencies
+          const processedResourceWithDependencies = await processUrlResourceWithDependencies({
+            resource,
+            referer,
+            browserName,
+            userAgent,
+            cookies,
+            proxy,
+          })
+          return Object.assign(await processedResourcesPromise, processedResourceWithDependencies)
+        }
+      },
+      Promise.resolve({}),
+    )
 
     const result = {mapping: {}, promise: Promise.resolve()}
     for (const [url, processedResource] of Object.entries(processedResources)) {
