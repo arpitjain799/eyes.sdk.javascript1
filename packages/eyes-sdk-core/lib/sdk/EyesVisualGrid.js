@@ -10,6 +10,7 @@ const CorsIframeHandler = require('../capture/CorsIframeHandler')
 const CorsIframeHandles = require('../capture/CorsIframeHandles')
 const VisualGridRunner = require('../runner/VisualGridRunner')
 const takeDomSnapshots = require('../utils/takeDomSnapshots')
+const takeVHSes = require('../utils/takeVHSes')
 const EyesCore = require('./EyesCore')
 const CheckSettingsUtils = require('../sdk/CheckSettingsUtils')
 
@@ -158,37 +159,51 @@ class EyesVisualGrid extends EyesCore {
           this._configuration.getWaitBeforeCapture(),
         )
         const showLogs = this._configuration.getShowLogs()
-        const {snapshots, cookies} = await takeDomSnapshots({
-          browsers,
-          breakpoints,
-          disableBrowserFetching,
-          driver: this._driver,
-          logger: this._logger,
-          skipResources: this._getResourceUrlsInCache(),
-          getViewportSize: () => this.getViewportSize().then(rectangleSize => rectangleSize.toJSON()),
-          getEmulatedDevicesSizes: this._getEmulatedDevicesSizes,
-          getIosDevicesSizes: this._getIosDevicesSizes,
-          showLogs,
-          waitBeforeCapture: () => utils.general.sleep(waitBeforeCapture),
-        })
-
-        const [{url}] = snapshots
-        if (this.getCorsIframeHandle() === CorsIframeHandles.BLANK) {
-          snapshots.forEach(CorsIframeHandler.blankCorsIframeSrcOfCdt)
-        }
 
         const config = CheckSettingsUtils.toCheckWindowConfiguration({
           checkSettings: persistedCheckSettings,
           configuration: this._configuration,
         })
 
+        const target = {}
+        if (this._driver.isWeb) {
+          const {snapshots, cookies} = await takeDomSnapshots({
+            driver: this._driver,
+            browsers,
+            breakpoints,
+            disableBrowserFetching,
+            skipResources: this._getResourceUrlsInCache(),
+            getViewportSize: () => this.getViewportSize().then(rectangleSize => rectangleSize.toJSON()),
+            getEmulatedDevicesSizes: this._getEmulatedDevicesSizes,
+            getIosDevicesSizes: this._getIosDevicesSizes,
+            showLogs,
+            waitBeforeCapture: () => utils.general.sleep(waitBeforeCapture),
+            logger: this._logger,
+          })
+
+          const [{url}] = snapshots
+          if (this.getCorsIframeHandle() === CorsIframeHandles.BLANK) {
+            snapshots.forEach(CorsIframeHandler.blankCorsIframeSrcOfCdt)
+          }
+          target.url = url
+          target.snapshot = snapshots
+          target.cookies = cookies
+        } else {
+          const {snapshots} = await takeVHSes({
+            driver: this._driver,
+            browsers,
+            apiKey: this._configuration.getApiKey(),
+            waitBeforeCapture: () => utils.general.sleep(waitBeforeCapture),
+            logger: this._logger,
+          })
+          target.snapshot = snapshots
+        }
+
         return await this._checkWindowCommand({
           ...config,
+          ...target,
           closeAfterMatch,
           throwEx,
-          snapshot: snapshots,
-          url,
-          cookies,
         })
       } finally {
         await cleanupPersistance()

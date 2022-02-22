@@ -1,9 +1,11 @@
 const utils = require('@applitools/utils')
 
-async function takeVHS({context, apiKey, waitBeforeCapture, logger}) {
+async function takeVHSes({driver, browsers, apiKey, waitBeforeCapture, logger}) {
   if (waitBeforeCapture) await waitBeforeCapture()
 
-  if (context.driver.isAndroid) {
+  const context = driver.currentContext
+
+  if (driver.isAndroid) {
     const apiKeyInput = await context.element({type: 'accessibility id', selector: 'UFG_Apikey'})
     await apiKeyInput.type(apiKey)
     const ready = await context.element({type: 'accessibility id', selector: 'UFG_ApikeyReady'})
@@ -18,7 +20,7 @@ async function takeVHS({context, apiKey, waitBeforeCapture, logger}) {
   console.log(info)
 
   let content
-  if (context.driver.isIOS) {
+  if (driver.isIOS) {
     content = await extractVHS()
   } else if (info.mode === 'labels') {
     content = await collectChunkedVHS({count: info.partsCount})
@@ -29,16 +31,16 @@ async function takeVHS({context, apiKey, waitBeforeCapture, logger}) {
 
   const vhs = {value: content}
 
-  if (context.driver.isAndroid) {
+  if (driver.isAndroid) {
     vhs.hash = info.vhsHash
-  } else if (context.driver.isIOS) {
+  } else if (driver.isIOS) {
     vhs.options = {
       UIKitLinkTimeVersionNumber: info.UIKitLinkTimeVersionNumber,
       UIKitRunTimeVersionNumber: info.UIKitRunTimeVersionNumber,
     }
   }
 
-  return vhs
+  return {snapshots: Array(browsers.length).fill(vhs)}
 
   async function extractVHS() {
     const label = await context.element({type: 'accessibility id', selector: 'UFG_Label'})
@@ -66,4 +68,4 @@ async function takeVHS({context, apiKey, waitBeforeCapture, logger}) {
   }
 }
 
-module.exports = takeVHS
+module.exports = takeVHSes

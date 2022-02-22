@@ -87,7 +87,7 @@ function makeCheckWindow({
       floating,
     })
 
-    const resourcesPromises = snapshots.map(async (snapshot, index) => {
+    const resourcesPromises = snapshots.map((snapshot, index) => {
       return createResourceMapping({
         snapshot,
         userAgent,
