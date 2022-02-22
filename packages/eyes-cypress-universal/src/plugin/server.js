@@ -43,8 +43,11 @@ function makeStartServer() {
             resultArr.push(new TestResults(result));
           }
           printTestResults({testResults: resultArr, resultConfig: msg.payload.resultConfig});
-          if(msg.payload.resultConfig.tapDirPath){
-            return handleBatchResultsFile(resultArr, {tapFileName: msg.payload.resultConfig.tapFileName, tapDirPath: msg.payload.resultConfig.tapDirPath})
+          if (msg.payload.resultConfig.tapDirPath) {
+            return handleBatchResultsFile(resultArr, {
+              tapFileName: msg.payload.resultConfig.tapFileName,
+              tapDirPath: msg.payload.resultConfig.tapDirPath,
+            });
           }
         }
       });

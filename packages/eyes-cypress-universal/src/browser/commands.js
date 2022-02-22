@@ -38,7 +38,7 @@ if (shouldUseBrowserHooks) {
         eyesFailCypressOnDiff: Cypress.config('eyesFailCypressOnDiff'),
         isTextTerminal: Cypress.config('isTextTerminal'),
         tapDirPath: Cypress.config('appliConfFile').tapDirPath,
-        tapFileName: Cypress.config('appliConfFile').tapFileName
+        tapFileName: Cypress.config('appliConfFile').tapFileName,
       };
       const testResults = await socket.request('EyesManager.closeAllEyes', {manager, throwErr});
       socket.request('Test.printTestResults', {testResults, resultConfig});
