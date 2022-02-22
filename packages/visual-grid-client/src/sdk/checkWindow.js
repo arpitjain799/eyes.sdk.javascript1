@@ -90,10 +90,10 @@ function makeCheckWindow({
     const resourcesPromises = snapshots.map((snapshot, index) => {
       return createResourceMapping({
         snapshot,
-        userAgent,
-        proxySettings: wrappers[0].getProxy(),
-        cookies,
         browserName: browsers[index].name,
+        userAgent,
+        cookies,
+        proxy: wrappers[0].getProxy(),
       })
     })
 
