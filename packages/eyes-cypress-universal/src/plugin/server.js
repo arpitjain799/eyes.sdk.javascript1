@@ -10,6 +10,7 @@ const writeFile = promisify(fs.writeFile);
 const {TestResultsFormatter} = require('@applitools/visual-grid-client');
 const {makeServerProcess} = require('@applitools/eyes-universal');
 const {resolve} = require('path');
+const {TestResults} = require('@applitools/visual-grid-client');
 
 function makeStartServer() {
   return async function startServer() {
@@ -37,7 +38,11 @@ function makeStartServer() {
         console.log('==> ', message.toString().slice(0, 400));
         socketWithUniversal.send(message);
         if (msg.name === 'Test.printTestResults') {
-          printTestResults(msg.payload);
+          const resultArr = [];
+          for (const result of msg.payload.testResults) {
+            resultArr.push(new TestResults(result));
+          }
+          printTestResults({testResults: resultArr, resultConfig: msg.payload.resultConfig});
         }
       });
     });
