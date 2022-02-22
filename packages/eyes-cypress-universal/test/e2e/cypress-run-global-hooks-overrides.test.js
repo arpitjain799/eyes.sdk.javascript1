@@ -90,7 +90,7 @@ describe('global hooks override', () => {
     expect(output).to.contain('@@@ after:run @@@');
   });
 
-  it.skip(`supports creating '.tap' file if user defined 'tapDirPath' global hooks`, async () => {
+  it(`supports creating '.tap' file if user defined 'tapDirPath' global hooks`, async () => {
     const helloWorldAppData = {
       appName: 'Hello World!',
       testName: 'My first JavaScript test!',

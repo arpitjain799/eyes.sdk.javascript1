@@ -6,14 +6,14 @@ function getErrorsAndDiffs(testResultsArr) {
       if (testResults instanceof Error || testResults.error) {
         failed.push(testResults);
       } else {
-        const testStatus = testResults.status;
+        const testStatus = testResults.getStatus();
         if (testStatus === 'Passed') {
           passed.push(testResults);
         } else {
           if (testStatus === 'Unresolved') {
-            if (testResults.isNew) {
+            if (testResults.getIsNew()) {
               testResults.error = new Error(
-                `${testResults.name}. Please approve the new baseline at ${testResults.appUrls.batch}`,
+                `${testResults.getName()}. Please approve the new baseline at ${testResults.getUrl()}`,
               );
               failed.push(testResults);
             } else {

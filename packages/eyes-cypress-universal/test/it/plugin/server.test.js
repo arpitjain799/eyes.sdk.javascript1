@@ -7,7 +7,7 @@ describe('plugin server', () => {
   it('starts at a random port', async () => {
     const startServer = makeStartServer();
     const {port, server} = await startServer();
-    expect(port).to.not.be.NaN
-    server.close()
+    expect(port).to.not.be.NaN;
+    server.close();
   });
 });

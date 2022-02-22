@@ -1,9 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="Mocha Tests" time="0.8880" tests="1" failures="0">
-  <testsuite name="Root Suite" timestamp="2022-02-02T01:34:22" tests="0" file="integrations/findElement.spec.js" time="0.0000" failures="0">
+<testsuites name="Mocha Tests" time="2.6060" tests="7" failures="0">
+  <testsuite name="Root Suite" timestamp="2022-02-22T17:05:41" tests="0" file="integrations/spec-driver.spec.js" time="0.0000" failures="0">
   </testsuite>
-  <testsuite name="spec: findElement" timestamp="2022-02-02T01:34:22" tests="1" time="0.8880" failures="0">
-    <testcase name="spec: findElement works for findElements" time="0.8880" classname="works for findElements">
+  <testsuite name="spec: executeScript" timestamp="2022-02-22T17:05:41" tests="1" time="0.7640" failures="0">
+    <testcase name="spec: executeScript executeScript no args" time="0.7640" classname="executeScript no args">
+    </testcase>
+  </testsuite>
+  <testsuite name="spec: findElement" timestamp="2022-02-22T17:05:43" tests="4" time="1.2580" failures="0">
+    <testcase name="spec: findElement works for findElement css selector" time="0.3050" classname="works for findElement css selector">
+    </testcase>
+    <testcase name="spec: findElement works for findElement xpath" time="0.3760" classname="works for findElement xpath">
+    </testcase>
+    <testcase name="spec: findElement works for findElements with css selector" time="0.2890" classname="works for findElements with css selector">
+    </testcase>
+    <testcase name="spec: findElement works for findElements with xpath" time="0.2880" classname="works for findElements with xpath">
+    </testcase>
+  </testsuite>
+  <testsuite name="spec: get set viewportsize" timestamp="2022-02-22T17:05:45" tests="1" time="0.2910" failures="0">
+    <testcase name="spec: get set viewportsize works for get and set viewport size" time="0.2910" classname="works for get and set viewport size">
+    </testcase>
+  </testsuite>
+  <testsuite name="spec: getCookies" timestamp="2022-02-22T17:05:45" tests="1" time="0.2930" failures="0">
+    <testcase name="spec: getCookies works for getCookies" time="0.2930" classname="works for getCookies">
     </testcase>
   </testsuite>
 </testsuites>

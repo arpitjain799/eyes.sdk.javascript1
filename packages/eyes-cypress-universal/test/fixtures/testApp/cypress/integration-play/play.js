@@ -2,7 +2,7 @@
 Cypress.on('uncaught:exception', () => {});
 
 describe('Play Cypress', () => {
-  it.only('Play Cypress', () => {
+  it('Play Cypress', () => {
     
     cy.eyesOpen({
       appName: 'Play Cypress',
@@ -40,7 +40,7 @@ describe('Play Cypress', () => {
     //   console.log(results)
     // })
   });
-  it.skip('test region in shadow DOM', () => {
+  it('test region in shadow DOM', () => {
     cy.visit('https://applitools.github.io/demo/TestPages/ShadowDOM/index.html');
     cy.eyesOpen({
       appName: 'som app',
