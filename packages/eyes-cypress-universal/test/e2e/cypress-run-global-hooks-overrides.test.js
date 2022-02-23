@@ -7,8 +7,6 @@ const path = require('path');
 const pexec = p(exec);
 const fs = require('fs');
 const {presult} = require('@applitools/functional-commons');
-const readFile = p(fs.readFile);
-const applitoolsConfig = require('../fixtures/testApp/applitools.config.js');
 
 const sourceTestAppPath = path.resolve(__dirname, '../fixtures/testApp');
 const targetTestAppPath = path.resolve(
@@ -27,10 +25,6 @@ async function runCypress(pluginsFile, testFile = 'global-hooks-overrides.js') {
     )
   ).stdout;
 }
-
-const readTapFile = async tapFilePath => {
-  return await readFile(tapFilePath, 'utf8');
-};
 
 describe('global hooks override', () => {
   before(async () => {
