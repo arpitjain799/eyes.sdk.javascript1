@@ -85,8 +85,8 @@ function socketCommands(socket, refer) {
   // utils
 
   function derefArgs(arg) {
+    const derefArg = [];
     if (Array.isArray(arg)) {
-      const derefArg = [];
       for (const argument of arg) {
         if (Array.isArray(argument)) {
           derefArg.push(derefArgs(argument));
@@ -95,8 +95,12 @@ function socketCommands(socket, refer) {
         }
       }
       return derefArg;
+    } else if(typeof(arg) === 'object') {
+      for(const [key, value] of Object.entries(arg)){
+        derefArg[key] = refer.deref(value)
+      }
     } else {
-      return arg;
+      return arg
     }
   }
 
