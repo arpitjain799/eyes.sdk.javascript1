@@ -1,5 +1,3 @@
-'use strict'
-
 const createResource = require('./createResource')
 
 function createDomResource({cdt, resources}) {

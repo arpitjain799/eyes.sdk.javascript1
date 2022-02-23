@@ -2,7 +2,7 @@ const crypto = require('crypto')
 const VISUAL_GRID_MAX_BUFFER_SIZE = 34.5 * 1024 * 1024
 
 function createResource(data = {}) {
-  const {url, value, type, browserName, dependencies, errorStatusCode} = data
+  const {url, value, type, browserName, hash, dependencies, errorStatusCode} = data
   const resource = {}
 
   if (url) {
@@ -21,9 +21,13 @@ function createResource(data = {}) {
     resource.id += `~${resource.browserName}`
   }
 
+  if (hash) resource.hash = hash
+
   if ('value' in data) {
     resource.value =
-      value && type !== 'x-applitools-html/cdt' && value.length > VISUAL_GRID_MAX_BUFFER_SIZE
+      value &&
+      value.length > VISUAL_GRID_MAX_BUFFER_SIZE &&
+      !['x-applitools-html/cdt', 'x-applitools/vhs'].includes(type)
         ? value.slice(0, VISUAL_GRID_MAX_BUFFER_SIZE - 100000)
         : value || ''
     resource.type = type || 'application/x-applitools-unknown'

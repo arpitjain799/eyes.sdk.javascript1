@@ -19,28 +19,33 @@ async function takeVHSes({driver, browsers, apiKey, waitBeforeCapture, logger}) 
   const info = JSON.parse(await label.getText())
   console.log(info)
 
-  let content
+  let vhs
   if (driver.isIOS) {
-    content = await extractVHS()
+    vhs = await extractVHS()
   } else if (info.mode === 'labels') {
-    content = await collectChunkedVHS({count: info.partsCount})
+    vhs = await collectChunkedVHS({count: info.partsCount})
   }
 
   const clear = await context.element({type: 'accessibility id', selector: 'UFG_ClearArea'})
   await clear.click()
 
-  const vhs = {value: content}
+  const snapshot = {vhs}
 
   if (driver.isAndroid) {
-    vhs.hash = info.vhsHash
+    snapshot.type = info.flavorName === 'androidx' ? 'android-x' : 'android-support'
+    snapshot.hash = {
+      hashFormat: 'sha256',
+      hash: info.vhsHash,
+    }
   } else if (driver.isIOS) {
-    vhs.options = {
+    snapshot.type = 'ios'
+    snapshot.options = {
       UIKitLinkTimeVersionNumber: info.UIKitLinkTimeVersionNumber,
       UIKitRunTimeVersionNumber: info.UIKitRunTimeVersionNumber,
     }
   }
 
-  return {snapshots: Array(browsers.length).fill(vhs)}
+  return {snapshots: Array(browsers.length).fill(snapshot)}
 
   async function extractVHS() {
     const label = await context.element({type: 'accessibility id', selector: 'UFG_Label'})

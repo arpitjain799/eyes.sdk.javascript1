@@ -2,6 +2,7 @@
 
 const createResource = require('./createResource')
 const createDomResource = require('./createDomResource')
+const createVHSResource = require('./createVHSResource')
 
 function makeCreateResourceMapping({processResources}) {
   return async function createResourceMapping({snapshot, browserName, userAgent, cookies, proxy}) {
@@ -57,14 +58,23 @@ function makeCreateResourceMapping({processResources}) {
       return Object.assign(mapping, {[frameUrl]: resources.mapping[frameUrl]})
     }, {})
 
-    const domResource = await processResources({
-      resources: {
-        [snapshot.url]: createDomResource({
-          cdt: snapshot.cdt,
-          resources: {...snapshotResources.mapping, ...frameDomResourceMapping},
-        }),
-      },
-    })
+    let domResource
+    if (snapshot.cdt) {
+      domResource = await processResources({
+        resources: {
+          [snapshot.url]: createDomResource({
+            cdt: snapshot.cdt,
+            resources: {...snapshotResources.mapping, ...frameDomResourceMapping},
+          }),
+        },
+      })
+    } else if (snapshot.vhs) {
+      domResource = await processResources({
+        resources: {[snapshot.url]: createVHSResource({vhs: snapshot.vhs, type: snapshot.type})},
+      })
+    } else {
+      domResource = {mapping: {[snapshot.url]: createResource({hash: snapshot.hash})}}
+    }
 
     const frameResourceMapping = frameResources.reduce((mapping, resources) => {
       return Object.assign(mapping, resources.mapping)

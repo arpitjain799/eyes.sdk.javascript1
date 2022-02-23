@@ -1,12 +1,13 @@
 const utils = require('@applitools/utils')
 const {makeLogger} = require('@applitools/logger')
 const {Driver} = require('@applitools/driver')
+const VisualGridClient = require('@applitools/visual-grid-client')
 const spec = require('@applitools/spec-driver-selenium')
-const takeVHS = require('../../lib/utils/takeVHS')
+const makeSDK = require('../../lib/new/sdk')
 
 describe('check e2e', () => {
   const logger = makeLogger()
-  let driver, destroyDriver
+  let driver, destroyDriver, sdk, manager
 
   before(async () => {
     ;[driver, destroyDriver] = await spec.build({
@@ -36,6 +37,13 @@ describe('check e2e', () => {
         automationName: 'uiautomator2',
       },
     })
+    sdk = makeSDK({
+      name: 'eyes-core',
+      version: require('../../package.json').version,
+      spec,
+      VisualGridClient,
+    })
+    manager = await sdk.makeManager({type: 'vg', concurrency: 5})
   })
 
   after(async () => {
@@ -43,12 +51,18 @@ describe('check e2e', () => {
   })
 
   it('works', async () => {
-    const d = await new Driver({driver, spec, logger}).init()
-    await utils.general.sleep(5000)
-    await d.target
+    const config = {
+      appName: 'core app',
+      testName: 'native ufg android',
+      waitBeforeCapture: 1500,
+      browsersInfo: [{androidDeviceInfo: {name: 'Pixel 4 XL', version: 'latest'}}],
+    }
+    const eyes = await manager.openEyes({driver, config})
+    await driver
       .switchTo()
       .alert()
       .dismiss()
-    await takeVHS({context: d.mainContext, apiKey: process.env.APPLITOOLS_API_KEY, logger})
+    await eyes.check()
+    await eyes.close({throwErr: true})
   })
 })

@@ -8,8 +8,6 @@ const {
 const makeCheckWindow = require('./checkWindow')
 const makeAbort = require('./makeAbort')
 const makeClose = require('./makeClose')
-const isEmulation = require('./isEmulation')
-const mapChromeEmulationInfo = require('./mapChromeEmulationInfo')
 const getSupportedBrowsers = require('./supportedBrowsers')
 const chalk = require('chalk')
 const throatPkg = require('throat')
@@ -131,7 +129,6 @@ function makeOpenEyes({
       .join('\n* ')}\n`
 
     let browsersArray = Array.isArray(browser) ? browser : [browser]
-    browsersArray = browsersArray.map(mapChromeEmulationInfo)
     const browserError = browsersArray.length
       ? browsersArray.map(getBrowserError).find(Boolean)
       : getBrowserError()
