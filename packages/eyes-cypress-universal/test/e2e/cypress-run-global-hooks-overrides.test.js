@@ -89,29 +89,4 @@ describe('global hooks override', () => {
     expect(err).to.be.undefined;
     expect(output).to.contain('@@@ after:run @@@');
   });
-
-  it(`supports creating '.tap' file if user defined 'tapDirPath' global hooks`, async () => {
-    const helloWorldAppData = {
-      appName: 'Hello World!',
-      testName: 'My first JavaScript test!',
-    };
-    const outputLine = `[PASSED TEST] Test: '${helloWorldAppData.testName}', Application: '${helloWorldAppData.appName}'`;
-    const config = {...applitoolsConfig, tapDirPath: './'};
-    fs.writeFileSync(
-      `${targetTestAppPath}/applitools.config.js`,
-      'module.exports =' + JSON.stringify(config, 2, null),
-    );
-    const [err] = await presult(
-      runCypress('index-global-hooks-overrides-tap-dir.js', 'helloworld.js'),
-    );
-    expect(err).to.be.undefined;
-    const dirCont = fs.readdirSync(targetTestAppPath);
-    const files = dirCont.filter(function(elm) {
-      return elm.match(/.*\.(tap?)/gi);
-    });
-    expect(files.length).to.equal(1, `Created ${files.length} .tap file(s)`);
-    const tapFilePath = path.resolve(targetTestAppPath, files[0]);
-    const tapFileContent = await readTapFile(tapFilePath);
-    expect(tapFileContent).to.include(outputLine, '.tap file content match');
-  });
 });
