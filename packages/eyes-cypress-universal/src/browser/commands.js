@@ -11,7 +11,7 @@ const throwErr = Cypress.config('failCypressOnDiff');
 socketCommands(socket, refer);
 let connectedToUniversal = false;
 
-let manager, eyes;
+let manager, eyes, closePromiseArr = [];
 
 function getGlobalConfigProperty(prop) {
   const property = Cypress.config(prop);
@@ -24,8 +24,8 @@ const shouldUseBrowserHooks =
   (getGlobalConfigProperty('isInteractive') ||
     !getGlobalConfigProperty('eyesIsGlobalHooksSupported'));
 
-Cypress.Commands.add('eyesGetAllTestResults', () => {
-  // make sure to leave batch open
+Cypress.Commands.add('eyesGetAllTestResults', async () => {
+  await Promise.all(closePromiseArr)
   return socket.request('EyesManager.closeAllEyes', {manager, throwErr});
 });
 
@@ -40,6 +40,7 @@ if (shouldUseBrowserHooks) {
         tapDirPath: Cypress.config('appliConfFile').tapDirPath,
         tapFileName: Cypress.config('appliConfFile').tapFileName,
       };
+      await Promise.all(closePromiseArr)
       const testResults = await socket.request('EyesManager.closeAllEyes', {manager, throwErr});
       socket.request('Test.printTestResults', {testResults, resultConfig});
     });
@@ -178,9 +179,11 @@ Cypress.Commands.add('eyesClose', () => {
       return;
     }
 
-    return socket.request('Eyes.close', {eyes, throwErr: false}).catch(err => {
+    // intentionally not returning the result in order to not wait on the close promise
+    const p = socket.request('Eyes.close', {eyes, throwErr: false}).catch(err => {
       console.log('Error in cy.eyesClose', err);
     });
+    closePromiseArr.push(p)
   });
 });
 

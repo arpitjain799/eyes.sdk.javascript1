@@ -35,8 +35,7 @@ function makeStartServer() {
 
       socketWithClient.on('message', message => {
         const msg = JSON.parse(message);
-        console.log('==> ', message.toString().slice(0, 400));
-        socketWithUniversal.send(message);
+        console.log('==> ', message.toString().slice(0, 400));   
         if (msg.name === 'Test.printTestResults') {
           const resultArr = [];
           for (const result of msg.payload.testResults) {
@@ -49,7 +48,10 @@ function makeStartServer() {
               tapDirPath: msg.payload.resultConfig.tapDirPath,
             });
           }
+        } else {
+          socketWithUniversal.send(message);
         }
+
       });
     });
 
