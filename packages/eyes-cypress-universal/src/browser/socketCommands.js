@@ -95,12 +95,12 @@ function socketCommands(socket, refer) {
         }
       }
       return derefArg;
-    } else if(typeof(arg) === 'object') {
-      for(const [key, value] of Object.entries(arg)){
-        derefArg[key] = refer.deref(value)
+    } else if (typeof arg === 'object') {
+      for (const [key, value] of Object.entries(arg)) {
+        derefArg[key] = refer.deref(value);
       }
     } else {
-      return arg
+      return arg;
     }
   }
 
