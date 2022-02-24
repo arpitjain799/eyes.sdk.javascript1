@@ -99,7 +99,7 @@ function socketCommands(socket, refer) {
       for (const [key, value] of Object.entries(arg)) {
         derefArg[key] = refer.deref(value);
       }
-      return derefArg
+      return derefArg;
     } else {
       return arg;
     }
