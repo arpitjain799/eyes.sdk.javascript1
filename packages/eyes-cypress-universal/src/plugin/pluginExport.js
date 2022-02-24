@@ -8,10 +8,10 @@ function makePluginExport({startServer, eyesConfig}) {
     let eyesServer;
     const pluginModuleExports = pluginModule.exports;
     pluginModule.exports = async function(...args) {
-      const {server, port, closeAllEyes, utils} = await startServer();
+      const {server, port, closeAllEyes, closeBatches} = await startServer();
       eyesServer = server;
 
-      const globalHooks = makeGlobalRunHooks({closeAllEyes, utils});
+      const globalHooks = makeGlobalRunHooks({closeAllEyes, closeBatches});
 
       const [origOn, config] = args;
       const isGlobalHookCalledFromUserHandlerMap = new Map();

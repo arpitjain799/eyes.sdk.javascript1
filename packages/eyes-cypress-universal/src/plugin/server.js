@@ -1,16 +1,9 @@
 'use strict';
 const {makeHandler} = require('../../dist/plugin/handler');
 const connectSocket = require('./webSocket');
-const errorDigest = require('./errorDigest');
-const {makeLogger} = require('@applitools/logger');
-const getErrorsAndDiffs = require('./getErrorsAndDiffs');
-const {promisify} = require('util');
-const fs = require('fs');
-const writeFile = promisify(fs.writeFile);
-const {TestResultsFormatter} = require('@applitools/visual-grid-client');
 const {makeServerProcess} = require('@applitools/eyes-universal');
-const {resolve} = require('path');
 const {TestResults} = require('@applitools/visual-grid-client');
+const handleTestResults = require('./handleTestResults');
 
 function makeStartServer() {
   return async function startServer() {
@@ -41,9 +34,12 @@ function makeStartServer() {
           for (const result of msg.payload.testResults) {
             resultArr.push(new TestResults(result));
           }
-          printTestResults({testResults: resultArr, resultConfig: msg.payload.resultConfig});
+          handleTestResults.printTestResults({
+            testResults: resultArr,
+            resultConfig: msg.payload.resultConfig,
+          });
           if (msg.payload.resultConfig.tapDirPath) {
-            return handleBatchResultsFile(resultArr, {
+            handleTestResults.handleBatchResultsFile(resultArr, {
               tapFileName: msg.payload.resultConfig.tapFileName,
               tapDirPath: msg.payload.resultConfig.tapDirPath,
             });
@@ -58,7 +54,7 @@ function makeStartServer() {
       server,
       port,
       closeAllEyes,
-      utils: {printTestResults, closeBatches, handleBatchResultsFile},
+      closeBatches,
     };
 
     function closeAllEyes() {
@@ -71,35 +67,9 @@ function makeStartServer() {
         ),
       );
     }
-
     function closeBatches(batchIds) {
       if (socketWithUniversal)
         return socketWithUniversal.request('Core.closeBatches', {settings: {batchIds}});
-    }
-
-    function printTestResults(testResultsArr) {
-      const logger = makeLogger({
-        level: testResultsArr.resultConfig.showLogs ? 'info' : 'silent',
-        label: 'eyes',
-      });
-      const {passed, failed, diffs} = getErrorsAndDiffs(testResultsArr.testResults);
-      if ((failed.length || diffs.length) && !!testResultsArr.resultConfig.eyesFailCypressOnDiff) {
-        throw new Error(
-          errorDigest({
-            passed,
-            failed,
-            diffs,
-            logger,
-            isInteractive: !testResultsArr.resultConfig.isTextTerminal,
-          }),
-        );
-      }
-    }
-    function handleBatchResultsFile(results, tapFileConfig) {
-      const formatter = new TestResultsFormatter(results);
-      const fileName = tapFileConfig.tapFileName || `${new Date().toISOString()}-eyes.tap`;
-      const tapFile = resolve(tapFileConfig.tapDirPath, fileName);
-      return writeFile(tapFile, formatter.asHierarchicTAPString(false, true));
     }
   };
 }

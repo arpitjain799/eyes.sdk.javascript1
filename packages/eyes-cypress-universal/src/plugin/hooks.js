@@ -1,8 +1,9 @@
 'use strict';
 const flatten = require('lodash.flatten');
 const {TestResults} = require('@applitools/visual-grid-client');
+const handleTestResults = require('./handleTestResults');
 
-function makeGlobalRunHooks({closeAllEyes, utils}) {
+function makeGlobalRunHooks({closeAllEyes, closeBatches}) {
   return {
     'before:run': ({config}) => {
       if (!config.isTextTerminal) return;
@@ -21,15 +22,15 @@ function makeGlobalRunHooks({closeAllEyes, utils}) {
         testResultsArr.push(new TestResults(result));
       }
       if (!config.appliConfFile.dontCloseBatches)
-        await utils.closeBatches([config.appliConfFile.batch.id]);
+        await closeBatches([config.appliConfFile.batch.id]);
 
       if (config.appliConfFile.tapDirPath) {
-        await utils.handleBatchResultsFile(testResultsArr, {
+        await handleTestResults.handleBatchResultsFile(testResultsArr, {
           tapDirPath: config.appliConfFile.tapDirPath,
           tapFileName: config.appliConfFile.tapFileName,
         });
       }
-      utils.printTestResults({testResults: testResultsArr, resultConfig});
+      handleTestResults.printTestResults({testResults: testResultsArr, resultConfig});
     },
   };
 }
