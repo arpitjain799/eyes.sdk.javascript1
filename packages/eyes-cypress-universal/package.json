@@ -27,6 +27,7 @@
   },
   "files": [
     "src",
+    "dist",
     "bin",
     "index.js",
     "commands.js",

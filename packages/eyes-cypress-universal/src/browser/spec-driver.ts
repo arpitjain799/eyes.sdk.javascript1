@@ -1,6 +1,5 @@
 // need to check for more possible structures of selector
 // commonSelector (look at playwrigh)
-import type {Cookie} from '@applitools/types'
 
 export type Selector = string;
 export type Context = Document;
@@ -111,7 +110,7 @@ export function childContext(_context: Context, element: HTMLIFrameElement): Con
   return element.contentDocument
 }
 
-export function getCookies(): Array<Cookie> {
+export function getCookies(): Array<any> {
   //@ts-ignore
   return Cypress.automation('get:cookies', {})
 }
