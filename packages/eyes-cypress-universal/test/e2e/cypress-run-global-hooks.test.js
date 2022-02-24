@@ -36,7 +36,7 @@ describe('global hooks', () => {
   });
 
   after(async () => {
-   fs.rmdirSync(targetTestAppPath, {recursive: true});
+    fs.rmdirSync(targetTestAppPath, {recursive: true});
   });
 
   it('works with experimentalRunEvents flag', async () => {
