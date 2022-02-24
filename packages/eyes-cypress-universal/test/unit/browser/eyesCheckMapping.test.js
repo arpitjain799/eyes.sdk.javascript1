@@ -3,7 +3,6 @@ const {expect} = require('chai');
 const {eyesCheckMapValues} = require('../../../src/browser/eyesCheckMapping');
 
 describe('eyes check mapping', () => {
-    
   it('should work with eyes check config', () => {
     const args = {
       tag: 'some tag name',
