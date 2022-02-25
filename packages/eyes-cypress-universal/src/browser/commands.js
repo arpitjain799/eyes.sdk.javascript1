@@ -29,6 +29,10 @@ const shouldUseBrowserHooks =
     !getGlobalConfigProperty('eyesIsGlobalHooksSupported'));
 
 Cypress.Commands.add('eyesGetAllTestResults', async () => {
+  if (isCurrentTestDisabled) {
+    isCurrentTestDisabled = false;
+    return;
+  }
   await Promise.all(closePromiseArr);
   return socket.request('EyesManager.closeAllEyes', {manager, throwErr});
 });
@@ -37,6 +41,10 @@ if (shouldUseBrowserHooks) {
   after(() => {
     if (!manager) return;
     return cy.then({timeout: 86400000}, async () => {
+      if (isCurrentTestDisabled) {
+        isCurrentTestDisabled = false;
+        return;
+      }
       const resultConfig = {
         showLogs: Cypress.config('appliConfFile').showLogs,
         eyesFailCypressOnDiff: Cypress.config('eyesFailCypressOnDiff'),
@@ -105,6 +113,8 @@ Cypress.Commands.add('eyesOpen', function(args = {}) {
 
 Cypress.Commands.add('eyesCheckWindow', args =>
   cy.then({timeout: 86400000}, () => {
+    if (isCurrentTestDisabled) return;
+
     Cypress.log({name: 'Eyes: check window'});
 
     const config = eyesCheckMapValues({args});
@@ -118,6 +128,8 @@ Cypress.Commands.add('eyesCheckWindow', args =>
 
 Cypress.Commands.add('eyesClose', () => {
   return cy.then({timeout: 86400000}, () => {
+    if (isCurrentTestDisabled) return;
+
     Cypress.log({name: 'Eyes: close'});
     if (isCurrentTestDisabled) {
       isCurrentTestDisabled = false;

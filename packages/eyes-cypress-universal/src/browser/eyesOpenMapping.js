@@ -2,9 +2,17 @@ function eyesOpenMapValues({args, cypress = Cypress}) {
   const appliConfFile = cypress.config('appliConfFile');
   const {browser: eyesOpenBrowser} = args;
   const globalBrowser = getGlobalConfigProperty('eyesBrowser', cypress);
+  const defaultBrowser = {
+    width: getGlobalConfigProperty('viewportWidth', cypress),
+    height: getGlobalConfigProperty('viewportHeight', cypress),
+    name: 'chrome',
+  };
 
   let browsersInfo =
-    validateBrowser(eyesOpenBrowser) || validateBrowser(globalBrowser) || appliConfFile.browser;
+    validateBrowser(eyesOpenBrowser) ||
+    validateBrowser(globalBrowser) ||
+    appliConfFile.browser ||
+    defaultBrowser;
 
   if (browsersInfo) {
     if (Array.isArray(browsersInfo)) {

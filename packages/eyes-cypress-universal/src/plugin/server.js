@@ -8,7 +8,7 @@ const handleTestResults = require('./handleTestResults');
 function makeStartServer() {
   return async function startServer() {
     const {server, port} = await makeHandler({});
-    const {port: universalPort} = await makeServerProcess();
+    const {port: universalPort, close: closeUniversalServer} = await makeServerProcess();
 
     const managers = [];
     let socketWithUniversal;
@@ -55,6 +55,7 @@ function makeStartServer() {
       port,
       closeAllEyes,
       closeBatches,
+      closeUniversalServer,
     };
 
     function closeAllEyes() {

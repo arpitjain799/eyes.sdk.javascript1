@@ -9,7 +9,7 @@ const fs = require('fs');
 const sourceTestAppPath = path.resolve(__dirname, '../fixtures/testApp');
 const targetTestAppPath = path.resolve(__dirname, '../fixtures/testAppCopies/testApp-helloworld');
 
-describe('hellow world', () => {
+describe('hello world', () => {
   before(async () => {
     if (fs.existsSync(targetTestAppPath)) {
       fs.rmdirSync(targetTestAppPath, {recursive: true});
