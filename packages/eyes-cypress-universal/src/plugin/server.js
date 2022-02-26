@@ -85,9 +85,11 @@ function makeStartServer() {
         ),
       );
     }
-    function closeBatches(batchIds) {
+    function closeBatches(settings) {
       if (socketWithUniversal)
-        return socketWithUniversal.request('Core.closeBatches', {settings: {batchIds}});
+        return socketWithUniversal.request('Core.closeBatches', {settings}).catch(err => {
+          console.log('@@@', err)
+        });
     }
   };
 }

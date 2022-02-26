@@ -22,8 +22,14 @@ function makeGlobalRunHooks({closeAllEyes, closeBatches, closeUniversalServer}) 
         for (const result of flatten(testResults)) {
           testResultsArr.push(new TestResults(result));
         }
-        if (!config.appliConfFile.dontCloseBatches)
-          await closeBatches([config.appliConfFile.batch.id]);
+        if (!config.appliConfFile.dontCloseBatches) {
+          await closeBatches({
+            batchIds: [config.appliConfFile.batch.id],
+            serverUrl: config.appliConfFile.serverUrl,
+            proxy: config.appliConfFile.proxy,
+            apiKey: config.appliConfFile.apiKey
+          });
+        }
 
         if (config.appliConfFile.tapDirPath) {
           await handleTestResults.handleBatchResultsFile(testResultsArr, {
