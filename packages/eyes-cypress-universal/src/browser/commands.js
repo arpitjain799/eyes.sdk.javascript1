@@ -125,11 +125,11 @@ Cypress.Commands.add('eyesCheckWindow', args =>
 
     Cypress.log({name: 'Eyes: check window'});
 
-    const config = eyesCheckMapValues({args});
+    const checkSettings = eyesCheckMapValues({args});
 
     return socket.request('Eyes.check', {
       eyes,
-      settings: config,
+      settings: checkSettings,
     });
   }),
 );

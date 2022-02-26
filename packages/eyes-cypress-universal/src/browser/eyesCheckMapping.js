@@ -1,40 +1,5 @@
-function eyesCheckMapValues({args, cypress = Cypress}) {
-  const propsToDelete = ['layoutBreakpoints', 'waitBeforeCapture', 'ignoreDisplacements'];
-  const eyesOpenArgs = getGlobalConfigProperty('eyesOpenArgs', cypress);
-  const appliConfFile = cypress.config('appliConfFile');
-
-  const globalArgs = {
-    layoutBreakpoints: getGlobalConfigProperty('eyesLayoutBreakpoints', cypress),
-    waitBeforeCapture: getGlobalConfigProperty('eyesWaitBeforeCapture', cypress),
-  };
-
-  const layoutBreakpoints =
-    (args && args.layoutBreakpoints) ||
-    (eyesOpenArgs && eyesOpenArgs.layoutBreakpoints) ||
-    globalArgs.layoutBreakpoints ||
-    appliConfFile.layoutBreakpoints;
-
-  const waitBeforeCapture =
-    (args && args.waitBeforeCapture) ||
-    (eyesOpenArgs && eyesOpenArgs.waitBeforeCapture) ||
-    globalArgs.waitBeforeCapture ||
-    appliConfFile.waitBeforeCapture;
-
-  const ignoreDisplacements =
-    (args && args.ignoreDisplacements) || appliConfFile.ignoreDisplacements;
-
-  const checkArgs = {layoutBreakpoints, waitBeforeCapture, ignoreDisplacements};
-  if (typeof args === 'object') {
-    Object.assign(checkArgs, args);
-  } else {
-    Object.assign(checkArgs, {tag: args});
-  }
-
-  for (const prop of propsToDelete) {
-    delete appliConfFile[prop];
-  }
-
-  return Object.assign({}, appliConfFile, toCheckWindowConfiguration(checkArgs));
+function eyesCheckMapValues({args}) {
+  return toCheckWindowConfiguration(args);
 }
 
 function getGlobalConfigProperty(prop, cypress) {
