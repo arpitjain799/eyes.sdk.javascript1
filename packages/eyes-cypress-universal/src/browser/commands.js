@@ -114,9 +114,9 @@ Cypress.Commands.add('eyesOpen', function(args = {}) {
       manager,
       driver: driverRef,
       config: Object.assign(
-        {testName, dontCloseBatchesconfig: !shouldUseBrowserHooks},
+        {testName, dontCloseBatches: !shouldUseBrowserHooks},
+        Cypress.config('appliConfFile'),
         args,
-        Cypress.config('appliConfFile')
       ),
     });
   });
