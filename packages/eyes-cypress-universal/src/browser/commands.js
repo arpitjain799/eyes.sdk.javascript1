@@ -4,10 +4,13 @@ const spec = require('../../dist/browser/spec-driver');
 const Refer = require('./refer');
 const Socket = require('./socket');
 const {socketCommands} = require('./socketCommands');
-const {eyesOpenMapValues} = require('./eyesOpenMapping');
 const {eyesCheckMapValues} = require('./eyesCheckMapping');
 
-const refer = new Refer();
+const refer = new Refer(value => {
+  if (!value || !value.constructor || !value.constructor.name) return false;
+  const name = value.constructor.name;
+  return (name === 'HTMLDocument' || name === 'Window' || value.ownerDocument);
+})
 const socket = new Socket();
 const throwErr = Cypress.config('failCypressOnDiff');
 socketCommands(socket, refer);
@@ -69,7 +72,6 @@ if (shouldUseBrowserHooks) {
 let isCurrentTestDisabled;
 
 Cypress.Commands.add('eyesOpen', function(args = {}) {
-  setRootContext();
   Cypress.log({name: 'Eyes: open'});
   Cypress.config('eyesOpenArgs', args);
   const {title: testName} = this.currentTest || this.test || Cypress.currentTest;
@@ -83,6 +85,7 @@ Cypress.Commands.add('eyesOpen', function(args = {}) {
   if (isCurrentTestDisabled) return;
 
   return cy.then({timeout: 86400000}, async () => {
+    setRootContext();
     const driverRef = refer.ref(cy.state('window').document);
 
     if (!connectedToUniversal) {
@@ -91,7 +94,7 @@ Cypress.Commands.add('eyesOpen', function(args = {}) {
       socket.emit('Core.makeSDK', {
         name: 'eyes.cypress',
         version: require('../../package.json').version,
-        commands: Object.keys(spec),
+        commands: Object.keys(spec).concat(['isSelector', 'isDriver', 'isElement']), // TODO fix spec.isSelector and spec.isDriver and spec.isElement in driver utils
         cwd: process.cwd(),
       });
 
@@ -107,14 +110,14 @@ Cypress.Commands.add('eyesOpen', function(args = {}) {
         ));
     }
 
-    const config = eyesOpenMapValues({args});
     eyes = await socket.request('EyesManager.openEyes', {
       manager,
       driver: driverRef,
-      config: Object.assign({testName}, config, {
-        dontCloseBatches:
-          !shouldUseBrowserHooks || Cypress.config('appliConfFile').dontCloseBatches,
-      }),
+      config: Object.assign(
+        {testName, dontCloseBatchesconfig: !shouldUseBrowserHooks},
+        args,
+        Cypress.config('appliConfFile')
+      ),
     });
   });
 });
@@ -122,6 +125,8 @@ Cypress.Commands.add('eyesOpen', function(args = {}) {
 Cypress.Commands.add('eyesCheckWindow', args =>
   cy.then({timeout: 86400000}, () => {
     if (isCurrentTestDisabled) return;
+    
+    setRootContext();
 
     Cypress.log({name: 'Eyes: check window'});
 

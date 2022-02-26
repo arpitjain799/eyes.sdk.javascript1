@@ -2,31 +2,37 @@ const uuid = require('uuid');
 
 const REF_ID = 'applitools-ref-id';
 class Refer {
-  constructor() {
+  constructor(check) {
     this.store = new Map();
     this.relation = new Map();
+    this.check = check
   }
 
   isRef(ref) {
-    return Boolean(ref[REF_ID]);
+    return Boolean(ref && ref[REF_ID]);
   }
 
   ref(value, parentRef) {
-    try {
-      const ref = uuid.v4();
-      this.store.set(ref, value);
+    if (this.check(value)) {
+      const ref = uuid.v4()
+      this.store.set(ref, value)
       if (parentRef) {
-        let childRefs = this.relation.get(parentRef[REF_ID]);
+        let childRefs = this.relation.get(parentRef[REF_ID])
         if (!childRefs) {
-          childRefs = new Set();
-          this.relation.set(parentRef[REF_ID], childRefs);
+          childRefs = new Set()
+          this.relation.set(parentRef[REF_ID], childRefs)
         }
-        childRefs.add(ref);
+        childRefs.add({[REF_ID]: ref})
       }
-      return {[REF_ID]: ref};
-    } catch (ex) {
-      console.log(ex);
-      throw ex;
+      return {[REF_ID]: ref}
+    } else if (Array.isArray(value)) {
+      return value.map(value => this.ref(value, parentRef))
+    } else if (typeof value === 'object' && value !== null) {
+      return Object.entries(value).reduce((obj, [key, value]) => {
+        return Object.assign(obj, {[key]: this.ref(value, parentRef)})
+      }, {})
+    } else {
+      return value
     }
   }
 

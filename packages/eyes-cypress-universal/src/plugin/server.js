@@ -17,7 +17,7 @@ function makeStartServer() {
       socketWithUniversal = connectSocket(`ws://localhost:${universalPort}/eyes`);
 
       socketWithUniversal.setPassthroughListener(message => {
-        console.log('<== ', message.toString().slice(0, 400));
+        console.log('<== ', message.toString().slice(0, 1000));
         const {name, payload} = JSON.parse(message);
         if (name === 'Core.makeManager') {
           managers.push({manager: payload.result, socketWithUniversal});
@@ -28,7 +28,7 @@ function makeStartServer() {
 
       socketWithClient.on('message', message => {
         const msg = JSON.parse(message);
-        console.log('==> ', message.toString().slice(0, 400));
+        console.log('==> ', message.toString().slice(0, 1000));
         if (msg.name === 'Test.printTestResults') {
           try {
             const resultArr = [];
