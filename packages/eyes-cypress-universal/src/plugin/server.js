@@ -30,19 +30,36 @@ function makeStartServer() {
         const msg = JSON.parse(message);
         console.log('==> ', message.toString().slice(0, 400));
         if (msg.name === 'Test.printTestResults') {
-          const resultArr = [];
-          for (const result of msg.payload.testResults) {
-            resultArr.push(new TestResults(result));
-          }
-          handleTestResults.printTestResults({
-            testResults: resultArr,
-            resultConfig: msg.payload.resultConfig,
-          });
-          if (msg.payload.resultConfig.tapDirPath) {
-            handleTestResults.handleBatchResultsFile(resultArr, {
-              tapFileName: msg.payload.resultConfig.tapFileName,
-              tapDirPath: msg.payload.resultConfig.tapDirPath,
+          try {
+            const resultArr = [];
+            for (const result of msg.payload.testResults) {
+              resultArr.push(new TestResults(result));
+            }
+            if (msg.payload.resultConfig.tapDirPath) {
+              handleTestResults.handleBatchResultsFile(resultArr, {
+                tapFileName: msg.payload.resultConfig.tapFileName,
+                tapDirPath: msg.payload.resultConfig.tapDirPath,
+              });
+            }
+            handleTestResults.printTestResults({
+              testResults: resultArr,
+              resultConfig: msg.payload.resultConfig,
             });
+            socketWithClient.send(
+              JSON.stringify({
+                name: 'Test.printTestResults',
+                key: msg.key,
+                payload: {result: 'success'},
+              }),
+            );
+          } catch (ex) {
+            socketWithClient.send(
+              JSON.stringify({
+                name: 'Test.printTestResults',
+                key: msg.key,
+                payload: {result: ex.message.toString()},
+              }),
+            );
           }
         } else {
           socketWithUniversal.send(message);

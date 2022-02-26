@@ -130,22 +130,13 @@ class Socket {
   }
 
   serialize(type, payload) {
-    // try{
     const message =
       typeof type === 'string' ? {name: type, payload} : {name: type.name, key: type.key, payload};
     return JSON.stringify(message);
-    // } catch(ex){
-    //   console.log(`[socket serialize] ${ex.message}`)
-    // }
   }
 
   deserialize(message) {
-    // try{
     return JSON.parse(message.data);
-    // } catch(ex){
-    //   console.log(`[socket deserialize] ${ex.message}`)
-
-    // }
   }
 }
 

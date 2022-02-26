@@ -54,7 +54,14 @@ if (shouldUseBrowserHooks) {
       };
       await Promise.all(closePromiseArr);
       const testResults = await socket.request('EyesManager.closeAllEyes', {manager, throwErr});
-      socket.request('Test.printTestResults', {testResults, resultConfig});
+      const message = await socket.request('Test.printTestResults', {testResults, resultConfig});
+      if (
+        !!getGlobalConfigProperty('eyesFailCypressOnDiff') &&
+        message &&
+        message.includes('Eyes-Cypress detected diffs or errors')
+      ) {
+        throw new Error(message);
+      }
     });
   });
 }
@@ -63,6 +70,7 @@ let isCurrentTestDisabled;
 
 Cypress.Commands.add('eyesOpen', function(args = {}) {
   setRootContext();
+  Cypress.log({name: 'Eyes: open'});
   Cypress.config('eyesOpenArgs', args);
   const {title: testName} = this.currentTest || this.test || Cypress.currentTest;
 
