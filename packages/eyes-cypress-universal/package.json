@@ -23,6 +23,8 @@
     "version": "bongo version",
     "postversion": "bongo postversion --skip-release-notification",
     "deps": "bongo deps",
+    "generate:tests": "coverage-tests generate",
+    "test:coverage": "cd test/coverage/generic && cypress run ; cd -",
     "prepublish:setup": "sudo apt-get install xvfb"
   },
   "files": [
@@ -58,6 +60,7 @@
   },
   "devDependencies": {
     "@applitools/scripts": "1.1.0",
+    "@applitools/sdk-coverage-tests": "^2.3.18",
     "@applitools/sdk-release-kit": "0.13.10",
     "@applitools/snaptdout": "1.0.1",
     "@applitools/test-server": "1.0.8",
