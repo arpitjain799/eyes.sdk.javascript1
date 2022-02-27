@@ -6,4 +6,5 @@ module.exports = {
   },
   parentBranchName: 'master',
   branchName: 'master',
+  testConcurrency: 100,
 };

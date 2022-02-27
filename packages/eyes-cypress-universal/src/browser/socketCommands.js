@@ -26,7 +26,7 @@ function socketCommands(socket, refer) {
   socket.command('Driver.findElement', ({context, selector, parent}) => {
     const element = spec.findElement(
       refer.deref(context),
-      selector,
+      spec.transformSelector(selector),
       refer.deref(parent),
     );
     return element === null ? element : refer.ref(element, context);
@@ -34,7 +34,7 @@ function socketCommands(socket, refer) {
   socket.command('Driver.findElements', ({context, selector, parent}) => {
     const elements = spec.findElements(
       refer.deref(context),
-      selector,
+      spec.transformSelector(selector),
       refer.deref(parent),
     );
     return Array.prototype.map.call(elements, element => element === null ? element : refer.ref(element, context))

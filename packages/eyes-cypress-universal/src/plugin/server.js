@@ -8,6 +8,7 @@ const handleTestResults = require('./handleTestResults');
 function makeStartServer() {
   return async function startServer() {
     const {server, port} = await makeHandler({});
+    // const {port: universalPort, close: closeUniversalServer} = {port: 21077, close: () => {}}; //await makeServerProcess();
     const {port: universalPort, close: closeUniversalServer} = await makeServerProcess();
 
     const managers = [];

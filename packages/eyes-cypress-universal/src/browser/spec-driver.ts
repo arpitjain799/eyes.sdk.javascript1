@@ -1,4 +1,4 @@
-export type Selector = (string | {selector: string; type?: string} | {selector: {selector: string; type?: string}}) & {__applitoolsBrand?: never};
+export type Selector = (string | {selector: string; type?: string}) & {__applitoolsBrand?: never};
 export type Context = Document & {__applitoolsBrand?: never};
 export type Element = HTMLElement & {__applitoolsBrand?: never};
 
@@ -51,24 +51,33 @@ export function setViewportSize(vs: any): void {
   Cypress.action('cy:viewport:changed', { viewportWidth: vs.size.width, viewportHeight: vs.size.height });
 }
 
+export function transformSelector(selector: Selector): Selector {
+  if (selector.hasOwnProperty('selector') && (!selector.hasOwnProperty('type') || selector.type === 'css')) {
+    return selector.selector
+  }
+  return selector
+}
+
 export function findElement(context: Context, selector: Selector, parent?: Element) {
   // context = getCurrenctContext(context)
   const root = parent ?? context
-  if (typeof selector === 'string' || selector.type === undefined || selector.selector.type === 'css') {
-    return root.querySelector(transformSelector(selector))
+  const sel = typeof selector === 'string' ? selector : selector.selector
+  if (typeof selector !== 'string' && selector.type === 'xpath') {
+    return context.evaluate(sel, context, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
   } else {
-    return context.evaluate(transformSelector(selector), context, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;  
+    return root.querySelector(sel)
   }
 }
 
 export function findElements(context: Context, selector: Selector, parent: Element){
   // context = getCurrenctContext(context)
   const root = parent ?? context
-  if (typeof selector === 'string' || selector.type === undefined || selector.selector.type === 'css' ) {
-    return root.querySelectorAll(transformSelector(selector))
-  } else {
+  const sel = typeof selector === 'string' ? selector : selector.selector
+  if (typeof selector !== 'string' && selector.type === 'xpath') {
     // TODO return multiple
-    return context.evaluate(transformSelector(selector), context, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;  
+    return context.evaluate(sel, context, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+  } else {
+    return root.querySelectorAll(sel)
   }
 }
 
@@ -92,19 +101,6 @@ function getCurrenctContext(context: Context){
   //@ts-ignore
   return (context && context.defaultView) ? context : cy.state('window').document
 }
-
-function transformSelector(selector: Selector) {
-  if (isSelector(selector)) {
-    if (isSelector(selector.selector) && typeof selector.selector.selector === 'string')
-      return selector.selector.selector;
-    else if (typeof selector.selector == 'string') return selector.selector;
-  }
-}
-
-function isSelector(selector: Selector) {
-  return selector.hasOwnProperty('selector');
-}
-
 
 // export function takeScreenshot(page: Driver): Promise<Buffer>;
 
