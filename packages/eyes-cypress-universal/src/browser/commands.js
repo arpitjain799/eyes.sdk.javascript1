@@ -4,6 +4,7 @@ const spec = require('../../dist/browser/spec-driver');
 const Refer = require('./refer');
 const Socket = require('./socket');
 const {socketCommands} = require('./socketCommands');
+const {eyesOpenMapValues} = require('./eyesOpenMapping');
 const {eyesCheckMapValues} = require('./eyesCheckMapping');
 
 const refer = new Refer(value => {
@@ -86,7 +87,7 @@ Cypress.Commands.add('eyesOpen', function(args = {}) {
 
   return cy.then({timeout: 86400000}, async () => {
     setRootContext();
-    const driverRef = refer.ref(cy.state('window').document);
+    const driver = refer.ref(cy.state('window').document);
 
     if (!connectedToUniversal) {
       socket.connect(`ws://localhost:${Cypress.config('eyesPort')}/eyes`);
@@ -110,15 +111,9 @@ Cypress.Commands.add('eyesOpen', function(args = {}) {
         ));
     }
 
-    eyes = await socket.request('EyesManager.openEyes', {
-      manager,
-      driver: driverRef,
-      config: Object.assign(
-        {testName, dontCloseBatches: !shouldUseBrowserHooks},
-        Cypress.config('appliConfFile'),
-        args,
-      ),
-    });
+    const appliConfFile = Cypress.config('appliConfFile')
+    const config = eyesOpenMapValues({args, appliConfFile, testName, shouldUseBrowserHooks});
+    eyes = await socket.request('EyesManager.openEyes', {manager, driver,config});
   });
 });
 

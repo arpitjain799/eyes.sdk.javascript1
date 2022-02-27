@@ -26,7 +26,8 @@ module.exports = (tracker, test) => {
             viewportSize: viewportSize,
             branchName: test.config.branchName,
             parentBranchName: test.config.parentBranchName,
-            browser: test.config.browsersInfo
+            browser: test.config.browsersInfo,
+            layoutBreakpoints: test.config.layoutBreakpoints
           }
 
           return addCommand(js`cy.eyesOpen(${args})`)
