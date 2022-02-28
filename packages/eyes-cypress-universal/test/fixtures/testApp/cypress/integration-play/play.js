@@ -2,7 +2,7 @@
 Cypress.on('uncaught:exception', () => {});
 
 describe('Play Cypress', () => {
-  it.only('Play Cypress', () => {
+  it('Play Cypress', () => {
     
     cy.eyesOpen({
       appName: 'Play Cypress',
@@ -40,7 +40,7 @@ describe('Play Cypress', () => {
     //   console.log(results)
     // })
   });
-  it('test region in shadow DOM', () => {
+  it.only('test region in shadow DOM', () => {
     cy.visit('https://applitools.github.io/demo/TestPages/ShadowDOM/index.html');
     cy.eyesOpen({
       appName: 'som app',
@@ -81,5 +81,18 @@ describe('Play Cypress', () => {
   });
     cy.eyesClose();
   });
-  
+
+  it('shows how to use Applitools Eyes with Cypress', () => {
+    cy.visit('https://applitools.com/helloworld');
+    cy.eyesOpen({
+      appName: 'Hello World!',
+      testName: 'My first JavaScript test!',
+      browser: {width: 800, height: 600},
+      // showLogs: true
+    });
+    cy.eyesCheckWindow('Main Page');
+    cy.get('button').click();
+    cy.eyesCheckWindow('Click!');
+    cy.eyesClose();
+  });  
 });

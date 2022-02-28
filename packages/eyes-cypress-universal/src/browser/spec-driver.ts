@@ -3,7 +3,7 @@ export type Context = Document & {__applitoolsBrand?: never};
 export type Element = HTMLElement & {__applitoolsBrand?: never};
 
 export function executeScript(context: Context, script: string, arg: any): any {     
-  // context = getCurrenctContext(context)
+  context = getCurrenctContext(context)
 
       let scriptToExecute;
       if (
@@ -70,7 +70,7 @@ export function findElement(context: Context, selector: Selector, parent?: Eleme
 }
 
 export function findElements(context: Context, selector: Selector, parent: Element){
-  // context = getCurrenctContext(context)
+  context = getCurrenctContext(context)
   const root = parent ?? context
   const sel = typeof selector === 'string' ? selector : selector.selector
   if (typeof selector !== 'string' && selector.type === 'xpath') {
@@ -82,12 +82,12 @@ export function findElements(context: Context, selector: Selector, parent: Eleme
 }
 
 export function getTitle(context: Context): string {
-  // context = getCurrenctContext(context)
+  context = getCurrenctContext(context)
   return context.title
 }
 
 export function getUrl(context: Context): string {
-  // context = getCurrenctContext(context)
+  context = getCurrenctContext(context)
   return context.location.href
 }
 
