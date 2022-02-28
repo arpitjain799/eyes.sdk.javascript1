@@ -87,7 +87,7 @@ describe('eyes open mapping', () => {
       ],
       testName,
       dontCloseBatches,
-      shouldUseBrowserHooks
+      shouldUseBrowserHooks,
     };
     const appliConfFile = {
       browser: [
