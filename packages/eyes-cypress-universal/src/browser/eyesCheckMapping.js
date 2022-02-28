@@ -2,12 +2,6 @@ function eyesCheckMapValues({args, appliConfFile}) {
   return toCheckWindowConfiguration(args, appliConfFile);
 }
 
-function getGlobalConfigProperty(prop, cypress) {
-  const property = cypress.config(prop);
-  const shouldParse = ['eyesLayoutBreakpoints'];
-  return property ? (shouldParse.includes(prop) ? JSON.parse(property) : property) : undefined;
-}
-
 function toCheckWindowConfiguration(config, appliConfFile) {
   const mappedValues = [
     'tag',
