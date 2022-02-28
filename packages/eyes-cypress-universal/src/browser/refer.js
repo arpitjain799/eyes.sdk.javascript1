@@ -5,7 +5,7 @@ class Refer {
   constructor(check) {
     this.store = new Map();
     this.relation = new Map();
-    this.check = check
+    this.check = check;
   }
 
   isRef(ref) {
@@ -14,25 +14,25 @@ class Refer {
 
   ref(value, parentRef) {
     if (this.check(value)) {
-      const ref = uuid.v4()
-      this.store.set(ref, value)
+      const ref = uuid.v4();
+      this.store.set(ref, value);
       if (parentRef) {
-        let childRefs = this.relation.get(parentRef[REF_ID])
+        let childRefs = this.relation.get(parentRef[REF_ID]);
         if (!childRefs) {
-          childRefs = new Set()
-          this.relation.set(parentRef[REF_ID], childRefs)
+          childRefs = new Set();
+          this.relation.set(parentRef[REF_ID], childRefs);
         }
-        childRefs.add({[REF_ID]: ref})
+        childRefs.add({[REF_ID]: ref});
       }
-      return {[REF_ID]: ref}
+      return {[REF_ID]: ref};
     } else if (Array.isArray(value)) {
-      return value.map(value => this.ref(value, parentRef))
+      return value.map(value => this.ref(value, parentRef));
     } else if (typeof value === 'object' && value !== null) {
       return Object.entries(value).reduce((obj, [key, value]) => {
-        return Object.assign(obj, {[key]: this.ref(value, parentRef)})
-      }, {})
+        return Object.assign(obj, {[key]: this.ref(value, parentRef)});
+      }, {});
     } else {
-      return value
+      return value;
     }
   }
 

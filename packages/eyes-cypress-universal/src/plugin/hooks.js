@@ -27,7 +27,7 @@ function makeGlobalRunHooks({closeAllEyes, closeBatches, closeUniversalServer}) 
             batchIds: [config.appliConfFile.batch.id],
             serverUrl: config.appliConfFile.serverUrl,
             proxy: config.appliConfFile.proxy,
-            apiKey: config.appliConfFile.apiKey
+            apiKey: config.appliConfFile.apiKey,
           });
         }
 

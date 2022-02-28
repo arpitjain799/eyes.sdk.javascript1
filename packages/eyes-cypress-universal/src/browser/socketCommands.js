@@ -37,7 +37,9 @@ function socketCommands(socket, refer) {
       spec.transformSelector(selector),
       refer.deref(parent),
     );
-    return Array.prototype.map.call(elements, element => element === null ? element : refer.ref(element, context))
+    return Array.prototype.map.call(elements, element =>
+      element === null ? element : refer.ref(element, context),
+    );
   });
 
   socket.command('Driver.getUrl', context => {

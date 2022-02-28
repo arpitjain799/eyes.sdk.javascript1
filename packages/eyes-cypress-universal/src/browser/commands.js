@@ -10,8 +10,8 @@ const {eyesCheckMapValues} = require('./eyesCheckMapping');
 const refer = new Refer(value => {
   if (!value || !value.constructor || !value.constructor.name) return false;
   const name = value.constructor.name;
-  return (name === 'HTMLDocument' || name === 'Window' || value.ownerDocument);
-})
+  return name === 'HTMLDocument' || name === 'Window' || value.ownerDocument;
+});
 const socket = new Socket();
 const throwErr = Cypress.config('failCypressOnDiff');
 socketCommands(socket, refer);
@@ -111,16 +111,25 @@ Cypress.Commands.add('eyesOpen', function(args = {}) {
         ));
     }
 
-    const appliConfFile = Cypress.config('appliConfFile')
-    const config = eyesOpenMapValues({args, appliConfFile, testName, shouldUseBrowserHooks});
-    eyes = await socket.request('EyesManager.openEyes', {manager, driver,config});
+    const appliConfFile = Cypress.config('appliConfFile');
+    const config = eyesOpenMapValues({
+      args,
+      appliConfFile,
+      testName,
+      shouldUseBrowserHooks,
+      defaultBrowser: {
+        width: Cypress.config('viewportWidth'),
+        height: Cypress.config('viewportHeight'),
+      },
+    });
+    eyes = await socket.request('EyesManager.openEyes', {manager, driver, config});
   });
 });
 
 Cypress.Commands.add('eyesCheckWindow', args =>
   cy.then({timeout: 86400000}, () => {
     if (isCurrentTestDisabled) return;
-    
+
     setRootContext();
 
     Cypress.log({name: 'Eyes: check window'});

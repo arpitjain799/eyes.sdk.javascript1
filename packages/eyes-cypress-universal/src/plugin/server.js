@@ -89,7 +89,7 @@ function makeStartServer() {
     function closeBatches(settings) {
       if (socketWithUniversal)
         return socketWithUniversal.request('Core.closeBatches', {settings}).catch(err => {
-          console.log('@@@', err)
+          console.log('@@@', err);
         });
     }
   };

@@ -40,7 +40,7 @@ describe('Play Cypress', () => {
     //   console.log(results)
     // })
   });
-  it.only('test region in shadow DOM', () => {
+  it('test region in shadow DOM', () => {
     cy.visit('https://applitools.github.io/demo/TestPages/ShadowDOM/index.html');
     cy.eyesOpen({
       appName: 'som app',
