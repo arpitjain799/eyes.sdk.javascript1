@@ -66,16 +66,9 @@ describe('eyes check mapping', () => {
       fully: false,
     };
 
-    const cypress = {
-      config: prop => {
-        if (prop === 'appliConfFile') {
-          return {};
-        } else {
-          return undefined;
-        }
-      },
-    };
-    const coreConfig = eyesCheckMapValues({args, cypress});
+    const appliConfFile = {};
+
+    const coreConfig = eyesCheckMapValues({args, appliConfFile});
     expect(coreConfig).to.be.deep.equal(expected);
   });
 
@@ -98,20 +91,13 @@ describe('eyes check mapping', () => {
       layoutBreakpoints: [500, 1000],
     };
 
-    const cypress = {
-      config: prop => {
-        if (prop === 'appliConfFile') {
-          return {
-            waitBeforeCapture: 2000,
-            ignoreDisplacements: true,
-            layoutBreakpoints: [500, 1000],
-          };
-        } else {
-          return undefined;
-        }
-      },
+    const appliConfFile = {
+      waitBeforeCapture: 2000,
+      ignoreDisplacements: true,
+      layoutBreakpoints: [500, 1000],
     };
-    const coreConfig = eyesCheckMapValues({args, cypress});
+
+    const coreConfig = eyesCheckMapValues({args, appliConfFile});
     expect(coreConfig).to.be.deep.equal(expected);
   });
 
@@ -137,21 +123,13 @@ describe('eyes check mapping', () => {
       layoutBreakpoints: [500, 1000],
     };
 
-    const cypress = {
-      config: prop => {
-        if (prop === 'appliConfFile') {
-          return {
-            waitBeforeCapture: 1000,
-            ignoreDisplacements: false,
-            layoutBreakpoints: [600, 850],
-          };
-        } else {
-          return undefined;
-        }
-      },
+    const appliConfFile = {
+      waitBeforeCapture: 1000,
+      ignoreDisplacements: false,
+      layoutBreakpoints: [600, 850],
     };
 
-    const coreConfig = eyesCheckMapValues({args, cypress});
+    const coreConfig = eyesCheckMapValues({args, appliConfFile});
     expect(coreConfig).to.be.deep.equal(expected);
   });
 });

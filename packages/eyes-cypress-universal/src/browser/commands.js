@@ -134,7 +134,7 @@ Cypress.Commands.add('eyesCheckWindow', args =>
 
     Cypress.log({name: 'Eyes: check window'});
 
-    const checkSettings = eyesCheckMapValues({args});
+    const checkSettings = eyesCheckMapValues({args, appliConfFile: Cypres.config('appliConfFile')});
 
     return socket.request('Eyes.check', {
       eyes,

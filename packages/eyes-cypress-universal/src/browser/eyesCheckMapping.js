@@ -1,5 +1,5 @@
-function eyesCheckMapValues({args}) {
-  return toCheckWindowConfiguration(args);
+function eyesCheckMapValues({args, appliConfFile}) {
+  return toCheckWindowConfiguration(args, appliConfFile);
 }
 
 function getGlobalConfigProperty(prop, cypress) {
@@ -8,7 +8,7 @@ function getGlobalConfigProperty(prop, cypress) {
   return property ? (shouldParse.includes(prop) ? JSON.parse(property) : property) : undefined;
 }
 
-function toCheckWindowConfiguration(config) {
+function toCheckWindowConfiguration(config, appliConfFile) {
   const mappedValues = [
     'tag',
     'hooks',
@@ -71,7 +71,7 @@ function toCheckWindowConfiguration(config) {
     }
   }
 
-  return Object.assign({}, checkSettings, regionSettings, config);
+  return Object.assign({},appliConfFile, checkSettings, regionSettings, config);
 }
 
 module.exports = {eyesCheckMapValues};
