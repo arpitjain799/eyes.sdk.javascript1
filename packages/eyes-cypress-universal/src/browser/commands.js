@@ -120,6 +120,7 @@ Cypress.Commands.add('eyesOpen', function(args = {}) {
       defaultBrowser: {
         width: Cypress.config('viewportWidth'),
         height: Cypress.config('viewportHeight'),
+        name: 'chrome'
       },
     });
     eyes = await socket.request('EyesManager.openEyes', {manager, driver, config});
@@ -134,7 +135,7 @@ Cypress.Commands.add('eyesCheckWindow', args =>
 
     Cypress.log({name: 'Eyes: check window'});
 
-    const checkSettings = eyesCheckMapValues({args, appliConfFile: Cypres.config('appliConfFile')});
+    const checkSettings = eyesCheckMapValues({args, appliConfFile: Cypress.config('appliConfFile')});
 
     return socket.request('Eyes.check', {
       eyes,

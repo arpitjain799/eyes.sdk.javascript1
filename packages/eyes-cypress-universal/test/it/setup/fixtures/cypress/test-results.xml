@@ -1,27 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="Mocha Tests" time="2.6060" tests="7" failures="0">
-  <testsuite name="Root Suite" timestamp="2022-02-22T17:05:41" tests="0" file="integrations/spec-driver.spec.js" time="0.0000" failures="0">
+<testsuites name="Mocha Tests" time="1.3770" tests="7" failures="4">
+  <testsuite name="Root Suite" timestamp="2022-02-28T17:51:00" tests="0" file="integrations/spec-driver.spec.js" time="0.0000" failures="0">
   </testsuite>
-  <testsuite name="spec: executeScript" timestamp="2022-02-22T17:05:41" tests="1" time="0.7640" failures="0">
-    <testcase name="spec: executeScript executeScript no args" time="0.7640" classname="executeScript no args">
-    </testcase>
-  </testsuite>
-  <testsuite name="spec: findElement" timestamp="2022-02-22T17:05:43" tests="4" time="1.2580" failures="0">
-    <testcase name="spec: findElement works for findElement css selector" time="0.3050" classname="works for findElement css selector">
-    </testcase>
-    <testcase name="spec: findElement works for findElement xpath" time="0.3760" classname="works for findElement xpath">
-    </testcase>
-    <testcase name="spec: findElement works for findElements with css selector" time="0.2890" classname="works for findElements with css selector">
-    </testcase>
-    <testcase name="spec: findElement works for findElements with xpath" time="0.2880" classname="works for findElements with xpath">
+  <testsuite name="spec: executeScript" timestamp="2022-02-28T17:51:00" tests="1" time="0.7740" failures="0">
+    <testcase name="spec: executeScript executeScript no args" time="0.7740" classname="executeScript no args">
     </testcase>
   </testsuite>
-  <testsuite name="spec: get set viewportsize" timestamp="2022-02-22T17:05:45" tests="1" time="0.2910" failures="0">
-    <testcase name="spec: get set viewportsize works for get and set viewport size" time="0.2910" classname="works for get and set viewport size">
+  <testsuite name="spec: findElement" timestamp="2022-02-28T17:51:03" tests="4" time="0.0000" failures="4">
+    <testcase name="spec: findElement works for findElement css selector" time="0.0000" classname="works for findElement css selector">
+      <failure message="root.querySelector is not a function" type="TypeError"><![CDATA[TypeError: root.querySelector is not a function
+    at Object.findElement (https://applitools.com/__cypress/tests?p=integrations/spec-driver.spec.js:9697:17)
+    at _callee3$ (https://applitools.com/__cypress/tests?p=integrations/spec-driver.spec.js:22506:27)
+    at tryCatch (https://applitools.com/__cypress/tests?p=integrations/spec-driver.spec.js:6440:40)
+    at Generator.invoke [as _invoke] (https://applitools.com/__cypress/tests?p=integrations/spec-driver.spec.js:6670:22)
+    at Generator.eval [as next] (https://applitools.com/__cypress/tests?p=integrations/spec-driver.spec.js:6495:21)
+    at asyncGeneratorStep (https://applitools.com/__cypress/tests?p=integrations/spec-driver.spec.js:98:24)
+    at _next (https://applitools.com/__cypress/tests?p=integrations/spec-driver.spec.js:120:9)]]></failure>
+    </testcase>
+    <testcase name="spec: findElement works for findElement xpath" time="0.0000" classname="works for findElement xpath">
+      <failure message="root.querySelector is not a function" type="TypeError"><![CDATA[TypeError: root.querySelector is not a function
+    at Object.findElement (https://applitools.com/__cypress/tests?p=integrations/spec-driver.spec.js:9697:17)
+    at _callee4$ (https://applitools.com/__cypress/tests?p=integrations/spec-driver.spec.js:22527:27)
+    at tryCatch (https://applitools.com/__cypress/tests?p=integrations/spec-driver.spec.js:6440:40)
+    at Generator.invoke [as _invoke] (https://applitools.com/__cypress/tests?p=integrations/spec-driver.spec.js:6670:22)
+    at Generator.eval [as next] (https://applitools.com/__cypress/tests?p=integrations/spec-driver.spec.js:6495:21)
+    at asyncGeneratorStep (https://applitools.com/__cypress/tests?p=integrations/spec-driver.spec.js:98:24)
+    at _next (https://applitools.com/__cypress/tests?p=integrations/spec-driver.spec.js:120:9)]]></failure>
+    </testcase>
+    <testcase name="spec: findElement works for findElements with css selector" time="0.0000" classname="works for findElements with css selector">
+      <failure message="root.querySelectorAll is not a function" type="TypeError"><![CDATA[TypeError: root.querySelectorAll is not a function
+    at Object.findElements (https://applitools.com/__cypress/tests?p=integrations/spec-driver.spec.js:9712:17)
+    at _callee5$ (https://applitools.com/__cypress/tests?p=integrations/spec-driver.spec.js:22548:25)
+    at tryCatch (https://applitools.com/__cypress/tests?p=integrations/spec-driver.spec.js:6440:40)
+    at Generator.invoke [as _invoke] (https://applitools.com/__cypress/tests?p=integrations/spec-driver.spec.js:6670:22)
+    at Generator.eval [as next] (https://applitools.com/__cypress/tests?p=integrations/spec-driver.spec.js:6495:21)
+    at asyncGeneratorStep (https://applitools.com/__cypress/tests?p=integrations/spec-driver.spec.js:98:24)
+    at _next (https://applitools.com/__cypress/tests?p=integrations/spec-driver.spec.js:120:9)]]></failure>
+    </testcase>
+    <testcase name="spec: findElement works for findElements with xpath" time="0.0000" classname="works for findElements with xpath">
+      <failure message="root.querySelectorAll is not a function" type="TypeError"><![CDATA[TypeError: root.querySelectorAll is not a function
+    at Object.findElements (https://applitools.com/__cypress/tests?p=integrations/spec-driver.spec.js:9712:17)
+    at _callee6$ (https://applitools.com/__cypress/tests?p=integrations/spec-driver.spec.js:22569:25)
+    at tryCatch (https://applitools.com/__cypress/tests?p=integrations/spec-driver.spec.js:6440:40)
+    at Generator.invoke [as _invoke] (https://applitools.com/__cypress/tests?p=integrations/spec-driver.spec.js:6670:22)
+    at Generator.eval [as next] (https://applitools.com/__cypress/tests?p=integrations/spec-driver.spec.js:6495:21)
+    at asyncGeneratorStep (https://applitools.com/__cypress/tests?p=integrations/spec-driver.spec.js:98:24)
+    at _next (https://applitools.com/__cypress/tests?p=integrations/spec-driver.spec.js:120:9)]]></failure>
     </testcase>
   </testsuite>
-  <testsuite name="spec: getCookies" timestamp="2022-02-22T17:05:45" tests="1" time="0.2930" failures="0">
-    <testcase name="spec: getCookies works for getCookies" time="0.2930" classname="works for getCookies">
+  <testsuite name="spec: get set viewportsize" timestamp="2022-02-28T17:51:05" tests="1" time="0.3030" failures="0">
+    <testcase name="spec: get set viewportsize works for get and set viewport size" time="0.3030" classname="works for get and set viewport size">
+    </testcase>
+  </testsuite>
+  <testsuite name="spec: getCookies" timestamp="2022-02-28T17:51:05" tests="1" time="0.3000" failures="0">
+    <testcase name="spec: getCookies works for getCookies" time="0.3000" classname="works for getCookies">
     </testcase>
   </testsuite>
 </testsuites>

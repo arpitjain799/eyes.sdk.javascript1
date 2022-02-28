@@ -1,7 +1,14 @@
 function eyesOpenMapValues({args, appliConfFile, testName, shouldUseBrowserHooks, defaultBrowser}) {
   let browsersInfo = args.browser || appliConfFile.browser || defaultBrowser;
 
-  if (!Array.isArray(browsersInfo)) browsersInfo = [browsersInfo];
+  if (browsersInfo) {
+    if (Array.isArray(browsersInfo)) {
+      browsersInfo.forEach(fillDefaultBrowserName);
+    } else {
+      fillDefaultBrowserName(browsersInfo);
+      browsersInfo = [browsersInfo];
+    }
+  }
 
   const mappedArgs = {
     ...args,
@@ -16,6 +23,12 @@ function eyesOpenMapValues({args, appliConfFile, testName, shouldUseBrowserHooks
     appliConfFile,
     mappedArgs,
   );
+}
+
+function fillDefaultBrowserName(browser) {
+  if (!browser.name && !browser.iosDeviceInfo && !browser.chromeEmulationInfo) {
+    browser.name = 'chrome';
+  }
 }
 
 module.exports = {eyesOpenMapValues};

@@ -1,8 +1,8 @@
 function eyesCheckMapValues({args, appliConfFile}) {
-  return toCheckWindowConfiguration(args, appliConfFile);
+  return toCheckWindowConfiguration(appliConfFile, args);
 }
 
-function toCheckWindowConfiguration(config, appliConfFile) {
+function toCheckWindowConfiguration(appliConfFile, config = {}) {
   const mappedValues = [
     'tag',
     'hooks',
