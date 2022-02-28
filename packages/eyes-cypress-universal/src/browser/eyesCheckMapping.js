@@ -71,7 +71,7 @@ function toCheckWindowConfiguration(config, appliConfFile) {
     }
   }
 
-  return Object.assign({},appliConfFile, checkSettings, regionSettings, config);
+  return Object.assign({}, appliConfFile, checkSettings, regionSettings, config);
 }
 
 module.exports = {eyesCheckMapValues};
