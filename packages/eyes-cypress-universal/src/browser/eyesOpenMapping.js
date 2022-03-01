@@ -1,5 +1,5 @@
 function eyesOpenMapValues({args, appliConfFile, testName, shouldUseBrowserHooks}) {
-  let browsersInfo = args.browser || appliConfFile.browser ;
+  let browsersInfo = args.browser || appliConfFile.browser;
 
   if (browsersInfo) {
     if (Array.isArray(browsersInfo)) {

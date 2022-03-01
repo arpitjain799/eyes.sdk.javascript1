@@ -71,5 +71,4 @@ describe('eyes check mapping', () => {
     const coreConfig = eyesCheckMapValues({args, appliConfFile});
     expect(coreConfig).to.be.deep.equal(expected);
   });
-
 });
