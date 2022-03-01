@@ -1,4 +1,3 @@
-
 module.exports = (tracker, test) => {
   const {useRef, addSyntax, addCommand, addExpression, addHook, withScope} = tracker;
 
@@ -15,25 +14,25 @@ module.exports = (tracker, test) => {
             return func(...${args})
           })`);
     },
-    click(button){
-      let selector
-      if(typeof button === 'string' ){
-        selector = button
+    click(button) {
+      let selector;
+      if (typeof button === 'string') {
+        selector = button;
       } else {
-        selector = button.selector
+        selector = button.selector;
       }
-      return addCommand(js`cy.get(${selector}).click()`)
+      return addCommand(js`cy.get(${selector}).click()`);
     },
-    findElement(element){
-      let selector
-      if(typeof element === 'string' ){
-        selector = element
+    findElement(element) {
+      let selector;
+      if (typeof element === 'string') {
+        selector = element;
       } else {
-        selector = element.selector
+        selector = element.selector;
       }
 
-      return addCommand(js`cy.get(${selector})`)
-    }
+      return addCommand(js`cy.get(${selector})`);
+    },
   };
 
   const eyes = {

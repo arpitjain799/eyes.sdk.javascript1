@@ -120,7 +120,7 @@ Cypress.Commands.add('eyesOpen', function(args = {}) {
       defaultBrowser: {
         width: Cypress.config('viewportWidth'),
         height: Cypress.config('viewportHeight'),
-        name: 'chrome'
+        name: 'chrome',
       },
     });
     eyes = await socket.request('EyesManager.openEyes', {manager, driver, config});
