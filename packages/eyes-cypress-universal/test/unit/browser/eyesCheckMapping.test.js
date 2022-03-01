@@ -3,7 +3,7 @@ const {expect} = require('chai');
 const {eyesCheckMapValues} = require('../../../src/browser/eyesCheckMapping');
 
 describe('eyes check mapping', () => {
-  it('should work with eyes check config', () => {
+  it('should mapp values correctly', () => {
     const args = {
       tag: 'some tag name',
       hooks: {
@@ -72,64 +72,4 @@ describe('eyes check mapping', () => {
     expect(coreConfig).to.be.deep.equal(expected);
   });
 
-  it('should work with config file', () => {
-    const args = {
-      tag: 'some tag name',
-    };
-
-    const expected = {
-      name: 'some tag name',
-      scriptHooks: undefined,
-      ignoreRegions: undefined,
-      floatingRegions: undefined,
-      contentRegions: undefined,
-      strictRegions: undefined,
-      accessibilityRegions: undefined,
-      layoutRegions: undefined,
-      waitBeforeCapture: 2000,
-      ignoreDisplacements: true,
-      layoutBreakpoints: [500, 1000],
-    };
-
-    const appliConfFile = {
-      waitBeforeCapture: 2000,
-      ignoreDisplacements: true,
-      layoutBreakpoints: [500, 1000],
-    };
-
-    const coreConfig = eyesCheckMapValues({args, appliConfFile});
-    expect(coreConfig).to.be.deep.equal(expected);
-  });
-
-  it('eyes check should have precedence over config file', () => {
-    const args = {
-      tag: 'some tag name',
-      waitBeforeCapture: 2000,
-      ignoreDisplacements: true,
-      layoutBreakpoints: [500, 1000],
-    };
-
-    const expected = {
-      name: 'some tag name',
-      scriptHooks: undefined,
-      ignoreRegions: undefined,
-      floatingRegions: undefined,
-      contentRegions: undefined,
-      strictRegions: undefined,
-      accessibilityRegions: undefined,
-      layoutRegions: undefined,
-      waitBeforeCapture: 2000,
-      ignoreDisplacements: true,
-      layoutBreakpoints: [500, 1000],
-    };
-
-    const appliConfFile = {
-      waitBeforeCapture: 1000,
-      ignoreDisplacements: false,
-      layoutBreakpoints: [600, 850],
-    };
-
-    const coreConfig = eyesCheckMapValues({args, appliConfFile});
-    expect(coreConfig).to.be.deep.equal(expected);
-  });
 });
