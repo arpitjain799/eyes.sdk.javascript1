@@ -17,7 +17,11 @@ module.exports = {
     './test/coverage/overrides.js',
   ],
   emitOnly: test => {
-    if (test.api === 'classic') return false;
+    if (
+      test.api === 'classic' ||
+      (test.name.toLowerCase().includes('shadow') && test.name.toLowerCase().includes('dom'))
+    )
+      return false;
     return test.vg;
   },
 };

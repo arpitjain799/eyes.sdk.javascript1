@@ -1,9 +1,9 @@
+
 module.exports = (tracker, test) => {
   const {useRef, addSyntax, addCommand, addExpression, addHook, withScope} = tracker;
 
   // addSyntax('var', ({constant, name, value}) => `${value}.then(${name} => {})`)
   addSyntax('getter', ({target, key}) => `${target}['${key}']`);
-
   const driver = {
     visit(url) {
       addCommand(js`cy.visit(${url})`);
@@ -15,6 +15,25 @@ module.exports = (tracker, test) => {
             return func(...${args})
           })`);
     },
+    click(button){
+      let selector
+      if(typeof button === 'string' ){
+        selector = button
+      } else {
+        selector = button.selector
+      }
+      return addCommand(js`cy.get(${selector}).click()`)
+    },
+    findElement(element){
+      let selector
+      if(typeof element === 'string' ){
+        selector = element
+      } else {
+        selector = element.selector
+      }
+
+      return addCommand(js`cy.get(${selector})`)
+    }
   };
 
   const eyes = {
