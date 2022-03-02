@@ -1,6 +1,6 @@
 {
   "name": "@applitools/eyes-cypress",
-  "version": "3.23.9",
+  "version": "3.24.0-beta.0",
   "main": "index.js",
   "license": "SEE LICENSE IN LICENSE",
   "bin": {
@@ -12,7 +12,7 @@
     "test:unit": "mocha --no-timeouts 'test/unit/**/*.test.js'",
     "test:it": "mocha --no-timeouts 'test/it/**/*.test.js'",
     "test:e2e": "mkdir -p test/fixtures/testAppCopies && mocha --no-timeouts 'test/e2e/**/*.test.js'",
-    "lint": "eslint '**/*.js'",
+    "lint": "eslint \"**/*.js\"",
     "test": "yarn test:unit && yarn test:it && yarn test:e2e && yarn lint",
     "cypress": "cypress open --config-file test/fixtures/cypress-play.json",
     "cypress:new": "node_modules/cypress-new/bin/cypress open --config-file test/fixtures/cypress-play.json",
