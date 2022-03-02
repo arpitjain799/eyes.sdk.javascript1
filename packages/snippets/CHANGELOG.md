@@ -4,6 +4,14 @@
 ## Unreleased
 - adjust getContextInfo to work with Cypress Universal
 
+## 2.1.15 - 2022/2/16
+
+- revert 2.1.14
+
+## 2.1.14 - 2022/2/15
+
+- fix `getElementRect` for `document.scrollingElement`
+
 ## 2.1.13 - 2022/2/15
 
 - add `getViewportScale` snippet
