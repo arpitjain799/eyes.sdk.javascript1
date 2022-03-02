@@ -42,6 +42,5 @@ eyes-testcafe-bak
 dist
 docs
 doc
-bin
 **/types/**/*
 .history/
