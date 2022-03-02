@@ -3,6 +3,10 @@
 ## Unreleased
 
 
+ ## 3.24.0-beta.2 - 2022/3/2
+
+- add bin folder
+
  ## 3.24.0-beta.1 - 2022/3/2
 
 - convert cypress to work on top of universal
