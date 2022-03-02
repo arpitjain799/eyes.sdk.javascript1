@@ -3,6 +3,8 @@
 ## Unreleased
 
 - convert cypress to work on top of universal
+- updated to @applitools/logger@1.0.11 (from 1.0.9)
+- updated to @applitools/visual-grid-client@15.9.0 (from 15.8.57)
 
 ## 3.23.9 - 2022/2/22
 
