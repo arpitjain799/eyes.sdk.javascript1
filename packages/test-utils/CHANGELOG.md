@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+
+## 1.2.0 - 2022/3/3
+
 - add script for debugging env vars
 
 ## 1.1.0 - 2022/3/2
