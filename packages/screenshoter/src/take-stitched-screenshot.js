@@ -40,6 +40,7 @@ async function takeStitchedScreenshot({
   // TODO the solution should not check driver specifics,
   // in this case target region coordinate should be already related to the scrolling element of the context
   let cropRegion = driver.isNative ? targetRegion : await driver.getRegionInViewport(context, targetRegion)
+  if (utils.geometry.isEmpty(cropRegion)) throw new Error('Screenshot region is out of viewport')
 
   logger.verbose('cropping...')
   image.crop(withStatusBar ? utils.geometry.offset(cropRegion, {x: 0, y: driver.statusBarHeight}) : cropRegion)
