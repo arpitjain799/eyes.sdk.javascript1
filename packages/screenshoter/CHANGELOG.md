@@ -3,7 +3,8 @@
 
 ## Unreleased
 
-- scroll to 0,0 before taking stitched screenshot
+- disable scroll to 0,0 before taking stitched screenshot
+- add better error handling when taking a stitched screenshot
 
 ## 3.3.10 - 2022/2/16
 

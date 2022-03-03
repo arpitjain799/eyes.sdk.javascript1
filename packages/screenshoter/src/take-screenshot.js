@@ -59,7 +59,8 @@ async function takeScreenshot({
     if (!window) await scrollIntoViewport({...target, logger})
 
     if (fully && target.scroller) {
-      await target.scroller.moveTo({x: 0, y: 0}, await driver.mainContext.getScrollingElement())
+      // TODO re-enable and fix issue it causes in takeStitchedScreenshot
+      // await target.scroller.moveTo({x: 0, y: 0}, await driver.mainContext.getScrollingElement())
     }
 
     const screenshot =
