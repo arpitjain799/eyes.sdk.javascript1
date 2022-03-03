@@ -41,7 +41,6 @@ runs:
         APPLITOOLS_TEST_REMOTE: ${{inputs.remote}}
         MOCHA_GREP: ${{inputs.grep}}
         MOCHA_JOBS: ${{inputs.remote == 'eg' && 50 || inputs.jobs}}
-        CVG_TESTS_REMOTE: ${{secrets.CVG_TESTS_REMOTE}}
       run: |
         echo "::group::Configure NPM"
         echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > .npmrc
