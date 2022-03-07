@@ -47,7 +47,7 @@ async function takeStitchedScreenshot({
   await image.debug({...debug, name: 'initial', suffix: 'region'})
 
   const contentRegion = utils.geometry.region({x: 0, y: 0}, contentSize)
-  logger.verbose(`Scroller size: ${contentRegion}`)
+  logger.verbose('Scroller size:', contentRegion)
 
   if (region) region = utils.geometry.intersect(region, contentRegion)
   else region = contentRegion
@@ -74,7 +74,7 @@ async function takeStitchedScreenshot({
     const compensateOffset = {x: 0, y: initialRegion.y !== partRegion.y ? overlap.top : 0}
     const requiredOffset = utils.geometry.offsetNegative(utils.geometry.location(partRegion), compensateOffset)
 
-    logger.verbose(`Move to ${requiredOffset}`)
+    logger.verbose('Move to', requiredOffset)
     let actualOffset = await scroller.moveTo(requiredOffset)
     // actual scroll position after scrolling might be not equal to required position due to
     // scrollable region shift during scrolling so actual scroll position should be corrected
@@ -95,7 +95,7 @@ async function takeStitchedScreenshot({
       width: partRegion.width,
       height: partRegion.height,
     }
-    logger.verbose(`Actual offset is ${actualOffset}, remaining offset is ${remainingOffset}`)
+    logger.verbose('Actual offset is', actualOffset, ', remaining offset is', remainingOffset)
 
     await utils.general.sleep(wait)
 

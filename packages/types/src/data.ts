@@ -21,6 +21,12 @@ export type Proxy = {
   isHttpOnly?: boolean
 }
 
+export type AutProxy = {
+  proxy: Proxy
+  domains?: string[]
+  AUTProxyMode?: 'Allow' | 'Block'
+}
+
 export type CustomProperty = {
   name: string
   value: string
@@ -277,12 +283,12 @@ export type TestResultContainer = {
 }
 
 export type TestResultSummary = {
-  results: TestResultContainer[];
-  passed: number;
-  unresolved: number;
-  failed: number;
-  exceptions: number;
-  mismatches: number;
-  missing: number;
+  results: TestResultContainer[]
+  passed: number
+  unresolved: number
+  failed: number
+  exceptions: number
+  mismatches: number
+  missing: number
   matches: number
 } & Iterable<TestResultContainer>

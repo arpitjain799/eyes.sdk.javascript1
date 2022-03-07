@@ -1,6 +1,6 @@
 {
   "name": "@applitools/types",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "keywords": [
     "applitools",
     "eyes",
@@ -35,7 +35,7 @@
     "types"
   ],
   "scripts": {
-    "lint": "eslint '**/*.ts'",
+    "lint": "eslint \"**/*.ts\"",
     "build": "tsc",
     "deps": "bongo deps",
     "preversion": "bongo preversion && yarn build",
