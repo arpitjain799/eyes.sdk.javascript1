@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+
+## 14.0.0-beta.0 - 2022/3/7
+
 - Support 'AUTProxy' capability
 - support assigning 'scrollingElement' as 'body' or 'html' dom element
 - rename manager.closeAllEyes to manager.closeManager
