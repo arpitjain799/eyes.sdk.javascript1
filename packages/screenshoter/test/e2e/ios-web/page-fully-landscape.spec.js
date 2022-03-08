@@ -1,15 +1,12 @@
-const {makeDriver, sleep, test} = require('../e2e')
+const {sleep, test} = require('../e2e')
+const {makeLogger} = require('@applitools/logger')
 
-describe('screenshoter ios web', () => {
-  const logger = {log: () => {}, warn: () => {}, error: () => {}, verbose: () => {}}
-  let driver, destroyDriver
+describe.skip('screenshoter ios web', () => {
+  const logger = makeLogger()
+  let driver
 
   before(async () => {
-    ;[driver, destroyDriver] = await makeDriver({type: 'ios', app: 'safari', orientation: 'landscape', logger})
-  })
-
-  after(async () => {
-    await destroyDriver()
+    driver = await global.getDriver({type: 'ios', app: 'safari', orientation: 'landscape', logger})
   })
 
   it('take full page screenshot with landscape orientation', async () => {

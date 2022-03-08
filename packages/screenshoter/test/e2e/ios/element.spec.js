@@ -1,15 +1,11 @@
-const {makeDriver, test} = require('../e2e')
+const {test} = require('../e2e')
 
 describe('screenshoter ios app', () => {
   const logger = {log: () => {}, warn: () => {}, error: () => {}, verbose: () => {}}
-  let driver, destroyDriver
+  let driver
 
   before(async () => {
-    ;[driver, destroyDriver] = await makeDriver({type: 'ios', logger})
-  })
-
-  after(async () => {
-    await destroyDriver()
+    driver = await global.getDriver({type: 'ios', logger})
   })
 
   it('take element screenshot', async () => {

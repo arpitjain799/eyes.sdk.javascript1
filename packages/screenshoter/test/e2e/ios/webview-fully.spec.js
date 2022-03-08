@@ -1,15 +1,11 @@
-const {makeDriver, sleep, test} = require('../e2e')
+const {sleep, test} = require('../e2e')
 
 describe.skip('screenshoter ios app', () => {
   const logger = {log: () => {}, warn: () => {}, error: () => {}, verbose: () => {}}
-  let driver, destroyDriver
+  let driver
 
   before(async () => {
-    ;[driver, destroyDriver] = await makeDriver({type: 'ios', logger})
-  })
-
-  after(async () => {
-    await destroyDriver()
+    driver = await global.getDriver({type: 'ios', logger})
   })
 
   it('take full webview screenshot', async () => {
