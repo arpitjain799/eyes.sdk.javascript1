@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- update waitForDockerBrowsers so it retries when the status code is not 200 (instead of just rely on an exception to handle it)
 
 ## 1.1.2 - 2022/3/8
 

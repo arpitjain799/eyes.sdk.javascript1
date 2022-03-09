@@ -10,7 +10,9 @@ async function waitForDockerBrowsers({remoteUrl, retries} = {}) {
   if (retries === 0) throw new Error('browsers docker containers failed to start before running tests')
   try {
     const result = await fetch(remoteUrl)
-    if (result.status == 200) return
+    if (result.status === 200) return
+    await delay(300)
+    return waitForDockerBrowsers({remoteUrl, retries: retries - 1})
   } catch (_ex) {
     await delay(300)
     return waitForDockerBrowsers({remoteUrl, retries: retries - 1})
