@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+
+## 1.1.2 - 2022/3/8
+
 - update waitForDockerBrowsers to check the status of the fetch to see if it's 200
 - set a sensible default for the remoteUrl in mocha-hooks
 - append the /status route suffix (for a Selenium Hub) to the remoteUrl specified in mocha-hooks
