@@ -39,7 +39,7 @@ export class Element<TDriver, TContext, TElement, TSelector> {
     if (options.context) this._context = options.context
     if (options.logger) this._logger = options.logger
 
-    if (this._spec.isElement(options.element)) {
+    if (this._spec.isElement(options.element) || this._spec.isShadowRoot(options.element)) {
       this._target = this._spec.transformElement?.(options.element) ?? options.element
       // Some frameworks contains information about the selector inside an element
       this._selector = options.selector ?? this._spec.extractSelector?.(options.element)

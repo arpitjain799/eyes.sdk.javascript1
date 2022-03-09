@@ -58,6 +58,7 @@ export interface SpecDriver<TDriver, TContext, TElement, TSelector> {
   isContext?(context: any): context is TContext
   isElement(element: any): element is TElement
   isSelector(selector: any): selector is TSelector
+  isShadowRoot(element: any): element is TElement
   transformDriver?(driver: any): TDriver
   transformElement?(element: any): TElement
   transformSelector?(selector: Selector<TSelector>): TSelector

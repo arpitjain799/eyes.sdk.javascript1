@@ -32,6 +32,9 @@ export function isDriver(driver: any): driver is Driver {
 export function isElement(element: any): element is Element {
   return utils.types.instanceOf(element, 'WebElement')
 }
+export function isShadowRoot(element: any): element is Element {
+  return utils.types.instanceOf(element, 'ShadowRoot')
+}
 export function isSelector(selector: any): selector is Selector {
   if (!selector) return false
   return utils.types.has(selector, ['using', 'value']) || byHash.includes(Object.keys(selector)[0])

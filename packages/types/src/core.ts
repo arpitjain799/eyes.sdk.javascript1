@@ -14,6 +14,7 @@ export interface Core<TDriver, TElement, TSelector> {
   isDriver(driver: any): driver is TDriver
   isElement(element: any): element is TElement
   isSelector(selector: any): selector is TSelector
+  isShadowRoot(element: any): element is TElement
   makeManager(config?: EyesManagerConfig): Promise<EyesManager<TDriver, TElement, TSelector>>
   getViewportSize(options: {driver: TDriver; logger?: Logger}): Promise<Size>
   setViewportSize(options: {driver: TDriver; size: Size; logger?: Logger}): Promise<void>
