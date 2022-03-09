@@ -125,7 +125,7 @@ async function getTarget({window, context, region, fully, scrollingMode, logger}
         const region = isScrollable ? null : await element.getRegion()
         const scrollingElement = isScrollable ? element : await elementContext.getScrollingElement()
         // css stitching could be applied only to root element of its context
-        scrollingMode = scrollingMode === 'css' && !(await scrollingElement.isRoot()) ? 'mixed' : scrollingMode
+        scrollingMode = scrollingMode === 'css' && !(await scrollingElement.isRoot()) ? 'mixed+' : scrollingMode
         return {
           context: elementContext,
           region,

@@ -25,6 +25,7 @@ function makeScroller({logger, element, scrollingMode = 'mixed'}) {
     if (scrollingMode === 'scroll') return scrollTo(offset, element)
     if (scrollingMode === 'css') return translateTo(offset, element)
     if (scrollingMode === 'mixed') return shiftTo(offset, element)
+    if (scrollingMode === 'mixed+') return shiftTo(offset, element, {formerlyCssScrollingMode: true})
   }
 
   async function getInnerOffset(element = defaultElement) {
@@ -101,10 +102,10 @@ function makeScroller({logger, element, scrollingMode = 'mixed'}) {
     }
   }
 
-  async function shiftTo(offset, element = defaultElement) {
+  async function shiftTo(offset, element = defaultElement, {formerlyCssScrollingMode} = {}) {
     try {
       const scrollOffset = await element.scrollTo(offset)
-      if (utils.geometry.equals(scrollOffset, offset)) return scrollOffset
+      if (utils.geometry.equals(scrollOffset, offset) && !formerlyCssScrollingMode) return scrollOffset
 
       // there is a "bug" in iOS that will not move a root element if it already scrolled, so it should be translated all the way
       if (element.driver.isIOS && (await element.isRoot())) {
