@@ -5,13 +5,21 @@ const createDomResource = require('./createDomResource')
 const createVHSResource = require('./createVHSResource')
 
 function makeCreateResourceMapping({processResources}) {
-  return async function createResourceMapping({snapshot, browserName, userAgent, cookies, proxy}) {
+  return async function createResourceMapping({
+    snapshot,
+    browserName,
+    userAgent,
+    cookies,
+    proxy,
+    autProxy,
+  }) {
     const processedSnapshotResources = await processSnapshotResources({
       snapshot,
       browserName,
       userAgent,
       cookies,
       proxy,
+      autProxy,
     })
 
     const resources = await processedSnapshotResources.promise
@@ -22,7 +30,14 @@ function makeCreateResourceMapping({processResources}) {
     return {dom, resources}
   }
 
-  async function processSnapshotResources({snapshot, browserName, userAgent, cookies, proxy}) {
+  async function processSnapshotResources({
+    snapshot,
+    browserName,
+    userAgent,
+    cookies,
+    proxy,
+    autProxy,
+  }) {
     const [snapshotResources, ...frameResources] = await Promise.all([
       processResources({
         resources: {
@@ -41,6 +56,7 @@ function makeCreateResourceMapping({processResources}) {
         userAgent,
         cookies,
         proxy,
+        autProxy,
       }),
       ...(snapshot.frames || []).map(frameSnapshot => {
         return processSnapshotResources({
@@ -49,6 +65,7 @@ function makeCreateResourceMapping({processResources}) {
           userAgent,
           cookies,
           proxy,
+          autProxy,
         })
       }),
     ])

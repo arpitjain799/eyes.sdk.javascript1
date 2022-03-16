@@ -1,8 +1,31 @@
 # Change Log
 
 ## Unreleased
+- updated to @applitools/eyes-sdk-core@13.0.1 (from 13.0.0)
+- updated to @applitools/visual-grid-client@15.8.63 (from 15.8.62)
+
+
+## 5.34.12 - 2022/2/16
+
+- fix image scaling on pages without viewport metatag
+- fix safari's viewport detection on iOS devices
+- updated to @applitools/eyes-api@1.1.8 (from 1.1.7)
+- updated to @applitools/eyes-sdk-core@13.0.4 (from 13.0.2)
+- updated to @applitools/visual-grid-client@15.8.65 (from 15.8.63)
+
+## 5.34.11 - 2022/2/10
+
+- allow setting ‘setImageCut’ also after eyes.open (change done in eyes-sdk-core)
+- updated to @applitools/eyes-sdk-core@13.0.2 (from 13.0.0)
+- updated to @applitools/spec-driver-webdriverio@1.2.7 (from 1.2.6)
+- updated to @applitools/visual-grid-client@15.8.63 (from 15.8.62)
+
+## 5.34.10 - 2022/1/24
 
 - Fixed BatchInfo.addProperty bug
+- updated to @applitools/eyes-api@1.1.7 (from 1.1.6)
+- updated to @applitools/eyes-sdk-core@13.0.0 (from 12.24.13)
+- updated to @applitools/visual-grid-client@15.8.62 (from 15.8.60)
 
 ## 5.34.9 - 2022/1/12
 

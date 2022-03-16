@@ -12,6 +12,7 @@ function makeProcessResources({fetchResource, putResources, resourceCache = new 
     userAgent,
     cookies,
     proxy,
+    autProxy,
   }) {
     const processedResources = await Object.entries(resources).reduce(
       async (processedResourcesPromise, [url, resource]) => {
@@ -28,6 +29,7 @@ function makeProcessResources({fetchResource, putResources, resourceCache = new 
             userAgent,
             cookies,
             proxy,
+            autProxy,
           })
           return Object.assign(await processedResourcesPromise, processedResourceWithDependencies)
         }
@@ -50,7 +52,7 @@ function makeProcessResources({fetchResource, putResources, resourceCache = new 
     return persistResource({resource, dependencies: resource.dependencies})
   }
 
-  async function processUrlResource({resource, referer, userAgent, cookies, proxy}) {
+  async function processUrlResource({resource, referer, userAgent, cookies, proxy, autProxy}) {
     const cachedResource = resourceCache.get(resource.id)
     if (cachedResource) {
       const dependencies = cachedResource.dependencies || []
@@ -64,6 +66,7 @@ function makeProcessResources({fetchResource, putResources, resourceCache = new 
           referer,
           userAgent,
           proxy,
+          autProxy,
           cookies,
         })
         const dependencyUrls = await extractDependencyUrls(fetchedResource)
@@ -86,6 +89,7 @@ function makeProcessResources({fetchResource, putResources, resourceCache = new 
     userAgent,
     cookies,
     proxy,
+    autProxy,
   }) {
     const processedResourcesWithDependencies = {}
 
@@ -100,6 +104,7 @@ function makeProcessResources({fetchResource, putResources, resourceCache = new 
         userAgent,
         cookies,
         proxy,
+        autProxy,
       })
 
       if (processedResource) {

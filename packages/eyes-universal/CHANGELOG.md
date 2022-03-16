@@ -3,11 +3,56 @@
 ## Unreleased
 
 
+## 2.0.1 - 2022/3/14
+
+- update snippets to address Cypres universal (AUT is hosted in an iframe inside the Cypres shell)
+- updated to @applitools/eyes-sdk-core@13.1.1 (from 13.1.0)
+- updated to @applitools/visual-grid-client@15.10.1 (from 15.10.0)
+
+## 2.0.0 - 2022/3/12
+
+- update `Eyes.abort` so it fails gracefully when an Eyes instance is not found
+- support AUTProxy
+- support assigning 'scrollingElement' as 'body' or 'html' dom element
+- rename manager.closeAllEyes to manager.closeManager
+- add support for aborting unclosed Eyes sessions and returning their results as part of manager.closeManager
+- updated to @applitools/eyes-sdk-core@13.1.0 (from 13.0.6)
+- updated to @applitools/visual-grid-client@15.10.0 (from 15.9.0)
+
+## 1.1.0 - 2022/2/20
+
+- Add support to page coverage by adding `pageId` to `Eyes.check`.
+- updated to @applitools/eyes-sdk-core@13.0.6 (from 13.0.4)
+- updated to @applitools/visual-grid-client@15.9.0 (from 15.8.65)
+
+## 1.0.9 - 2022/2/16
+
+- handle issue when `process.send` is missing
+
+## 1.0.8 - 2022/2/16
+
+- fix image scaling on pages without viewport metatag
+- fix safari's viewport detection on iOS devices
+- enhance server start up protocol with ipc communication
+- export `makeServerProcess` function to create a detached process
+- add `--config` cli argument to provide server configuration as a json string instead of separate cli arguments (flags)
+- updated to @applitools/eyes-sdk-core@13.0.4 (from 13.0.1)
+- updated to @applitools/logger@1.0.11 (from 1.0.10)
+- updated to @applitools/utils@1.2.13 (from 1.2.11)
+- updated to @applitools/visual-grid-client@15.8.65 (from 15.8.63)
+
+## 1.0.7 - 2022/2/4
+
+- handle file system errors on logger
+- updated to @applitools/eyes-sdk-core@13.0.1 (from 13.0.0)
+- updated to @applitools/logger@1.0.10 (from 1.0.9)
+- updated to @applitools/visual-grid-client@15.8.63 (from 15.8.62)
 
 ## 1.0.6 - 2022/1/19
 
 - updated to @applitools/eyes-sdk-core@13.0.0 (from 12.24.14)
 - updated to @applitools/visual-grid-client@15.8.62 (from 15.8.61)
+
 ### ⚠ BREAKING CHANGES
 - change default behavior of `Eyes.check` command to take a full screenshot if screenshot target is a window
 

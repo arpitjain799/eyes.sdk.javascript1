@@ -11,6 +11,7 @@ export type DriverInfo = {
   viewportSize?: Size
   orientation?: 'portrait' | 'landscape'
   pixelRatio?: number
+  viewportScale?: number
   safeArea?: Region
   statusBarHeight?: number
   navigationBarHeight?: number
@@ -34,6 +35,12 @@ export type Cookie = {
   httpOnly?: boolean
   secure?: boolean
   sameSite?: 'Strict' | 'Lax' | 'None'
+}
+
+export type WaitOptions = {
+  state?: 'exist' | 'visible'
+  interval?: number
+  timeout?: number
 }
 
 export type Selector<TSelector = never> =
@@ -63,6 +70,12 @@ export interface SpecDriver<TDriver, TContext, TElement, TSelector> {
   executeScript(context: TContext, script: ((arg?: any) => any) | string, arg?: any): Promise<any>
   findElement(context: TContext, selector: TSelector, parent?: TElement): Promise<TElement | null>
   findElements(context: TContext, selector: TSelector, parent?: TElement): Promise<TElement[]>
+  waitForSelector?(
+    context: TContext,
+    selector: TSelector,
+    parent?: TElement,
+    options?: WaitOptions,
+  ): Promise<TElement | null>
   setWindowSize?(driver: TDriver, size: Size): Promise<void>
   getWindowSize?(driver: TDriver): Promise<Size>
   setViewportSize?(driver: TDriver, size: Size): Promise<void>

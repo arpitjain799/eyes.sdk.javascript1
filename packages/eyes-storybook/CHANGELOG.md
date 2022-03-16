@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+## 3.27.4 - 2022/2/9
+
+- updated to @applitools/driver@1.4.9 (from 1.4.7)
+- updated to @applitools/eyes-sdk-core@13.0.0 (from 12.24.9)
+- updated to @applitools/logger@1.0.9 (from 1.0.8)
+- updated to @applitools/visual-grid-client@15.8.62 (from 15.8.55)
+- support adding new test(s) and the value of saveNewTest is false will warn
+- README.md update default value of 'exitcode' to 'true' (from 'false')
+- updated to @applitools/driver@1.4.12 (from 1.4.9)
+- updated to @applitools/eyes-sdk-core@13.0.2 (from 13.0.0)
+- updated to @applitools/logger@1.0.10 (from 1.0.9)
+- updated to @applitools/visual-grid-client@15.8.63 (from 15.8.62)
+- updated to @applitools/utils@1.2.12 (from 1.2.11)
+
+## 3.27.3 - 2022/1/26
+
+- avoid unwanted page reloading due to unknown query parameters
+- updated to @applitools/driver@1.4.9 (from 1.4.7)
+- updated to @applitools/eyes-sdk-core@13.0.0 (from 12.24.9)
+- updated to @applitools/logger@1.0.9 (from 1.0.8)
+- updated to @applitools/visual-grid-client@15.8.62 (from 15.8.55)
 
 ## 3.27.2 - 2021/12/23
 

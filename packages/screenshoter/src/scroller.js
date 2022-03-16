@@ -25,12 +25,14 @@ function makeScroller({logger, element, scrollingMode = 'mixed'}) {
     if (scrollingMode === 'scroll') return scrollTo(offset, element)
     if (scrollingMode === 'css') return translateTo(offset, element)
     if (scrollingMode === 'mixed') return shiftTo(offset, element)
+    if (scrollingMode === 'mixed+') return shiftTo(offset, element, {formerlyCssScrollingMode: true})
   }
 
   async function getInnerOffset(element = defaultElement) {
     if (scrollingMode === 'scroll') return getScrollOffset(element)
     if (scrollingMode === 'css') return getTranslateOffset(element)
     if (scrollingMode === 'mixed') return getShiftOffset(element)
+    if (scrollingMode === 'mixed+') return getShiftOffset(element)
   }
 
   async function getContentSize() {
@@ -80,7 +82,6 @@ function makeScroller({logger, element, scrollingMode = 'mixed'}) {
 
   async function scrollTo(offset, element = defaultElement) {
     try {
-      // offset = {x: Math.max(offset.x, 0), y: Math.max(offset.y, 0)}
       const scrollOffset = await element.scrollTo(offset)
       return scrollOffset
     } catch (err) {
@@ -92,7 +93,6 @@ function makeScroller({logger, element, scrollingMode = 'mixed'}) {
 
   async function translateTo(offset, element = defaultElement) {
     try {
-      // offset = {x: Math.max(offset.x, 0), y: Math.max(offset.y, 0)}
       await element.scrollTo({x: 0, y: 0})
       const translateOffset = await element.translateTo(offset)
       return translateOffset
@@ -103,10 +103,17 @@ function makeScroller({logger, element, scrollingMode = 'mixed'}) {
     }
   }
 
-  async function shiftTo(offset, element = defaultElement) {
+  async function shiftTo(offset, element = defaultElement, {formerlyCssScrollingMode} = {}) {
     try {
-      // offset = {x: Math.max(offset.x, 0), y: Math.max(offset.y, 0)}
       const scrollOffset = await element.scrollTo(offset)
+      if (utils.geometry.equals(scrollOffset, offset) && !formerlyCssScrollingMode) return scrollOffset
+
+      // there is a "bug" in iOS that will not move a root element if it already scrolled, so it should be translated all the way
+      if (element.driver.isIOS && (await element.isRoot())) {
+        const translateOffset = await element.translateTo(offset)
+        return translateOffset
+      }
+
       const remainingOffset = utils.geometry.offsetNegative(offset, scrollOffset)
       const translateOffset = await element.translateTo(remainingOffset)
 

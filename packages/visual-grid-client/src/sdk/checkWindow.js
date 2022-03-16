@@ -27,6 +27,7 @@ function makeCheckWindow({
   matchLevel: _matchLevel,
   visualGridOptions: _visualGridOptions,
   resolveTests,
+  autProxy,
 }) {
   return function checkWindow({
     type = 'web',
@@ -49,6 +50,7 @@ function makeCheckWindow({
     enablePatterns,
     ignoreDisplacements,
     visualGridOptions = _visualGridOptions,
+    pageId,
     closeAfterMatch,
     throwEx = true,
     variationGroupId,
@@ -78,13 +80,14 @@ function makeCheckWindow({
       floating,
     })
 
-    const resourcesPromises = snapshots.map((snapshot, index) => {
+    const resourcesPromises = snapshots.map(async (snapshot, index) => {
       return createResourceMapping({
         snapshot,
         browserName: browsers[index].name,
         userAgent,
         cookies,
         proxy: wrappers[0].getProxy(),
+        autProxy,
       })
     })
 
@@ -164,6 +167,7 @@ function makeCheckWindow({
         scriptHooks,
         sendDom,
         visualGridOptions,
+        includeFullPageSize: !!pageId,
       })
 
       if (!wrapper.getAppEnvironment()) {
@@ -225,6 +229,7 @@ function makeCheckWindow({
         imageLocation: screenshotUrl,
         domLocation,
         selectorRegions,
+        fullPageSize,
         imagePositionInActiveFrame: imageLocation,
       } = renderStatusResult
 
@@ -271,7 +276,6 @@ function makeCheckWindow({
       }
 
       logger.verbose(`running wrapper.checkWindow for test ${testName} stepCount #${currStepCount}`)
-
       const checkArgs = {
         screenshotUrl,
         tag,
@@ -281,6 +285,13 @@ function makeCheckWindow({
         url,
         closeAfterMatch,
         throwEx,
+      }
+      if (pageId) {
+        checkArgs.pageCoverageInfo = {
+          pageId,
+          ...fullPageSize,
+          imagePositionInPage: {x: imageLocation.x, y: imageLocation.y},
+        }
       }
 
       return wrapper.checkWindow(checkArgs)

@@ -17,13 +17,15 @@ import {makeRefer} from './refer'
 import {withTracker} from './debug/tracker'
 import {makeSpec} from './spec-driver/custom'
 import * as webdriverSpec from './spec-driver/webdriver'
+import {abort} from './universal-server-eyes-commands'
 
 const IDLE_TIMEOUT = 900000 // 15min
 const LOG_DIRNAME = path.resolve(os.tmpdir(), `applitools-logs`)
 
 export async function makeServer({debug = false, idleTimeout = IDLE_TIMEOUT, ...serverConfig} = {}) {
   const {server, port} = await makeHandler(serverConfig)
-  console.log(port) // NOTE: this is a part of the protocol
+  console.log(port) // NOTE: this is a part of the generic protocol
+  process.send?.({name: 'port', payload: {port}}) // NOTE: this is a part of the js specific protocol
   if (!server) {
     return console.log(`You are trying to spawn a duplicated server, use the server on port ${port} instead`)
   }
@@ -108,8 +110,8 @@ export async function makeServer({debug = false, idleTimeout = IDLE_TIMEOUT, ...
       const eyesRef = refer.ref(eyes, manager)
       return eyesRef
     })
-    socket.command('EyesManager.closeAllEyes', async ({manager, throwErr}) => {
-      return refer.deref(manager).closeAllEyes({throwErr})
+    socket.command('EyesManager.closeManager', async ({manager, throwErr}) => {
+      return refer.deref(manager).closeManager({throwErr})
     })
 
     socket.command('Eyes.check', async ({eyes, settings, config}) => {
@@ -130,9 +132,7 @@ export async function makeServer({debug = false, idleTimeout = IDLE_TIMEOUT, ...
       return results
     })
     socket.command('Eyes.abort', async ({eyes}) => {
-      const results = await refer.deref(eyes).abort()
-      refer.destroy(eyes)
-      return results
+      return await abort({eyes, refer})
     })
 
     socket.command('Debug.checkSpecDriver', async ({driver, commands}) => {

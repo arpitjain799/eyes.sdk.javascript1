@@ -58,7 +58,7 @@ class EyesClassic extends EyesCore {
 
     if (!this._configuration.getViewportSize()) {
       const vs = await this._driver.getViewportSize()
-      this._configuration.setViewportSize(vs)
+      this._configuration.setViewportSize(utils.geometry.round(utils.geometry.scale(vs, this._driver.viewportScale)))
     }
 
     if (this._driver.isMobile) {
@@ -80,10 +80,17 @@ class EyesClassic extends EyesCore {
     this._context = await this._driver.refreshContexts()
     await this._context.main.setScrollingElement(this._scrollRootElement)
     await this._context.setScrollingElement(checkSettings.scrollRootElement)
+    if (checkSettings.pageId) {
+      const contentSize = await this._context.getContentSize()
+      this.pageCoverageInfo = {
+        pageId: checkSettings.pageId,
+        width: contentSize.width,
+        height: contentSize.height,
+      }
+    }
 
     this._checkSettings = checkSettings
-
-    return await this.checkWindowBase({
+    const result = await this.checkWindowBase({
       name: checkSettings.name,
       url: await this._driver.getUrl(),
       renderId: checkSettings.renderId,
@@ -93,6 +100,11 @@ class EyesClassic extends EyesCore {
       closeAfterMatch,
       throwEx,
     })
+
+    await this._context.main.setScrollingElement(null)
+    await this._context.setScrollingElement(null)
+
+    return result
   }
 
   async getScreenshot() {
@@ -107,6 +119,7 @@ class EyesClassic extends EyesCore {
         })),
       region: this._checkSettings.region,
       fully: this._checkSettings.fully || this._configuration.getForceFullPageScreenshot(),
+      framed: this._driver.isNative,
       hideScrollbars: this._configuration.getHideScrollbars(),
       hideCaret: this._configuration.getHideCaret(),
       scrollingMode: this._configuration.getStitchMode().toLocaleLowerCase(),
@@ -118,8 +131,8 @@ class EyesClassic extends EyesCore {
         rotation: this.getRotation(),
       },
     }
-
     let dom
+    let afterScreenShotScrollingOffeset = null
     const screenshot = await takeScreenshot({
       ...screenshotSettings,
       driver: this._driver,
@@ -137,14 +150,21 @@ class EyesClassic extends EyesCore {
             }
             dom = await takeDomCapture(this._logger, driver.mainContext).catch(() => null)
           }
+          if (this._checkSettings.pageId) {
+            const scrollingElement = await driver.currentContext.getScrollingElement()
+            afterScreenShotScrollingOffeset = await scrollingElement.getScrollOffset()
+          }
         },
       },
       debug: this.getDebugScreenshots(),
       logger: this._logger,
     })
-
     this._imageLocation = new Location(Math.round(screenshot.region.x), Math.round(screenshot.region.y))
-
+    if (afterScreenShotScrollingOffeset) {
+      const imagePositionInPage_x = Math.round(afterScreenShotScrollingOffeset.x + screenshot.region.x)
+      const imagePositionInPage_y = Math.round(afterScreenShotScrollingOffeset.y + screenshot.region.y)
+      this.pageCoverageInfo.imagePositionInPage = {x: imagePositionInPage_x, y: imagePositionInPage_y}
+    }
     this._matchSettings = await CheckSettingsUtils.toMatchSettings({
       checkSettings: this._checkSettings,
       configuration: this._configuration,
@@ -163,23 +183,36 @@ class EyesClassic extends EyesCore {
       })
       .then(results => {
         if (isErrorCaught) {
-          if (results.info && results.info.testResult) return [results.info.testResult]
-          else throw results
+          if (results.info && results.info.testResult) return {testResults: results.info.testResult}
+          else return {exception: results}
         }
-        return [results.toJSON()]
+        return {testResults: results.toJSON()}
       })
-      .then(results => {
+      .then(container => {
         if (this._runner) {
-          this._runner._allTestResult.push(...results)
+          this._runner._allTestResult.push(container)
         }
-        return results
+
+        if (container.testResults) {
+          return [container.testResults]
+        } else {
+          throw container.exception
+        }
       })
 
     return this._closePromise
   }
 
   async abort() {
-    return [await super.abort()]
+    return (this._abortPromise = super.abort().then(results => {
+      if (results) {
+        const resultsJson = results.toJSON()
+        this._runner._allTestResult.push({testResults: resultsJson})
+        return [resultsJson]
+      } else {
+        return results
+      }
+    }))
   }
 
   async getAppEnvironment() {

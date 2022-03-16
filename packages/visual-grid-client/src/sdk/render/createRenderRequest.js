@@ -12,6 +12,7 @@ function createRenderRequest({
   scriptHooks,
   sendDom,
   visualGridOptions,
+  includeFullPageSize,
 }) {
   const {chromeEmulationInfo, iosDeviceInfo, androidDeviceInfo, ...browserInfo} = browser
 
@@ -46,7 +47,7 @@ function createRenderRequest({
     scriptHooks,
     selectorsToFindRegionsFor,
     enableMultipleResultsPerSelector: true,
-    includeFullPageSize: true,
+    includeFullPageSize,
     sendDom,
   }
 }

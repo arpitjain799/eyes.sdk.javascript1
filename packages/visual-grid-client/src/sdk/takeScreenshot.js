@@ -11,6 +11,7 @@ async function takeScreenshot({
   apiKey,
   serverUrl,
   proxy,
+  autProxy,
   renderInfo,
   type = 'web',
   snapshot,
@@ -34,6 +35,7 @@ async function takeScreenshot({
     showLogs,
     serverUrl,
     proxy,
+    autProxy,
     renderingInfo,
   })
 

@@ -431,6 +431,17 @@ describe('CheckSettingsUtils', () => {
     assert.deepStrictEqual(checkWindowConfiguration.variationGroupId, 'variant-id')
   })
 
+  it('toCheckWindowConfiguration handles pageId', () => {
+    const checkSettings = {pageId: 'my-page'}
+
+    const checkWindowConfiguration = CheckSettingsUtils.toCheckWindowConfiguration({
+      checkSettings,
+      configuration: new Configuration(),
+    })
+
+    assert.deepStrictEqual(checkWindowConfiguration.pageId, 'my-page')
+  })
+
   describe('toMatchSettings', () => {
     let mockDriver,
       driver,
@@ -442,7 +453,7 @@ describe('CheckSettingsUtils', () => {
       mockDriver = new MockDriver()
       mockDriver.mockElement('custom selector', {rect: region1})
       mockDriver.mockElement('custom selector', {rect: region2})
-      driver = new Driver({logger, spec, driver: mockDriver})
+      driver = await new Driver({logger, spec, driver: mockDriver}).init()
     })
 
     it('handle region by coordinates', async () => {

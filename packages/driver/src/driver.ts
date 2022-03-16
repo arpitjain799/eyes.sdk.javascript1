@@ -1,11 +1,10 @@
 import type * as types from '@applitools/types'
-import type {SpecUtils} from './utils'
 import * as utils from '@applitools/utils'
+import * as specUtils from './spec-utils'
 import {Context, ContextReference} from './context'
 import {Element} from './element'
 import {HelperIOS} from './helper-ios'
 import {HelperAndroid} from './helper-android'
-import {makeSpecUtils} from './utils'
 import {parseUserAgent} from './user-agent'
 import {parseCapabilities} from './capabilities'
 
@@ -19,7 +18,6 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
   private _currentContext: Context<TDriver, TContext, TElement, TSelector>
   private _driverInfo: types.DriverInfo
   private _logger: any
-  private _utils: SpecUtils<TDriver, TContext, TElement, TSelector>
   private _helper?:
     | HelperAndroid<TDriver, TContext, TElement, TSelector>
     | HelperIOS<TDriver, TContext, TElement, TSelector>
@@ -34,7 +32,6 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
     if (options.driver instanceof Driver) return options.driver
 
     this._spec = options.spec
-    this._utils = makeSpecUtils(options.spec)
 
     if (options.logger) this._logger = options.logger
 
@@ -92,6 +89,9 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
   get pixelRatio(): number {
     return this._driverInfo.pixelRatio ?? 1
   }
+  get viewportScale(): number {
+    return this._driverInfo.viewportScale ?? 1
+  }
   get statusBarHeight(): number {
     return this._driverInfo.statusBarHeight ?? (this.isNative ? 0 : undefined)
   }
@@ -136,6 +136,7 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
 
     if (this.isWeb) {
       this._driverInfo.pixelRatio ??= await this.execute(snippets.getPixelRatio)
+      this._driverInfo.viewportScale ??= await this.execute(snippets.getViewportScale)
       this._driverInfo.userAgent ??= await this.execute(snippets.getUserAgent)
       if (this._driverInfo.userAgent) {
         const userAgentInfo = parseUserAgent(this._driverInfo.userAgent)
@@ -184,14 +185,14 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
       // calculate safe area
       if (this.isIOS && !this._driverInfo.safeArea) {
         this._driverInfo.safeArea = {x: 0, y: 0, ...displaySize}
-        const topElement = await this.element({type: 'class name', selector: 'XCUIElementTypeNavigationBar'})
+        const topElement = await this.element({type: '-ios class chain', selector: '**/XCUIElementTypeNavigationBar'})
         if (topElement) {
           const topRegion = await this._spec.getElementRegion(this.target, topElement.target)
           const topOffset = topRegion.y + topRegion.height
           this._driverInfo.safeArea.y = topOffset
           this._driverInfo.safeArea.height -= topOffset
         }
-        const bottomElement = await this.element({type: 'class name', selector: 'XCUIElementTypeTabBar'})
+        const bottomElement = await this.element({type: '-ios class chain', selector: '**/XCUIElementTypeTabBar'})
         if (bottomElement) {
           const bottomRegion = await this._spec.getElementRegion(this.target, bottomElement.target)
           const bottomOffset = bottomRegion.height
@@ -218,7 +219,6 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
     if (this.isNative) return this.currentContext
 
     const spec = this._spec
-    const utils = this._utils
 
     let currentContext = this.currentContext.target
     let contextInfo = await getContextInfo(currentContext)
@@ -239,6 +239,10 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
     this._currentContext = this._mainContext
     return this.switchToChildContext(...path)
 
+    function transformSelector(selector: types.Selector<TSelector>) {
+      return specUtils.transformSelector(spec, selector, {isWeb: true})
+    }
+
     async function getContextInfo(context: TContext): Promise<any> {
       const [documentElement, selector, isRoot, isCORS] = await spec.executeScript(context, snippets.getContextInfo)
       return {documentElement, selector, isRoot, isCORS}
@@ -257,7 +261,7 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
       if (contextInfo.selector) {
         const contextElement = await spec.findElement(
           context,
-          utils.transformSelector({type: 'xpath', selector: contextInfo.selector}),
+          transformSelector({type: 'xpath', selector: contextInfo.selector}),
         )
         if (contextElement) return contextElement
       }
@@ -265,7 +269,7 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
       for (const childContextInfo of await getChildContextsInfo(context)) {
         if (childContextInfo.isCORS !== contextInfo.isCORS) continue
         const childContext = await spec.childContext(context, childContextInfo.contextElement)
-        const contentDocument = await spec.findElement(childContext, utils.transformSelector('html'))
+        const contentDocument = await spec.findElement(childContext, transformSelector('html'))
         const isWantedContext = await isEqualElements(childContext, contentDocument, contextInfo.documentElement)
         await spec.parentContext(childContext)
         if (isWantedContext) return childContextInfo.contextElement
@@ -277,7 +281,7 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
       contextInfo: any,
       contextPath: TElement[] = [],
     ): Promise<TElement[]> {
-      const contentDocument = await spec.findElement(context, utils.transformSelector('html'))
+      const contentDocument = await spec.findElement(context, transformSelector('html'))
 
       if (await isEqualElements(context, contentDocument, contextInfo.documentElement)) {
         return contextPath

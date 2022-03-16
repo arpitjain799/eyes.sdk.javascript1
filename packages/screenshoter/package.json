@@ -1,6 +1,6 @@
 {
   "name": "@applitools/screenshoter",
-  "version": "3.3.4",
+  "version": "3.3.12",
   "description": "Applitools universal screenshoter for web and native applications",
   "keywords": [
     "applitools",
@@ -26,19 +26,30 @@
     "email": "team@applitools.com"
   },
   "main": "./index.js",
-  "directories": {
-    "lib": "./lib",
-    "test": "./test"
-  },
+  "files": [
+    "src",
+    "index.js"
+  ],
   "scripts": {
     "lint": "eslint . --ext .js",
     "test": "yarn test:it && yarn test:e2e",
-    "test:it": "mocha --no-timeouts './test/it/*.spec.js'",
-    "test:e2e": "mocha --no-timeouts './test/e2e/*.spec.js'",
+    "test:unit": "mocha ./test/unit/*.spec.js --no-timeouts",
+    "test:it": "mocha ./test/it/*.spec.js --no-timeouts",
+    "test:e2e": "mocha ./test/e2e/**/*.spec.js --no-timeouts --parallel --jobs ${MOCHA_JOBS:-1}",
+    "test:e2e:web": "mocha ./test/e2e/web/*.spec.js --no-timeouts -r @applitools/test-utils/mocha-hooks/docker --parallel --jobs ${MOCHA_JOBS:-15}",
+    "test:e2e:android": "APPLITOOLS_TEST_REMOTE=sauce mocha ./test/e2e/android*/*.spec.js --no-timeouts --parallel --jobs ${MOCHA_JOBS:-2}",
+    "test:e2e:ios": "APPLITOOLS_TEST_REMOTE=sauce mocha ./test/e2e/ios*/*.spec.js --no-timeouts --parallel --jobs ${MOCHA_JOBS:-2}",
+    "setup:web": "yarn docker:setup",
+    "setup:android": "echo \"setup:android - do nothing\"",
+    "setup:ios": "echo \"setup:ios - do nothing\"",
+    "android:setup": "node ./scripts/android-emulator.js",
+    "android:shutdown": "adb -s emulator-5555 emu kill || true && adb -s emulator-5557 emu kill || true",
     "docker:setup": "node ../scripts/scripts/generate-docker-compose-config.js && docker-compose up -d",
     "docker:teardown": "docker-compose down",
-    "setup": "yarn docker:setup",
+    "ios:setup": "node ./scripts/ios-simulator.js",
+    "appium:setup": "mkdir -p ./logs && appium --address 127.0.0.1 --port 4723 --base-path /wd/hub --log-level error:info --log ./logs/appium.log &",
     "deps": "bongo deps",
+    "gh:publish": "gh workflow run publish-screenshoter.yml --ref $(git rev-parse --abbrev-ref HEAD)",
     "preversion": "bongo preversion",
     "version": "bongo version",
     "postversion": "bongo postversion --skip-release-notification"
@@ -49,27 +60,29 @@
     }
   },
   "dependencies": {
-    "@applitools/snippets": "2.1.12",
-    "@applitools/utils": "1.2.5",
+    "@applitools/snippets": "2.2.2",
+    "@applitools/utils": "1.2.13",
     "png-async": "0.9.4"
   },
   "devDependencies": {
-    "@applitools/driver": "1.4.7",
-    "@applitools/sdk-release-kit": "0.13.4",
-    "@applitools/spec-driver-webdriverio": "1.2.5",
-    "@applitools/test-utils": "1.0.10",
+    "@applitools/driver": "1.5.4",
+    "@applitools/scripts": "1.1.0",
+    "@applitools/sdk-release-kit": "1.0.0",
+    "@applitools/spec-driver-webdriverio": "1.2.7",
+    "@applitools/test-utils": "1.1.5",
+    "appium": "^1.22.2",
     "chromedriver": "^95.0.0",
     "eslint": "^7.9.0",
     "eslint-plugin-mocha-no-only": "^1.1.1",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^3.1.4",
     "husky": "^4.3.8",
-    "mocha": "^8.2.1",
+    "mocha": "^9.2.0",
     "pixelmatch": "^5.2.1",
     "prettier": "1.19.0",
     "webdriverio": "^7.16.7"
   },
   "engines": {
-    "node": ">= 8.9.0"
+    "node": ">= 10.0.0"
   }
 }
