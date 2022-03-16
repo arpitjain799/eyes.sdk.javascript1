@@ -275,6 +275,7 @@ async function commitFiles({cwd, skipCommit}) {
     for (const file of files) {
       // git add fails when trying to add files that weren't changed
       if (await isChanged(file)) {
+
         console.log(`[bongo] git add changed file: ${file}`)
         await gitAdd(file)
       }
