@@ -17,7 +17,8 @@ jobs:
       - run: |
           echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > .npmrc
           # git diff exits w/ 0 when there are no changes found (hence the counter-intuitive negation)
-          if ! git diff --quiet pending-changes.yaml; then
+          if ! git diff --quiet HEAD~ pending-changes.yaml; then
+            echo No updates to pending-changes.yaml detected. Add an entry to this file for the relevant SDKs as part of this PR
             exit 1
           fi
           cd packages/
