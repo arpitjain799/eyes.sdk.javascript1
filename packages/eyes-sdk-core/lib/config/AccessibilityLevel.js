@@ -4,7 +4,6 @@ const Enum = require('../utils/Enum')
  * @typedef {import('../utils/Enum').EnumValues<typeof AccessibilityLevels>} AccessibilityLevel
  */
 
-
 /**
  * The extent in which to check the image visual accessibility level.
  */
