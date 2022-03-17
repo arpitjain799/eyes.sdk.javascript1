@@ -12,7 +12,7 @@ applitools-for-selenium-ide:
     - 
 "@applitools/eyes-cypress":
   feature:
-    - blah
+    - 
   bug-fix:
     - 
 "@applitools/eyes-nightwatch":
