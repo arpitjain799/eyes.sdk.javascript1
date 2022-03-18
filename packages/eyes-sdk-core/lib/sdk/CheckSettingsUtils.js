@@ -59,6 +59,7 @@ async function toPersistedCheckSettings({checkSettings, context, logger}) {
   }
 
   async function makePersistance() {
+    if (!mapping.elements.length) return
     const selectors = await context.execute(snippets.addElementIds, [mapping.elements, mapping.ids])
     selectors.forEach((selectors, index) => {
       const resolver = mapping.resolvers[index]
@@ -73,6 +74,7 @@ async function toPersistedCheckSettings({checkSettings, context, logger}) {
   }
 
   async function cleanupPersistance() {
+    if (!mapping.elements.length) return
     await context.execute(snippets.cleanupElementIds, [mapping.elements])
     logger.log(`elements cleaned up: ${mapping.ids}`)
   }
