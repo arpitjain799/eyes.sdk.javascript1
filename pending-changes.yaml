@@ -52,7 +52,7 @@ Apollo SDK:
     - 
 "@applitools/eyes-cypress":
   feature:
-    - 
+    - remove waitBeforeCapture tests (moved to generic coverage tests)
   bug-fix:
     - 
 "@applitools/eyes-storybook":
