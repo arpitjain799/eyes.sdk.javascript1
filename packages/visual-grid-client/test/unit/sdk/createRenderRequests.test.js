@@ -1,5 +1,5 @@
 const {expect} = require('chai')
-const createRenderRequest = require('../../../src/sdk/createRenderRequest')
+const createRenderRequest = require('../../../src/sdk/render/createRenderRequest')
 const createResource = require('../../../src/sdk/resources/createResource')
 const createDomResource = require('../../../src/sdk/resources/createDomResource')
 
@@ -15,7 +15,7 @@ describe('createRenderRequest', () => {
     const resource1 = createResource({url: 'url1', value: 'content1'})
     const resource2 = createResource({url: 'url2', value: 'content2'})
     resources = {[resource1.url]: resource1.hash, [resource2.url]: resource2.hash}
-    dom = createDomResource({cdt: 'cdt', resources}).hash
+    snapshot = createDomResource({cdt: 'cdt', resources}).hash
   })
 
   it('works', () => {
@@ -26,11 +26,11 @@ describe('createRenderRequest', () => {
 
     const renderRequest = createRenderRequest({
       url,
-      dom,
+      snapshot,
       resources,
       browser: {width: 1, height: 2, name: 'b1'},
       renderInfo,
-      sizeMode: 'sizeMode',
+      target: {},
       selector: 'selector',
       region: {left: 1, top: 2, width: 3, height: 4},
       scriptHooks: 'scriptHooks',
@@ -38,53 +38,72 @@ describe('createRenderRequest', () => {
       userRegions: [],
     })
 
-    expect(renderRequest.toJSON()).to.eql({
+    expect(renderRequest).to.eql({
       webhook: 'resultsUrl',
       stitchingService: 'stitchingServiceUrl',
       url,
-      dom,
       resources: resources,
       browser: {name: 'b1'},
       scriptHooks: 'scriptHooks',
       sendDom: 'sendDom',
       enableMultipleResultsPerSelector: true,
+      includeFullPageSize: undefined,
+      options: undefined,
+      platform: {
+        name: undefined,
+        type: "web",
+      },
       renderInfo: {
+        iosDeviceInfo: undefined,
+        androidDeviceInfo: undefined,
+        emulationInfo: undefined,
         width: 1,
         height: 2,
         selector: 'selector',
-        sizeMode: 'sizeMode',
-        region: {x: 1, y: 2, width: 3, height: 4},
+        target: {},
+        region: {left: 1, top: 2, width: 3, height: 4},
       },
+      selectorsToFindRegionsFor: undefined,
+      snapshot,
     })
   })
 
   it('handles emulation info with deviceName', () => {
     const deviceName = 'deviceName'
     const screenOrientation = 'screenOrientation'
-    const browser = {deviceName, screenOrientation}
+    const browser = {chromeEmulationInfo: {deviceName, screenOrientation}}
     const renderRequest = createRenderRequest({
       url,
-      dom,
+      snapshot,
       resources,
       browser,
       renderInfo,
       userRegions: [],
     })
 
-    expect(renderRequest.toJSON()).to.eql({
+    expect(renderRequest).to.eql({
       webhook: 'resultsUrl',
       stitchingService: 'stitchingServiceUrl',
       url,
-      dom,
+      snapshot,
       resources,
       enableMultipleResultsPerSelector: true,
+      includeFullPageSize: undefined,
+      browser: {name: undefined},
+      options: undefined,
+      platform: {type: 'web', name: undefined},
+      scriptHooks: undefined,
+      selectorsToFindRegionsFor: undefined,
+      sendDom: undefined,
       renderInfo: {
+        androidDeviceInfo: undefined,
+        iosDeviceInfo: undefined,
         emulationInfo: {deviceName, screenOrientation},
         height: undefined,
         width: undefined,
         selector: undefined,
         region: undefined,
-        sizeMode: undefined,
+        target: undefined,
       },
     })
   })
@@ -97,21 +116,33 @@ describe('createRenderRequest', () => {
     }
     const renderRequest = createRenderRequest({
       url,
-      dom,
+      snapshot,
       resources,
       browser,
       renderInfo,
       userRegions: [],
     })
 
-    expect(renderRequest.toJSON()).to.eql({
+    expect(renderRequest).to.eql({
       webhook: 'resultsUrl',
       stitchingService: 'stitchingServiceUrl',
       url,
-      dom,
+      snapshot,
       resources,
+      browser: {name: undefined},
       enableMultipleResultsPerSelector: true,
+      platform: {
+        type: "web",
+        name: undefined,
+      },
+      includeFullPageSize: undefined,
+      options: undefined,
+      scriptHooks: undefined,
+      selectorsToFindRegionsFor: undefined,
+      sendDom: undefined,
       renderInfo: {
+        androidDeviceInfo: undefined,
+        iosDeviceInfo: undefined,
         emulationInfo: {
           width: 1,
           height: 2,
@@ -123,7 +154,7 @@ describe('createRenderRequest', () => {
         width: 1,
         selector: undefined,
         region: undefined,
-        sizeMode: undefined,
+        target: undefined,
       },
     })
   })
@@ -132,32 +163,45 @@ describe('createRenderRequest', () => {
     const browser = {width: 1, height: 2}
     const renderRequest = createRenderRequest({
       url,
-      dom,
+      snapshot,
       resources,
       browser,
       renderInfo,
       selectorsToFindRegionsFor: [{selector: 'bla', type: 'css'}],
     })
 
-    expect(renderRequest.toJSON()).to.eql({
+    expect(renderRequest).to.eql({
       webhook: 'resultsUrl',
       stitchingService: 'stitchingServiceUrl',
       url,
-      dom,
+      snapshot,
       resources,
       enableMultipleResultsPerSelector: true,
       renderInfo: {
+        androidDeviceInfo: undefined,
+        iosDeviceInfo: undefined,
+        emulationInfo: undefined,
         height: 2,
         width: 1,
         selector: undefined,
         region: undefined,
-        sizeMode: undefined,
+        target: undefined,
       },
       selectorsToFindRegionsFor: [{type: 'css', selector: 'bla'}],
+      browser: {name: undefined},
+      enableMultipleResultsPerSelector: true,
+      platform: {
+        type: "web",
+        name: undefined,
+      },
+      includeFullPageSize: undefined,
+      options: undefined,
+      scriptHooks: undefined,
+      sendDom: undefined,
     })
   })
 
-  it('handles iosDeviceInfo', () => {
+  it('handles iosDeviceInfo web', () => {
     const iosDeviceInfo = {
       deviceName: 'ios device',
       iosVersion: 'ios version',
@@ -166,33 +210,88 @@ describe('createRenderRequest', () => {
     const browser = {iosDeviceInfo}
     const renderRequest = createRenderRequest({
       url,
-      dom,
+      snapshot,
       resources,
       browser,
       renderInfo,
     })
 
-    expect(renderRequest.toJSON()).to.eql({
+    expect(renderRequest).to.eql({
       webhook: 'resultsUrl',
       stitchingService: 'stitchingServiceUrl',
       url,
-      dom,
+      snapshot,
       resources,
       browser: {name: 'safari'},
-      platform: {name: 'ios'},
+      platform: {name: 'ios', type: 'web'},
       enableMultipleResultsPerSelector: true,
       renderInfo: {
+        androidDeviceInfo: undefined,
+        emulationInfo: undefined,
         iosDeviceInfo: {
-          name: 'ios device',
-          version: 'ios version',
+          deviceName: 'ios device',
+          iosVersion: 'ios version',
           screenOrientation: 'ios screen orientation',
         },
         region: undefined,
         selector: undefined,
-        sizeMode: undefined,
+        target: undefined,
         width: undefined,
         height: undefined,
       },
+      selectorsToFindRegionsFor: undefined,
+      enableMultipleResultsPerSelector: true,
+      includeFullPageSize: undefined,
+      options: undefined,
+      scriptHooks: undefined,
+      sendDom: undefined,
+    })
+  })
+  it('handles iosDeviceInfo native', () => {
+    const iosDeviceInfo = {
+      deviceName: 'ios device',
+      iosVersion: 'ios version',
+      screenOrientation: 'ios screen orientation',
+    }
+    const browser = {iosDeviceInfo}
+    const renderRequest = createRenderRequest({
+      type: 'native',
+      url,
+      snapshot,
+      resources,
+      browser,
+      renderInfo,
+    })
+
+    expect(renderRequest).to.eql({
+      webhook: 'resultsUrl',
+      stitchingService: 'stitchingServiceUrl',
+      url,
+      snapshot,
+      resources,
+      browser: {name: undefined},
+      platform: {name: 'ios', type: 'native'},
+      enableMultipleResultsPerSelector: true,
+      renderInfo: {
+        androidDeviceInfo: undefined,
+        emulationInfo: undefined,
+        iosDeviceInfo: {
+          deviceName: 'ios device',
+          iosVersion: 'ios version',
+          screenOrientation: 'ios screen orientation',
+        },
+        region: undefined,
+        selector: undefined,
+        target: undefined,
+        width: undefined,
+        height: undefined,
+      },
+      selectorsToFindRegionsFor: undefined,
+      enableMultipleResultsPerSelector: true,
+      includeFullPageSize: undefined,
+      options: undefined,
+      scriptHooks: undefined,
+      sendDom: undefined,
     })
   })
 })

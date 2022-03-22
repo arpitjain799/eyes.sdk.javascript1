@@ -18,11 +18,21 @@ function createRenderRequest({
 
   let platformName = browserInfo.platform
   let browserName = browserInfo.name
+  let emulationInfo
   if (iosDeviceInfo) {
     platformName = 'ios'
-    browserName = 'safari'
+    if (type === 'web') browserName = 'safari'
   } else if (androidDeviceInfo) {
     platformName = 'android'
+  }
+  if (browserInfo.deviceScaleFactor) {
+    emulationInfo = {
+      deviceScaleFactor: browserInfo.deviceScaleFactor,
+      width: browserInfo.width,
+      height: browserInfo.height,
+      mobile: browserInfo.mobile,
+      screenOrientation: browserInfo.screenOrientation,
+    }
   }
 
   return {
@@ -37,7 +47,7 @@ function createRenderRequest({
       height: browserInfo.height,
       selector,
       region,
-      emulationInfo: chromeEmulationInfo,
+      emulationInfo: chromeEmulationInfo || emulationInfo,
       iosDeviceInfo,
       androidDeviceInfo,
     },
