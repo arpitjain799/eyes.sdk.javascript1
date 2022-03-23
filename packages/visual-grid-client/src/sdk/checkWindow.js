@@ -178,9 +178,9 @@ function makeCheckWindow({
       await wrapper.ensureRunningSession()
 
       const {dom, resources} = await resourcesPromises[index]
-      renderRequest.setDom(dom)
-      renderRequest.setResources(resources)
-      renderRequest.setRenderer(wrapper.getRenderer())
+      renderRequest.snapshot = dom
+      renderRequest.resources = resources
+      renderRequest.renderer = wrapper.getRenderer()
 
       const [renderErr, renderId] = await presult(renderJob(renderRequest))
 
