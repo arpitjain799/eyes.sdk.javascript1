@@ -40,7 +40,7 @@ function createRenderRequest({
     stitchingService: renderInfo.getStitchingServiceUrl(),
     url,
     platform: {name: platformName, type},
-    browser: {name: browserName},
+    browser: type === 'web' ? {name: browserName} : undefined,
     renderInfo: {
       target,
       width: browserInfo.width,
