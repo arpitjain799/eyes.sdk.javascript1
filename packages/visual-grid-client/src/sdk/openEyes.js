@@ -335,6 +335,10 @@ function makeOpenEyes({
       }
     }
 
+    function isEmulation(browser) {
+      return !!(browser.deviceName || browser.deviceScaleFactor || browser.mobile)
+    }
+
     function isSupportsDeviceEmulation(browserName) {
       return !browserName || /^chrome/.test(browserName)
     }
