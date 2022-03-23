@@ -269,7 +269,7 @@ describe('createRenderRequest', () => {
       url,
       snapshot,
       resources,
-      browser: {name: undefined},
+      browser: undefined,
       platform: {name: 'ios', type: 'native'},
       enableMultipleResultsPerSelector: true,
       renderInfo: {
