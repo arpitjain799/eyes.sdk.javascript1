@@ -62,8 +62,8 @@ describe('check e2e', () => {
       browsersInfo: [
         {
           iosDeviceInfo: {
-            deviceName: 'iPhone 12',
-            iosVersion: 'latest',
+            name: 'iPhone 12',
+            version: 'latest',
             screenOrientation: 'portrait',
           }
         }
