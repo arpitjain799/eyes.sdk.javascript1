@@ -14,6 +14,11 @@ function getStoryUrl({name, kind, parameters}, baseUrl) {
     }
   }
 
+  const controls = parameters?.eyes.controls;
+  if (controls) {
+    storyUrl += `&args=${controls.name}:${controls.value}`
+  }
+
   return storyUrl;
 }
 

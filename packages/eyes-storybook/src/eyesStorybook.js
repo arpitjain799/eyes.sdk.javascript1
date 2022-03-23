@@ -11,6 +11,7 @@ const makeGetStoryData = require('./getStoryData');
 const ora = require('ora');
 const filterStories = require('./filterStories');
 const addVariationStories = require('./addVariationStories');
+const addControlsStories = require('./addControlsStories');
 const browserLog = require('./browserLog');
 const memoryLog = require('./memoryLog');
 const getIframeUrl = require('./getIframeUrl');
@@ -121,7 +122,9 @@ async function eyesStorybook({
       config,
     });
 
-    logger.log(`starting to run ${storiesIncludingVariations.length} stories`);
+    const storiesIncludingControls = addControlsStories(storiesIncludingVariations)
+
+    logger.log(`starting to run ${storiesIncludingControls.length} stories`);
 
     const getStoryData = makeGetStoryData({
       logger,
@@ -158,7 +161,7 @@ async function eyesStorybook({
         setRenderIE,
         setTransitioningIntoIE,
         configs,
-        stories: storiesIncludingVariations,
+        stories: storiesIncludingControls,
         pagePool,
         logger,
         timeItAsync,
