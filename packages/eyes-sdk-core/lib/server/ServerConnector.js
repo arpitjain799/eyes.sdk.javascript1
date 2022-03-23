@@ -564,7 +564,7 @@ class ServerConnector {
 
   async renderGetRenderJobInfo(renderRequests) {
     ArgumentGuard.notNull(renderRequests, 'renderRequests')
-    this._logger.log(`ServerConnector.renderGetRenderJobInfo called with ${renderRequests}`)
+    this._logger.log('ServerConnector.renderGetRenderJobInfo called with', renderRequests)
 
     const config = {
       name: 'renderGetRenderJobInfo',
