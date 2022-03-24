@@ -95,7 +95,8 @@ Apollo SDK:
   feature:
     - 
   bug-fix:
-    - 
+    - consider batchId from config file and environments variable when closing batch
+    - consider batchId from eyesOpen when closing batch
 "@applitools/eyes-storybook":
   feature:
     - 
