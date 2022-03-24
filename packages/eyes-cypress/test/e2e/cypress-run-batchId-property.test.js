@@ -72,8 +72,6 @@ describe('handle batchId property', () => {
     } catch (ex) {
       console.error('Error during test!', ex.stdout);
       throw ex;
-    } finally {
-      delete process.env.APPLITOOLS_BATCH_ID;
     }
   });
 });

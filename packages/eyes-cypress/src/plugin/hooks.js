@@ -2,7 +2,7 @@
 const {TestResults} = require('@applitools/visual-grid-client');
 const handleTestResults = require('./handleTestResults');
 
-function makeGlobalRunHooks({closeManager, closeBatches, closeUniversalServer}) {
+function makeGlobalRunHooks({closeManager, closeBatches, closeUniversalServer, getAllBatchIds}) {
   return {
     'before:run': ({config}) => {
       if (!config.isTextTerminal) return;
@@ -25,8 +25,11 @@ function makeGlobalRunHooks({closeManager, closeBatches, closeUniversalServer}) 
           }
         }
         if (!config.appliConfFile.dontCloseBatches) {
+          const batchIdsFromEyesOpen = getAllBatchIds();
           await closeBatches({
-            batchIds: [config.appliConfFile.batchId || config.appliConfFile.batch.id],
+            batchIds: [config.appliConfFile.batchId || config.appliConfFile.batch.id].concat(
+              batchIdsFromEyesOpen,
+            ),
             serverUrl: config.appliConfFile.serverUrl,
             proxy: config.appliConfFile.proxy,
             apiKey: config.appliConfFile.apiKey,

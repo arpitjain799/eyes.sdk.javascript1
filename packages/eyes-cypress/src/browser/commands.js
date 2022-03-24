@@ -97,6 +97,7 @@ Cypress.Commands.add('eyesOpen', function(args = {}) {
   Cypress.log({name: 'Eyes: open'});
   Cypress.config('eyesOpenArgs', args);
   const {title: testName} = this.currentTest || this.test || Cypress.currentTest;
+  const batchIdEyesOpen = args.batchId || (args.batch && args.batch.id);
 
   if (Cypress.config('eyesIsDisabled') && args.isDisabled === false) {
     throw new Error(
@@ -130,6 +131,12 @@ Cypress.Commands.add('eyesOpen', function(args = {}) {
             {legacy: false, type: 'vg'},
           ),
         ));
+    }
+
+    if (batchIdEyesOpen && !shouldUseBrowserHooks) {
+      await socket.request('Test.saveBatchId', {batchIdEyesOpen}).catch(err => {
+        console.log('Error in cy.eyesOpen, saveBatchId', err);
+      });
     }
 
     const appliConfFile = Cypress.config('appliConfFile');
