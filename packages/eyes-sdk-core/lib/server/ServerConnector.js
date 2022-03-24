@@ -162,7 +162,7 @@ class ServerConnector {
    */
   async startSession(sessionStartInfo) {
     ArgumentGuard.notNull(sessionStartInfo, 'sessionStartInfo')
-    this._logger.log(`ServerConnector.startSession called with: ${sessionStartInfo}`)
+    this._logger.log('ServerConnector.startSession called with', sessionStartInfo)
 
     const config = {
       name: 'startSession',
@@ -241,7 +241,7 @@ class ServerConnector {
    */
   async deleteBatchSessions(batchId) {
     ArgumentGuard.notNull(batchId, 'batchId')
-    this._logger.log(`ServerConnector.deleteBatchSessions called for batchId: ${batchId}`)
+    this._logger.log('ServerConnector.deleteBatchSessions called for batchId:', batchId)
 
     const config = {
       name: 'deleteBatchSessions',
@@ -273,7 +273,7 @@ class ServerConnector {
    */
   async deleteSession(testResults) {
     ArgumentGuard.notNull(testResults, 'testResults')
-    this._logger.log(`ServerConnector.deleteSession called with ${JSON.stringify(testResults)}`)
+    this._logger.log('ServerConnector.deleteSession called with', testResults)
 
     const config = {
       name: 'deleteSession',
@@ -334,7 +334,7 @@ class ServerConnector {
   async matchWindow(runningSession, matchWindowData) {
     ArgumentGuard.notNull(runningSession, 'runningSession')
     ArgumentGuard.notNull(matchWindowData, 'matchWindowData')
-    this._logger.log(`ServerConnector.matchWindow called with ${matchWindowData} for session: ${runningSession}`)
+    this._logger.log(`ServerConnector.matchWindow called with ${JSON.stringify(matchWindowData)} for session: ${runningSession}`)
 
     const config = {
       name: 'matchWindow',
@@ -382,7 +382,7 @@ class ServerConnector {
     ArgumentGuard.notNull(runningSession, 'runningSession')
     ArgumentGuard.notNull(matchWindowData, 'matchWindowData')
     this._logger.log(
-      `ServerConnector.matchWindowAndClose called with ${matchWindowData} for session: ${runningSession}`,
+      `ServerConnector.matchWindowAndClose called with ${JSON.stringify(matchWindowData)} for session: ${runningSession}`,
     )
 
     const config = {
@@ -445,7 +445,7 @@ class ServerConnector {
   async replaceWindow(runningSession, stepIndex, matchWindowData) {
     ArgumentGuard.notNull(runningSession, 'runningSession')
     ArgumentGuard.notNull(matchWindowData, 'matchWindowData')
-    this._logger.log(`ServerConnector.replaceWindow called with ${matchWindowData} for session: ${runningSession}`)
+    this._logger.log(`ServerConnector.replaceWindow called with ${JSON.stringify(matchWindowData)} for session: ${runningSession}`)
 
     const config = {
       name: 'replaceWindow',
@@ -533,7 +533,7 @@ class ServerConnector {
    */
   async render(renderRequest) {
     ArgumentGuard.notNull(renderRequest, 'renderRequest')
-    this._logger.log(`ServerConnector.render called with ${renderRequest}`)
+    this._logger.log('ServerConnector.render called with', renderRequest)
 
     const isBatch = Array.isArray(renderRequest)
     const config = {
