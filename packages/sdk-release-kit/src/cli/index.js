@@ -32,7 +32,7 @@ const pendingChangesFilePath = path.join(process.cwd(), '..', '..', 'pending-cha
 yargs
   .config({cwd: process.cwd()})
   .command(
-    ['commit-log', 'log', 'logs'],
+    ['log', 'logs'],
     'Show commit logs for a given package',
     {
       packageName: {alias: 'p', type: 'string'},
@@ -60,7 +60,7 @@ yargs
       const lower = lowerVersion || versions[versionsBack]
       const upper = upperVersion || versions[0]
 
-      console.log('bongo commit-log output')
+      console.log('bongo log output')
       console.log(`package: ${pkgName}`)
       if (!args.versionsBack) {
         console.log(
