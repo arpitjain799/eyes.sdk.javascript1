@@ -24,8 +24,10 @@ function makeCreateResourceMapping({processResources}) {
 
     const resources = await processedSnapshotResources.promise
 
-    const dom = resources[snapshot.url]
-    delete resources[snapshot.url]
+    const dom = resources[snapshot.url || 'vhs']
+    if (snapshot.url) {
+      delete resources[snapshot.url]
+    }
 
     return {dom, resources}
   }
@@ -87,10 +89,10 @@ function makeCreateResourceMapping({processResources}) {
       })
     } else if (snapshot.vhs) {
       domResource = await processResources({
-        resources: {[snapshot.url]: createVHSResource({vhs: snapshot.vhs, type: snapshot.type})},
+        resources: {vhs: createVHSResource({vhs: snapshot.vhs, type: snapshot.type})},
       })
     } else {
-      domResource = {mapping: {[snapshot.url]: createResource({hash: snapshot.hash})}}
+      domResource = {mapping: {vhs: snapshot.hash}}
     }
 
     const frameResourceMapping = frameResources.reduce((mapping, resources) => {

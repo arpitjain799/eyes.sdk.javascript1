@@ -1,4 +1,5 @@
 const SAUCE_SERVER_URL = 'https://ondemand.saucelabs.com:443/wd/hub'
+const SAUCE_NATIVE_SERVER_URL = 'https://ondemand.us-west-1.saucelabs.com:443/wd/hub'
 const SAUCE_CREDENTIALS = {
   username: process.env.SAUCE_USERNAME,
   accessKey: process.env.SAUCE_ACCESS_KEY,
@@ -53,7 +54,7 @@ const DEVICES = {
     // need alternate Sauce URL due to error:
     // 'The storage authorization is not possible due to the missing token'
     // re: https://support.saucelabs.com/hc/en-us/articles/360053512753--Failed-to-download-mobile-app-The-storage-authorization-is-not-possible-due-to-the-missing-token-error-when-running-automated-tests
-    url: 'https://ondemand.us-west-1.saucelabs.com:443/wd/hub',
+    url: SAUCE_NATIVE_SERVER_URL,
     capabilities: {
       w3c: {
         platformName: 'iOS',
@@ -200,7 +201,19 @@ const DEVICES = {
       ...SAUCE_CREDENTIALS,
     },
   },
-
+    'Android emulator ufg native': {
+        type: 'sauce',
+        url: SAUCE_NATIVE_SERVER_URL,
+        capabilities: {
+          // app: 'storage:7ac95516-d5df-46e9-b6b2-b41f6fd31147',
+          app: 'storage:1e9a4aa6-1632-41ae-90ba-ffafc338e940',
+          deviceName: 'Google Pixel 3 XL GoogleAPI Emulator',
+          platformName: 'Android',
+          platformVersion: '10.0',
+          deviceOrientation: 'portrait',
+          ...SAUCE_CREDENTIALS,
+        }
+      },
   'Pixel 3 XL': {
     type: 'sauce',
     url: SAUCE_SERVER_URL,

@@ -179,8 +179,13 @@ function makeCheckWindow({
 
       const {dom, resources} = await resourcesPromises[index]
       renderRequest.snapshot = dom
+      renderRequest.renderInfo.vhsType = snapshot[index].type
       renderRequest.resources = resources
       renderRequest.renderer = wrapper.getRenderer()
+      renderRequest.metadata = {
+        platformName: 'android', // TODO fix
+        vhsType: snapshot[index].type,
+      }
 
       const [renderErr, renderId] = await presult(renderJob(renderRequest))
 

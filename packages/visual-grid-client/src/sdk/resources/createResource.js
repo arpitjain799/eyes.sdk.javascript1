@@ -27,7 +27,12 @@ function createResource(data = {}) {
     resource.value =
       value &&
       value.length > VISUAL_GRID_MAX_BUFFER_SIZE &&
-      !['x-applitools-html/cdt', 'x-applitools/vhs'].includes(type)
+      ![
+        'x-applitools-html/cdt',
+        'x-applitools-vhs/ios',
+        'x-applitools-vhs/android-x',
+        'x-applitools-vhs/android-support',
+      ].includes(type)
         ? value.slice(0, VISUAL_GRID_MAX_BUFFER_SIZE - 100000)
         : value || ''
     resource.type = type || 'application/x-applitools-unknown'

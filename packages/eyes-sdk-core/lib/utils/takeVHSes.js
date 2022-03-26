@@ -32,10 +32,11 @@ async function takeVHSes({driver, browsers, apiKey, waitBeforeCapture, logger}) 
   const snapshot = {vhs}
 
   if (driver.isAndroid) {
-    snapshot.type = info.flavorName === 'androidx' ? 'android-x' : 'android-support'
+    snapshot.type = info.flavorName === 'android-x' ? 'android-x' : 'android-support' // TODO ask if we can just take info.flavorName
     snapshot.hash = {
       hashFormat: 'sha256',
       hash: info.vhsHash,
+      contentType: `x-applitools-vhs/${snapshot.type}`,
     }
   } else if (driver.isIOS) {
     snapshot.type = 'ios'
