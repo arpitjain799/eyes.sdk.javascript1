@@ -35,16 +35,12 @@ describe('UFG native', () => {
         saveNewTests: false,
       }
       const eyes = await manager.openEyes({driver, config})
-      //await driver
-      //  .switchTo()
-      //  .alert()
-      //  .dismiss()
       await eyes.check()
       await eyes.close({throwErr: true})
     })
   })
 
-  describe.skip('iOS', () => {
+  describe.only('iOS', () => {
     before(async () => {
       ;[driver, destroyDriver] = await spec.build({
         device: 'iPhone 12 ufg native',

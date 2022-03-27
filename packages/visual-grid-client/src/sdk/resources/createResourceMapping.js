@@ -2,7 +2,6 @@
 
 const createResource = require('./createResource')
 const createDomResource = require('./createDomResource')
-const createVHSResource = require('./createVHSResource')
 
 function makeCreateResourceMapping({processResources}) {
   return async function createResourceMapping({
@@ -87,10 +86,27 @@ function makeCreateResourceMapping({processResources}) {
           }),
         },
       })
-    } else if (snapshot.vhs) {
-      // TODO this is not complete (iOS support)
+    } else if (snapshot.vhsHash) {
       domResource = await processResources({
-        resources: {vhs: createVHSResource({vhs: snapshot.vhs, type: snapshot.vhsType})},
+        resources: {
+          vhs: createResource({
+            value: Buffer.from(
+              JSON.stringify({
+                vhs: snapshot.vhsHash,
+                resources: {
+                  ...snapshotResources.mapping,
+                  ...frameDomResourceMapping,
+                  vhs: undefined,
+                }, // this will be empty until resources are supported inside VHS
+                metadata: {
+                  platformName: snapshot.platformName,
+                  vhsType: snapshot.vhsType,
+                },
+              }),
+            ),
+            type: 'x-applitools-resource-map/native',
+          }),
+        },
       })
     } else {
       domResource = await processResources({
@@ -98,11 +114,14 @@ function makeCreateResourceMapping({processResources}) {
           vhs: createResource({
             value: Buffer.from(
               JSON.stringify({
-                vhs: snapshot.vhsHash,
-                resources: {...snapshotResources.mapping, ...frameDomResourceMapping}, // this will be empty until resources are supported inside VHS
+                vhs: snapshotResources.mapping.vhs,
+                resources: {
+                  ...snapshotResources.mapping,
+                  ...frameDomResourceMapping,
+                  vhs: undefined,
+                }, // this will be empty until resources are supported inside VHS
                 metadata: {
                   platformName: snapshot.platformName,
-                  vhsType: snapshot.vhsType,
                 },
               }),
             ),

@@ -64,7 +64,12 @@ async function takeVHSes({driver, browsers, apiKey, waitBeforeCapture, logger}) 
     }
   } else if (driver.isIOS) {
     snapshot.platformName = 'ios'
-    snapshot.vhsType = 'ios'
+    snapshot.resourceContents = {
+      vhs: {
+        value: Buffer.from(vhs, 'base64'),
+        type: 'x-applitools-vhs/ios',
+      },
+    }
     snapshot.vhsCompatibilityParams = {
       UIKitLinkTimeVersionNumber: info.UIKitLinkTimeVersionNumber,
       UIKitRunTimeVersionNumber: info.UIKitRunTimeVersionNumber,

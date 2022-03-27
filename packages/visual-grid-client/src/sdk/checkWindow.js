@@ -180,6 +180,7 @@ function makeCheckWindow({
       const {dom, resources} = await resourcesPromises[index]
       renderRequest.snapshot = dom
       renderRequest.renderInfo.vhsType = snapshots[index].vhsType
+      renderRequest.renderInfo.vhsCompatibilityParams = snapshots[index].vhsCompatibilityParams
       renderRequest.resources = resources
       renderRequest.renderer = wrapper.getRenderer()
 

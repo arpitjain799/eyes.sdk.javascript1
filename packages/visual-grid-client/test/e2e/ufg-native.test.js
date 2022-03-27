@@ -2,6 +2,7 @@
 
 const {describe, it, before, beforeEach} = require('mocha')
 const {expect} = require('chai')
+const {loadFixtureBuffer} = require('../util/loadFixture')
 const makeRenderingGridClient = require('../../src/sdk/renderingGridClient')
 const testLogger = require('../util/testLogger')
 
@@ -50,7 +51,7 @@ describe('UFG native', () => {
     expect(results[0].getStatus()).to.equal('Passed')
   })
 
-  it('renders VHS correctly on iOS', async () => {
+  it.only('renders VHS correctly on iOS', async () => {
     const {checkWindow, close} = await openEyes({
       appName: 'core app',
       testName: 'native ufg ios',
@@ -62,10 +63,15 @@ describe('UFG native', () => {
       isNativeUFG: true,
       snapshot: {
         platformName: 'ios',
-        vhs: '',
+        resourceContents: {
+          vhs: {
+            value: loadFixtureBuffer('vhs-ios'),
+            type: 'x-applitools-vhs/ios',
+          },
+        },
         vhsCompatibilityParams: {
-          UIKitLinkTimeVersionNumber: 1234,
-          UIKitRunTimeVersionNumber: 1234,
+          UIKitLinkTimeVersionNumber: 5522,
+          UIKitRunTimeVersionNumber: 5205,
         },
       },
     })

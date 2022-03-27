@@ -58,11 +58,17 @@ const DEVICES = {
     type: 'sauce',
     url: SAUCE_NATIVE_SERVER_URL,
     capabilities: {
-      app: 'storage:d8153007-f7f4-4801-a9f8-7b3891ff07ae',
+      app: 'storage:5f78dc69-6f33-4b0f-a24a-22bffe67d13f',
       deviceName: 'iPhone 12 Pro Simulator',
       platformName: 'iOS',
       platformVersion: '15.2',
       deviceOrientation: 'portrait',
+      processArguments: {
+        args: [],
+        env: {
+          DYLD_INSERT_LIBRARIES: '@executable_path/Frameworks/UFG_lib.xcframework/ios-arm64_x86_64-simulator/UFG_lib.framework/UFG_lib'
+        }
+      },
       ...SAUCE_CREDENTIALS,
     },
       // w3c: {
