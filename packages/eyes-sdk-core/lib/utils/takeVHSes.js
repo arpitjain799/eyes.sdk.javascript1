@@ -1,46 +1,71 @@
-const utils = require('@applitools/utils')
-
 async function takeVHSes({driver, browsers, apiKey, waitBeforeCapture, logger}) {
+  logger.log('taking VHS')
   if (waitBeforeCapture) await waitBeforeCapture()
 
   const context = driver.currentContext
 
   if (driver.isAndroid) {
     const apiKeyInput = await context.element({type: 'accessibility id', selector: 'UFG_Apikey'})
+    if (!apiKeyInput) {
+      throwError('UFG_Apikey element could not be found')
+    }
     await apiKeyInput.type(apiKey)
     const ready = await context.element({type: 'accessibility id', selector: 'UFG_ApikeyReady'})
+    if (!ready) {
+      throwError('UFG_ApikeyReady element could not be found')
+    }
     await ready.click()
   }
 
   const trigger = await context.element({type: 'accessibility id', selector: 'UFG_TriggerArea'})
+  if (!trigger) {
+    throwError('UFG_TriggerArea element could not be found')
+  }
   await trigger.click()
 
   const label = await context.waitFor({type: 'accessibility id', selector: 'UFG_SecondaryLabel'})
+  if (!label) {
+    throwError('UFG_SecondaryLabel element could not be found')
+  }
   const info = JSON.parse(await label.getText())
-  console.log(info)
+
+  logger.log('VHS info', info)
+
+  if (info.error) {
+    throwError(info.error)
+  }
 
   let vhs
   if (driver.isIOS) {
     vhs = await extractVHS()
   } else if (info.mode === 'labels') {
     vhs = await collectChunkedVHS({count: info.partsCount})
+  } else if (info.mode === 'network') {
+    // TODO
+  } else {
+    throwError(`unknown mode for android: ${info.mode}`)
   }
 
   const clear = await context.element({type: 'accessibility id', selector: 'UFG_ClearArea'})
+  if (!clear) {
+    throwError('UFG_ClearArea element could not be found')
+  }
   await clear.click()
 
   const snapshot = {vhs}
 
   if (driver.isAndroid) {
-    snapshot.type = info.flavorName === 'android-x' ? 'android-x' : 'android-support' // TODO ask if we can just take info.flavorName
-    snapshot.hash = {
+    snapshot.platformName = 'android'
+    snapshot.vhsType = info.flavorName
+    snapshot.vhsHash = {
       hashFormat: 'sha256',
       hash: info.vhsHash,
-      contentType: `x-applitools-vhs/${snapshot.type}`,
+      contentType: `x-applitools-vhs/${snapshot.vhsType}`,
     }
   } else if (driver.isIOS) {
-    snapshot.type = 'ios'
-    snapshot.options = {
+    snapshot.platformName = 'ios'
+    snapshot.vhsType = 'ios'
+    snapshot.vhsCompatibilityParams = {
       UIKitLinkTimeVersionNumber: info.UIKitLinkTimeVersionNumber,
       UIKitRunTimeVersionNumber: info.UIKitRunTimeVersionNumber,
     }
@@ -72,6 +97,10 @@ async function takeVHSes({driver, browsers, apiKey, waitBeforeCapture, logger}) 
     }
     return vhs
   }
+}
+
+function throwError(msg) {
+  throw new Error(`Error while taking VHS - ${msg}`)
 }
 
 module.exports = takeVHSes

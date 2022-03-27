@@ -30,7 +30,7 @@ function makeCheckWindow({
   autProxy,
 }) {
   return function checkWindow({
-    type = 'web',
+    isNativeUFG,
     snapshot,
     url,
     tag,
@@ -156,7 +156,7 @@ function makeCheckWindow({
       }
 
       const renderRequest = createRenderRequest({
-        type,
+        isNativeUFG,
         url,
         browser: browsers[index],
         renderInfo,
@@ -179,13 +179,9 @@ function makeCheckWindow({
 
       const {dom, resources} = await resourcesPromises[index]
       renderRequest.snapshot = dom
-      renderRequest.renderInfo.vhsType = snapshot[index].type
+      renderRequest.renderInfo.vhsType = snapshots[index].vhsType
       renderRequest.resources = resources
       renderRequest.renderer = wrapper.getRenderer()
-      renderRequest.metadata = {
-        platformName: 'android', // TODO fix
-        vhsType: snapshot[index].type,
-      }
 
       const [renderErr, renderId] = await presult(renderJob(renderRequest))
 

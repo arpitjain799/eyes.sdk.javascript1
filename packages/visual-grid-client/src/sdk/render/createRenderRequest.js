@@ -1,5 +1,5 @@
 function createRenderRequest({
-  type = 'web',
+  isNativeUFG,
   url,
   snapshot,
   resources,
@@ -21,7 +21,7 @@ function createRenderRequest({
   let emulationInfo
   if (iosDeviceInfo) {
     platformName = 'ios'
-    if (type === 'web') browserName = 'safari'
+    if (!isNativeUFG) browserName = 'safari'
   } else if (androidDeviceInfo) {
     platformName = 'android'
   }
@@ -39,8 +39,8 @@ function createRenderRequest({
     webhook: renderInfo.getResultsUrl(),
     stitchingService: renderInfo.getStitchingServiceUrl(),
     url,
-    platform: {name: platformName, type},
-    browser: type === 'web' ? {name: browserName} : undefined,
+    platform: {name: platformName, type: isNativeUFG ? 'native' : 'web'},
+    browser: isNativeUFG ? undefined : {name: browserName},
     renderInfo: {
       target,
       width: browserInfo.width,

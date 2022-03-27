@@ -186,7 +186,6 @@ class EyesVisualGrid extends EyesCore {
           if (this.getCorsIframeHandle() === CorsIframeHandles.BLANK) {
             snapshots.forEach(CorsIframeHandler.blankCorsIframeSrcOfCdt)
           }
-          target.type = 'web'
           target.url = url
           target.snapshot = snapshots
           target.cookies = cookies
@@ -198,7 +197,7 @@ class EyesVisualGrid extends EyesCore {
             waitBeforeCapture: () => utils.general.sleep(waitBeforeCapture),
             logger: this._logger,
           })
-          target.type = 'native'
+          target.isNativeUFG = true
           target.snapshot = snapshots
         }
 

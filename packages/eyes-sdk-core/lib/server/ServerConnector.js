@@ -334,7 +334,9 @@ class ServerConnector {
   async matchWindow(runningSession, matchWindowData) {
     ArgumentGuard.notNull(runningSession, 'runningSession')
     ArgumentGuard.notNull(matchWindowData, 'matchWindowData')
-    this._logger.log(`ServerConnector.matchWindow called with ${JSON.stringify(matchWindowData)} for session: ${runningSession}`)
+    this._logger.log(
+      `ServerConnector.matchWindow called with ${JSON.stringify(matchWindowData)} for session: ${runningSession}`,
+    )
 
     const config = {
       name: 'matchWindow',
@@ -382,7 +384,9 @@ class ServerConnector {
     ArgumentGuard.notNull(runningSession, 'runningSession')
     ArgumentGuard.notNull(matchWindowData, 'matchWindowData')
     this._logger.log(
-      `ServerConnector.matchWindowAndClose called with ${JSON.stringify(matchWindowData)} for session: ${runningSession}`,
+      `ServerConnector.matchWindowAndClose called with ${JSON.stringify(
+        matchWindowData,
+      )} for session: ${runningSession}`,
     )
 
     const config = {
@@ -445,7 +449,9 @@ class ServerConnector {
   async replaceWindow(runningSession, stepIndex, matchWindowData) {
     ArgumentGuard.notNull(runningSession, 'runningSession')
     ArgumentGuard.notNull(matchWindowData, 'matchWindowData')
-    this._logger.log(`ServerConnector.replaceWindow called with ${JSON.stringify(matchWindowData)} for session: ${runningSession}`)
+    this._logger.log(
+      `ServerConnector.replaceWindow called with ${JSON.stringify(matchWindowData)} for session: ${runningSession}`,
+    )
 
     const config = {
       name: 'replaceWindow',

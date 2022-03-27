@@ -88,11 +88,28 @@ function makeCreateResourceMapping({processResources}) {
         },
       })
     } else if (snapshot.vhs) {
+      // TODO this is not complete (iOS support)
       domResource = await processResources({
-        resources: {vhs: createVHSResource({vhs: snapshot.vhs, type: snapshot.type})},
+        resources: {vhs: createVHSResource({vhs: snapshot.vhs, type: snapshot.vhsType})},
       })
     } else {
-      domResource = {mapping: {vhs: snapshot.hash}}
+      domResource = await processResources({
+        resources: {
+          vhs: createResource({
+            value: Buffer.from(
+              JSON.stringify({
+                vhs: snapshot.vhsHash,
+                resources: {...snapshotResources.mapping, ...frameDomResourceMapping}, // this will be empty until resources are supported inside VHS
+                metadata: {
+                  platformName: snapshot.platformName,
+                  vhsType: snapshot.vhsType,
+                },
+              }),
+            ),
+            type: 'x-applitools-resource-map/native',
+          }),
+        },
+      })
     }
 
     const frameResourceMapping = frameResources.reduce((mapping, resources) => {

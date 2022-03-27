@@ -1,5 +1,10 @@
 const SAUCE_SERVER_URL = 'https://ondemand.saucelabs.com:443/wd/hub'
+
+// need alternate Sauce URL due to error:
+// 'The storage authorization is not possible due to the missing token'
+// re: https://support.saucelabs.com/hc/en-us/articles/360053512753--Failed-to-download-mobile-app-The-storage-authorization-is-not-possible-due-to-the-missing-token-error-when-running-automated-tests
 const SAUCE_NATIVE_SERVER_URL = 'https://ondemand.us-west-1.saucelabs.com:443/wd/hub'
+
 const SAUCE_CREDENTIALS = {
   username: process.env.SAUCE_USERNAME,
   accessKey: process.env.SAUCE_ACCESS_KEY,
@@ -51,30 +56,34 @@ const DEVICES = {
   },
   'iPhone 12 ufg native': {
     type: 'sauce',
-    // need alternate Sauce URL due to error:
-    // 'The storage authorization is not possible due to the missing token'
-    // re: https://support.saucelabs.com/hc/en-us/articles/360053512753--Failed-to-download-mobile-app-The-storage-authorization-is-not-possible-due-to-the-missing-token-error-when-running-automated-tests
     url: SAUCE_NATIVE_SERVER_URL,
     capabilities: {
-      w3c: {
-        platformName: 'iOS',
-        'appium:platformVersion': '15.0',
-        'appium:automationName': 'XCUITest',
-        'appium:deviceName': 'iPhone 12 Simulator',
-        'appium:app': 'storage:filename=UIKitCatalog.app.zip',
-        'appium:processArguments': {
-          args: [],
-          env: {
-            DYLD_INSERT_LIBRARIES:
-              '@executable_path/Frameworks/UFG_lib.xcframework/ios-arm64_x86_64-simulator/UFG_lib.framework/UFG_lib',
-          },
-        },
-      },
-    },
-    options: {
-      appiumVersion: '1.22.0',
+      app: 'storage:d8153007-f7f4-4801-a9f8-7b3891ff07ae',
+      deviceName: 'iPhone 12 Pro Simulator',
+      platformName: 'iOS',
+      platformVersion: '15.2',
+      deviceOrientation: 'portrait',
       ...SAUCE_CREDENTIALS,
     },
+      // w3c: {
+      //   platformName: 'iOS',
+      //   'appium:platformVersion': '15.0',
+      //   'appium:automationName': 'XCUITest',
+      //   'appium:deviceName': 'iPhone 12 Simulator',
+      //   'appium:app': 'storage:filename=UIKitCatalog.app.zip',
+      //   'appium:processArguments': {
+      //     args: [],
+      //     env: {
+      //       DYLD_INSERT_LIBRARIES:
+      //         '@executable_path/Frameworks/UFG_lib.xcframework/ios-arm64_x86_64-simulator/UFG_lib.framework/UFG_lib',
+      //     },
+      //   },
+      // },
+    // },
+    // options: {
+    //   appiumVersion: '1.22.0',
+    //   ...SAUCE_CREDENTIALS,
+    // },
   },
   'iPhone 11': {
     type: 'sauce',
@@ -205,7 +214,6 @@ const DEVICES = {
         type: 'sauce',
         url: SAUCE_NATIVE_SERVER_URL,
         capabilities: {
-          // app: 'storage:7ac95516-d5df-46e9-b6b2-b41f6fd31147',
           app: 'storage:1e9a4aa6-1632-41ae-90ba-ffafc338e940',
           deviceName: 'Google Pixel 3 XL GoogleAPI Emulator',
           platformName: 'Android',
