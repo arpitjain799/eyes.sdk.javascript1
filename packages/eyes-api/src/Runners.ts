@@ -7,6 +7,7 @@ import {RunnerOptions, RunnerOptionsFluent} from './input/RunnerOptions'
 import {TestResultsData} from './output/TestResults'
 import {TestResultsSummaryData} from './output/TestResultsSummary'
 import {Eyes} from './Eyes'
+const {makeLogger} = require('@applitools/logger')
 
 type EyesRunnerSpec<TDriver = unknown, TElement = unknown, TSelector = unknown> = types.Core<
   TDriver,
@@ -48,10 +49,13 @@ export abstract class EyesRunner {
     const [eyes] = this._eyes
     const deleteTest = (options: any) =>
       this._spec.deleteTest({
-        ...options,
-        serverUrl: eyes.configuration.serverUrl,
-        apiKey: eyes.configuration.apiKey,
-        proxy: eyes.configuration.proxy,
+        settings: {
+          ...options,
+          serverUrl: eyes.configuration.serverUrl,
+          apiKey: eyes.configuration.apiKey,
+          proxy: eyes.configuration.proxy,
+        },
+        logger: makeLogger({level: eyes.getConfiguration().getShowLogs() ? 'info' : 'silent', label: 'eyes'}),
       })
     try {
       const summary = await this._manager.closeManager({throwErr})
