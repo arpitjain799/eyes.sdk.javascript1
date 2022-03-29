@@ -8,24 +8,24 @@ Apollo SDK:
     - Remove kitchen to accommodate space for PlayStation
 "@applitools/eyes-universal":
   feature:
-    - 
+    - Support UFG for native mobile
   bug-fix:
     - 
 "@applitools/eyes-selenium":
   feature:
-    - 
+    - Support UFG for native mobile
     - |
       `runner.getAllTestResults` returns the corresponding UFG browser/device configuration for each test. This is available as `runner.getAllTestResults()[i].browserInfo`.
   bug-fix:
     - 
 "@applitools/eyes-webdriverio":
   feature:
-    - 
+    - Support UFG for native mobile
   bug-fix:
     - 
 "@applitools/eyes-playwright":
   feature:
-    - 
+    - Support UFG for native mobile
     - |
       `runner.getAllTestResults` returns the corresponding UFG browser/device configuration for each test. This is available as `runner.getAllTestResults()[i].browserInfo`.
   bug-fix:
@@ -35,7 +35,7 @@ Apollo SDK:
       `runner.getAllTestResults` now returns all results, including aborted tests
 "@applitools/eyes-protractor":
   feature:
-    - 
+    - Support UFG for native mobile
     - |
       `runner.getAllTestResults` returns the corresponding UFG browser/device configuration for each test. This is available as `runner.getAllTestResults()[i].browserInfo`.
   bug-fix:
@@ -45,7 +45,7 @@ Apollo SDK:
       `runner.getAllTestResults` now returns all results, including aborted tests
 "@applitools/eyes-puppeteer":
   feature:
-    - 
+    - Support UFG for native mobile
     - |
       `runner.getAllTestResults` returns the corresponding UFG browser/device configuration for each test. This is available as `runner.getAllTestResults()[i].browserInfo`.
   bug-fix:
@@ -55,7 +55,7 @@ Apollo SDK:
       `runner.getAllTestResults` now returns all results, including aborted tests
 "@applitools/eyes-testcafe":
   feature:
-    - 
+    - Support UFG for native mobile
     - |
       `runner.getAllTestResults` returns the corresponding UFG browser/device configuration for each test. This is available as `runner.getAllTestResults()[i].browserInfo`.
   bug-fix:
@@ -65,7 +65,7 @@ Apollo SDK:
       `runner.getAllTestResults` now returns all results, including aborted tests
 "@applitools/eyes-nightwatch":
   feature:
-    - 
+    - Support UFG for native mobile
     - |
       `runner.getAllTestResults` returns the corresponding UFG browser/device configuration for each test. This is available as `runner.getAllTestResults()[i].browserInfo`.
   bug-fix:
@@ -86,7 +86,7 @@ Apollo SDK:
     - 
 "@applitools/eyes-webdriverio5-service":
   feature:
-    - 
+    - Support UFG for native mobile
   bug-fix:
     - 
 eyes-browser-extension:
