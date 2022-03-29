@@ -30,12 +30,14 @@ describe('Core e2e - closeManager', () => {
         appName: 'core e2e',
         testName: 'aborts unclosed tests',
         matchTimeout: 0,
-        logs: process.env.APPLITOOLS_SHOW_LOGS ? {type: 'console'} : undefined
+        logs: process.env.APPLITOOLS_SHOW_LOGS ? {type: 'console'} : undefined,
       },
     })
 
     await eyes.check({fully: false})
     const summary = await manager.closeManager()
-    assert.ok(summary.results && summary.results.length === 1 && summary.results[0].constructor.name === 'TestResultsContainer' && summary.results[0].getIsAborted())
+    assert.ok(summary.results)
+    assert.ok(summary.results.length === 1)
+    assert.ok(summary.results[0].testResults.isAborted)
   })
 })

@@ -17,6 +17,7 @@ describe('config', () => {
       eyesTestConcurrency: 5,
       eyesWaitBeforeCapture: undefined,
       tapDirPath: undefined,
+      tapFileName: undefined,
     });
   });
 
@@ -33,6 +34,7 @@ describe('config', () => {
       eyesTestConcurrency: 5,
       eyesWaitBeforeCapture: undefined,
       tapDirPath: undefined,
+      tapFileName: undefined,
     });
   });
 
@@ -45,5 +47,27 @@ describe('config', () => {
     } finally {
       fs.unlinkSync(filePath);
     }
+  });
+
+  it('should create random batch id when batch id is not defined in config file', () => {
+    const filePath = path.join(__dirname, '../../../applitools.config.js');
+    fs.writeFileSync(filePath, 'module.exports = {};');
+    const {config} = makeConfig();
+    expect(config.batch.id).not.undefined;
+  });
+
+  it('should not overwrite batch id from config file when passed in an object', () => {
+    const filePath = path.join(__dirname, '../../../applitools.config.js');
+    fs.writeFileSync(filePath, "module.exports = {batch: {id: '1234'}};");
+    const {config} = makeConfig();
+    expect(config.batch.id).to.equal('1234');
+  });
+
+  it('should not overwrite bach id from config file when passed in as a property', () => {
+    const filePath = path.join(__dirname, '../../../applitools.config.js');
+    fs.writeFileSync(filePath, "module.exports = {batchId: '1234'};");
+    const {config} = makeConfig();
+    expect(config.batch).to.be.undefined;
+    expect(config.batchId).to.be.equal('1234');
   });
 });

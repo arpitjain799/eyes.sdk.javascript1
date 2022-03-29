@@ -4,17 +4,108 @@ const yargs = require('yargs')
 const chalk = require('chalk')
 const path = require('path')
 const fs = require('fs')
-const {verifyChangelog, writeReleaseEntryToChangelog} = require('../changelog')
+const {
+  removePendingChanges,
+  verifyChangelog,
+  verifyPendingChanges,
+  writePendingChangesToChangelog,
+  writeReleaseEntryToChangelog,
+} = require('../changelog')
 const {packInstall, lsDryRun} = require('../dry-run')
 const {lint} = require('../lint')
 const sendReleaseNotification = require('../send-report')
 const {createDotFolder} = require('../setup')
 const {verifyCommits, verifyInstalledVersions, verifyVersions} = require('../versions')
-const {gitAdd, gitCommit, gitPushWithTags, isChanged, gitStatus} = require('../git')
+const {
+  findPackageVersionNumbers,
+  getPublishDate,
+  gitAdd,
+  gitCommit,
+  gitPushWithTags,
+  isChanged,
+  gitStatus,
+  gitLog,
+} = require('../git')
 const {yarnInstall, yarnUpgrade, verifyUnfixedDeps} = require('../yarn')
+const pendingChangesFilePath = path.join(process.cwd(), '..', '..', 'pending-changes.yaml')
 
 yargs
   .config({cwd: process.cwd()})
+  .command(
+    ['commit-log', 'log', 'logs'],
+    'Show commit logs for a given package',
+    {
+      packageName: {alias: 'p', type: 'string'},
+      lowerVersion: {alias: 'lv', type: 'string'},
+      upperVersion: {alias: 'uv', type: 'string'},
+      expandAutoCommitLogEntries: {alias: 'expand', type: 'boolean', default: true},
+      versionsBack: {alias: 'n', type: 'number'},
+      listVersions: {alias: 'lsv', type: 'boolean'},
+      splitByVersion: {alias: 'split', type: 'boolean', default: true},
+    },
+    async args => {
+      const {
+        cwd,
+        expandAutoCommitLogEntries,
+        listVersions,
+        lowerVersion,
+        packageName,
+        splitByVersion,
+        upperVersion,
+      } = args
+
+      const pkgName = packageName ? packageName : require(path.join(cwd, 'package.json')).name
+      const versions = await findPackageVersionNumbers({cwd})
+      const versionsBack = args.versionsBack ? args.versionsBack : 3
+      const lower = lowerVersion || versions[versionsBack]
+      const upper = upperVersion || versions[0]
+
+      console.log('bongo commit-log output')
+      console.log(`package: ${pkgName}`)
+      if (!args.versionsBack) {
+        console.log(
+          `'versionsBack' (or --n) not provided, using a sensible default of ${versionsBack}`,
+        )
+      }
+      if (versionsBack && lowerVersion)
+        console.log(
+          `arguments 'versionsBack' and 'lowerVersion' both provided, using 'lowerVersion' and ignoring 'versionsBack'`,
+        )
+      if (listVersions) {
+        console.log(`Listing previous ${versionsBack} version numbers`)
+        versions.slice(0, versionsBack).forEach(version => console.log(`- ${version}`))
+      } else {
+        console.log(`changes from versions ${versions[versionsBack - 1]} to ${upper}`)
+        if (splitByVersion) {
+          const targetVersions = versions.slice(0, versionsBack + 1)
+          for (let index = 0; index < targetVersions.length - 1; index++) {
+            const output = await gitLog({
+              packageName,
+              cwd,
+              lowerVersion: targetVersions[index + 1],
+              upperVersion: targetVersions[index],
+              expandAutoCommitLogEntries,
+            })
+            const publishDate = await getPublishDate({tag: `${pkgName}@${targetVersions[index]}`})
+            console.log(targetVersions[index])
+            console.log(publishDate)
+            console.log(output)
+          }
+        } else {
+          const output = await gitLog({
+            packageName,
+            cwd,
+            lowerVersion: lower,
+            upperVersion: upper,
+            expandAutoCommitLogEntries,
+          })
+          const publishDate = await getPublishDate({tag: `${pkgName}@${upper}`})
+          console.log(output)
+          console.log(publishDate)
+        }
+      }
+    },
+  )
   .command(
     ['preversion', 'release-pre-check', 'pre-version'],
     'Run all verification checks pre-release',
@@ -23,6 +114,7 @@ yargs
       skipVerifyVersions: {alias: 'svv', type: 'boolean'},
       skipDeps: {alias: 'sd', type: 'boolean'},
       skipCommit: {alias: 'sc', type: 'boolean', default: false},
+      verifyPendingChanges: {type: 'boolean', default: false},
     },
     async args => {
       const {cwd} = args
@@ -32,8 +124,12 @@ yargs
       }
       console.log('[bongo preversion] lint')
       await lint(cwd)
-      console.log('[bongo preversion] verify changelog')
-      verifyChangelog(cwd)
+      if (args.verifyPendingChanges) {
+        console.log('[bongo preversion] verify changelog')
+        verifyChangelog(cwd)
+        console.log('[bongo preversion] verify pending changes')
+        verifyPendingChanges({cwd, pendingChangesFilePath})
+      }
       console.log('[bongo preversion] verify unfixed dependencies')
       verifyUnfixedDeps(cwd)
       if (!args.skipVerifyVersions) {
@@ -59,10 +155,26 @@ yargs
       console.log('[bongo preversion] done!')
     },
   )
-  .command(['version'], 'Supportive steps to version a package', {}, async ({cwd}) => {
-    writeReleaseEntryToChangelog(cwd)
-    await gitAdd('CHANGELOG.md')
-  })
+  .command(
+    ['version'],
+    'Supportive steps to version a package',
+    {
+      skipAdd: {alias: 'sa', type: 'boolean', default: false},
+      withPendingChanges: {type: 'boolean', default: false},
+    },
+    async ({cwd, skipAdd, withPendingChanges}) => {
+      if (withPendingChanges) {
+        writePendingChangesToChangelog({cwd, pendingChangesFilePath})
+        removePendingChanges({cwd, pendingChangesFilePath})
+        writeReleaseEntryToChangelog(cwd)
+        if (!skipAdd) {
+          await gitAdd(pendingChangesFilePath)
+          await gitAdd('CHANGELOG.md')
+        }
+      }
+      // no commit here since it is implicitly handled as part of `yarn version`'s lifecycle script hooks
+    },
+  )
   .command(
     ['postversion'],
     'Supportive steps to after a package has been versioned',
@@ -141,7 +253,7 @@ yargs
     ['deps', 'd'],
     'update internal deps',
     {
-      skipCommit: {type: 'boolean', default: false},
+      commit: {type: 'boolean', default: false},
       upgradeAll: {type: 'boolean', default: false},
     },
     async args => {
@@ -177,8 +289,8 @@ async function deps({cwd, upgradeAll}) {
   })
 }
 
-async function commitFiles({cwd, skipCommit}) {
-  if (!skipCommit) {
+async function commitFiles({cwd, commit}) {
+  if (commit) {
     console.log('[bongo] commit files running...\n', (await gitStatus()).stdout)
     const files = ['package.json', 'CHANGELOG.md', 'yarn.lock']
     for (const file of files) {
