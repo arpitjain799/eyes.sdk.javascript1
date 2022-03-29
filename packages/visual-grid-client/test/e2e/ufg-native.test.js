@@ -65,7 +65,7 @@ describe('UFG native', () => {
         platformName: 'ios',
         resourceContents: {
           vhs: {
-            value: loadFixtureBuffer('vhs-ios'),
+            value: Buffer.from(loadFixtureBuffer('vhs-ios', 'base64'), 'base64'),
             type: 'x-applitools-vhs/ios',
           },
         },
