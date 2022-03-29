@@ -1,9 +1,17 @@
 # Change Log
 
 ## Unreleased
-- updated to @applitools/eyes-sdk-core@13.0.1 (from 13.0.0)
-- updated to @applitools/visual-grid-client@15.8.63 (from 15.8.62)
 
+
+
+
+## 5.34.13 - 2022/3/25
+
+### Features
+- `runner.getAllTestResults` returns the corresponding UFG browser/device configuration for each test. This is available as `runner.getAllTestResults()[i].browserInfo`.
+### Bug fixes
+- `runner.getAllTestResults` now aborts unclosed tests
+- `runner.getAllTestResults` now returns all results, including aborted tests
 
 ## 5.34.12 - 2022/2/16
 

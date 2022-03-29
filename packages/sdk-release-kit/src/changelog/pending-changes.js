@@ -33,6 +33,7 @@ function removePendingChanges({packageName, cwd, pendingChangesFilePath} = {}) {
       JSON.stringify(
         yaml.dump(JSON.parse(JSON.stringify(entries).replace(/\[\]/g, '[ null ]')), {
           quotingType: '"',
+          lineWidth: -1,
         }),
       ).replace(/null/g, ''),
     ),
