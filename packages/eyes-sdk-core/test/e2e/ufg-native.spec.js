@@ -40,7 +40,7 @@ describe('UFG native', () => {
     })
   })
 
-  describe.only('iOS', () => {
+  describe('iOS', () => {
     before(async () => {
       ;[driver, destroyDriver] = await spec.build({
         device: 'iPhone 12 ufg native',

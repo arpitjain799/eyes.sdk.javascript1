@@ -71,25 +71,6 @@ const DEVICES = {
       },
       ...SAUCE_CREDENTIALS,
     },
-      // w3c: {
-      //   platformName: 'iOS',
-      //   'appium:platformVersion': '15.0',
-      //   'appium:automationName': 'XCUITest',
-      //   'appium:deviceName': 'iPhone 12 Simulator',
-      //   'appium:app': 'storage:filename=UIKitCatalog.app.zip',
-      //   'appium:processArguments': {
-      //     args: [],
-      //     env: {
-      //       DYLD_INSERT_LIBRARIES:
-      //         '@executable_path/Frameworks/UFG_lib.xcframework/ios-arm64_x86_64-simulator/UFG_lib.framework/UFG_lib',
-      //     },
-      //   },
-      // },
-    // },
-    // options: {
-    //   appiumVersion: '1.22.0',
-    //   ...SAUCE_CREDENTIALS,
-    // },
   },
   'iPhone 11': {
     type: 'sauce',

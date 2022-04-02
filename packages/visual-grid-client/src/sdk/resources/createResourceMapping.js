@@ -2,6 +2,7 @@
 
 const createResource = require('./createResource')
 const createDomResource = require('./createDomResource')
+const createVHSResource = require('./createVHSResource')
 
 function makeCreateResourceMapping({processResources}) {
   return async function createResourceMapping({
@@ -77,55 +78,34 @@ function makeCreateResourceMapping({processResources}) {
     }, {})
 
     let domResource
+    const resourceMappingWithoutDom = {...snapshotResources.mapping, ...frameDomResourceMapping}
     if (snapshot.cdt) {
       domResource = await processResources({
         resources: {
           [snapshot.url]: createDomResource({
             cdt: snapshot.cdt,
-            resources: {...snapshotResources.mapping, ...frameDomResourceMapping},
+            resources: resourceMappingWithoutDom,
           }),
         },
       })
     } else if (snapshot.vhsHash) {
       domResource = await processResources({
         resources: {
-          vhs: createResource({
-            value: Buffer.from(
-              JSON.stringify({
-                vhs: snapshot.vhsHash,
-                resources: {
-                  ...snapshotResources.mapping,
-                  ...frameDomResourceMapping,
-                  vhs: undefined,
-                }, // this will be empty until resources are supported inside VHS
-                metadata: {
-                  platformName: snapshot.platformName,
-                  vhsType: snapshot.vhsType,
-                },
-              }),
-            ),
-            type: 'x-applitools-resource-map/native',
+          vhs: createVHSResource({
+            vhsHash: snapshot.vhsHash,
+            resourceMapping: resourceMappingWithoutDom, // this will be empty until resources are supported inside VHS
+            vhsType: snapshot.vhsType,
+            platformName: snapshot.platformName,
           }),
         },
       })
     } else {
       domResource = await processResources({
         resources: {
-          vhs: createResource({
-            value: Buffer.from(
-              JSON.stringify({
-                vhs: snapshotResources.mapping.vhs,
-                resources: {
-                  ...snapshotResources.mapping,
-                  ...frameDomResourceMapping,
-                  vhs: undefined,
-                }, // this will be empty until resources are supported inside VHS
-                metadata: {
-                  platformName: snapshot.platformName,
-                },
-              }),
-            ),
-            type: 'x-applitools-resource-map/native',
+          vhs: createVHSResource({
+            vhsHash: snapshotResources.mapping.vhs,
+            resourceMapping: resourceMappingWithoutDom, // this will be empty until resources are supported inside VHS
+            platformName: snapshot.platformName,
           }),
         },
       })

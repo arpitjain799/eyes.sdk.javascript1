@@ -209,8 +209,7 @@ class FakeEyesWrapper extends EventEmitter {
       const emulationInfo = renderInfo.emulationInfo
       const iosDeviceInfo = renderInfo.iosDeviceInfo
       const deviceName =
-        (emulationInfo && emulationInfo.deviceName) ||
-        (iosDeviceInfo && iosDeviceInfo.deviceName)
+        (emulationInfo && emulationInfo.deviceName) || (iosDeviceInfo && iosDeviceInfo.deviceName)
       const browserName = renderRequest.browser.name
       return {
         renderer: 'renderer-uid',
@@ -247,7 +246,7 @@ class FakeEyesWrapper extends EventEmitter {
     } = JSON.parse(screenshotUrl)
 
     let expectedImageLocation = undefined
-    if (target === 'selector' || target === 'full-selector' && selector) {
+    if (target === 'selector' || (target === 'full-selector' && selector)) {
       expectedImageLocation = new Location(selectorsToLocations[selector])
     } else if (target === 'region' && region) {
       expectedImageLocation = new Region(this.region).getLocation()
@@ -261,7 +260,7 @@ class FakeEyesWrapper extends EventEmitter {
       compare(emulationInfo, this.emulationInfo) &&
       compare(iosDeviceInfo, this.iosDeviceInfo) &&
       // selectorsToFindRegionsFor should be undefined when not provided, but
-      // it can also (apparently) bw an empty array, so adding this as the sensible
+      // it can also (apparently) be an empty array, so adding this as the sensible
       // default to resolve integration test failures
       compare(selectorsToFindRegionsFor || [], this.selectorsToFindRegionsFor || []) &&
       // the default for `platform` in is {type: 'web'} if `type` is undefined in createRenderRequest

@@ -161,34 +161,29 @@ class EyesVisualGrid extends EyesCore {
         )
         const showLogs = this._configuration.getShowLogs()
 
-        const config = CheckSettingsUtils.toCheckWindowConfiguration({
-          checkSettings: persistedCheckSettings,
-          configuration: this._configuration,
-        })
-
-        const target = {}
+        const snapshotArgs = {}
         if (this._driver.isWeb) {
           const {snapshots, cookies} = await takeDomSnapshots({
-            driver: this._driver,
             browsers,
             breakpoints,
             disableBrowserFetching,
+            driver: this._driver,
+            logger: this._logger,
             skipResources: this._getResourceUrlsInCache(),
             getViewportSize: () => this.getViewportSize().then(rectangleSize => rectangleSize.toJSON()),
             getEmulatedDevicesSizes: this._getEmulatedDevicesSizes,
             getIosDevicesSizes: this._getIosDevicesSizes,
             showLogs,
             waitBeforeCapture: () => utils.general.sleep(waitBeforeCapture),
-            logger: this._logger,
           })
 
           const [{url}] = snapshots
           if (this.getCorsIframeHandle() === CorsIframeHandles.BLANK) {
             snapshots.forEach(CorsIframeHandler.blankCorsIframeSrcOfCdt)
           }
-          target.url = url
-          target.snapshot = snapshots
-          target.cookies = cookies
+          snapshotArgs.url = url
+          snapshotArgs.snapshot = snapshots
+          snapshotArgs.cookies = cookies
         } else {
           const {snapshots} = await takeVHSes({
             driver: this._driver,
@@ -197,13 +192,18 @@ class EyesVisualGrid extends EyesCore {
             waitBeforeCapture: () => utils.general.sleep(waitBeforeCapture),
             logger: this._logger,
           })
-          target.isNativeUFG = true
-          target.snapshot = snapshots
+          snapshotArgs.isNativeUFG = true
+          snapshotArgs.snapshot = snapshots
         }
+
+        const config = CheckSettingsUtils.toCheckWindowConfiguration({
+          checkSettings: persistedCheckSettings,
+          configuration: this._configuration,
+        })
 
         return await this._checkWindowCommand({
           ...config,
-          ...target,
+          ...snapshotArgs,
           closeAfterMatch,
           throwEx,
         })

@@ -51,7 +51,7 @@ describe('UFG native', () => {
     expect(results[0].getStatus()).to.equal('Passed')
   })
 
-  it.only('renders VHS correctly on iOS', async () => {
+  it('renders VHS correctly on iOS', async () => {
     const {checkWindow, close} = await openEyes({
       appName: 'core app',
       testName: 'native ufg ios',

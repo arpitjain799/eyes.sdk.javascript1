@@ -168,6 +168,7 @@ function makeCheckWindow({
         sendDom,
         visualGridOptions,
         includeFullPageSize: !!pageId,
+        agentId: wrapper.getBaseAgentId(),
       })
 
       if (!wrapper.getAppEnvironment()) {

@@ -1,5 +1,10 @@
 async function takeVHSes({driver, browsers, apiKey, waitBeforeCapture, logger}) {
   logger.log('taking VHS')
+
+  if (!driver.isAndroid && !driver.isIOS) {
+    throwError('cannot take VHS on mobile device other than iOS or Android')
+  }
+
   if (waitBeforeCapture) await waitBeforeCapture()
 
   const context = driver.currentContext
@@ -41,7 +46,7 @@ async function takeVHSes({driver, browsers, apiKey, waitBeforeCapture, logger}) 
   } else if (info.mode === 'labels') {
     vhs = await collectChunkedVHS({count: info.partsCount})
   } else if (info.mode === 'network') {
-    // TODO
+    // do nothing
   } else {
     throwError(`unknown mode for android: ${info.mode}`)
   }
@@ -52,27 +57,31 @@ async function takeVHSes({driver, browsers, apiKey, waitBeforeCapture, logger}) 
   }
   await clear.click()
 
-  const snapshot = {vhs}
+  let snapshot
 
   if (driver.isAndroid) {
-    snapshot.platformName = 'android'
-    snapshot.vhsType = info.flavorName
-    snapshot.vhsHash = {
-      hashFormat: 'sha256',
-      hash: info.vhsHash,
-      contentType: `x-applitools-vhs/${snapshot.vhsType}`,
-    }
-  } else if (driver.isIOS) {
-    snapshot.platformName = 'ios'
-    snapshot.resourceContents = {
-      vhs: {
-        value: Buffer.from(vhs, 'base64'),
-        type: 'x-applitools-vhs/ios',
+    snapshot = {
+      platformName: 'android',
+      vhsType: info.flavorName,
+      vhsHash: {
+        hashFormat: 'sha256',
+        hash: info.vhsHash,
+        contentType: `x-applitools-vhs/${info.flavorName}`,
       },
     }
-    snapshot.vhsCompatibilityParams = {
-      UIKitLinkTimeVersionNumber: info.UIKitLinkTimeVersionNumber,
-      UIKitRunTimeVersionNumber: info.UIKitRunTimeVersionNumber,
+  } else {
+    snapshot = {
+      platformName: 'ios',
+      resourceContents: {
+        vhs: {
+          value: Buffer.from(vhs, 'base64'),
+          type: 'x-applitools-vhs/ios',
+        },
+      },
+      vhsCompatibilityParams: {
+        UIKitLinkTimeVersionNumber: info.UIKitLinkTimeVersionNumber,
+        UIKitRunTimeVersionNumber: info.UIKitRunTimeVersionNumber,
+      },
     }
   }
 

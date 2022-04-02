@@ -101,7 +101,7 @@ function toCheckWindowConfiguration({checkSettings, configuration}) {
     pageId: checkSettings.pageId || undefined,
   }
 
-  if (config.target === 'region') {
+  if (checkSettings.region) {
     if (utils.types.has(checkSettings.region, ['width', 'height'])) {
       config.target = 'region'
       config.region = utils.types.has(checkSettings.region, ['x', 'y'])

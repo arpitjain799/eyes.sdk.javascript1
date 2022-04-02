@@ -2,7 +2,7 @@ const crypto = require('crypto')
 const VISUAL_GRID_MAX_BUFFER_SIZE = 34.5 * 1024 * 1024
 
 function createResource(data = {}) {
-  const {url, value, type, browserName, hash, dependencies, errorStatusCode} = data
+  const {url, value, type, browserName, dependencies, errorStatusCode} = data
   const resource = {}
 
   if (url) {
@@ -20,8 +20,6 @@ function createResource(data = {}) {
     resource.userAgent = userAgents[resource.browserName]
     resource.id += `~${resource.browserName}`
   }
-
-  if (hash) resource.hash = hash
 
   if ('value' in data) {
     resource.value =
