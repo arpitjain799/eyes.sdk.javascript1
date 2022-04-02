@@ -1,6 +1,6 @@
 {
   "name": "@applitools/eyes-cypress",
-  "version": "3.25.2",
+  "version": "3.25.3",
   "main": "index.js",
   "license": "SEE LICENSE IN LICENSE",
   "bin": {
@@ -60,9 +60,9 @@
     "ws": "8.5.0"
   },
   "devDependencies": {
+    "@applitools/bongo": "^2.0.0",
     "@applitools/scripts": "1.1.0",
     "@applitools/sdk-coverage-tests": "^2.3.18",
-    "@applitools/sdk-release-kit": "1.0.4",
     "@applitools/snaptdout": "1.0.1",
     "@applitools/test-server": "1.0.8",
     "@applitools/test-utils": "1.1.5",

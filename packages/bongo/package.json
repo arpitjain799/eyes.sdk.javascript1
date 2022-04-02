@@ -1,11 +1,11 @@
 {
-  "name": "@applitools/sdk-release-kit",
-  "version": "1.0.4",
+  "name": "@applitools/bongo",
+  "version": "2.0.0",
   "engines": {
     "node": ">=10.0.0"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "restricted"
   },
   "directories": {
     "lib": "./src",
@@ -21,7 +21,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/applitools/eyes.sdk.javascript1.git",
-    "directory": "packages/sdk-release-kit"
+    "directory": "packages/bongo"
   },
   "scripts": {
     "test": "mocha test/**/*.spec.js",
@@ -47,6 +47,7 @@
     "yargs": "15.0.2"
   },
   "devDependencies": {
+    "@applitools/bongo": "^2.0.0",
     "chai": "^4.2.0",
     "eslint": "^7.9.0",
     "eslint-plugin-mocha-no-only": "^1.1.1",

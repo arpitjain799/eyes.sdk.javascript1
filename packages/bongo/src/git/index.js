@@ -76,11 +76,31 @@ async function getPublishDate({tag}) {
   return stdout.trim()
 }
 
+async function getSha({tag}) {
+  const {stdout} = await pexec(`git rev-list -n 1 ${tag}`)
+  return stdout.trim()
+}
+
+async function getTagsWith({sha, tag, filterByCollection}) {
+  if (tag) sha = await getSha({tag})
+  const {stdout} = await pexec(`git tag --contains ${sha}`)
+  const result = stdout
+    .split('\n')
+    .map(tag => tag.trim())
+    .filter(tag => tag)
+  if (!filterByCollection) return result
+  return result.filter(tag => {
+    const match = tag.match(/^(@.*)@/)
+    const pkgName = match && match[1]
+    if (filterByCollection.find(entry => entry.includes(pkgName))) return tag
+  })
+}
+
 async function gitAdd(target) {
   await pexec(`git add ${target}`)
 }
 
-async function gitCommit(message = 'Committed with sdk-release-kit') {
+async function gitCommit(message = 'Committed with bongo') {
   await pexec(`git commit -m "${message}"`)
 }
 
@@ -152,6 +172,8 @@ module.exports = {
   expandAutoCommitLogEntry,
   findPackageVersionNumbers,
   getPublishDate,
+  getSha,
+  getTagsWith,
   gitAdd,
   gitCommit,
   gitLog,

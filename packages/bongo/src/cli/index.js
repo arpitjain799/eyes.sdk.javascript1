@@ -5,6 +5,7 @@ const chalk = require('chalk')
 const path = require('path')
 const fs = require('fs')
 const {
+  getSDKPackageNames,
   removePendingChanges,
   verifyChangelog,
   verifyPendingChanges,
@@ -19,6 +20,7 @@ const {verifyCommits, verifyInstalledVersions, verifyVersions} = require('../ver
 const {
   findPackageVersionNumbers,
   getPublishDate,
+  getTagsWith,
   gitAdd,
   gitCommit,
   gitPushWithTags,
@@ -32,6 +34,36 @@ const pendingChangesFilePath = path.join(process.cwd(), '..', '..', 'pending-cha
 yargs
   .config({cwd: process.cwd()})
   .command(
+    ['released', 'release'],
+    'Show which SDK versions contain a given package version or commit',
+    {
+      filterBySDK: {type: 'boolean', default: true},
+      packageName: {alias: 'p', type: 'string'},
+      sha: {type: 'string'},
+      version: {alias: 'v', type: 'number'},
+      versionsBack: {alias: 'n', type: 'number', default: 1},
+    },
+    async args => {
+      const {cwd, filterBySDK, packageName, sha, version, versionsBack} = args
+      const pkgName = packageName ? packageName : require(path.join(cwd, 'package.json')).name
+      const versions = await findPackageVersionNumbers({cwd, packageName})
+      const tag = version ? `${pkgName}@${version}` : `${pkgName}@${versions[versionsBack]}`
+      const filterByCollection = filterBySDK
+        ? getSDKPackageNames(pendingChangesFilePath)
+        : undefined
+      const result = sha
+        ? await getTagsWith({sha, filterByCollection})
+        : await getTagsWith({tag, filterByCollection})
+      console.log('bongo released output')
+      if (!sha)
+        console.log(
+          'you can specify a different package version with either an explicit version (with --version or --v) or through a relative number (with --versionsBack or --n)',
+        )
+      console.log(`showing where ${sha ? sha : tag} has been released to`)
+      console.log(result)
+    },
+  )
+  .command(
     ['log', 'logs'],
     'Show commit logs for a given package',
     {
@@ -39,7 +71,7 @@ yargs
       lowerVersion: {alias: 'lv', type: 'string'},
       upperVersion: {alias: 'uv', type: 'string'},
       expandAutoCommitLogEntries: {alias: 'expand', type: 'boolean', default: true},
-      versionsBack: {alias: 'n', type: 'number'},
+      versionsBack: {alias: 'n', type: 'number', default: 3},
       listVersions: {alias: 'lsv', type: 'boolean'},
       splitByVersion: {alias: 'split', type: 'boolean', default: true},
     },
@@ -52,28 +84,29 @@ yargs
         packageName,
         splitByVersion,
         upperVersion,
+        versionsBack,
       } = args
 
       const pkgName = packageName ? packageName : require(path.join(cwd, 'package.json')).name
-      const versions = await findPackageVersionNumbers({cwd})
-      const versionsBack = args.versionsBack ? args.versionsBack : 3
+      const versions = await findPackageVersionNumbers({cwd, packageName})
       const lower = lowerVersion || versions[versionsBack]
       const upper = upperVersion || versions[0]
 
       console.log('bongo log output')
       console.log(`package: ${pkgName}`)
-      if (!args.versionsBack) {
-        console.log(
-          `'versionsBack' (or --n) not provided, using a sensible default of ${versionsBack}`,
-        )
-      }
+      console.log(
+        `Looking ${versionsBack} versions back (specify a different number to look back with --n)`,
+      )
       if (versionsBack && lowerVersion)
         console.log(
           `arguments 'versionsBack' and 'lowerVersion' both provided, using 'lowerVersion' and ignoring 'versionsBack'`,
         )
       if (listVersions) {
         console.log(`Listing previous ${versionsBack} version numbers`)
-        versions.slice(0, versionsBack).forEach(version => console.log(`- ${version}`))
+        versions.slice(0, versionsBack).forEach(async version => {
+          const publishDate = await getPublishDate({tag: `${pkgName}@${version}`})
+          console.log(`- ${version} (published ${publishDate})`)
+        })
       } else {
         console.log(`changes from versions ${versions[versionsBack - 1]} to ${upper}`)
         if (splitByVersion) {
@@ -153,6 +186,23 @@ yargs
       }
       await commitFiles(args)
       console.log('[bongo preversion] done!')
+    },
+  )
+  .command(
+    ['update-changelog'],
+    'Create changelog entry with what is in pending changes',
+    {},
+    async ({cwd}) => {
+      verifyChangelog(cwd)
+      verifyPendingChanges({cwd, pendingChangesFilePath})
+
+      writePendingChangesToChangelog({cwd, pendingChangesFilePath})
+      removePendingChanges({cwd, pendingChangesFilePath})
+      writeReleaseEntryToChangelog(cwd)
+
+      await gitAdd(pendingChangesFilePath)
+      await gitAdd('CHANGELOG.md')
+      await gitCommit('[auto commit] updated changelog')
     },
   )
   .command(
@@ -239,9 +289,6 @@ yargs
     'Display dependencies from a verify-installed-versions run',
     {},
     () => lsDryRun(),
-  )
-  .command(['update-changelog', 'uc'], 'Create release entry in the changelog', {}, ({cwd}) =>
-    writeReleaseEntryToChangelog(cwd),
   )
   .command(
     ['send-release-notification', 'hello-world'],
