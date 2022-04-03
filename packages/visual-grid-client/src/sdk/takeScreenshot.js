@@ -1,7 +1,7 @@
 'use strict'
 
 const makeRenderer = require('./renderer')
-const createRenderRequest = require('./render/createRenderRequest')
+const {createRenderRequest} = require('./render/createRenderRequest')
 const {RenderingInfo, deserializeDomSnapshotResult} = require('@applitools/eyes-sdk-core/shared')
 
 require('@applitools/isomorphic-fetch') // TODO can just use node-fetch

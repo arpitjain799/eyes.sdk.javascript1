@@ -17,23 +17,20 @@ function createRenderRequest({
 }) {
   const {chromeEmulationInfo, iosDeviceInfo, androidDeviceInfo, ...browserInfo} = browser
 
-  let platformName = browserInfo.platform
+  let platformName = browserInfo.platform || 'linux'
   let browserName = browserInfo.name
-  let emulationInfo
   if (iosDeviceInfo) {
     platformName = 'ios'
-    if (!isNativeUFG) browserName = 'safari'
+    browserName = 'safari'
   } else if (androidDeviceInfo) {
     platformName = 'android'
   }
-  if (browserInfo.deviceScaleFactor) {
-    emulationInfo = {
-      deviceScaleFactor: browserInfo.deviceScaleFactor,
-      width: browserInfo.width,
-      height: browserInfo.height,
-      mobile: browserInfo.mobile,
-      screenOrientation: browserInfo.screenOrientation,
-    }
+
+  let width = browserInfo.width
+  let height = browserInfo.height
+  if (chromeEmulationInfo) {
+    if (!width) width = chromeEmulationInfo.width
+    if (!height) height = chromeEmulationInfo.height
   }
 
   return {
@@ -44,11 +41,11 @@ function createRenderRequest({
     browser: isNativeUFG ? undefined : {name: browserName},
     renderInfo: {
       target,
-      width: browserInfo.width,
-      height: browserInfo.height,
+      width,
+      height,
       selector,
       region,
-      emulationInfo: chromeEmulationInfo || emulationInfo,
+      emulationInfo: chromeEmulationInfo,
       iosDeviceInfo,
       androidDeviceInfo,
     },
@@ -64,4 +61,15 @@ function createRenderRequest({
   }
 }
 
-module.exports = createRenderRequest
+function enrichRenderRequest(renderRequest, {dom, resources, snapshot, renderer}) {
+  renderRequest.snapshot = dom
+  renderRequest.resources = resources
+  renderRequest.renderer = renderer
+  renderRequest.renderInfo.vhsType = snapshot.vhsType
+  renderRequest.renderInfo.vhsCompatibilityParams = snapshot.vhsCompatibilityParams
+}
+
+module.exports = {
+  createRenderRequest,
+  enrichRenderRequest,
+}

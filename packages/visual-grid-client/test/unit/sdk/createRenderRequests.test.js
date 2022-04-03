@@ -1,10 +1,13 @@
 const {expect} = require('chai')
-const createRenderRequest = require('../../../src/sdk/render/createRenderRequest')
+const {
+  createRenderRequest,
+  enrichRenderRequest,
+} = require('../../../src/sdk/render/createRenderRequest')
 const createResource = require('../../../src/sdk/resources/createResource')
 const createDomResource = require('../../../src/sdk/resources/createDomResource')
 
 describe('createRenderRequest', () => {
-  let renderInfo, url, resources, dom
+  let renderInfo, url, resources, snapshot
 
   beforeEach(() => {
     renderInfo = {
@@ -22,7 +25,6 @@ describe('createRenderRequest', () => {
     const resource1 = createResource({url: 'url1', value: 'content1'})
     const resource2 = createResource({url: 'url2', value: 'content2'})
     const resources = {[resource1.url]: resource1.hash, [resource2.url]: resource2.hash}
-    const dom = createDomResource({cdt: 'cdt', resources})
 
     const renderRequest = createRenderRequest({
       url,
@@ -30,7 +32,7 @@ describe('createRenderRequest', () => {
       resources,
       browser: {width: 1, height: 2, name: 'b1'},
       renderInfo,
-      target: {},
+      target: 'target',
       selector: 'selector',
       region: {left: 1, top: 2, width: 3, height: 4},
       scriptHooks: 'scriptHooks',
@@ -42,7 +44,7 @@ describe('createRenderRequest', () => {
       webhook: 'resultsUrl',
       stitchingService: 'stitchingServiceUrl',
       url,
-      resources: resources,
+      resources,
       browser: {name: 'b1'},
       scriptHooks: 'scriptHooks',
       sendDom: 'sendDom',
@@ -50,8 +52,8 @@ describe('createRenderRequest', () => {
       includeFullPageSize: undefined,
       options: undefined,
       platform: {
-        name: undefined,
-        type: "web",
+        name: 'linux',
+        type: 'web',
       },
       renderInfo: {
         iosDeviceInfo: undefined,
@@ -60,11 +62,12 @@ describe('createRenderRequest', () => {
         width: 1,
         height: 2,
         selector: 'selector',
-        target: {},
+        target: 'target',
         region: {left: 1, top: 2, width: 3, height: 4},
       },
       selectorsToFindRegionsFor: undefined,
       snapshot,
+      agentId: undefined,
     })
   })
 
@@ -91,7 +94,7 @@ describe('createRenderRequest', () => {
       includeFullPageSize: undefined,
       browser: {name: undefined},
       options: undefined,
-      platform: {type: 'web', name: undefined},
+      platform: {type: 'web', name: 'linux'},
       scriptHooks: undefined,
       selectorsToFindRegionsFor: undefined,
       sendDom: undefined,
@@ -105,11 +108,12 @@ describe('createRenderRequest', () => {
         region: undefined,
         target: undefined,
       },
+      agentId: undefined,
     })
   })
 
   it('handles emulation info with device', () => {
-    const browser = {width: 1, height: 2, deviceScaleFactor: 3}
+    const browser = {chromeEmulationInfo: {width: 1, height: 2, deviceScaleFactor: 3}}
     const renderInfo = {
       getResultsUrl: () => 'resultsUrl',
       getStitchingServiceUrl: () => 'stitchingServiceUrl',
@@ -132,8 +136,8 @@ describe('createRenderRequest', () => {
       browser: {name: undefined},
       enableMultipleResultsPerSelector: true,
       platform: {
-        type: "web",
-        name: undefined,
+        type: 'web',
+        name: 'linux',
       },
       includeFullPageSize: undefined,
       options: undefined,
@@ -147,8 +151,6 @@ describe('createRenderRequest', () => {
           width: 1,
           height: 2,
           deviceScaleFactor: 3,
-          screenOrientation: undefined,
-          mobile: undefined,
         },
         height: 2,
         width: 1,
@@ -156,6 +158,7 @@ describe('createRenderRequest', () => {
         region: undefined,
         target: undefined,
       },
+      agentId: undefined,
     })
   })
 
@@ -191,13 +194,14 @@ describe('createRenderRequest', () => {
       browser: {name: undefined},
       enableMultipleResultsPerSelector: true,
       platform: {
-        type: "web",
-        name: undefined,
+        type: 'web',
+        name: 'linux',
       },
       includeFullPageSize: undefined,
       options: undefined,
       scriptHooks: undefined,
       sendDom: undefined,
+      agentId: undefined,
     })
   })
 
@@ -245,8 +249,10 @@ describe('createRenderRequest', () => {
       options: undefined,
       scriptHooks: undefined,
       sendDom: undefined,
+      agentId: undefined,
     })
   })
+
   it('handles iosDeviceInfo native', () => {
     const iosDeviceInfo = {
       deviceName: 'ios device',
@@ -255,7 +261,7 @@ describe('createRenderRequest', () => {
     }
     const browser = {iosDeviceInfo}
     const renderRequest = createRenderRequest({
-      type: 'native',
+      isNativeUFG: true,
       url,
       snapshot,
       resources,
@@ -292,6 +298,31 @@ describe('createRenderRequest', () => {
       options: undefined,
       scriptHooks: undefined,
       sendDom: undefined,
+      agentId: undefined,
+    })
+  })
+})
+
+describe('enrichRenderRequest', () => {
+  it('works', () => {
+    const renderRequest = {renderInfo: {}}
+    enrichRenderRequest(renderRequest, {
+      dom: 'dom',
+      resources: 'resources',
+      renderer: 'renderer',
+      snapshot: {
+        vhsType: 'vhsType',
+        vhsCompatibilityParams: 'vhsCompatibilityParams',
+      },
+    })
+    expect(renderRequest).to.eql({
+      snapshot: 'dom',
+      resources: 'resources',
+      renderer: 'renderer',
+      renderInfo: {
+        vhsType: 'vhsType',
+        vhsCompatibilityParams: 'vhsCompatibilityParams',
+      },
     })
   })
 })

@@ -1,7 +1,7 @@
 'use strict'
 
 const {presult} = require('@applitools/functional-commons')
-const createRenderRequest = require('./render/createRenderRequest')
+const {createRenderRequest, enrichRenderRequest} = require('./render/createRenderRequest')
 const isInvalidAccessibility = require('./isInvalidAccessibility')
 const calculateSelectorsToFindRegionsFor = require('./calculateSelectorsToFindRegionsFor')
 const makeWaitForTestEnd = require('./makeWaitForTestEnd')
@@ -179,11 +179,12 @@ function makeCheckWindow({
       await wrapper.ensureRunningSession()
 
       const {dom, resources} = await resourcesPromises[index]
-      renderRequest.snapshot = dom
-      renderRequest.renderInfo.vhsType = snapshots[index].vhsType
-      renderRequest.renderInfo.vhsCompatibilityParams = snapshots[index].vhsCompatibilityParams
-      renderRequest.resources = resources
-      renderRequest.renderer = wrapper.getRenderer()
+      enrichRenderRequest(renderRequest, {
+        dom,
+        resources,
+        renderer: wrapper.getRenderer(),
+        snapshot: snapshots[index],
+      })
 
       const [renderErr, renderId] = await presult(renderJob(renderRequest))
 
