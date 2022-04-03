@@ -233,8 +233,8 @@ describe('createRenderRequest', () => {
         androidDeviceInfo: undefined,
         emulationInfo: undefined,
         iosDeviceInfo: {
-          deviceName: 'ios device',
-          iosVersion: 'ios version',
+          name: 'ios device',
+          version: 'ios version',
           screenOrientation: 'ios screen orientation',
         },
         region: undefined,
@@ -282,8 +282,8 @@ describe('createRenderRequest', () => {
         androidDeviceInfo: undefined,
         emulationInfo: undefined,
         iosDeviceInfo: {
-          deviceName: 'ios device',
-          iosVersion: 'ios version',
+          name: 'ios device',
+          version: 'ios version',
           screenOrientation: 'ios screen orientation',
         },
         region: undefined,

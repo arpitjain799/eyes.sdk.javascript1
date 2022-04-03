@@ -209,7 +209,7 @@ class FakeEyesWrapper extends EventEmitter {
       const emulationInfo = renderInfo.emulationInfo
       const iosDeviceInfo = renderInfo.iosDeviceInfo
       const deviceName =
-        (emulationInfo && emulationInfo.deviceName) || (iosDeviceInfo && iosDeviceInfo.deviceName)
+        (emulationInfo && emulationInfo.deviceName) || (iosDeviceInfo && iosDeviceInfo.name)
       const browserName = renderRequest.browser.name
       return {
         renderer: 'renderer-uid',

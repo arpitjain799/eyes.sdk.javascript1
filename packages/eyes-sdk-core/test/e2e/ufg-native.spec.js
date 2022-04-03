@@ -31,7 +31,7 @@ describe('UFG native', () => {
         appName: 'core app',
         testName: 'native ufg android',
         waitBeforeCapture: 1500,
-        browsersInfo: [{androidDeviceInfo: {name: 'Pixel 4 XL', version: 'latest'}}],
+        browsersInfo: [{androidDeviceInfo: {deviceName: 'Pixel 4 XL', androidVersion: 'latest'}}],
         saveNewTests: false,
       }
       const eyes = await manager.openEyes({driver, config})
@@ -52,7 +52,7 @@ describe('UFG native', () => {
         appName: 'core app',
         testName: 'native ufg ios',
         waitBeforeCapture: 1500,
-        browsersInfo: [{iosDeviceInfo: {name: 'iPhone 12', version: 'latest'}}],
+        browsersInfo: [{iosDeviceInfo: {deviceName: 'iPhone 12', iosVersion: 'latest'}}],
         saveNewTests: false,
       }
       const eyes = await manager.openEyes({driver, config})

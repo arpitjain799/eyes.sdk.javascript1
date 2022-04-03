@@ -37,6 +37,9 @@ function createRenderRequest({
     browserName = 'chrome'
   }
 
+  const modifiedIosDeviceInfo = modifyDeviceInfo(iosDeviceInfo)
+  const modifiedAndroidDeviceInfo = modifyDeviceInfo(androidDeviceInfo)
+
   return {
     webhook: renderInfo.getResultsUrl(),
     stitchingService: renderInfo.getStitchingServiceUrl(),
@@ -50,8 +53,8 @@ function createRenderRequest({
       selector,
       region,
       emulationInfo: chromeEmulationInfo,
-      iosDeviceInfo,
-      androidDeviceInfo,
+      iosDeviceInfo: modifiedIosDeviceInfo,
+      androidDeviceInfo: modifiedAndroidDeviceInfo,
     },
     snapshot,
     resources,
@@ -71,6 +74,23 @@ function enrichRenderRequest(renderRequest, {dom, resources, snapshot, renderer}
   renderRequest.renderer = renderer
   renderRequest.renderInfo.vhsType = snapshot.vhsType
   renderRequest.renderInfo.vhsCompatibilityParams = snapshot.vhsCompatibilityParams
+}
+
+function modifyDeviceInfo(deviceInfo) {
+  const ret = deviceInfo
+    ? {
+        ...deviceInfo,
+        name: deviceInfo.deviceName,
+        version: deviceInfo.iosVersion || deviceInfo.androidVersion,
+      }
+    : undefined
+
+  if (ret) {
+    delete ret.deviceName
+    delete ret.androidVersion
+    delete ret.iosVersion
+  }
+  return ret
 }
 
 module.exports = {

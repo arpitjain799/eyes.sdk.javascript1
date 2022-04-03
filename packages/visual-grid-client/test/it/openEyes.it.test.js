@@ -1817,7 +1817,7 @@ Received: 'firefox-1'.`,
 
   it('renders iosDeviceInfo', async () => {
     const deviceName = 'iPhone 4'
-    const iosDeviceInfo = {screenOrientation: 'portrait', version: 'latest', deviceName}
+    const iosDeviceInfo = {screenOrientation: 'portrait', iosVersion: 'latest', deviceName}
     const {checkWindow, close} = await openEyes({
       wrappers: [wrapper],
       browser: {
@@ -1832,7 +1832,11 @@ Received: 'firefox-1'.`,
     checkWindow({url: '', snapshot: {cdt: []}})
     const [results] = await close()
     expect(wrapper.getDeviceInfo()).to.equal(deviceName)
-    expect(wrapper.iosDeviceInfo).to.eql(iosDeviceInfo)
+    expect(wrapper.iosDeviceInfo).to.eql({
+      name: deviceName,
+      version: iosDeviceInfo.iosVersion,
+      screenOrientation: iosDeviceInfo.screenOrientation,
+    })
     expect(wrapper.getAppEnvironment().displaySize).to.eql(FakeEyesWrapper.devices[deviceName])
     expect(results.getStepsInfo()[0].result.getAsExpected()).to.equal(true)
   })

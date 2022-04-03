@@ -29,7 +29,7 @@ describe('UFG native', () => {
     const {checkWindow, close} = await openEyes({
       appName: 'core app',
       testName: 'native ufg android',
-      browser: [{androidDeviceInfo: {name: 'Pixel 4 XL', version: 'latest'}}],
+      browser: [{androidDeviceInfo: {deviceName: 'Pixel 4 XL', androidVersion: 'latest'}}],
       saveNewTests: false,
     })
 
@@ -55,7 +55,7 @@ describe('UFG native', () => {
     const {checkWindow, close} = await openEyes({
       appName: 'core app',
       testName: 'native ufg ios',
-      browser: [{iosDeviceInfo: {name: 'iPhone 12', version: 'latest'}}],
+      browser: [{iosDeviceInfo: {deviceName: 'iPhone 12', iosVersion: 'latest'}}],
       saveNewTests: false,
     })
 

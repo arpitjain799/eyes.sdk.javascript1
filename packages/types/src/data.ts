@@ -228,8 +228,8 @@ export type AndroidVersion = 'latest' | 'latest-1' | 'latest-2'
 
 export type AndroidDeviceRenderer = {
   androidDeviceInfo: {
-    deviceName: IOSDevice
-    version?: IOSVersion
+    deviceName: AndroidDevice
+    version?: AndroidVersion
     screenOrientation?: ScreenOrientation
   }
 }
