@@ -13,6 +13,7 @@ function makeCreateResourceMapping({processResources}) {
     proxy,
     autProxy,
   }) {
+    const isWeb = !!snapshot.cdt
     const processedSnapshotResources = await processSnapshotResources({
       snapshot,
       browserName,
@@ -24,8 +25,8 @@ function makeCreateResourceMapping({processResources}) {
 
     const resources = await processedSnapshotResources.promise
 
-    const dom = resources[snapshot.url || 'vhs']
-    if (snapshot.url) {
+    const dom = resources[isWeb ? snapshot.url : 'vhs']
+    if (isWeb) {
       delete resources[snapshot.url]
     }
 

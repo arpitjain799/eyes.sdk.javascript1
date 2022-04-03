@@ -33,6 +33,10 @@ function createRenderRequest({
     if (!height) height = chromeEmulationInfo.height
   }
 
+  if (!browserName && !isNativeUFG) {
+    browserName = 'chrome'
+  }
+
   return {
     webhook: renderInfo.getResultsUrl(),
     stitchingService: renderInfo.getStitchingServiceUrl(),

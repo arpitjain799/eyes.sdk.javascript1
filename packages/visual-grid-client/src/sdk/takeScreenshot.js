@@ -48,7 +48,7 @@ async function takeScreenshot({
       return createRenderRequest({
         type,
         url,
-        dom,
+        snapshot: dom,
         resources,
         browser: browsers[index],
         renderInfo: renderingInfo,

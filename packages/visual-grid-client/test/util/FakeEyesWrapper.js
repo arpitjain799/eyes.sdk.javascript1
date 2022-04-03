@@ -263,10 +263,10 @@ class FakeEyesWrapper extends EventEmitter {
       // it can also (apparently) be an empty array, so adding this as the sensible
       // default to resolve integration test failures
       compare(selectorsToFindRegionsFor || [], this.selectorsToFindRegionsFor || []) &&
-      // the default for `platform` in is {type: 'web'} if `type` is undefined in createRenderRequest
+      // the default for `platform` is {name: 'linux', type: 'web'} if `type` is undefined in createRenderRequest
       // this.platform is only set in this wrapper as part of running a batch
       // so we need to also include the sensible default in this check
-      compare(platform, this.platform || {type: 'web'}) &&
+      compare(platform, this.platform || {name: 'linux', type: 'web'}) &&
       compare(imageLocation, expectedImageLocation)
 
     result.setAsExpected(asExpected)

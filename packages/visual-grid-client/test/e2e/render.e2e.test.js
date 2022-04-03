@@ -54,7 +54,7 @@ describe('render e2e', () => {
         resources,
         browser,
         renderInfo: renderingInfo,
-        sizeMode: 'full-page',
+        target: 'full-page',
       }),
     )
 

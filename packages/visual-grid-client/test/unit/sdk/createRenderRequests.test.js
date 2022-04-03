@@ -92,7 +92,7 @@ describe('createRenderRequest', () => {
       resources,
       enableMultipleResultsPerSelector: true,
       includeFullPageSize: undefined,
-      browser: {name: undefined},
+      browser: {name: 'chrome'},
       options: undefined,
       platform: {type: 'web', name: 'linux'},
       scriptHooks: undefined,
@@ -133,7 +133,7 @@ describe('createRenderRequest', () => {
       url,
       snapshot,
       resources,
-      browser: {name: undefined},
+      browser: {name: 'chrome'},
       enableMultipleResultsPerSelector: true,
       platform: {
         type: 'web',
@@ -191,7 +191,7 @@ describe('createRenderRequest', () => {
         target: undefined,
       },
       selectorsToFindRegionsFor: [{type: 'css', selector: 'bla'}],
-      browser: {name: undefined},
+      browser: {name: 'chrome'},
       enableMultipleResultsPerSelector: true,
       platform: {
         type: 'web',

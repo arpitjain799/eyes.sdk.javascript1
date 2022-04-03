@@ -1499,7 +1499,7 @@ Received: 'firefox-1'.`,
     checkWindow({
       url: '',
       snapshot: {cdt: []},
-      target: 'region',
+      target: 'selector',
       selector,
       ignore: [ignoreRegion, ignoreSelector],
       layout: [layoutRegion, layoutSelector],
@@ -1615,7 +1615,7 @@ Received: 'firefox-1'.`,
     checkWindow({
       url: '',
       snapshot: {cdt: []},
-      target: 'region',
+      target: 'selector',
       selector,
       ignore: [ignoreRegion, ignoreSelector],
       layout: [layoutRegion, layoutSelector],
@@ -1852,7 +1852,7 @@ Received: 'firefox-1'.`,
     checkWindow({url: '', snapshot: {cdt: []}})
     const [results] = await close()
     expect(wrapper.results[0].__browserName).to.equal('safari')
-    expect(wrapper.results[0].__platform).to.equal('ios')
+    expect(wrapper.results[0].__platform).to.eql({type: 'web', name: 'ios'})
     expect(wrapper.getDeviceInfo()).to.equal(deviceName)
     expect(results.getStepsInfo()[0].result.getAsExpected()).to.equal(true)
   })
