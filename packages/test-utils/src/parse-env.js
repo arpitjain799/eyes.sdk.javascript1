@@ -54,11 +54,10 @@ const DEVICES = {
       ...SAUCE_CREDENTIALS,
     },
   },
-  'iPhone 12 ufg native': {
+  'iPhone 12 UFG native': {
     type: 'sauce',
     url: SAUCE_NATIVE_SERVER_URL,
     capabilities: {
-      app: 'storage:5f78dc69-6f33-4b0f-a24a-22bffe67d13f',
       deviceName: 'iPhone 12 Pro Simulator',
       platformName: 'iOS',
       platformVersion: '15.2',
@@ -197,18 +196,17 @@ const DEVICES = {
       ...SAUCE_CREDENTIALS,
     },
   },
-    'Android emulator ufg native': {
-        type: 'sauce',
-        url: SAUCE_NATIVE_SERVER_URL,
-        capabilities: {
-          app: 'storage:1e9a4aa6-1632-41ae-90ba-ffafc338e940',
-          deviceName: 'Google Pixel 3 XL GoogleAPI Emulator',
-          platformName: 'Android',
-          platformVersion: '10.0',
-          deviceOrientation: 'portrait',
-          ...SAUCE_CREDENTIALS,
-        }
-      },
+  'Android emulator UFG native': {
+      type: 'sauce',
+      url: SAUCE_NATIVE_SERVER_URL,
+      capabilities: {
+        deviceName: 'Google Pixel 3 XL GoogleAPI Emulator',
+        platformName: 'Android',
+        platformVersion: '10.0',
+        deviceOrientation: 'portrait',
+        ...SAUCE_CREDENTIALS,
+      }
+    },
   'Pixel 3 XL': {
     type: 'sauce',
     url: SAUCE_SERVER_URL,

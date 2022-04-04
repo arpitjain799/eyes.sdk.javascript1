@@ -22,7 +22,8 @@ describe('UFG native', () => {
   describe('Android', () => {
     before(async () => {
       ;[driver, destroyDriver] = await spec.build({
-        device: 'Android emulator ufg native',
+        device: 'Android emulator UFG native',
+        app: 'storage:1e9a4aa6-1632-41ae-90ba-ffafc338e940',
       })
     })
 
@@ -44,6 +45,7 @@ describe('UFG native', () => {
     before(async () => {
       ;[driver, destroyDriver] = await spec.build({
         device: 'iPhone 12 ufg native',
+        app: 'storage:5f78dc69-6f33-4b0f-a24a-22bffe67d13f'
       })
     })
 
@@ -56,10 +58,6 @@ describe('UFG native', () => {
         saveNewTests: false,
       }
       const eyes = await manager.openEyes({driver, config})
-      //await driver
-      //  .switchTo()
-      //  .alert()
-      //  .dismiss()
       await eyes.check()
       await eyes.close({throwErr: true})
     })
