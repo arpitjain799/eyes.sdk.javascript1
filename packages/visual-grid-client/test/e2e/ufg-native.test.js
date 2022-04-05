@@ -6,7 +6,9 @@ const {loadFixtureBuffer} = require('../util/loadFixture')
 const makeRenderingGridClient = require('../../src/sdk/renderingGridClient')
 const testLogger = require('../util/testLogger')
 
-describe('UFG native', () => {
+// This is for demo purposes, and was done as part of implementing support for UFG native in core
+// The reason it is skipped is because there are generic coverage tests covering the same scenario
+describe.skip('UFG native', () => {
   let openEyes
   const apiKey = process.env.APPLITOOLS_API_KEY // TODO bad for tests. what to do
 

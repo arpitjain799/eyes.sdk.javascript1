@@ -2,7 +2,9 @@ const VisualGridClient = require('@applitools/visual-grid-client')
 const spec = require('@applitools/spec-driver-selenium')
 const makeSDK = require('../../lib/new/sdk')
 
-describe('UFG native', () => {
+// This is for demo purposes, and was done as part of implementing support for UFG native in core
+// The reason it is skipped is because there are generic coverage tests covering the same scenario
+describe.skip('UFG native', () => {
   let driver, destroyDriver, sdk, manager
 
   before(async () => {
@@ -22,8 +24,8 @@ describe('UFG native', () => {
   describe('Android', () => {
     before(async () => {
       ;[driver, destroyDriver] = await spec.build({
-        device: 'Android emulator UFG native',
-        app: 'storage:1e9a4aa6-1632-41ae-90ba-ffafc338e940',
+        device: 'Pixel 3 XL',
+        app: 'https://applitools.jfrog.io/artifactory/Examples/ufg-native-example.apk',
       })
     })
 
@@ -44,8 +46,8 @@ describe('UFG native', () => {
   describe('iOS', () => {
     before(async () => {
       ;[driver, destroyDriver] = await spec.build({
-        device: 'iPhone 12 ufg native',
-        app: 'storage:5f78dc69-6f33-4b0f-a24a-22bffe67d13f'
+        device: 'iPhone 12',
+        app: 'https://applitools.jfrog.io/artifactory/Examples/DuckDuckGo-instrumented.app.zip',
       })
     })
 
