@@ -15,12 +15,14 @@ export interface Socket {
   unref(): () => void
 }
 
-export function makeSocket(ws: WebSocket): Socket {
+export function makeSocket(ws?: WebSocket): Socket {
   let socket: WebSocket = null
   const listeners = new Map<string, Set<(...args: any[]) => any>>()
   const queue = new Set<() => any>()
 
-  attach(ws)
+  if (ws) {
+    attach(ws)
+  }
 
   return {
     connect,
@@ -46,6 +48,7 @@ export function makeSocket(ws: WebSocket): Socket {
       queue.clear()
 
       socket.on('message', message => {
+        console.log('==>', message)
         const {name, key, payload} = deserialize(message as string)
         const fns = listeners.get(name)
         if (fns) fns.forEach(fn => fn(payload, key))
@@ -79,6 +82,7 @@ export function makeSocket(ws: WebSocket): Socket {
   }
 
   function emit(type: string | {name: string; key: string}, payload?: Record<string, any>): () => void {
+    console.log('<==', serialize(type, payload))
     const command = () => socket.send(serialize(type, payload))
     if (socket) command()
     else queue.add(command)
