@@ -19,12 +19,16 @@ Apollo SDK:
   bug-fix:
     - |
       `extractText` now supports regions that don't use hints while using `x`/`y` coordinates
+    - accept ios and android lowercase as driver platformName capability when using custom grid
+    - Native iOS, allow capturing NavigationBar and TabBar regions
 "@applitools/eyes-webdriverio":
   feature:
     - Support UFG for native mobile
   bug-fix:
     - |
       `extractText` now supports regions that don't use hints while using `x`/`y` coordinates
+    - accept ios and android lowercase as driver platformName capability when using custom grid
+    - Native iOS, allow capturing NavigationBar and TabBar regions
 "@applitools/eyes-playwright":
   feature:
     - Support UFG for native mobile
@@ -37,6 +41,8 @@ Apollo SDK:
       `runner.getAllTestResults` now returns all results, including aborted tests
     - |
       `extractText` now supports regions that don't use hints while using `x`/`y` coordinates
+    - accept ios and android lowercase as driver platformName capability when using custom grid
+    - Native iOS, allow capturing NavigationBar and TabBar regions
 "@applitools/eyes-protractor":
   feature:
     - Support UFG for native mobile
@@ -49,6 +55,8 @@ Apollo SDK:
       `runner.getAllTestResults` now returns all results, including aborted tests
     - |
       `extractText` now supports regions that don't use hints while using `x`/`y` coordinates
+    - accept ios and android lowercase as driver platformName capability when using custom grid
+    - Native iOS, allow capturing NavigationBar and TabBar regions
 "@applitools/eyes-puppeteer":
   feature:
     - Support UFG for native mobile
@@ -61,6 +69,8 @@ Apollo SDK:
       `runner.getAllTestResults` now returns all results, including aborted tests
     - |
       `extractText` now supports regions that don't use hints while using `x`/`y` coordinates
+    - accept ios and android lowercase as driver platformName capability when using custom grid
+    - Native iOS, allow capturing NavigationBar and TabBar regions
 "@applitools/eyes-testcafe":
   feature:
     - Support UFG for native mobile
@@ -85,12 +95,15 @@ Apollo SDK:
       `runner.getAllTestResults` now returns all results, including aborted tests
     - |
       `extractText` now supports regions that don't use hints while using `x`/`y` coordinates
+    - accept ios and android lowercase as driver platformName capability when using custom grid
+    - Native iOS, allow capturing NavigationBar and TabBar regions
 "@applitools/eyes-cypress":
   feature:
     - 
   bug-fix:
     - |
       `extractText` now supports regions that don't use hints while using `x`/`y` coordinates
+    - add 'waitBeforeCapture' as an available type for 'Eyes.Open' and 'Eyes.Check' (for Typescript)
 "@applitools/eyes-storybook":
   feature:
     - 
