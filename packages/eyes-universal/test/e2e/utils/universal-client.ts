@@ -12,8 +12,10 @@ import type {Socket} from '../../../src/socket'
 import {spawn} from 'child_process'
 import {makeSocket} from '../../../src/socket'
 import {transform} from './transform-driver'
-
-// TODO add logger to keep track of the requests
+import {makeLogger} from '@applitools/logger'
+import {exec} from 'child_process'
+import {promisify} from 'util'
+const pexec = promisify(exec)
 
 type ClientSocket = Socket &
   types.ClientSocket<TransformedDriver, TransformedDriver, TransformedElement, TransformedSelector>
@@ -32,9 +34,16 @@ export class UniversalClient implements types.Core<Driver, Element, Selector> {
   private _socket: ClientSocket
   private _driverType: DriverType
 
+  static async killServer() {
+    const pid = (await pexec('lsof -ti :21077').catch(() => ({stdout: ''}))).stdout.trim()
+    if (pid) {
+      await pexec(`kill -9 ${pid}`)
+    }
+  }
+
   constructor({driverType = 'local'}: {driverType?: DriverType} = {}) {
     this._driverType = driverType
-    this._socket = makeSocket()
+    this._socket = makeSocket({logger: makeLogger()})
     this._server = spawn(`node`, ['./dist/cli.js'], {
       detached: true,
       stdio: ['ignore', 'pipe', 'ignore'],

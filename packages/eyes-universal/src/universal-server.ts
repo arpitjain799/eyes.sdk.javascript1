@@ -22,7 +22,7 @@ import {abort} from './universal-server-eyes-commands'
 const IDLE_TIMEOUT = 900000 // 15min
 const LOG_DIRNAME = path.resolve(os.tmpdir(), `applitools-logs`)
 
-export async function makeServer({debug = false, idleTimeout = IDLE_TIMEOUT, ...serverConfig} = {}) {
+export async function makeServer({debug = false, idleTimeout = IDLE_TIMEOUT, showLogs = false, ...serverConfig} = {}) {
   const {server, port} = await makeHandler(serverConfig)
   console.log(port) // NOTE: this is a part of the generic protocol
   process.send?.({name: 'port', payload: {port}}) // NOTE: this is a part of the js specific protocol
@@ -45,7 +45,12 @@ export async function makeServer({debug = false, idleTimeout = IDLE_TIMEOUT, ...
     const refer = makeRefer()
     const socket = withTracker({
       debug,
-      socket: makeSocket(client) as types.ServerSocket<CustomDriver, CustomContext, CustomElement, CustomSelector> &
+      socket: makeSocket({ws: client, logger: showLogs ? makeLogger() : undefined}) as types.ServerSocket<
+        CustomDriver,
+        CustomContext,
+        CustomElement,
+        CustomSelector
+      > &
         Omit<Socket, 'command' | 'request'>,
     })
 

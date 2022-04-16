@@ -1,18 +1,16 @@
 import {UniversalClient} from './utils/universal-client'
 import * as spec from '@applitools/spec-driver-selenium'
-import {exec} from 'child_process'
-import {promisify} from 'util'
-const pexec = promisify(exec)
+import * as assert from 'assert'
 
-describe.only('Universal server', () => {
+describe('Universal server', () => {
+  before(async () => {
+    await UniversalClient.killServer()
+  })
+
   describe('Web', () => {
     let driver, destroyDriver, client
 
     beforeEach(async () => {
-      const pid = (await pexec('lsof -ti :21077').catch(() => ({stdout: ''}))).stdout.trim()
-      if (pid) {
-        await pexec(`kill -9 ${pid}`)
-      }
       ;[driver, destroyDriver] = await spec.build({browser: 'chrome'})
       await driver.get('https://example.org')
 
@@ -21,6 +19,7 @@ describe.only('Universal server', () => {
 
     afterEach(async () => {
       await destroyDriver()
+      await client.closeServer()
     })
     it('works', async () => {
       const timeoutId = setTimeout(() => console.log('ugly hack'), 1000000)
@@ -35,14 +34,14 @@ describe.only('Universal server', () => {
       const eyes = await manager.openEyes({driver, config})
       await eyes.check({settings: {}})
       const results = await eyes.close({throwErr: false})
-      console.log(results)
+      assert.strictEqual(results[0].status, 'Passed')
       const allResults = await manager.closeManager({throwErr: false})
-      console.log(allResults)
+      assert.strictEqual(allResults.results[0].testResults.status, 'Passed')
       clearTimeout(timeoutId)
     })
   })
 
-  describe('Android', () => {
+  describe.skip('Android', () => {
     let driver, destroyDriver, client
 
     beforeEach(async () => {
@@ -74,9 +73,10 @@ describe.only('Universal server', () => {
       const eyes = await manager.openEyes({driver, config})
       await eyes.check({settings: {}})
       const results = await eyes.close({throwErr: false})
-      console.log(results)
+      assert.strictEqual(results[0].status, 'Passed')
+
       const allResults = await manager.closeManager({throwErr: false})
-      console.log(allResults)
+      assert.strictEqual(allResults.results[0].testResults.status, 'Passed')
       clearTimeout(timeoutId)
     })
   })

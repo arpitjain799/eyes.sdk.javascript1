@@ -76,7 +76,7 @@
     stack-trace "0.0.10"
     tunnel "0.0.6"
 
-"@applitools/functional-commons@1.6.0", "@applitools/functional-commons@^1.5.2", "@applitools/functional-commons@^1.5.5":
+"@applitools/functional-commons@1.6.0", "@applitools/functional-commons@^1.5.5":
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/@applitools/functional-commons/-/functional-commons-1.6.0.tgz#ea850c4f7832fcb6396b79b35faccac69f6482a9"
   integrity sha512-fwiF0CbeYHDEOTD/NKaFgaI8LvRcGYG2GaJJiRwcedKko16sQ8F3TK5wXfj2Ytjf+8gjwHwsEEX550z3yvDWxA==
@@ -148,14 +148,6 @@
   integrity sha512-rzEOvGoiEF4KnK0PJ9I0btdwnaNlIPLYhjF1vTEG15PoucbbKpix9fYusxWlDG7kMiZya8ZycVPc0woVlNaHRQ==
   dependencies:
     debug "^4.1.0"
-
-"@applitools/process-commons@^2.1.1":
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/@applitools/process-commons/-/process-commons-2.1.1.tgz#97f5acbc29ff15bbfcc13cc295a8689f9256609e"
-  integrity sha512-/5iKUysxTYVzgyNm7YyIWd7MrEc9IInX1a/VFITTIY+SbUlReu5xkgIKm/WBvgfhe2KmddttmLVAzxdMcggb3A==
-  dependencies:
-    "@applitools/functional-commons" "^1.5.2"
-    debug "^4.1.1"
 
 "@applitools/screenshoter@3.3.16":
   version "3.3.16"

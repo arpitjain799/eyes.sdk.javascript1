@@ -40,6 +40,12 @@ yargs
           default: 15,
           coerce: value => value * 60 * 1000,
         },
+        showLogs: {
+          description: 'whether to show incoming/outgoing messages in server stdout',
+          type: 'boolean',
+          default: process.env.APPLITOOLS_SHOW_LOGS,
+          alias: 'v',
+        },
         config: {
           description: 'json string to use instead of cli arguments',
           type: 'string',
