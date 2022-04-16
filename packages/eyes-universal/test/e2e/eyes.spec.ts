@@ -45,11 +45,6 @@ describe('Universal server', () => {
     let driver, destroyDriver, client
 
     beforeEach(async () => {
-      const pid = (await pexec('lsof -ti :21077').catch(() => ({stdout: ''}))).stdout.trim()
-      if (pid) {
-        await pexec(`kill -9 ${pid}`)
-      }
-
       client = new UniversalClient({driverType: 'sauce'})
       ;[driver, destroyDriver] = await spec.build({
         device: 'Pixel 3 XL',
