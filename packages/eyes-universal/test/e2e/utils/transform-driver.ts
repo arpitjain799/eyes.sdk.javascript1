@@ -8,9 +8,9 @@ export type TransformedDriver = {sessionId: string; serverUrl: string; capabilit
 export type TransformedElement = {elementId: string}
 export type TransformedSelector = types.Selector<never>
 
-export async function transform(data: any): Promise<any> {
+export async function transform(data: any, driverUrl?: string): Promise<any> {
   if (spec.isDriver(data)) {
-    return transformDriver(data)
+    return transformDriver(data, driverUrl)
   } else if (spec.isElement(data)) {
     return transformElement(data)
   } else if (utils.types.isArray(data)) {
@@ -25,13 +25,11 @@ export async function transform(data: any): Promise<any> {
   }
 }
 
-async function transformDriver(driver: Driver): Promise<TransformedDriver> {
+async function transformDriver(driver: Driver, driverUrl: string): Promise<TransformedDriver> {
   const session = await driver.getSession()
   const capabilities = await driver.getCapabilities()
   return {
-    // serverUrl: 'http://localhost:4444/wd/hub',
-    serverUrl: 'https://ondemand.saucelabs.com/wd/hub',
-    // serverUrl: 'https://hub.browserstack.com/wd/hub',
+    serverUrl: driverUrl,
     sessionId: session.getId(),
     capabilities: Array.from(capabilities.keys()).reduce((caps, key) => {
       caps[key] = capabilities.get(key)

@@ -18,13 +18,23 @@ import {transform} from './transform-driver'
 type ClientSocket = Socket &
   types.ClientSocket<TransformedDriver, TransformedDriver, TransformedElement, TransformedSelector>
 
+type DriverType = 'local' | 'sauce' | 'browserstack' | 'local-appium'
+
+const DRIVER_URLS = {
+  local: 'http://localhost:4444/wd/hub',
+  sauce: 'https://ondemand.saucelabs.com/wd/hub',
+  browserstack: 'https://hub.browserstack.com/wd/hub',
+  'local-appium': 'http://localhost:4723/wd/hub',
+}
+
 export class UniversalClient implements types.Core<Driver, Element, Selector> {
   private _server: ChildProcess
   private _socket: ClientSocket
+  private _driverType: DriverType
 
-  constructor() {
+  constructor({driverType = 'local'}: {driverType?: DriverType} = {}) {
+    this._driverType = driverType
     this._socket = makeSocket()
-    // TODO change to ./node_modules/.bin/eyes-universal
     this._server = spawn(`node`, ['./dist/cli.js'], {
       detached: true,
       stdio: ['ignore', 'pipe', 'ignore'],
@@ -34,14 +44,12 @@ export class UniversalClient implements types.Core<Driver, Element, Selector> {
       ;(this._server.stdout as any).unref()
       const [port] = String(data).split('\n', 1)
       this._socket.connect(`http://localhost:${port}/eyes`)
-      console.log('222 connected')
       this._socket.emit('Core.makeSDK', {
         name: 'eyes-universal-tests',
         version: require('../../../package.json').version,
         protocol: 'webdriver',
         cwd: process.cwd(),
       })
-      console.log('222 created SDK')
     })
     // important: this allows the client process to exit without hanging, while the server process still runs
     this._server.unref()
@@ -51,7 +59,7 @@ export class UniversalClient implements types.Core<Driver, Element, Selector> {
   async makeManager(config?: types.EyesManagerConfig): Promise<EyesManager> {
     const manager = await this._socket.request('Core.makeManager', config)
 
-    return new EyesManager({manager, socket: this._socket})
+    return new EyesManager({manager, socket: this._socket, driverType: this._driverType})
   }
 
   async getViewportSize({driver}: {driver: Driver}): Promise<types.Size> {
@@ -97,16 +105,26 @@ export class UniversalClient implements types.Core<Driver, Element, Selector> {
 export class EyesManager implements types.EyesManager<Driver, Element, Selector> {
   private _manager: types.Ref
   private _socket: ClientSocket
+  private _driverType: DriverType
 
-  constructor({manager, socket}: any) {
+  constructor({
+    manager,
+    socket,
+    driverType = 'local',
+  }: {
+    manager: types.Ref
+    socket: ClientSocket
+    driverType: DriverType
+  }) {
     this._manager = manager
     this._socket = socket
+    this._driverType = driverType
   }
 
   async openEyes({driver, config}: {driver: Driver; config?: types.EyesConfig<Element, Selector>}): Promise<Eyes> {
     const eyes = await this._socket.request('EyesManager.openEyes', {
       manager: this._manager,
-      driver: await transform(driver),
+      driver: await transform(driver, DRIVER_URLS[this._driverType]),
       config: await transform(config),
     })
     return new Eyes({eyes, socket: this._socket})
