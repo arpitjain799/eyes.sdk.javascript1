@@ -18,6 +18,7 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
   private _currentContext: Context<TDriver, TContext, TElement, TSelector>
   private _driverInfo: types.DriverInfo
   private _logger: any
+  private _customConfig: any
   private _helper?:
     | HelperAndroid<TDriver, TContext, TElement, TSelector>
     | HelperIOS<TDriver, TContext, TElement, TSelector>
@@ -28,11 +29,13 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
     spec: types.SpecDriver<TDriver, TContext, TElement, TSelector>
     driver: Driver<TDriver, TContext, TElement, TSelector> | TDriver
     logger?: any
+    customConfig?: any
   }) {
     if (options.driver instanceof Driver) return options.driver
 
     this._spec = options.spec
 
+    this._customConfig = options.customConfig || {}
     if (options.logger) this._logger = options.logger
 
     if (this._spec.isDriver(options.driver)) {
@@ -209,7 +212,6 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
     if (this.isMobile) {
       this._driverInfo.orientation ??= await this.getOrientation().catch(() => undefined)
     }
-
     this._logger.log('Combined driver info', this._driverInfo)
 
     return this
@@ -401,7 +403,10 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
       this.isIOS && !shouldIgnoreSafeRegion
         ? utils.geometry.intersect(scaledRegion, this._driverInfo.safeArea)
         : scaledRegion
-    const offsetRegion = utils.geometry.offsetNegative(safeRegion, {x: 0, y: this.statusBarHeight})
+    const offsetRegion = utils.geometry.offsetNegative(safeRegion, {
+      x: this.isAndroid && this.orientation === 'landscape' && this.platformVersion > 7 ? this.navigationBarHeight : 0,
+      y: this.statusBarHeight,
+    })
     if (offsetRegion.y < 0) {
       offsetRegion.height += offsetRegion.y
       offsetRegion.y = 0
@@ -440,7 +445,6 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
   async getViewportSize(): Promise<types.Size> {
     let size
     if (this.isNative) {
-      this._logger.log('Extracting viewport size from native driver')
       if (this._driverInfo?.viewportSize) {
         size = this._driverInfo.viewportSize
       } else {
@@ -452,7 +456,16 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
           }
         }
       }
-      size = utils.geometry.round(size)
+      if (this._customConfig.useCeilForViewportSize) {
+        size = utils.geometry.ceil(size)
+      } else {
+        size = utils.geometry.round(size)
+      }
+      this._logger.log(
+        `Extracting viewport size from native driver using '${
+          this._customConfig.useCeilForViewportSize ? 'ceil' : 'round'
+        }' method`,
+      )
     } else if (this._spec.getViewportSize) {
       this._logger.log('Extracting viewport size from web driver using spec method')
       size = await this._spec.getViewportSize(this.target)

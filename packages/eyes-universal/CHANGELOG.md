@@ -4,6 +4,28 @@
 
 
 
+
+## 2.2.0 - 2022/4/14
+
+### Features
+- Support passing 'serverUrl' and 'proxy' to VHS.
+### Bug fixes
+- Use Math.ceil instead of Math.round for viewportSize calculation when passed useCeilForViewportSize:true
+- Support data urls in iframes
+
+## 2.1.4 - 2022/4/14
+
+### Features
+### Bug fixes
+- When running a native app on Android, in case we test a device in landscape mode, make sure to account for the navigation bar on the left or right and not at the bottom of the image.
+- Support data urls in iframes
+
+## 2.1.3 - 2022/4/9
+
+### Features
+### Bug fixes
+- `extractText` now handles regions with common selector (`{type, selecor}`)
+
 ## 2.1.2 - 2022/4/8
 
 ### Features

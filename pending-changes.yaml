@@ -13,14 +13,9 @@ Apollo SDK:
     - 
 "@applitools/eyes-selenium":
   feature:
-    - Support UFG for native mobile
-    - |
-      `runner.getAllTestResults` returns the corresponding UFG browser/device configuration for each test. This is available as `runner.getAllTestResults()[i].browserInfo`.
+    - 
   bug-fix:
-    - |
-      `extractText` now supports regions that don't use hints while using `x`/`y` coordinates
-    - accept ios and android lowercase as driver platformName capability when using custom grid
-    - Native iOS, allow capturing NavigationBar and TabBar regions
+    - 
 "@applitools/eyes-webdriverio":
   feature:
     - Support UFG for native mobile
@@ -28,7 +23,9 @@ Apollo SDK:
     - |
       `extractText` now supports regions that don't use hints while using `x`/`y` coordinates
     - accept ios and android lowercase as driver platformName capability when using custom grid
-    - Native iOS, allow capturing NavigationBar and TabBar regions
+    - when running on a native iOS app, allow capturing NavigationBar and TabBar regions
+    - When running a native app on Android, in case we test a device in landscape mode, make sure to account for the navigation bar on the left or right and not at the bottom of the image.
+    - Support data urls in iframes
 "@applitools/eyes-playwright":
   feature:
     - Support UFG for native mobile
@@ -42,7 +39,9 @@ Apollo SDK:
     - |
       `extractText` now supports regions that don't use hints while using `x`/`y` coordinates
     - accept ios and android lowercase as driver platformName capability when using custom grid
-    - Native iOS, allow capturing NavigationBar and TabBar regions
+    - when running on a native iOS app, allow capturing NavigationBar and TabBar regions
+    - When running a native app on Android, in case we test a device in landscape mode, make sure to account for the navigation bar on the left or right and not at the bottom of the image.
+    - Support data urls in iframes
 "@applitools/eyes-protractor":
   feature:
     - Support UFG for native mobile
@@ -56,7 +55,9 @@ Apollo SDK:
     - |
       `extractText` now supports regions that don't use hints while using `x`/`y` coordinates
     - accept ios and android lowercase as driver platformName capability when using custom grid
-    - Native iOS, allow capturing NavigationBar and TabBar regions
+    - when running on a native iOS app, allow capturing NavigationBar and TabBar regions
+    - When running a native app on Android, in case we test a device in landscape mode, make sure to account for the navigation bar on the left or right and not at the bottom of the image.
+    - Support data urls in iframes
 "@applitools/eyes-puppeteer":
   feature:
     - Support UFG for native mobile
@@ -70,7 +71,9 @@ Apollo SDK:
     - |
       `extractText` now supports regions that don't use hints while using `x`/`y` coordinates
     - accept ios and android lowercase as driver platformName capability when using custom grid
-    - Native iOS, allow capturing NavigationBar and TabBar regions
+    - when running on a native iOS app, allow capturing NavigationBar and TabBar regions
+    - When running a native app on Android, in case we test a device in landscape mode, make sure to account for the navigation bar on the left or right and not at the bottom of the image.
+    - Support data urls in iframes
 "@applitools/eyes-testcafe":
   feature:
     - Support UFG for native mobile
@@ -83,6 +86,7 @@ Apollo SDK:
       `runner.getAllTestResults` now returns all results, including aborted tests
     - |
       `extractText` now supports regions that don't use hints while using `x`/`y` coordinates
+    - Support data urls in iframes
 "@applitools/eyes-nightwatch":
   feature:
     - Support UFG for native mobile
@@ -96,14 +100,14 @@ Apollo SDK:
     - |
       `extractText` now supports regions that don't use hints while using `x`/`y` coordinates
     - accept ios and android lowercase as driver platformName capability when using custom grid
-    - Native iOS, allow capturing NavigationBar and TabBar regions
+    - when running on a native iOS app, allow capturing NavigationBar and TabBar regions
+    - When running a native app on Android, in case we test a device in landscape mode, make sure to account for the navigation bar on the left or right and not at the bottom of the image.
+    - Support data urls in iframes
 "@applitools/eyes-cypress":
   feature:
     - 
   bug-fix:
-    - |
-      `extractText` now supports regions that don't use hints while using `x`/`y` coordinates
-    - add 'waitBeforeCapture' as an available type for 'Eyes.Open' and 'Eyes.Check' (for Typescript)
+    - 
 "@applitools/eyes-storybook":
   feature:
     - 
@@ -115,12 +119,14 @@ Apollo SDK:
   bug-fix:
     - |
       `extractText` now supports regions that don't use hints while using `x`/`y` coordinates
+    - Support data urls in iframes
 eyes-browser-extension:
   feature:
     - 
   bug-fix:
     - |
       `extractText` now supports regions that don't use hints while using `x`/`y` coordinates
+    - Support data urls in iframes
 applitools-for-selenium-ide:
   feature:
     - 

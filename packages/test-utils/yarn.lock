@@ -2,12 +2,12 @@
 # yarn lockfile v1
 
 
-"@applitools/bongo@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@applitools/bongo/-/bongo-2.0.0.tgz#62862f64fca5221bfeea84add83133956c1ffcdd"
-  integrity sha512-+x1YSRCrAkFQnWRenghLQKO46hwKYVESOFb2iandVi+kBUTLKJ2ajMZfOXOjoP4NUClgZE+A6CVvpgGOkuhXFw==
+"@applitools/bongo@^2.0.3":
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/@applitools/bongo/-/bongo-2.0.3.tgz#bed4f6db83201bb229db7fd8d0133f4b630512af"
+  integrity sha512-a3Hl+Liblxh+Cmaw90DTLQ0D8Qs7yLY69mZ5rj/T41O5Ztb7kdil+IJSJonUu4iISW9zLfptcXOcPk8JmKrbCA==
   dependencies:
-    "@applitools/utils" "1.2.11"
+    "@applitools/utils" "1.2.14"
     chalk "3.0.0"
     compare-versions "4.1.3"
     js-yaml "4.1.0"
@@ -16,10 +16,10 @@
     node-fetch "2.6.1"
     yargs "15.0.2"
 
-"@applitools/utils@1.2.11":
-  version "1.2.11"
-  resolved "https://registry.yarnpkg.com/@applitools/utils/-/utils-1.2.11.tgz#e4981090149ee7cf327a04fb939f3a4c8a2fa0c1"
-  integrity sha512-khBpPL+wtoF6wlGq6YNK0dWSz0lAfsnKZ3/7dubIQ9d7EZvsvbRqAfw1iJ+vHlBFMeUx3UhQ+5MbEgXaf+WC5w==
+"@applitools/utils@1.2.14":
+  version "1.2.14"
+  resolved "https://registry.yarnpkg.com/@applitools/utils/-/utils-1.2.14.tgz#9e6b3a2b992e7c6e1a9f4447f8ac2b48b6037a2e"
+  integrity sha512-pnul7WuGuVScqm8jyHJQgBP3QcApzWC4u/RjZkWxFSFVVapVJsnuBENbs0aAOMeYtxqRvUWDG5MyyjMZIpEDxw==
 
 "@babel/code-frame@^7.0.0":
   version "7.12.13"
@@ -85,9 +85,9 @@ ansi-escapes@^4.2.1:
     type-fest "^0.21.3"
 
 ansi-regex@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/ansi-regex/-/ansi-regex-3.0.0.tgz#ed0317c322064f79466c02966bddb605ab37d998"
-  integrity sha1-7QMXwyIGT3lGbAKWa922Bas32Zg=
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/ansi-regex/-/ansi-regex-3.0.1.tgz#123d6479e92ad45ad897d4054e3c7ca7db4944e1"
+  integrity sha512-+O9Jct8wf++lXxxFc4hc8LsjaSq0HFzzL7cVsw8pRDIPdjKD2mT4ytDZlLuSBZ4cLKZFXIrMGO7DbQCtMJJMKw==
 
 ansi-regex@^4.1.0:
   version "4.1.0"
