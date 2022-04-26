@@ -5,6 +5,58 @@
 
 
 
+
+
+
+## 2.2.8 - 2022/4/26
+
+### Features
+### Bug fixes
+- Fixed check region fully in classic execution when using CSS stitching
+
+## 2.2.7 - 2022/4/25
+
+### Features
+### Bug fixes
+- Fix regression introduced when looking up driver capabilities
+
+## 2.2.6 - 2022/4/25
+
+### Features
+### Bug fixes
+- Fix non-W3C command being called when in W3C mode
+
+## 2.2.5 - 2022/4/23
+
+### Features
+### Bug fixes
+- Support `appium:` prefixed capabilities. Fixes support for Appium 8 in Java
+
+## 2.2.4 - 2022/4/21
+
+### Features
+### Bug fixes
+- fix the problem that intermittently we don't get all tested environments in the same batch
+
+## 2.2.3 - 2022/4/20
+
+### Features
+### Bug fixes
+- Support `version` in deviceInfo options
+
+## 2.2.2 - 2022/4/20
+
+### Features
+### Bug fixes
+- implicitly set `allowInvisibleElements` in Appium when running on native Android
+- return the correct capabilities when running on native iOS
+
+## 2.2.1 - 2022/4/18
+
+### Features
+### Bug fixes
+- Support Android x-path in 'takeVHSes.js' (was 'accessibility id', iOS logic not changed)
+
 ## 2.2.0 - 2022/4/14
 
 ### Features

@@ -25,6 +25,8 @@ const APPIUM_CAPABILITIES = ['appiumVersion', 'deviceType', 'deviceOrientation',
 const LEGACY_APPIUM_CAPABILITIES = ['appium-version', 'device-type', 'device-orientation']
 const CHROME_CAPABILITIES = ['chrome', 'goog:chromeOptions']
 const MOBILE_BROWSER_NAMES = ['ipad', 'iphone', 'android']
+const ANDROID_AUTOMATION_NAME = 'uiautomator2'
+const ANDROID_PLATFORM_NAME = 'android'
 
 function extractElementId(element: Element): string {
   return (element as any).elementId ?? (element as any)[ELEMENT_ID] ?? (element as any)[LEGACY_ELEMENT_ID]
@@ -33,8 +35,10 @@ function transformShadowRoot(shadowRoot: ShadowRoot | Element): Element {
   return isElement(shadowRoot) ? shadowRoot : {[ELEMENT_ID]: shadowRoot[SHADOW_ROOT_ID]}
 }
 function extractEnvironment(capabilities: Record<string, any>) {
-  const isAppium = APPIUM_CAPABILITIES.some(capability => capabilities.hasOwnProperty(capability))
-  const isChrome = CHROME_CAPABILITIES.some(capability => capabilities.hasOwnProperty(capability))
+  const isAppium =
+    APPIUM_CAPABILITIES.some(capability => capabilities.hasOwnProperty(capability)) ||
+    APPIUM_CAPABILITIES.some(capability => capabilities.hasOwnProperty(`appium:${capability}`))
+  const isChrome = CHROME_CAPABILITIES.includes(capabilities.browserName?.toLowerCase())
   const isW3C =
     isAppium ||
     W3C_SECONDARY_CAPABILITIES.every(capability => capabilities.hasOwnProperty(capability)) ||
@@ -45,11 +49,15 @@ function extractEnvironment(capabilities: Record<string, any>) {
     isAppium ||
     LEGACY_APPIUM_CAPABILITIES.some(capability => capabilities.hasOwnProperty(capability)) ||
     MOBILE_BROWSER_NAMES.includes(capabilities.browserName?.toLowerCase())
+  const isAndroid =
+    capabilities.automationName?.toLowerCase() === ANDROID_AUTOMATION_NAME ||
+    capabilities.platformName?.toLowerCase() === ANDROID_PLATFORM_NAME
 
   return {
-    isW3C,
-    isMobile,
+    isAndroid,
     isChrome,
+    isMobile,
+    isW3C,
   }
 }
 
@@ -72,7 +80,8 @@ export function isSelector(selector: any): selector is Selector {
 export function transformDriver(driver: Driver | StaticDriver): Driver {
   if (!utils.types.has(driver, ['sessionId', 'serverUrl'])) return driver
   const url = new URL(driver.serverUrl)
-
+  const environment = extractEnvironment(driver.capabilities)
+  console.log('transformDriver extracted environment', environment)
   const options: WD.AttachOptions = {
     sessionId: driver.sessionId,
     protocol: url.protocol ? url.protocol.replace(/:$/, '') : undefined,
@@ -81,7 +90,7 @@ export function transformDriver(driver: Driver | StaticDriver): Driver {
     path: url.pathname,
     capabilities: driver.capabilities,
     logLevel: 'silent',
-    ...extractEnvironment(driver.capabilities),
+    ...environment,
   }
   if (!options.port) {
     if (options.protocol === 'http') options.port = 80
@@ -121,7 +130,11 @@ export function transformDriver(driver: Driver | StaticDriver): Driver {
     },
   }
 
-  return WebDriver.attachToSession(options, undefined, additionalCommands)
+  const modifiedDriver = WebDriver.attachToSession(options, undefined, additionalCommands)
+  if (environment.isAndroid) {
+    modifiedDriver?.updateSettings({allowInvisibleElements: true})
+  }
+  return modifiedDriver
 }
 export function transformElement(element: Element | StaticElement): Element {
   if (!utils.types.has(element, 'elementId')) return element
@@ -219,7 +232,15 @@ export async function getCookies(driver: Driver, context?: boolean): Promise<Coo
   })
 }
 export async function getCapabilities(browser: Driver): Promise<Record<string, any>> {
-  return browser.getSession?.() ?? browser.capabilities
+  try {
+    const caps = await browser.getSession?.()
+    if (caps && utils.types.isObject(caps)) return caps
+    return browser.capabilities
+  } catch (error) {
+    if (/Cannot call non W3C standard command while in W3C mode/.test(error.message)) return browser.capabilities
+    throw new Error(`Unable to retrieve capabilities due to an error. The original error is ${error.message}`)
+  }
+  throw new Error('Unable to retrieve capabilities')
 }
 export async function getDriverInfo(driver: Driver): Promise<DriverInfo> {
   return {sessionId: driver.sessionId}
