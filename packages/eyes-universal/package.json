@@ -59,6 +59,10 @@
     "@applitools/logger": "1.0.12",
     "@applitools/utils": "1.2.14",
     "@applitools/visual-grid-client": "15.12.5",
+    "express": "^4.18.0",
+    "http-proxy-middleware": "^2.0.6",
+    "morgan": "^1.10.0",
+    "p-queue": "^7.2.0",
     "webdriver": "7.16.11",
     "ws": "7.4.6",
     "yargs": "16.1.0"
