@@ -1,15 +1,17 @@
-const express = require('express')
-const morgan = require("morgan")
-const {createProxyMiddleware} = require('http-proxy-middleware')
+import express from 'express'
+import morgan from 'morgan'
+import {createProxyMiddleware} from 'http-proxy-middleware'
 
 class Queue {
+  q: any[]
+
   constructor() {
     this.q = []
   }
   size() {
     return this.q.length
   }
-  add(item)  {
+  add(item: string)  {
     this.q.push(item)
   }
   remove() {
@@ -20,11 +22,11 @@ class Queue {
 const queue = new Queue()
 const app = express()
 const PORT = 4444
-const HOST = "localhost"
-const HUB_URL = "http://localhost:4445/wd/hub"
+const HOST = 'localhost'
+const HUB_URL = 'http://localhost:4445/wd/hub'
 app.use(morgan('dev'))
 
-async function q(limit = 1) {
+async function q(limit = 1): Promise<undefined> {
   if (queue.size() === limit) {
     console.log('waiting for available session, polling...')
     await new Promise(res => setTimeout(res, 5000))
