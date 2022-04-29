@@ -2,6 +2,7 @@ const createSeleniumProxy = require('../src/selenium-proxy')
 const {Builder} = require('selenium-webdriver')
 const chrome = require('selenium-webdriver/chrome')
 const chromedriver = require('chromedriver')
+const assert = require('assert')
 
 describe('selenium-proxy', () => {
   let egServer, egClient
@@ -14,18 +15,18 @@ describe('selenium-proxy', () => {
       host: 'localhost',
       port: 4445,
       forwarding_url: 'http://localhost:4446/wd/hub',
-      //withQueue: true,
+      withQueue: true,
     })
     egClient = await createSeleniumProxy({
       host: 'localhost',
       port: 4444,
       forwarding_url: 'http://localhost:4445/wd/hub',
-      //withRetry: true,
+      withRetry: true,
     })
   })
   after(async () => {
-    egServer.close()
     egClient.close()
+    egServer.close()
     chromedriver.stop()
   })
   it('works', async () => {
@@ -33,15 +34,20 @@ describe('selenium-proxy', () => {
       const driver = await new Builder()
         .forBrowser('chrome')
         .setChromeOptions(new chrome.Options().headless())
-        .usingServer('http://localhost:4446/wd/hub')
+        .usingServer('http://localhost:4444/wd/hub')
         .build()
       await driver.get('data:text/html,<h1>Hello, World</h1>')
-      return driver.quit()
+      await driver.quit()
+      return true
     }
     const tests = [
       test,
       test,
+      test,
+      test,
+      test,
     ]
-    await Promise.all(tests.map(test => test()))
+    const result = await Promise.all(tests.map(async test => await test().catch(console.error)))
+    assert.deepStrictEqual(result.filter(i => i === true).length, tests.length)
   })
 })
