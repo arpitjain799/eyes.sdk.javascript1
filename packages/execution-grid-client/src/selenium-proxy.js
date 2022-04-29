@@ -11,7 +11,7 @@ function createServer({host, port, forwarding_url, withQueue, withRetry} = {}) {
       console.log('[q handler]: new session request')
       if (queue.size() === 1) {
         console.log('[q handler]: limit reached, returning error')
-        res.status(503).send({ error: 'Concurrency limit reached' })
+        res.status(503).send({error: 'Concurrency limit reached'})
         next()
       } else {
         console.log('[q handler]: limit not reached, adding session')
@@ -29,7 +29,7 @@ function createServer({host, port, forwarding_url, withQueue, withRetry} = {}) {
   async function retryOnError(buffer, proxyRes, req, res) {
     if (proxyRes.statusCode === 503 && req.method === 'POST' && req.originalUrl === '/wd/hub/session') {
       console.log('[retry handler] error on getting new session, retrying...')
-      await new Promise(res => setTimeout(res, 1000))
+      await new Promise((res) => setTimeout(res, 1000))
       const r = await axios({
         method: 'post',
         url: `http://${host}:${port}/wd/hub/session`,
@@ -37,11 +37,9 @@ function createServer({host, port, forwarding_url, withQueue, withRetry} = {}) {
           desiredCapabilities: {
             browserName: 'chrome',
             'goog:chromeOptions': {
-              args: [
-                'headless'
-              ],
+              args: ['headless'],
             },
-          }
+          },
         },
         //data: request.body,
       })
@@ -52,43 +50,52 @@ function createServer({host, port, forwarding_url, withQueue, withRetry} = {}) {
   }
 
   const app = express()
-  //app.use(morgan('dev'))
+  app.use(morgan('dev'))
 
   if (withQueue) {
     queue = new Queue()
     app.use(q)
-    app.use('/wd/hub', createProxyMiddleware({
-      target: forwarding_url,
-      changeOrigin: true,
-      pathRewrite: {
-         [`^/wd/hub`]: '',
-      },
-      logLevel: 'silent',
-    }))
+    app.use(
+      '/wd/hub',
+      createProxyMiddleware({
+        target: forwarding_url,
+        changeOrigin: true,
+        pathRewrite: {
+          [`^/wd/hub`]: '',
+        },
+        logLevel: 'silent',
+      }),
+    )
   } else if (withRetry) {
     //app.use(express.json())
-    app.use('/wd/hub', createProxyMiddleware({
-      target: forwarding_url,
-      changeOrigin: true,
-      pathRewrite: {
-         [`^/wd/hub`]: '',
-      },
-      logLevel: 'silent',
-      selfHandleResponse: true,
-      onProxyRes: responseInterceptor(retryOnError),
-    }))
+    app.use(
+      '/wd/hub',
+      createProxyMiddleware({
+        target: forwarding_url,
+        changeOrigin: true,
+        pathRewrite: {
+          [`^/wd/hub`]: '',
+        },
+        logLevel: 'silent',
+        selfHandleResponse: true,
+        onProxyRes: responseInterceptor(retryOnError),
+      }),
+    )
   } else {
-    app.use('/wd/hub', createProxyMiddleware({
-      target: forwarding_url,
-      changeOrigin: true,
-      pathRewrite: {
-         [`^/wd/hub`]: '',
-      },
-      logLevel: 'silent',
-    }))
+    app.use(
+      '/wd/hub',
+      createProxyMiddleware({
+        target: forwarding_url,
+        changeOrigin: true,
+        pathRewrite: {
+          [`^/wd/hub`]: '',
+        },
+        logLevel: 'silent',
+      }),
+    )
   }
   return app.listen(port, host, () => {
-     console.log(`Starting Selenium proxy at ${host}:${port}`)
+    console.log(`Starting Selenium proxy at ${host}:${port}`)
   })
 }
 

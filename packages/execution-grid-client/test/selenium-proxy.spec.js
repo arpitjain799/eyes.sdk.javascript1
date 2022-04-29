@@ -7,10 +7,7 @@ const assert = require('assert')
 describe('selenium-proxy', () => {
   let egServer, egClient
   before(async () => {
-    await chromedriver.start([
-      '--port=4446',
-      '--url-base=wd/hub',
-    ], true)
+    await chromedriver.start(['--port=4446', '--url-base=wd/hub'], true)
     egServer = await createSeleniumProxy({
       host: 'localhost',
       port: 4445,
@@ -40,14 +37,8 @@ describe('selenium-proxy', () => {
       await driver.quit()
       return true
     }
-    const tests = [
-      test,
-      test,
-      test,
-      test,
-      test,
-    ]
-    const result = await Promise.all(tests.map(async test => await test().catch(console.error)))
-    assert.deepStrictEqual(result.filter(i => i === true).length, tests.length)
+    const tests = [test, test, test, test, test]
+    const result = await Promise.all(tests.map(async (test) => await test().catch(console.error)))
+    assert.deepStrictEqual(result.filter((i) => i === true).length, tests.length)
   })
 })

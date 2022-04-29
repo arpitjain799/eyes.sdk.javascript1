@@ -5,7 +5,7 @@ class Queue {
   size() {
     return this.q.length
   }
-  add(item)  {
+  add(item) {
     this.q.push(item)
   }
   remove() {
