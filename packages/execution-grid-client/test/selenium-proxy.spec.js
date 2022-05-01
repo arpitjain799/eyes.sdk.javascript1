@@ -11,13 +11,13 @@ describe('selenium-proxy', () => {
     egServer = await createSeleniumProxy({
       host: 'localhost',
       port: 4445,
-      forwarding_url: 'http://localhost:4446',
+      forwardingUrl: 'http://localhost:4446',
       withQueue: true,
     })
     egClient = await createSeleniumProxy({
       host: 'localhost',
       port: 4444,
-      forwarding_url: 'http://localhost:4445',
+      forwardingUrl: 'http://localhost:4445',
       withRetry: true,
     })
   })

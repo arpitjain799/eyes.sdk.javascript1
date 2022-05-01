@@ -4,7 +4,7 @@ const {createProxyMiddleware, responseInterceptor} = require('http-proxy-middlew
 const axios = require('axios')
 const Queue = require('./queue')
 
-function createServer({host, port, forwarding_url, withQueue, withRetry} = {}) {
+function createServer({host, port, forwardingUrl, withQueue, withRetry} = {}) {
   let queue
   async function q(req, res, next) {
     if (req.path === '/session' && req.method === 'POST') {
@@ -57,7 +57,7 @@ function createServer({host, port, forwarding_url, withQueue, withRetry} = {}) {
     app.use(q)
     app.use(
       createProxyMiddleware({
-        target: forwarding_url,
+        target: forwardingUrl,
         changeOrigin: true,
         pathRewrite: {
           [`^/`]: '',
@@ -69,7 +69,7 @@ function createServer({host, port, forwarding_url, withQueue, withRetry} = {}) {
     //app.use(express.json())
     app.use(
       createProxyMiddleware({
-        target: forwarding_url,
+        target: forwardingUrl,
         changeOrigin: true,
         pathRewrite: {
           [`^/`]: '',
@@ -82,7 +82,7 @@ function createServer({host, port, forwarding_url, withQueue, withRetry} = {}) {
   } else {
     app.use(
       createProxyMiddleware({
-        target: forwarding_url,
+        target: forwardingUrl,
         changeOrigin: true,
         pathRewrite: {
           [`^/`]: '',
@@ -97,7 +97,7 @@ function createServer({host, port, forwarding_url, withQueue, withRetry} = {}) {
 }
 
 if (require.main === module) {
-  createServer({host: 'localhost', port: 4444, forwarding_url: 'http://localhost:4445'})
+  createServer({host: 'localhost', port: 4444, forwardingUrl: 'http://localhost:4445'})
 }
 
 module.exports = createServer
