@@ -7,7 +7,7 @@ const Queue = require('./queue')
 function createServer({host, port, forwarding_url, withQueue, withRetry} = {}) {
   let queue
   async function q(req, res, next) {
-    if (req.path === '/wd/hub/session' && req.method === 'POST') {
+    if (req.path === '/session' && req.method === 'POST') {
       console.log('[q handler]: new session request')
       if (queue.size() === 1) {
         console.log('[q handler]: limit reached, returning error')
@@ -18,7 +18,7 @@ function createServer({host, port, forwarding_url, withQueue, withRetry} = {}) {
         queue.add('session')
         console.log('[q handler]: session added')
       }
-    } else if (req.path.includes('/wd/hub/session') && req.method === 'DELETE') {
+    } else if (req.path.includes('/session') && req.method === 'DELETE') {
       console.log('[q handler]: session ending, removing from q')
       queue.remove()
       console.log('[q handler]: session removed')
@@ -27,12 +27,12 @@ function createServer({host, port, forwarding_url, withQueue, withRetry} = {}) {
   }
 
   async function retryOnError(buffer, proxyRes, req, res) {
-    if (proxyRes.statusCode === 503 && req.method === 'POST' && req.originalUrl === '/wd/hub/session') {
+    if (proxyRes.statusCode === 503 && req.method === 'POST' && req.originalUrl === '/session') {
       console.log('[retry handler] error on getting new session, retrying...')
       await new Promise((res) => setTimeout(res, 1000))
       const r = await axios({
         method: 'post',
-        url: `http://${host}:${port}/wd/hub/session`,
+        url: `http://${host}:${port}/session`,
         data: {
           desiredCapabilities: {
             browserName: 'chrome',
@@ -56,12 +56,11 @@ function createServer({host, port, forwarding_url, withQueue, withRetry} = {}) {
     queue = new Queue()
     app.use(q)
     app.use(
-      '/wd/hub',
       createProxyMiddleware({
         target: forwarding_url,
         changeOrigin: true,
         pathRewrite: {
-          [`^/wd/hub`]: '',
+          [`^/`]: '',
         },
         logLevel: 'silent',
       }),
@@ -69,12 +68,11 @@ function createServer({host, port, forwarding_url, withQueue, withRetry} = {}) {
   } else if (withRetry) {
     //app.use(express.json())
     app.use(
-      '/wd/hub',
       createProxyMiddleware({
         target: forwarding_url,
         changeOrigin: true,
         pathRewrite: {
-          [`^/wd/hub`]: '',
+          [`^/`]: '',
         },
         logLevel: 'silent',
         selfHandleResponse: true,
@@ -83,12 +81,11 @@ function createServer({host, port, forwarding_url, withQueue, withRetry} = {}) {
     )
   } else {
     app.use(
-      '/wd/hub',
       createProxyMiddleware({
         target: forwarding_url,
         changeOrigin: true,
         pathRewrite: {
-          [`^/wd/hub`]: '',
+          [`^/`]: '',
         },
         logLevel: 'silent',
       }),
@@ -100,7 +97,7 @@ function createServer({host, port, forwarding_url, withQueue, withRetry} = {}) {
 }
 
 if (require.main === module) {
-  createServer({host: 'localhost', port: 4444, forwarding_url: 'http://localhost:4445/wd/hub'})
+  createServer({host: 'localhost', port: 4444, forwarding_url: 'http://localhost:4445'})
 }
 
 module.exports = createServer

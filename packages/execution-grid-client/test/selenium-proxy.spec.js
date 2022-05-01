@@ -7,17 +7,17 @@ const assert = require('assert')
 describe('selenium-proxy', () => {
   let egServer, egClient
   before(async () => {
-    await chromedriver.start(['--port=4446', '--url-base=wd/hub'], true)
+    await chromedriver.start(['--port=4446'], true)
     egServer = await createSeleniumProxy({
       host: 'localhost',
       port: 4445,
-      forwarding_url: 'http://localhost:4446/wd/hub',
+      forwarding_url: 'http://localhost:4446',
       withQueue: true,
     })
     egClient = await createSeleniumProxy({
       host: 'localhost',
       port: 4444,
-      forwarding_url: 'http://localhost:4445/wd/hub',
+      forwarding_url: 'http://localhost:4445',
       withRetry: true,
     })
   })
@@ -31,7 +31,7 @@ describe('selenium-proxy', () => {
       const driver = await new Builder()
         .forBrowser('chrome')
         .setChromeOptions(new chrome.Options().headless())
-        .usingServer('http://localhost:4444/wd/hub')
+        .usingServer('http://localhost:4444')
         .build()
       await driver.get('data:text/html,<h1>Hello, World</h1>')
       await driver.quit()
