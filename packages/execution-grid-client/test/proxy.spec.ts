@@ -1,13 +1,13 @@
-const nock = require('nock')
-const {Builder} = require('selenium-webdriver')
-const createProxyServer = require('../src/proxy')
+import nock from 'nock'
+import {Builder} from 'selenium-webdriver'
+import {createProxyServer} from '../src/proxy-server'
 
 describe('proxy', () => {
   let proxy
 
   afterEach(async () => {
     nock.cleanAll()
-    await proxy.close()
+    await proxy.server.close()
   })
 
   it('proxies webdriver requests', async () => {
@@ -57,9 +57,10 @@ describe('proxy', () => {
       .persist()
       .post('/session')
       .reply((_url, body) => {
+        const {capabilities} = body as Record<string, any>
         if (
-          body.capabilities.alwaysMatch['applitools:apiKey'] === 'api-key' &&
-          body.capabilities.alwaysMatch['applitools:eyesServerUrl'] === 'http://server.url'
+          capabilities.alwaysMatch['applitools:apiKey'] === 'api-key' &&
+          capabilities.alwaysMatch['applitools:eyesServerUrl'] === 'http://server.url'
         ) {
           return [200, {value: {capabilities: {}, sessionId: 'session-guid'}}]
         } else {
@@ -81,16 +82,17 @@ describe('proxy', () => {
   })
 
   it('adds `applitools:` capabilities from env variables', async () => {
-    proxy = await createProxyServer()
     process.env.APPLITOOLS_API_KEY = 'env-api-key'
     process.env.APPLITOOLS_SERVER_URL = 'http://env-server.url'
+    proxy = await createProxyServer()
     nock('https://exec-wus.applitools.com')
       .persist()
       .post('/session')
       .reply((_url, body) => {
+        const {capabilities} = body as Record<string, any>
         if (
-          body.capabilities.alwaysMatch['applitools:apiKey'] === 'env-api-key' &&
-          body.capabilities.alwaysMatch['applitools:eyesServerUrl'] === 'http://env-server.url'
+          capabilities.alwaysMatch['applitools:apiKey'] === 'env-api-key' &&
+          capabilities.alwaysMatch['applitools:eyesServerUrl'] === 'http://env-server.url'
         ) {
           return [200, {value: {capabilities: {}, sessionId: 'session-guid'}}]
         } else {

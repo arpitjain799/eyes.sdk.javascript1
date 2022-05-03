@@ -1,8 +1,17 @@
-const http = require('http')
-const httpProxy = require('http-proxy')
-const parseBody = require('raw-body')
-const {Readable} = require('stream')
-const utils = require('@applitools/utils')
+import './http-extension'
+
+import {type AddressInfo} from 'net'
+import {Readable} from 'stream'
+import {createServer} from 'http'
+import {createProxy} from 'http-proxy'
+import parseBody from 'raw-body'
+import * as utils from '@applitools/utils'
+
+export type ProxyServerOptions = {
+  forwardingUrl?: string
+  serverUrl?: string
+  apiKey?: string
+}
 
 const RETRY_BACKOFF = [].concat(
   Array(5).fill(2000), // 5 tries with delay 2s (total 10s)
@@ -10,16 +19,15 @@ const RETRY_BACKOFF = [].concat(
   10000, // all next tries with delay 10s
 )
 
-module.exports = function createProxyServer({
+export function createProxyServer({
   forwardingUrl = 'https://exec-wus.applitools.com',
-  serverUrl,
-  apiKey,
-} = {}) {
-  const proxy = httpProxy.createProxy({
+  serverUrl = process.env.APPLITOOLS_SERVER_URL,
+  apiKey = process.env.APPLITOOLS_API_KEY,
+}: ProxyServerOptions = {}) {
+  const proxy = createProxy({
     target: forwardingUrl,
     changeOrigin: true,
     selfHandleResponse: true,
-    logLevel: 'silent',
   })
 
   proxy.on('proxyRes', async (proxyResponse, request, response) => {
@@ -44,17 +52,17 @@ module.exports = function createProxyServer({
     }
   })
 
-  const server = http.createServer(async (request, response) => {
+  const server = createServer(async (request, response) => {
     if (request.method === 'POST' && request.url === '/session') {
       const requestBody = await parseBody(request, {encoding: 'utf-8'})
       request.body = JSON.parse(requestBody)
       const capabilities = request.body.capabilities.alwaysMatch || request.body.desiredCapabilities
 
       if (!utils.types.has(capabilities, 'applitools:eyesServerUrl')) {
-        capabilities['applitools:eyesServerUrl'] = serverUrl || process.env.APPLITOOLS_SERVER_URL
+        capabilities['applitools:eyesServerUrl'] = serverUrl
       }
       if (!utils.types.has(capabilities, 'applitools:apiKey')) {
-        capabilities['applitools:apiKey'] = apiKey || process.env.APPLITOOLS_API_KEY
+        capabilities['applitools:apiKey'] = apiKey
       }
 
       request.retry = 0
@@ -65,16 +73,20 @@ module.exports = function createProxyServer({
     }
   })
 
+  server.listen(0, 'localhost')
+
   return new Promise((resolve, reject) => {
-    server.listen(0, 'localhost', (err) => {
-      if (err) return reject(err)
-      const port = server.address().port
-      resolve({url: `http://localhost:${port}`, port, close: () => server.close()})
+    server.on('listening', () => {
+      const address = server.address() as AddressInfo
+      resolve({url: `http://localhost:${address.port}`, port: address.port, server})
+    })
+    server.on('error', async (err: Error) => {
+      reject(err)
     })
   })
 }
 
-function streamify(data) {
+function streamify(data: string | Buffer) {
   return new Readable({
     read() {
       this.push(data)
