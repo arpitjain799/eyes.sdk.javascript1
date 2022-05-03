@@ -53,6 +53,15 @@
     "@applitools/types" "1.3.1"
     "@applitools/utils" "1.2.14"
 
+"@applitools/eyes-api@^1.3.0":
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/@applitools/eyes-api/-/eyes-api-1.3.0.tgz#99d85d8fff8c91325d265d99a51dab14eac44712"
+  integrity sha512-/4Z+CoAZJccvHjd2uDm1KBr424zaqejAY+EkfwLnePdhmU3za5nszCGlgTs3Y3PPySOhiWR6FBPdoiFHmuflng==
+  dependencies:
+    "@applitools/logger" "1.0.12"
+    "@applitools/types" "1.3.1"
+    "@applitools/utils" "1.2.14"
+
 "@applitools/eyes-sdk-core@13.3.4":
   version "13.3.4"
   resolved "https://registry.yarnpkg.com/@applitools/eyes-sdk-core/-/eyes-sdk-core-13.3.4.tgz#f79a275dd0f9f15579e6fa5059e1e3f5d3d8c9c3"

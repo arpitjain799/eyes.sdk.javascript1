@@ -14,7 +14,7 @@ export async function transform(data: any, driverUrl?: string): Promise<any> {
   } else if (spec.isElement(data)) {
     return transformElement(data)
   } else if (utils.types.isArray(data)) {
-    return Promise.all(data.map(transform))
+    return Promise.all((data as Array<any>).map(x => transform(x)))
   } else if (utils.types.isObject(data)) {
     return Object.entries(data).reduce(async (data, [key, value]) => {
       const transformed = await transform(value)
@@ -32,7 +32,7 @@ async function transformDriver(driver: Driver, driverUrl: string): Promise<Trans
     serverUrl: driverUrl,
     sessionId: session.getId(),
     capabilities: Array.from(capabilities.keys()).reduce((caps, key) => {
-      caps[key] = capabilities.get(key)
+      caps[key as string] = capabilities.get(key)
       return caps
     }, {} as Record<string, any>),
   }
