@@ -53,7 +53,7 @@
     "@applitools/types" "1.3.0"
     "@applitools/utils" "1.2.13"
 
-"@applitools/eg-demo@^1.0.2":
+"@applitools/eg-demo@1.0.2":
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/@applitools/eg-demo/-/eg-demo-1.0.2.tgz#93ef6d377cc0a37d04294ad1513297a2ce98aec8"
   integrity sha512-7a0MFlfK5WjU2M1fhNsw/uE6dBhvDGvYcPyYf6uRnA3tas5sFYHQYXVW4dg5Pu5idslASubinXGx6UcegDkIQQ==
@@ -171,10 +171,10 @@
     "@applitools/utils" "1.2.13"
     chalk "3.0.0"
 
-"@applitools/logger@1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@applitools/logger/-/logger-1.1.0.tgz#6261ef598176cf17f6eb2f92f1fb5083334f86d5"
-  integrity sha512-as/mFmmugw0L+wClgN+TPL5VGEYyYgxYXlfKWTpUC/QAiKLUD/PnAsmTXten75ud1n+EjugOWixHyXOx2FJ5ag==
+"@applitools/logger@1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@applitools/logger/-/logger-1.1.1.tgz#28262ad525c5f7896e43788302acb8e6ffdab2b7"
+  integrity sha512-4jtQB8kv+pe3SDPWp614oSw9y5HlEWVHfCqks3HhntvbhuCvjnHOVUiGUTSl9DuroMKQozmpfgxQi0i/f+OrPQ==
   dependencies:
     "@applitools/utils" "1.2.14"
     chalk "4.1.2"
@@ -1788,14 +1788,7 @@ node-fetch@2.6.1:
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.1.tgz#045bd323631f76ed2e2b55573394416b639a0052"
   integrity sha512-V4aYg89jEoVRxRb2fJdAg8FHvI7cEyYdVAh94HH0UIK8oJxUfkjlDQN9RbMx+bEjP7+ggMiFRprSti032Oipxw==
 
-node-fetch@^2.3.0, node-fetch@^2.6.0, node-fetch@^2.6.7:
-  version "2.6.7"
-  resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.7.tgz#24de9fba827e3b4ae44dc8b20256a379160052ad"
-  integrity sha512-ZjMPFEfVx5j+y2yF35Kzx5sF7kDzxuDj6ziH4FFbOp87zKDZNx8yExJIb05OGF4Nlt9IHFIMBkRl41VdvcNdbQ==
-  dependencies:
-    whatwg-url "^5.0.0"
-
-node-fetch@^3.2.4:
+node-fetch@3.2.4:
   version "3.2.4"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-3.2.4.tgz#3fbca2d8838111048232de54cb532bd3cf134947"
   integrity sha512-WvYJRN7mMyOLurFR2YpysQGuwYrJN+qrrpHjJDuKMcSPdfFccRUla/kng2mz6HWSBxJcqPbvatS6Gb4RhOzCJw==
@@ -1803,6 +1796,13 @@ node-fetch@^3.2.4:
     data-uri-to-buffer "^4.0.0"
     fetch-blob "^3.1.4"
     formdata-polyfill "^4.0.10"
+
+node-fetch@^2.3.0, node-fetch@^2.6.0, node-fetch@^2.6.7:
+  version "2.6.7"
+  resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.7.tgz#24de9fba827e3b4ae44dc8b20256a379160052ad"
+  integrity sha512-ZjMPFEfVx5j+y2yF35Kzx5sF7kDzxuDj6ziH4FFbOp87zKDZNx8yExJIb05OGF4Nlt9IHFIMBkRl41VdvcNdbQ==
+  dependencies:
+    whatwg-url "^5.0.0"
 
 normalize-path@^3.0.0, normalize-path@~3.0.0:
   version "3.0.0"
@@ -2628,7 +2628,7 @@ yargs@16.2.0:
     y18n "^5.0.5"
     yargs-parser "^20.2.2"
 
-yargs@^17.4.1:
+yargs@17.4.1:
   version "17.4.1"
   resolved "https://registry.yarnpkg.com/yargs/-/yargs-17.4.1.tgz#ebe23284207bb75cee7c408c33e722bfb27b5284"
   integrity sha512-WSZD9jgobAg3ZKuCQZSa3g9QOJeCCqLoLAykiWgmXnDo9EPnn4RPf5qVTtzgOx66o6/oqhcA5tHtJXpG8pMt3g==
