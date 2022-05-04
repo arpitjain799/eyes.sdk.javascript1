@@ -1,6 +1,6 @@
 import nock from 'nock'
 import {Builder} from 'selenium-webdriver'
-import {createProxyServer} from '../src/proxy-server'
+import {makeServer} from '../../src/proxy-server'
 
 describe('proxy', () => {
   let proxy
@@ -11,7 +11,7 @@ describe('proxy', () => {
   })
 
   it('proxies webdriver requests', async () => {
-    proxy = await createProxyServer()
+    proxy = await makeServer()
 
     nock('https://exec-wus.applitools.com')
       .persist()
@@ -22,7 +22,7 @@ describe('proxy', () => {
   })
 
   it('performs retries on concurrency and availability errors', async () => {
-    proxy = await createProxyServer()
+    proxy = await makeServer()
 
     let retries = 0
     nock('https://exec-wus.applitools.com')
@@ -51,7 +51,7 @@ describe('proxy', () => {
   })
 
   it('adds `applitools:` capabilities from properties', async () => {
-    proxy = await createProxyServer({apiKey: 'api-key', serverUrl: 'http://server.url'})
+    proxy = await makeServer({apiKey: 'api-key', serverUrl: 'http://server.url'})
 
     nock('https://exec-wus.applitools.com')
       .persist()
@@ -84,7 +84,7 @@ describe('proxy', () => {
   it('adds `applitools:` capabilities from env variables', async () => {
     process.env.APPLITOOLS_API_KEY = 'env-api-key'
     process.env.APPLITOOLS_SERVER_URL = 'http://env-server.url'
-    proxy = await createProxyServer()
+    proxy = await makeServer()
     nock('https://exec-wus.applitools.com')
       .persist()
       .post('/session')

@@ -1,15 +1,16 @@
 import './http-extension'
 
 import {type AddressInfo} from 'net'
-import {Readable} from 'stream'
-import {createServer} from 'http'
-import {createProxy} from 'http-proxy'
+import {type IncomingMessage, type ServerResponse, type Server, createServer} from 'http'
+import {proxy} from './proxy'
 import parseBody from 'raw-body'
 import {type Logger, makeLogger} from '@applitools/logger'
 import * as utils from '@applitools/utils'
 
 export type ProxyServerOptions = {
+  port?: number
   forwardingUrl?: string
+  tunnelUrl?: string
   serverUrl?: string
   apiKey?: string
   logger?: Logger & any
@@ -21,80 +22,31 @@ const RETRY_BACKOFF = [].concat(
   10000, // all next tries with delay 10s
 )
 
-export function createProxyServer({
+const RETRY_ERROR_CODES = ['CONCURRENCY_LIMIT_REACHED', 'NO_AVAILABLE_DRIVER_POD']
+
+export function makeServer({
+  port = 0,
   forwardingUrl = 'https://exec-wus.applitools.com',
+  tunnelUrl,
   serverUrl = process.env.APPLITOOLS_SERVER_URL,
   apiKey = process.env.APPLITOOLS_API_KEY,
   logger,
-}: ProxyServerOptions = {}) {
+}: ProxyServerOptions = {}): Promise<{url: string; port: number; server: Server}> {
   logger = logger ? logger.extend({label: 'eg-client'}) : makeLogger({label: 'eg-client', colors: true})
-
-  const proxy = createProxy({
-    target: forwardingUrl,
-    changeOrigin: true,
-    selfHandleResponse: true,
-  })
-
-  proxy.on('proxyRes', async (proxyResponse, request, response) => {
-    response.writeHead(proxyResponse.statusCode, proxyResponse.headers)
-
-    if (request.method === 'POST' && request.url === '/session') {
-      const responseBody = await parseBody(proxyResponse, {encoding: 'utf-8'})
-      response.body = JSON.parse(responseBody)
-
-      request.logger.log(`Response was intercepted with body:`, response.body)
-
-      if (
-        response.body.value.error === 'session not created' &&
-        ['CONCURRENCY_LIMIT_REACHED', 'NO_AVAILABLE_DRIVER_POD'].includes(response.body.value.data.appliErrorCode)
-      ) {
-        await utils.general.sleep(RETRY_BACKOFF[Math.min(request.retry, RETRY_BACKOFF.length - 1)])
-        request.retry += 1
-        request.removeAllListeners()
-
-        request.logger.log(`Retrying sending the request (attempt 2)`)
-
-        proxy.web(request, response, {buffer: request.body && streamify(JSON.stringify(request.body))})
-      } else {
-        response.end(responseBody)
-      }
-    } else {
-      proxyResponse.pipe(response)
-    }
-  })
 
   const server = createServer(async (request, response) => {
     if (request.method === 'POST' && request.url === '/session') {
-      const requestBody = await parseBody(request, {encoding: 'utf-8'})
-      request.body = JSON.parse(requestBody)
-
-      request.logger = logger.extend({
-        tags: {signature: `[${request.method}]${request.url}`, requestId: utils.general.guid()},
-      })
-
-      request.logger.log(`Request was intercepted with body:`, request.body)
-
-      const capabilities = request.body.capabilities.alwaysMatch || request.body.desiredCapabilities
-      if (!utils.types.has(capabilities, 'applitools:eyesServerUrl')) {
-        capabilities['applitools:eyesServerUrl'] = serverUrl
-      }
-      if (!utils.types.has(capabilities, 'applitools:apiKey')) {
-        capabilities['applitools:apiKey'] = apiKey
-      }
-
-      request.logger.log('Request body has modified:', request.body)
-
-      request.retry = 0
-
-      proxy.web(request, response, {buffer: streamify(JSON.stringify(request.body))})
+      return handleNewSession(request, response)
+    } else if (request.method === 'DELETE' && request.url === '/session/sessionID') {
+      // return handleStopSession(request, response)
     } else {
-      proxy.web(request, response)
+      return proxy(request, response, {target: forwardingUrl, forward: true})
     }
   })
 
-  server.listen(0, 'localhost')
+  server.listen(port, 'localhost')
 
-  return new Promise((resolve, reject) => {
+  return new Promise<{url: string; port: number; server: Server}>((resolve, reject) => {
     server.on('listening', () => {
       const address = server.address() as AddressInfo
       logger.log(`Proxy server has started on port ${address.port}`)
@@ -106,13 +58,51 @@ export function createProxyServer({
       reject(err)
     })
   })
-}
 
-function streamify(data: string | Buffer) {
-  return new Readable({
-    read() {
-      this.push(data)
-      this.push(null)
-    },
-  })
+  async function handleNewSession(request: IncomingMessage, response: ServerResponse): Promise<void> {
+    const state = {} as any
+    const requestLogger = logger.extend({
+      tags: {signature: `[${request.method}]${request.url}`, requestId: utils.general.guid()},
+    })
+
+    const requestBody = await parseBody(request, 'utf-8').then(body => (body ? JSON.parse(body) : undefined))
+    if (!requestBody) return requestLogger.log(`Request has no body`)
+
+    requestLogger.log(`Request was intercepted with body:`, requestBody)
+
+    const capabilities = requestBody.capabilities?.alwaysMatch ?? requestBody.desiredCapabilities
+    state.serverUrl = capabilities['applitools:eyesServerUrl'] = capabilities['applitools:eyesServerUrl'] ?? serverUrl
+    state.apiKey = capabilities['applitools:apiKey'] = capabilities['applitools:apiKey'] ?? apiKey
+    if (capabilities['applitools:tunnel']) {
+      const tunnelId = await fetch(`${tunnelUrl}/tunnels`, {
+        method: 'POST',
+        headers: {'x-eyes-server-url': state.serverUrl, 'x-eyes-api-key': state.apiKey},
+      }).then(response => response.json())
+      state.tunnelId = capabilities['applitools:x-tunnel-id-0'] = tunnelId
+    }
+
+    requestLogger.log('Request body has modified:', requestBody)
+
+    let attempt = 0
+    while (true) {
+      const proxyResponse = await proxy(request, response, {target: forwardingUrl, body: requestBody})
+
+      const responseBody = await parseBody(proxyResponse, 'utf-8').then(body => (body ? JSON.parse(body) : undefined))
+      if (!responseBody) {
+        response.writeHead(proxyResponse.statusCode, proxyResponse.headers).end()
+        return requestLogger.log(`Response has no body`)
+      }
+
+      requestLogger.log(`Response was intercepted with body:`, responseBody)
+
+      if (RETRY_ERROR_CODES.includes(responseBody.value?.data?.appliErrorCode)) {
+        await utils.general.sleep(RETRY_BACKOFF[Math.min(attempt, RETRY_BACKOFF.length - 1)])
+        attempt += 1
+        request.removeAllListeners()
+        requestLogger.log(`Retrying sending the request (attempt ${attempt})`)
+      }
+      response.writeHead(proxyResponse.statusCode, proxyResponse.headers).end(JSON.stringify(responseBody))
+      return
+    }
+  }
 }
