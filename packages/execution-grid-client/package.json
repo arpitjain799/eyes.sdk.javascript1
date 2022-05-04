@@ -39,7 +39,6 @@
     }
   },
   "dependencies": {
-    "@applitools/eg-demo": "1.0.2",
     "@applitools/logger": "1.1.1",
     "@applitools/utils": "1.2.14",
     "http-proxy": "1.18.1",
@@ -48,6 +47,7 @@
     "yargs": "17.4.1"
   },
   "devDependencies": {
+    "@applitools/eg-demo": "1.0.2",
     "@applitools/bongo": "^2.0.3",
     "@types/http-proxy": "^1.17.8",
     "@types/mocha": "^9.1.1",
