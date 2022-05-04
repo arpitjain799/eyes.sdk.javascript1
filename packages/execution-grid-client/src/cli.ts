@@ -6,7 +6,7 @@ import {makeServer} from './proxy-server'
 yargs
   .example([
     ['$ eg-client', 'Run Eyes Universal server on random port'],
-    ['$ eyes-universal --port 8080', 'Run Eyes Universal server on port 8080'],
+    ['$ eg-client --port 8080', 'Run Eyes Universal server on port 8080'],
   ])
   .command({
     command: '*',
