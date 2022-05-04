@@ -32,7 +32,7 @@
     "build": "tsc",
     "test": "mocha --no-timeouts -r ts-node/register ./test/**/*.spec.ts",
     "deps": "bongo deps",
-    "preversion": "bongo preversion",
+    "preversion": "bongo preversion && yarn build",
     "version": "bongo version",
     "postversion": "bongo postversion --skip-release-notification"
   },
