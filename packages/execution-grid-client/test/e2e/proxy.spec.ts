@@ -8,7 +8,7 @@ describe('proxy', () => {
     await proxy.server.close()
   })
 
-  it.only('works with real server', async () => {
+  it('works with real server', async () => {
     proxy = await makeServer({serverUrl: 'https://eyes.applitools.com', apiKey: process.env.APPLITOOLS_API_KEY})
 
     const driver = await new Builder().forBrowser('chrome').usingServer(proxy.url).build()

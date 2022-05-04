@@ -88,6 +88,7 @@ export function makeServer({
       const proxyResponse = await proxy(request, response, {target: forwardingUrl, body: requestBody})
 
       const responseBody = await parseBody(proxyResponse, 'utf-8').then(body => (body ? JSON.parse(body) : undefined))
+
       if (!responseBody) {
         response.writeHead(proxyResponse.statusCode, proxyResponse.headers).end()
         return requestLogger.log(`Response has no body`)
@@ -95,14 +96,14 @@ export function makeServer({
 
       requestLogger.log(`Response was intercepted with body:`, responseBody)
 
-      if (RETRY_ERROR_CODES.includes(responseBody.value?.data?.appliErrorCode)) {
-        await utils.general.sleep(RETRY_BACKOFF[Math.min(attempt, RETRY_BACKOFF.length - 1)])
-        attempt += 1
-        request.removeAllListeners()
-        requestLogger.log(`Retrying sending the request (attempt ${attempt})`)
+      if (!RETRY_ERROR_CODES.includes(responseBody.value?.data?.appliErrorCode)) {
+        response.writeHead(proxyResponse.statusCode, proxyResponse.headers).end(JSON.stringify(responseBody))
+        return
       }
-      response.writeHead(proxyResponse.statusCode, proxyResponse.headers).end(JSON.stringify(responseBody))
-      return
+      await utils.general.sleep(RETRY_BACKOFF[Math.min(attempt, RETRY_BACKOFF.length - 1)])
+      attempt += 1
+      request.removeAllListeners()
+      requestLogger.log(`Retrying sending the request (attempt ${attempt})`)
     }
   }
 }
