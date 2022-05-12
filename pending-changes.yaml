@@ -100,7 +100,7 @@ Apollo SDK:
     - Support data urls in iframes
 "@applitools/eyes-cypress":
   feature:
-    - 
+    - add support to send JQeury elements as Target and ignore, floating, accessability and match regions.
   bug-fix:
     - 
 "@applitools/eyes-storybook":
