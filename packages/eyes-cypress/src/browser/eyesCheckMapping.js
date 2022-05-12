@@ -21,17 +21,21 @@ function toCheckWindowConfiguration(config = {}) {
   const checkSettings = {
     name: config.tag,
     hooks: config.scriptHooks,
-    ignoreRegions: config.ignore,
+    ignoreRegions: covertRegions(config.ignore),
     floatingRegions: convertFloatingRegion(config.floating),
-    strictRegions: config.strict,
-    layoutRegions: config.layout,
-    contentRegions: config.content,
+    strictRegions: covertRegions(config.strict),
+    layoutRegions: covertRegions(config.layout),
+    contentRegions: covertRegions(config.content),
     accessibilityRegions: convertAccessabilityRegions(config.accessibility),
   };
 
   if (config.target === 'region') {
     if (!Array.isArray(config.selector)) {
-      if (!config.hasOwnProperty('selector')) {
+      if (config.element) {
+        regionSettings = {
+          region: {selector: config.element.selector},
+        };
+      } else if (!config.hasOwnProperty('selector')) {
         regionSettings = {
           region: config.region,
         };
@@ -72,7 +76,7 @@ function convertAccessabilityRegions(accessibilityRegions) {
   if (!accessibilityRegions) return accessibilityRegions;
 
   return accessibilityRegions.map(region => ({
-    region: region.selector,
+    region: covertRegions([region])[0].selector,
     type: region.accessibilityType,
   }));
 }
@@ -89,6 +93,8 @@ function convertFloatingRegion(floatingRegions) {
     };
     if (region.hasOwnProperty('selector')) {
       floatingRegion.region = region.selector;
+    } else if (region.hasOwnProperty('element')) {
+      floatingRegion.region = covertRegions([region])[0].selector;
     } else {
       floatingRegion.region = {
         top: region.top,
@@ -98,6 +104,18 @@ function convertFloatingRegion(floatingRegions) {
       };
     }
     return floatingRegion;
+  });
+}
+
+function covertRegions(regions) {
+  if (!regions) return regions;
+
+  return regions.map(region => {
+    if (region.element) {
+      return {selector: region.element.selector};
+    } else {
+      return region;
+    }
   });
 }
 

@@ -41,10 +41,30 @@ describe('eyes-cypress', () => {
     });
   });
 
+  it('region by JQuery element', () => {
+    cy.visit(url);
+    cy.get('.absolutely').then($el => {
+      cy.eyesCheckWindow({
+        tag: 'region',
+        target: 'region',
+        element: $el,
+      });
+    });
+  });
+
   it('ignore regions', () => {
     cy.visit(`http://localhost:${Cypress.config('testPort')}/dynamic.html`);
     cy.eyesCheckWindow({
       ignore: [{selector: '.dynamic-region'}],
+    });
+  });
+
+  it('ignore regios by JQuery element', () => {
+    cy.visit(`http://localhost:${Cypress.config('testPort')}/dynamic.html`);
+    cy.get('.dynamic-region').then($el => {
+      cy.eyesCheckWindow({
+        ignore: [{element: $el}],
+      });
     });
   });
 });
