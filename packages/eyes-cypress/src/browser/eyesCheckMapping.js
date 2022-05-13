@@ -76,7 +76,7 @@ function convertAccessabilityRegions(accessibilityRegions) {
   if (!accessibilityRegions) return accessibilityRegions;
 
   return accessibilityRegions.map(region => ({
-    region: covertRegions([region])[0].selector,
+    region: covertRegions(region)[0].selector,
     type: region.accessibilityType,
   }));
 }
@@ -94,7 +94,7 @@ function convertFloatingRegion(floatingRegions) {
     if (region.hasOwnProperty('selector')) {
       floatingRegion.region = region.selector;
     } else if (region.hasOwnProperty('element')) {
-      floatingRegion.region = covertRegions([region])[0].selector;
+      floatingRegion.region = covertRegions(region)[0].selector;
     } else {
       floatingRegion.region = {
         top: region.top,
@@ -109,7 +109,7 @@ function convertFloatingRegion(floatingRegions) {
 
 function covertRegions(regions) {
   if (!regions) return regions;
-
+  if (!(regions instanceof Array)) regions = [regions];
   return regions.map(region => {
     if (region.element) {
       return {selector: region.element.selector};
