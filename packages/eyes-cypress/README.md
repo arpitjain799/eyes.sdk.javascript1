@@ -310,6 +310,17 @@ cy.eyesCheckWindow({ tag: 'Login screen', target: 'your target' })
   });
   ```
 
+Pass an element as the target
+  ```js
+  cy.get('body > div > h1')
+  .then($el => {
+      cy.eyesCheckWindow({
+        target: 'region',
+        element: $el
+      })
+  })
+  ```
+
 ##### `ignore`
 
 (optional): A single or an array of regions to ignore when checking for visual differences. For example:
