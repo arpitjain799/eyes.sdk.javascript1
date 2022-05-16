@@ -85,10 +85,7 @@ export function makeQueue(_options: {logger: Logger}): Queue {
   function cork() {
     if (corked) return
     corked = true
-    pool.slice(1).forEach(handle => {
-      console.log(handle.running)
-      handle.abort()
-    })
+    pool.slice(1).forEach(handle => handle.abort())
   }
 
   function uncork() {

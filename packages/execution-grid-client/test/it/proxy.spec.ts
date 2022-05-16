@@ -1,5 +1,5 @@
 import assert from 'assert'
-import {createServer as createHttpServer} from 'http'
+import {createServer as createHttpServer, Server as HttpServer} from 'http'
 import fetch from 'node-fetch'
 import {makeLogger} from '@applitools/logger'
 import {makeProxy} from '../../src/proxy'
@@ -7,15 +7,20 @@ import {makeProxy} from '../../src/proxy'
 describe('proxy', () => {
   const logger = makeLogger()
 
+  async function createServer({port}: {port: number}): Promise<HttpServer> {
+    return new Promise((resolve, reject) => {
+      const server = createHttpServer().listen(port, 'localhost')
+      server.on('listening', () => resolve(server))
+      server.on('error', reject)
+    })
+  }
+
   it('works with http target', async () => {
     return new Promise<void>(async (resolve, reject) => {
       const proxyRequest = makeProxy()
-      const server = createHttpServer().listen(3000, 'localhost')
-      const proxyServer = createHttpServer().listen(4000, 'localhost')
+      const server = await createServer({port: 3000})
+      const proxyServer = await createServer({port: 4000})
       try {
-        server.on('error', reject)
-        proxyServer.on('error', reject)
-
         const headers = {original: null as any, proxied: null as any}
 
         server.on('request', (request, response) => {
@@ -58,13 +63,10 @@ describe('proxy', () => {
   it('works with second proxy', async () => {
     return new Promise<void>(async (resolve, reject) => {
       const proxyRequest = makeProxy()
-      const server = createHttpServer().listen(3000, 'localhost')
-      const secondProxyServer = createHttpServer().listen(4000, 'localhost')
-      const proxyServer = createHttpServer().listen(5000, 'localhost')
+      const server = await createServer({port: 3000})
+      const secondProxyServer = await createServer({port: 4000})
+      const proxyServer = await createServer({port: 5000})
       try {
-        proxyServer.on('error', reject)
-        secondProxyServer.on('error', reject)
-
         const headers = {original: null as any, proxied: null as any, doubleProxied: null as any}
 
         server.on('request', (request, response) => {
