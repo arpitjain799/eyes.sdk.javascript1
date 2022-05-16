@@ -1,5 +1,6 @@
 import {type Logger} from '@applitools/logger'
 import {AbortController, type AbortSignal} from 'abort-controller'
+import * as utils from '@applitools/utils'
 
 export type Queue = {
   readonly corked: boolean
@@ -50,7 +51,7 @@ export function makeQueue(_options: {logger: Logger}): Queue {
           handle.resolve(result)
         }
       } catch (error) {
-        handle.reject(error)
+        if (handle.running || !utils.types.instanceOf(error, 'AbortError')) handle.reject(error)
       } finally {
         return handle.promise
       }
@@ -84,7 +85,10 @@ export function makeQueue(_options: {logger: Logger}): Queue {
   function cork() {
     if (corked) return
     corked = true
-    pool.slice(1).forEach(handle => handle.abort())
+    pool.slice(1).forEach(handle => {
+      console.log(handle.running)
+      handle.abort()
+    })
   }
 
   function uncork() {

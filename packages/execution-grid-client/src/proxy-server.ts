@@ -74,7 +74,7 @@ export function makeServer({
         return await proxyRequest({request, response, logger: requestLogger})
       }
     } catch (err) {
-      console.error(err)
+      // console.error(err)
       requestLogger.error(`Error during processing request:`, err)
       response
         .writeHead(500)

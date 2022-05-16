@@ -68,6 +68,7 @@ export function makeProxy(defaultOptions?: Partial<ProxyOptions> & {resolveUrls?
         )
         await utils.general.sleep(options.retryTimeout ?? 5000)
       } catch (error) {
+        if (utils.types.instanceOf(error, 'AbortError')) throw error
         logger.error(`Attempt (${attempt}) to proxy request failed with error`, error)
         if (attempt + 1 <= 10) throw error
       }
@@ -115,10 +116,11 @@ function makeResolveUrl() {
 
     let hostname = resolvedHosts.get(url.hostname)
     if (!hostname) {
-      hostname = await new Promise(resolve => {
+      hostname = new Promise(resolve => {
         resolveDns(url.hostname, (err, addresses) => {
           if (!err) {
-            logger.error(`Addresses were successfully resolved for url ${url.href} - ${addresses.join(', ')}`, err)
+            resolvedHosts.set(url.hostname, addresses[0])
+            logger.log(`Addresses were successfully resolved for url ${url.href} - ${addresses.join(', ')}`)
             resolve(addresses[0])
           } else {
             logger.error(`Failed to resolve address for url ${url.href}`, err)
@@ -126,8 +128,9 @@ function makeResolveUrl() {
           }
         })
       })
+      resolvedHosts.set(url.hostname, hostname)
     }
-    url.hostname = hostname
+    url.hostname = await hostname
     return url
   }
 }

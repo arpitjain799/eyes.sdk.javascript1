@@ -41,7 +41,7 @@ export const builder: CommandBuilder<ServerOptions> = yargs =>
       },
       apiKey: {
         description: 'run server with specific default api key.',
-        type: 'number',
+        type: 'string',
       },
     })
 
