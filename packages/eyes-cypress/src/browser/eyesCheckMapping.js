@@ -32,7 +32,7 @@ function makeEyesCheckMapping(refer) {
 
     if (config.target === 'region') {
       if (!Array.isArray(config.selector)) {
-        if (config.element && config.element.constructor) {
+        if (config.element) {
           if (isHTMLElement(config.element)) {
             regionSettings = {
               region: refer.ref(config.element),
@@ -148,14 +148,12 @@ function makeEyesCheckMapping(refer) {
     if (!(regions instanceof Array)) regions = [regions];
     const elements = [];
     regions.map(region => {
-      if (region.constructor) {
-        if (isHTMLElement(region)) {
-          elements.push(refer.ref(region));
-        } else if (region.constructor.name === 'jQuery') {
-          region.each(function() {
-            elements.push(refer.ref(this));
-          });
-        }
+      if (isHTMLElement(region)) {
+        elements.push(refer.ref(region));
+      } else if (region.constructor.name === 'jQuery') {
+        region.each(function() {
+          elements.push(refer.ref(this));
+        });
       } else {
         elements.push(region);
       }

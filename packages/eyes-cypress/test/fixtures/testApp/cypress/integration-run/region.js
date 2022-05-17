@@ -1,4 +1,4 @@
-/* global cy */
+/* global Cypress cy */
 describe('eyes-cypress', () => {
   const url = `http://localhost:${Cypress.config('testPort')}/test.html`;
 
@@ -52,6 +52,17 @@ describe('eyes-cypress', () => {
     });
   });
 
+  it('region by DOM element', () => {
+    cy.visit(url);
+    cy.get('.absolutely').then($el => {
+      cy.eyesCheckWindow({
+        tag: 'region',
+        target: 'region',
+        element: $el[0],
+      });
+    });
+  });
+
   it('ignore regions', () => {
     cy.visit(`http://localhost:${Cypress.config('testPort')}/dynamic.html`);
     cy.eyesCheckWindow({
@@ -64,6 +75,15 @@ describe('eyes-cypress', () => {
     cy.get('.dynamic-region').then($el => {
       cy.eyesCheckWindow({
         ignore: $el,
+      });
+    });
+  });
+
+  it('ignore regios by DOM element', () => {
+    cy.visit(`http://localhost:${Cypress.config('testPort')}/dynamic.html`);
+    cy.get('.dynamic-region').then($el => {
+      cy.eyesCheckWindow({
+        ignore: [$el[0], $el[1]],
       });
     });
   });
