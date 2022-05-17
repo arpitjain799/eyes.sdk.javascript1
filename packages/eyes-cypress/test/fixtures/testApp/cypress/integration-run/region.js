@@ -63,7 +63,7 @@ describe('eyes-cypress', () => {
     cy.visit(`http://localhost:${Cypress.config('testPort')}/dynamic.html`);
     cy.get('.dynamic-region').then($el => {
       cy.eyesCheckWindow({
-        ignore: [{element: $el}],
+        ignore: $el,
       });
     });
   });
