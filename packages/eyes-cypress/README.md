@@ -332,6 +332,14 @@ Pass an element as the target
       {selector: '.some-div-to-ignore'}
     ]
   });
+
+// use JQuery or DOM elements
+  cy.get('.some-div-to-ignore').then($el => {
+      cy.eyesCheckWindow({
+        ignore: $el
+    });
+  })
+  
   ```
 
 ##### `floating`
@@ -345,6 +353,15 @@ cy.eyesCheckWindow({
     {selector: '.some-div-to-float', maxUpOffset: 20, maxDownOffset: 20, maxLeftOffset: 20, maxRightOffset: 20}
   ]
 });
+
+// use JQuery or DOM elements
+cy.get('.some-div-to-float').then($el => {
+  cy.eyesCheckWindow({
+    floating: [
+        {element: $el, maxUpOffset: 20, maxDownOffset: 20, maxLeftOffset: 20, maxRightOffset: 20},
+    ]
+  })
+})
 ```
 
 ##### `layout`
@@ -358,6 +375,13 @@ cy.eyesCheckWindow({
       {selector: '.some-div-to-test-as-layout'}
     ]
   });
+
+    // use JQuery or DOM elements
+  cy.get('.some-div-to-test-as-layout').then($el => {
+      cy.eyesCheckWindow({
+        layout: $el
+    });
+  })
   ```
 
 ##### `strict`
@@ -371,6 +395,13 @@ cy.eyesCheckWindow({
       {selector: '.some-div-to-test-as-strict'}
     ]
   });
+
+  // use JQuery or DOM elements
+  cy.get('.some-div-to-test-as-strict').then($el => {
+      cy.eyesCheckWindow({
+        strict: $el
+    });
+  })
   ```
 
 ##### `content`
@@ -384,6 +415,13 @@ cy.eyesCheckWindow({
       {selector: '.some-div-to-test-as-content'}
     ]
   });
+
+  // use JQuery or DOM elements
+  cy.get('.some-div-to-test-as-content').then($el => {
+      cy.eyesCheckWindow({
+        content: $el
+    });
+  })
   ```
 
 ##### `accessibility`
@@ -398,6 +436,16 @@ cy.eyesCheckWindow({
       {accessibilityType: 'BoldText', top: 100, left: 0, width: 1000, height: 100},
     ]
   });
+
+// use JQuery or DOM elements
+  cy.get('.some-div').then($el => {
+     cy.eyesCheckWindow({
+    accessibility: [
+      {accessibilityType: 'RegularText', element: $el},
+    ]
+  });
+  })
+
   ```
 
   Possible accessibilityType values are: `IgnoreContrast`,`RegularText`,`LargeText`,`BoldText` and `GraphicalObject`.
