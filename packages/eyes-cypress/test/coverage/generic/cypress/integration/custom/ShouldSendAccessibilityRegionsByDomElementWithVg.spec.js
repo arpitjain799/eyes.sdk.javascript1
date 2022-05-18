@@ -1,5 +1,4 @@
-/* global cy,Cypress*/
-const assert = require('assert');
+/* global cy,Cypress,expect*/
 const {getTestInfo} = require('@applitools/test-utils');
 
 describe('Coverage tests', () => {
@@ -13,20 +12,10 @@ describe('Coverage tests', () => {
     });
     cy.get('.ignore').then($el => {
       cy.eyesCheckWindow({
-        accessibility: [
-          {
-            accessibilityType: 'LargeText',
-            element: $el[0],
-          },
-          {
-            accessibilityType: 'LargeText',
-            element: $el[1],
-          },
-          {
-            accessibilityType: 'LargeText',
-            element: $el[2],
-          },
-        ],
+        accessibility: $el.toArray().map(element => ({
+          accessibilityType: 'LargeText',
+          element,
+        })),
       });
     });
 
@@ -37,18 +26,11 @@ describe('Coverage tests', () => {
         summary.getAllResults()[0].getTestResults(),
         Cypress.config('appliConfFile').apiKey,
       );
-      assert.deepStrictEqual(
-        info['actualAppOutput']['0']['imageMatchSettings']['accessibilitySettings']['level'],
-        'AAA',
-        undefined,
-      );
-      assert.deepStrictEqual(
-        info['actualAppOutput']['0']['imageMatchSettings']['accessibilitySettings']['version'],
-        'WCAG_2_0',
-        undefined,
-      );
-      assert.deepStrictEqual(
-        info['actualAppOutput']['0']['imageMatchSettings']['accessibility']['0'],
+      expect(info.actualAppOutput[0].imageMatchSettings.accessibilitySettings).to.eql({
+        level: 'AAA',
+        version: 'WCAG_2_0',
+      });
+      expect(info.actualAppOutput[0].imageMatchSettings.accessibility).to.eql([
         {
           isDisabled: false,
           type: 'LargeText',
@@ -57,10 +39,6 @@ describe('Coverage tests', () => {
           width: 800,
           height: 501,
         },
-        undefined,
-      );
-      assert.deepStrictEqual(
-        info['actualAppOutput']['0']['imageMatchSettings']['accessibility']['1'],
         {
           isDisabled: false,
           type: 'LargeText',
@@ -69,10 +47,6 @@ describe('Coverage tests', () => {
           width: 456,
           height: 307,
         },
-        undefined,
-      );
-      assert.deepStrictEqual(
-        info['actualAppOutput']['0']['imageMatchSettings']['accessibility']['2'],
         {
           isDisabled: false,
           type: 'LargeText',
@@ -81,8 +55,7 @@ describe('Coverage tests', () => {
           width: 690,
           height: 207,
         },
-        undefined,
-      );
+      ]);
     });
   });
 });
