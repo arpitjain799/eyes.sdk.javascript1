@@ -12,7 +12,7 @@ Apollo SDK:
   feature:
     - 
   bug-fix:
-    - 
+    - revert back to sending the config as a string to cli from universal-server-process
 "@applitools/eyes-selenium":
   feature:
     - |
