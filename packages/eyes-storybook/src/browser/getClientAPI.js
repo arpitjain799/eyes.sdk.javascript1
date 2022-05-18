@@ -35,7 +35,11 @@ function getClientAPI() {
       throw new Error("Cannot get client API: couldn't detect storybook version");
     }
   }
-
+  function onStoryRendered(callback) {
+    addons.channel.once('storyRendered', () => {
+      setTimeout(() => callback(), 0);
+    });
+  }
   function getAPI(version) {
     if (version) {
       let api;
@@ -54,6 +58,7 @@ function getClientAPI() {
               const {kind, name: story} = api.getStories()[i];
               addons.channel._listeners.setCurrentStory[0]({kind, story});
             },
+            onStoryRendered,
           };
           break;
         }
@@ -66,6 +71,7 @@ function getClientAPI() {
             selectStory: i => {
               clientAPI._storyStore.setSelection(clientAPI.raw()[i]);
             },
+            onStoryRendered,
           };
           break;
         }
@@ -78,6 +84,7 @@ function getClientAPI() {
             selectStory: i => {
               frameWindow.__STORYBOOK_STORY_STORE__.setSelection({storyId: clientAPI.raw()[i].id});
             },
+            onStoryRendered,
           };
           break;
         }
@@ -93,6 +100,12 @@ function getClientAPI() {
               });
               await frameWindow.__STORYBOOK_PREVIEW__.renderSelection();
             },
+            onStoryRendered,
+            /*  onStoryRendered: callback => {
+              addons.channel.once('storyRendered', () => {
+                setTimeout(() => callback(), 0);
+              });
+            }, */
           };
           break;
         }
