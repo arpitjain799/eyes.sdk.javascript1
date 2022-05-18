@@ -1,84 +1,82 @@
-function makeEyesCheckMapping(refer) {
-  return function eyesCheckMapValues({args}) {
-    return toCheckWindowConfiguration(args);
+/* global Node */
+function eyesCheckMapValues({args, refer}) {
+  const config = args; // just did it for having less git changes at this moment
+  const mappedValues = [
+    'tag',
+    'scriptHooks',
+    'ignore',
+    'floating',
+    'strict',
+    'layout',
+    'content',
+    'accessibility',
+    'region',
+    'selector',
+  ];
+
+  let regionSettings = {};
+  let shadowDomSettings = {};
+  const checkSettings = {
+    name: config.tag,
+    hooks: config.scriptHooks,
+    ignoreRegions: refElements(config.ignore),
+    floatingRegions: convertFloatingRegion(config.floating),
+    strictRegions: refElements(config.strict),
+    layoutRegions: refElements(config.layout),
+    contentRegions: refElements(config.content),
+    accessibilityRegions: convertAccessabilityRegions(config.accessibility),
   };
 
-  function toCheckWindowConfiguration(config = {}) {
-    const mappedValues = [
-      'tag',
-      'scriptHooks',
-      'ignore',
-      'floating',
-      'strict',
-      'layout',
-      'content',
-      'accessibility',
-      'region',
-      'selector',
-    ];
-
-    let regionSettings = {};
-    let shadowDomSettings = {};
-    const checkSettings = {
-      name: config.tag,
-      hooks: config.scriptHooks,
-      ignoreRegions: refElements(config.ignore),
-      floatingRegions: convertFloatingRegion(config.floating),
-      strictRegions: refElements(config.strict),
-      layoutRegions: refElements(config.layout),
-      contentRegions: refElements(config.content),
-      accessibilityRegions: convertAccessabilityRegions(config.accessibility),
-    };
-
-    if (config.target === 'region') {
-      if (!Array.isArray(config.selector)) {
-        if (config.element) {
-          if (isHTMLElement(config.element)) {
-            regionSettings = {
-              region: refer.ref(config.element),
-            };
-          } else {
-            // JQuery element
-            regionSettings = {
-              region: refer.ref(config.element[0]),
-            };
-          }
-        } else if (!config.hasOwnProperty('selector')) {
+  if (config.target === 'region') {
+    if (!Array.isArray(config.selector)) {
+      if (config.element) {
+        if (isHTMLElement(config.element)) {
           regionSettings = {
-            region: config.region,
+            region: refer.ref(config.element),
           };
         } else {
+          // JQuery element
           regionSettings = {
-            region: config.selector,
+            region: refer.ref(config.element[0]),
           };
         }
+      } else if (!config.hasOwnProperty('selector')) {
+        regionSettings = {
+          region: config.region,
+        };
       } else {
-        const selectors = config.selector;
-        for (let i = selectors.length - 1; i > -1; i--) {
-          if (i === selectors.length - 1) {
-            shadowDomSettings['shadow'] = selectors[i].selector;
+        regionSettings = {
+          region: config.selector,
+        };
+      }
+    } else {
+      const selectors = config.selector;
+      for (let i = selectors.length - 1; i > -1; i--) {
+        if (i === selectors.length - 1) {
+          shadowDomSettings['shadow'] = selectors[i].selector;
+        } else {
+          const prevSettings = Object.assign({}, shadowDomSettings);
+          shadowDomSettings['selector'] = selectors[i].selector;
+          if (!prevSettings.hasOwnProperty('selector')) {
+            shadowDomSettings['shadow'] = prevSettings.shadow;
           } else {
-            const prevSettings = Object.assign({}, shadowDomSettings);
-            shadowDomSettings['selector'] = selectors[i].selector;
-            if (!prevSettings.hasOwnProperty('selector')) {
-              shadowDomSettings['shadow'] = prevSettings.shadow;
-            } else {
-              shadowDomSettings['shadow'] = prevSettings;
-            }
+            shadowDomSettings['shadow'] = prevSettings;
           }
         }
-        regionSettings = {region: shadowDomSettings};
       }
+      regionSettings = {region: shadowDomSettings};
     }
-
-    for (const val of mappedValues) {
-      if (config.hasOwnProperty(val)) {
-        delete config[val];
-      }
-    }
-
-    return Object.assign({}, checkSettings, regionSettings, config);
   }
+
+  for (const val of mappedValues) {
+    if (config.hasOwnProperty(val)) {
+      delete config[val];
+    }
+  }
+
+  return Object.assign({}, checkSettings, regionSettings, config);
+
+  // #region helper functions
 
   function convertAccessabilityRegions(accessibilityRegions) {
     if (!accessibilityRegions) return accessibilityRegions;
@@ -150,9 +148,10 @@ function makeEyesCheckMapping(refer) {
     regions.map(region => {
       if (isHTMLElement(region)) {
         elements.push(refer.ref(region));
-      } else if (region.constructor.name === 'jQuery') {
+      } else if (region.jquery) {
         region.each(function() {
-          elements.push(refer.ref(this));
+          // there's a small chance that `this` is not an HTML element. So we just verify it.
+          elements.push(isHTMLElement(this) ? refer.ref(this) : this);
         });
       } else {
         elements.push(region);
@@ -161,13 +160,13 @@ function makeEyesCheckMapping(refer) {
     return elements;
   }
 
-  function isHTMLElement(element) {
-    if (element.constructor.name.includes('HTML') && element.constructor.name.includes('Element')) {
-      return true;
-    } else {
-      return false;
-    }
-  }
+  // #endregion
 }
 
-module.exports = {makeEyesCheckMapping};
+function isHTMLElement(element) {
+  // Avoiding instanceof here since the element might come from an iframe, and `instanceof HTMLElement` would fail.
+  // This check looks naive, but if anyone passes something like {nodeType: 1} as a region, then I'm fine with them crashing :)
+  return element.nodeType && element.nodeType === Node.ELEMENT_NODE;
+}
+
+module.exports = {eyesCheckMapValues};

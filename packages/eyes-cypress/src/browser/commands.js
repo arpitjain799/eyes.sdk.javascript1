@@ -5,14 +5,13 @@ const Refer = require('./refer');
 const Socket = require('./socket');
 const {socketCommands} = require('./socketCommands');
 const {eyesOpenMapValues} = require('./eyesOpenMapping');
-const {makeEyesCheckMapping} = require('./eyesCheckMapping');
+const {eyesCheckMapValues} = require('./eyesCheckMapping');
 const {TestResultsSummary} = require('@applitools/eyes-api');
 const refer = new Refer(value => {
   if (!value || !value.constructor || !value.constructor.name) return false;
   const name = value.constructor.name;
   return name === 'HTMLDocument' || name === 'Window' || value.ownerDocument;
 });
-const eyesCheckMapValues = makeEyesCheckMapping(refer);
 const socket = new Socket();
 const throwErr = Cypress.config('failCypressOnDiff');
 socketCommands(socket, refer);
@@ -148,7 +147,7 @@ Cypress.Commands.add('eyesOpen', function(args = {}) {
   });
 });
 
-Cypress.Commands.add('eyesCheckWindow', args =>
+Cypress.Commands.add('eyesCheckWindow', (args = {}) =>
   cy.then({timeout: 86400000}, () => {
     if (isCurrentTestDisabled) return;
 
@@ -156,7 +155,7 @@ Cypress.Commands.add('eyesCheckWindow', args =>
 
     Cypress.log({name: 'Eyes: check window'});
 
-    const checkSettings = eyesCheckMapValues({args});
+    const checkSettings = eyesCheckMapValues({args, refer});
 
     return socket.request('Eyes.check', {
       eyes,
