@@ -112,7 +112,7 @@ function eyesCheckMapValues({args, refer}) {
     if (!floatingRegions) return floatingRegions;
     const floating = [];
 
-    floatingRegions.map(region => {
+    for (const region of floatingRegions) {
       const floatingRegion = {
         maxDownOffset: region.maxDownOffset || 0,
         maxLeftOffset: region.maxLeftOffset || 0,
@@ -124,9 +124,9 @@ function eyesCheckMapValues({args, refer}) {
         floating.push(floatingRegion);
       } else if (region.hasOwnProperty('element')) {
         const elements = refElements(region.element);
-        elements.map(element => {
+        for (const element of elements) {
           floating.push(Object.assign({}, floatingRegion, {region: element}));
-        });
+        }
       } else {
         floatingRegion.region = {
           top: region.top,
@@ -136,16 +136,15 @@ function eyesCheckMapValues({args, refer}) {
         };
         floating.push(floatingRegion);
       }
-    });
-
+    }
     return floating;
   }
 
   function refElements(regions) {
     if (!regions) return regions;
-    if (!(regions instanceof Array)) regions = [regions];
+    if (!Array.isArray(regions)) regions = [regions];
     const elements = [];
-    regions.map(region => {
+    for (const region of regions) {
       if (isHTMLElement(region)) {
         elements.push(refer.ref(region));
       } else if (region.jquery) {
@@ -156,7 +155,7 @@ function eyesCheckMapValues({args, refer}) {
       } else {
         elements.push(region);
       }
-    });
+    }
     return elements;
   }
 
