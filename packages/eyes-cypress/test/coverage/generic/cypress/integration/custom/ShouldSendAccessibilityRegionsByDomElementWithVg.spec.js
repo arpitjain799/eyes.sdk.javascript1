@@ -6,6 +6,7 @@ describe('Coverage tests', () => {
     cy.visit('https://applitools.github.io/demo/TestPages/FramesTestPage/');
     cy.eyesOpen({
       appName: 'Eyes Selenium SDK - Fluent API',
+      displayName: 'should send accessibility regions by DOM element with vg',
       testName: 'TestAccessibilityRegionsByDomElement_VG',
       viewportSize: {width: 700, height: 460},
       accessibilityValidation: {level: 'AAA', guidelinesVersion: 'WCAG_2_0'},
