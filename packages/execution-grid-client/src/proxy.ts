@@ -1,7 +1,8 @@
 import {type Readable} from 'stream'
 import {type AbortSignal} from 'abort-controller'
 import {type Logger} from '@applitools/logger'
-import {request as sendHttp, type IncomingMessage, type ServerResponse} from 'http'
+import {modifyIncomingMessage, type ModifiedIncomingMessage} from './incoming-message'
+import {request as sendHttp, type ServerResponse} from 'http'
 import {request as sendHttps} from 'https'
 import {resolve as resolveDns} from 'dns'
 import ProxyAgent from 'proxy-agent'
@@ -19,7 +20,7 @@ type RequestOptions = {
 type ProxyOptions = Partial<RequestOptions> & {
   handle?: boolean
   modifyRequest?: (options: RequestOptions) => Promise<RequestOptions> | RequestOptions
-  shouldRetry?: (proxyResponse: IncomingMessage) => Promise<boolean> | boolean
+  shouldRetry?: (proxyResponse: ModifiedIncomingMessage) => Promise<boolean> | boolean
   retryTimeout?: number
 }
 
@@ -32,11 +33,11 @@ export function makeProxy(defaultOptions?: Partial<ProxyOptions> & {resolveUrls?
     options,
     logger,
   }: {
-    request: IncomingMessage
+    request: ModifiedIncomingMessage
     response: ServerResponse
     options?: ProxyOptions
     logger: Logger
-  }): Promise<IncomingMessage> {
+  }): Promise<ModifiedIncomingMessage> {
     options = {...defaultOptions, ...options}
 
     const isProxyRequest = !options.url && /^http/.test(request.url)
@@ -46,19 +47,17 @@ export function makeProxy(defaultOptions?: Partial<ProxyOptions> & {resolveUrls?
         : new URL(`.${request.url}` /* relative path */, await resolveUrl(options.url, {logger})),
       method: options.method ?? request.method,
       headers: {...request.headers, ...options.headers} as Record<string, string | string[]>,
-      body: options.body,
+      body: options.body ?? request,
       proxy: options.proxy,
       signal: options.signal,
     }
     requestOptions.headers.host = new URL(isProxyRequest ? request.url : options.url).host
-    if (requestOptions.body && !utils.types.isFunction(requestOptions.body, 'pipe')) {
+    if (!utils.types.isFunction(requestOptions.body, 'pipe')) {
       requestOptions.headers['Content-Length'] = Buffer.byteLength(requestOptions.body).toString()
-    } else {
-      requestOptions.body = request
     }
     const modifiedRequestOptions = (await options.modifyRequest?.(requestOptions)) ?? requestOptions
 
-    let proxyResponse: IncomingMessage
+    let proxyResponse: ModifiedIncomingMessage
     for (let attempt = 1; attempt <= 10; ++attempt) {
       try {
         proxyResponse = await send(modifiedRequestOptions)
@@ -70,7 +69,7 @@ export function makeProxy(defaultOptions?: Partial<ProxyOptions> & {resolveUrls?
       } catch (error) {
         if (utils.types.instanceOf(error, 'AbortError')) throw error
         logger.error(`Attempt (${attempt}) to proxy request failed with error`, error)
-        if (attempt + 1 <= 10) throw error
+        if (attempt + 1 >= 10) throw error
       }
     }
 
@@ -87,16 +86,16 @@ export function makeProxy(defaultOptions?: Partial<ProxyOptions> & {resolveUrls?
 
     return proxyResponse
 
-    async function send(requestOptions: RequestOptions): Promise<IncomingMessage> {
+    async function send(requestOptions: RequestOptions): Promise<ModifiedIncomingMessage> {
       const sendRequest = new URL(requestOptions.url).protocol === 'https:' ? sendHttps : sendHttp
-      return new Promise<IncomingMessage>((resolve, reject) => {
+      return new Promise((resolve, reject) => {
         const request = sendRequest(requestOptions.url, {
           ...requestOptions,
           agent: new ProxyAgent(requestOptions.proxy),
         })
 
         request.on('error', reject)
-        request.on('response', resolve)
+        request.on('response', response => resolve(modifyIncomingMessage(response)))
 
         if (requestOptions.body && utils.types.isFunction(requestOptions.body, 'pipe')) {
           requestOptions.body.pipe(request)

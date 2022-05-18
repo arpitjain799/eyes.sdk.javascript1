@@ -5,6 +5,30 @@
 
 
 
+## 2.5.13 - 2022/5/18
+
+### Features
+### Bug fixes
+- Added support for node versions >= 12.x
+
+## 2.5.12 - 2022/5/18
+
+### Features
+### Bug fixes
+- Improved body processing in EG client
+
+## 2.5.11 - 2022/5/18
+
+### Features
+### Bug fixes
+- Allow running with self-signed certificates
+
+## 2.5.10 - 2022/5/17
+
+### Features
+### Bug fixes
+- Fixed retry mechanism in EG client
+
 ## 2.5.9 - 2022/5/16
 
 ### Features

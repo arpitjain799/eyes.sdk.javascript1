@@ -1,6 +1,6 @@
 {
   "name": "@applitools/sdk-fake-eyes-server",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Fake eyes server",
   "author": {
     "name": "Applitools Team",
@@ -49,7 +49,7 @@
     "uuid": "3.3.3"
   },
   "devDependencies": {
-    "@applitools/bongo": "^2.0.3",
+    "@applitools/bongo": "^2.1.0",
     "chai": "^4.2.0",
     "eslint": "^7.9.0",
     "eslint-plugin-mocha-no-only": "^1.1.1",
