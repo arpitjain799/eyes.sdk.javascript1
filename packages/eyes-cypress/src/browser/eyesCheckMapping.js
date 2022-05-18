@@ -91,9 +91,9 @@ function eyesCheckMapValues({args, refer}) {
         accessibility.push(accessabilityRegion);
       } else if (region.hasOwnProperty('element')) {
         const elements = refElements(region.element);
-        elements.map(element => {
+        for (const element of elements) {
           accessibility.push(Object.assign({}, accessabilityRegion, {region: element}));
-        });
+        }
       } else {
         accessabilityRegion.region = {
           top: region.top,
