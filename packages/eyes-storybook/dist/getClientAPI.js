@@ -96,6 +96,13 @@ function __getClientAPI(...args) {
                 });
                 await frameWindow.__STORYBOOK_PREVIEW__.renderSelection();
               },
+              onStoryRendered: (callback) => {
+                function listener() {
+                  addons.getChannel().off('storyRendered', listener)
+                  callback()
+                }
+                addons.getChannel().on('storyRendered', () => {setTimeout(listener, 0)})
+              }
             };
             break;
           }
