@@ -93,7 +93,8 @@ Apollo SDK:
     - Allow running with self-signed certificates
 "@applitools/eyes-cypress":
   feature:
-    - add support to send elements as Target, ignore, floating, accessability and match regions.
+    - |
+     `cy.eyesCheckWindow` now supports passing DOM elements and jQuery object for target and regions.
   bug-fix:
     - Support `cy.eyesGetAllTestResults` in TypeScript
 "@applitools/eyes-storybook":

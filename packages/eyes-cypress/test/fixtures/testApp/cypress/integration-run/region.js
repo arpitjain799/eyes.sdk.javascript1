@@ -69,22 +69,4 @@ describe('eyes-cypress', () => {
       ignore: [{selector: '.dynamic-region'}],
     });
   });
-
-  it('ignore regios by JQuery element', () => {
-    cy.visit(`http://localhost:${Cypress.config('testPort')}/dynamic.html`);
-    cy.get('.dynamic-region').then($el => {
-      cy.eyesCheckWindow({
-        ignore: $el,
-      });
-    });
-  });
-
-  it('ignore regios by DOM element', () => {
-    cy.visit(`http://localhost:${Cypress.config('testPort')}/dynamic.html`);
-    cy.get('.dynamic-region').then($el => {
-      cy.eyesCheckWindow({
-        ignore: [$el[0], $el[1]],
-      });
-    });
-  });
 });
