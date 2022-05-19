@@ -40,7 +40,7 @@ function __runRunAfterScript(...args) {
     }
     function onStoryRendered(callback) {
       addons.channel.once('storyRendered', () => {
-        setTimeout(() => callback(), 0);
+        setTimeout(callback, 0);
       });
     }
     function getAPI(version) {
@@ -104,11 +104,6 @@ function __runRunAfterScript(...args) {
                 await frameWindow.__STORYBOOK_PREVIEW__.renderSelection();
               },
               onStoryRendered,
-              /*  onStoryRendered: callback => {
-                addons.channel.once('storyRendered', () => {
-                  setTimeout(() => callback(), 0);
-                });
-              }, */
             };
             break;
           }
