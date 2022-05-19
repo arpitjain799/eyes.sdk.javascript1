@@ -255,7 +255,7 @@ cy.eyesCheckWindow({ tag: 'Login screen', target: 'your target' })
 <br/> 1. `window` 
   This is the default value. If set then the captured image is of the entire page or the viewport, use [`fully`](#fully) for specifying what `window` mode to use.
 <br/>2. `region` 
-  If set then the captured image is of the parts of the page, use this parameter with [`region`](#region) or [`selector`](#selector) for specifying the areas to captured.
+  If set then the captured image is of the parts of the page, use this parameter with [`region`](#region), [`selector`](#selector), or [`element`](#element) for specifying the areas to captured.
 
 ##### `fully`
 
@@ -310,37 +310,72 @@ cy.eyesCheckWindow({ tag: 'Login screen', target: 'your target' })
   });
   ```
 
-Pass an element as the target
+##### `element`
+
+(optional): In case [`target`](#target) is `region`, this should be an instance of either an HTML element or a jQuery object. For example:
+
   ```js
-  cy.get('body > div > h1')
+// passing a jQuery object
+cy.get('body > div > h1')
   .then($el => {
       cy.eyesCheckWindow({
         target: 'region',
         element: $el
       })
   })
-  ```
+
+// passing an HTML element
+cy.document()
+  .then(doc => {
+    const el = document.querySelector('div')
+    cy.eyesCheckWindow({
+      target: 'region',
+      element: el
+    })
+  })
+```
 
 ##### `ignore`
 
 (optional): A single or an array of regions to ignore when checking for visual differences. For example:
 
-  ```js
+```js
+// ignore region by coordinates
+cy.eyesCheckWindow({
+  ignore: {top: 100, left: 0, width: 1000, height: 100},
+});
+
+// ignore regions by selector
+cy.eyesCheckWindow({
+  ignore: {selector: '.some-div-to-ignore'} // all elements matching this selector would become ignore regions
+});
+
+// ignore regions by jQuery or DOM elements
+cy.get('.some-div-to-ignore').then($el => {
+  cy.eyesCheckWindow({
+    ignore: $el
+  });
+})
+
+// mix multiple ignore regions with different methods
+cy.eyesCheckWindow({
+  ignore: [
+    {top: 100, left: 0, width: 1000, height: 100},
+    {selector: '.some-div-to-ignore'}
+  ]
+});
+
+// mix multiple ignore regions with different methods including element
+cy.get('.some-div-to-ignore').then($el => {
   cy.eyesCheckWindow({
     ignore: [
       {top: 100, left: 0, width: 1000, height: 100},
       {selector: '.some-div-to-ignore'}
+      $el
     ]
   });
-
-// use JQuery or DOM elements
-  cy.get('.some-div-to-ignore').then($el => {
-      cy.eyesCheckWindow({
-        ignore: $el
-    });
-  })
-  
-  ```
+})
+```
 
 ##### `floating`
 
@@ -354,7 +389,7 @@ cy.eyesCheckWindow({
   ]
 });
 
-// use JQuery or DOM elements
+// use jQuery or DOM elements
 cy.get('.some-div-to-float').then($el => {
   cy.eyesCheckWindow({
     floating: [
@@ -376,7 +411,7 @@ cy.get('.some-div-to-float').then($el => {
     ]
   });
 
-    // use JQuery or DOM elements
+    // use jQuery or DOM elements
   cy.get('.some-div-to-test-as-layout').then($el => {
       cy.eyesCheckWindow({
         layout: $el
@@ -396,7 +431,7 @@ cy.get('.some-div-to-float').then($el => {
     ]
   });
 
-  // use JQuery or DOM elements
+  // use jQuery or DOM elements
   cy.get('.some-div-to-test-as-strict').then($el => {
       cy.eyesCheckWindow({
         strict: $el
@@ -416,7 +451,7 @@ cy.get('.some-div-to-float').then($el => {
     ]
   });
 
-  // use JQuery or DOM elements
+  // use jQuery or DOM elements
   cy.get('.some-div-to-test-as-content').then($el => {
       cy.eyesCheckWindow({
         content: $el
@@ -437,7 +472,7 @@ cy.get('.some-div-to-float').then($el => {
     ]
   });
 
-// use JQuery or DOM elements
+// use jQuery or DOM elements
   cy.get('.some-div').then($el => {
      cy.eyesCheckWindow({
     accessibility: [
