@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from './Button';
 import './login.css';
 
-export const LoginForm = ({ onLogin = () => { }, clickSubmitDelay }) => {
+export const LoginForm = ({ onLogin = () => { }, clickSubmitDelay, sbVersion }) => {
   const [clicked, setClicked] = useState(false);
   return <section>
       <h2>Login Form</h2>
@@ -22,6 +22,7 @@ export const LoginForm = ({ onLogin = () => { }, clickSubmitDelay }) => {
         <Button size="small" primary={true} onClick={() => setClicked(true)} id="submit" label="Submit" />
       </p>
       <p style={{minHeight: '30px'}}>{clicked && `Submit button was clicked after ${clickSubmitDelay}ms`}</p>
+    <p style={{ minHeight: '30px' }}>Storybook version: {sbVersion}</p>
     </section>
 }
 
