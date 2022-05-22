@@ -14,7 +14,7 @@ describe('storybook-csf', () => {
   before(async () => {
     closeStorybook = await testStorybook({
       port: 9001,
-      storybookConfigDir: path.resolve(__dirname, '../fixtures/storybookWithPlay/.storybook'),
+      storybookConfigDir: path.resolve(__dirname, '../fixtures/storybookCSF/.storybook'),
     });
   });
 
@@ -25,7 +25,7 @@ describe('storybook-csf', () => {
       utils.process.sh(
         `node ${path.resolve(__dirname, '../../bin/eyes-storybook')} -f ${path.resolve(
           __dirname,
-          'happy-config/single-with-play.config.js',
+          'happy-config/storybook-csf.config.js',
         )}`,
         {spawnOptions},
       ),
@@ -39,6 +39,6 @@ describe('storybook-csf', () => {
       )
       .replace(version, '<version>')
       .replace(/\d+(?:\.\d+)+/g, '<browser_version>');
-    await snap(output, 'storybook with play function');
+    await snap(output, 'storybook CSF and play function');
   });
 });

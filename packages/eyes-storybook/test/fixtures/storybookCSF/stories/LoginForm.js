@@ -10,13 +10,13 @@ export const LoginForm = ({ onLogin = () => { }, clickSubmitDelay }) => {
         Email
       </p>
       <p>
-        <input type='text' data-testid='email' id='email' label='email' />
+      <input type='text' data-testid='email' id='email' label='email' placeholder='your email' />
       </p>
       <p>
         Password
       </p>
       <p>
-        <input type='text' data-testid='password' id='password' label='password' />
+        <input type='text' data-testid='password' id='password' label='password' placeholder='your password' />
       </p>
       <p style={{textAlign: 'right'}}>
         <Button size="small" primary={true} onClick={() => setClicked(true)} id="submit" label="Submit" />

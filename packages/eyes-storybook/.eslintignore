@@ -1,7 +1,7 @@
 test/fixtures/appWithStorybook
 test/fixtures/heavyStorybook
 test/fixtures/singleStorybook
-test/fixtures/storybookWithPlay
+test/fixtures/storybookCSF
 test/fixtures/accessibilityStorybook
 test/fixtures/crossOriginIframeStorybook
 test/fixtures/jsLayoutStorybook

@@ -12,10 +12,11 @@ export default {
   title: 'Examples/Login',
   component: LoginForm,
   args: {
-    clickSubmitDelay
+    clickSubmitDelay,
   },
 };
 const Template = (args) => <LoginForm {...args} />;
+export const EmptyForm = Template.bind({});
 export const FilledForm = Template.bind({});
 FilledForm.play = async ({ canvasElement }) => {
   // Starts querying the component from its root element
@@ -31,4 +32,3 @@ FilledForm.play = async ({ canvasElement }) => {
   // See https://storybook.js.org/docs/react/essentials/actions#automatically-matching-args to learn how to setup logging in the Actions panel
   await userEvent.click(canvas.getByRole('button'));
 };
-

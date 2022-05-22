@@ -1,9 +1,9 @@
 const path = require('path');
 
 module.exports = {
-  appName: 'Storybook with play interaction',
-  batchName: 'Storybook with play',
-  storybookConfigDir: path.resolve(__dirname, '../../fixtures/storybookWithPlay/.storybook'),
+  appName: 'Storybook CSF',
+  batchName: 'Storybook CSF',
+  storybookConfigDir: path.resolve(__dirname, '../../fixtures/storybookCSF/.storybook'),
   storybookStaticDir: path.resolve(__dirname, '../../fixtures'),
   browser: [
     {width: 640, height: 480, name: 'chrome'},
