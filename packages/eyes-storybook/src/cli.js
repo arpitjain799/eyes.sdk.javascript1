@@ -1,6 +1,5 @@
 'use strict';
 const yargs = require('yargs');
-const path = require('path');
 const {makeLogger} = require('@applitools/logger');
 const {configParams: externalConfigParams} = require('@applitools/visual-grid-client');
 const VERSION = require('../package.json').version;

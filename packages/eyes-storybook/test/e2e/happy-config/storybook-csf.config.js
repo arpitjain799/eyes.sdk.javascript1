@@ -10,6 +10,10 @@ module.exports = {
     `../../fixtures/storybook-versions/${process.env.STORYBOOK_VERSION}/.storybook`,
   ),
   storybookStaticDir: path.resolve(__dirname, '../../fixtures'),
+  packagePath: path.resolve(
+    __dirname,
+    `../../fixtures/storybook-versions/${process.env.STORYBOOK_VERSION}`,
+  ),
   browser: [
     {width: 640, height: 480, name: 'chrome'},
     {width: 1280, height: 960, name: 'chrome'},
