@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@applitools/bongo@^2.1.0":
+"@applitools/bongo@^2.0.3":
   version "2.1.0"
-  resolved "https://registry.npmjs.org/@applitools/bongo/-/bongo-2.1.0.tgz#ef36efe1fa3cc13b403342beae2e840c36f7bac4"
+  resolved "https://registry.yarnpkg.com/@applitools/bongo/-/bongo-2.1.0.tgz#ef36efe1fa3cc13b403342beae2e840c36f7bac4"
   integrity sha512-GX0TjrU4v6pk0OyLd5fC3IOEHwgb+reUsNXnMmQeyudElC3hOvz7kVNEjJ81FkXBqiSS8zloFoDtuDBm/mr4mA==
   dependencies:
     "@applitools/utils" "1.3.0"
@@ -16,14 +16,23 @@
     node-fetch "2.6.1"
     yargs "15.0.2"
 
-"@applitools/driver@1.8.2":
-  version "1.8.2"
-  resolved "https://registry.yarnpkg.com/@applitools/driver/-/driver-1.8.2.tgz#5582db9b0746fb68543d964be81a80a331d9a7b6"
-  integrity sha512-NmKUuC+TyCEaPVlkLn7w2k7VJO4ADu3VaMDcbrBF6CIHU/C9mmGZHGuMEa8+4c4+FFQFxQ+ptit5YHAnvTtaaw==
+"@applitools/driver@^1.8.12":
+  version "1.8.12"
+  resolved "https://registry.yarnpkg.com/@applitools/driver/-/driver-1.8.12.tgz#8f60d09d55b518e5e4b0d8d399c587bad2707024"
+  integrity sha512-taXl2c1x9+w5p2eiH7kx5B1ZrakakZTsI8WFIa5HXYHsb298gp5WxZsDtap67lbLv2LOPiTKPkk+5rg6xnLb/Q==
   dependencies:
+    "@applitools/logger" "1.1.5"
     "@applitools/snippets" "2.2.3"
-    "@applitools/types" "1.4.2"
+    "@applitools/types" "1.4.3"
     "@applitools/utils" "1.3.0"
+
+"@applitools/logger@1.1.5":
+  version "1.1.5"
+  resolved "https://registry.yarnpkg.com/@applitools/logger/-/logger-1.1.5.tgz#31884dacf4a5059dc22a3b85506c8178f7b108f6"
+  integrity sha512-FkJjvNAjm3wkt2czMmFw+MJXqitYKuT5grsPG6+F62HxmSKZrS3sQyavtdE2MYaxutqUHiztOKQQ7Ye+iNvOhg==
+  dependencies:
+    "@applitools/utils" "1.3.0"
+    chalk "4.1.2"
 
 "@applitools/scripts@1.1.0":
   version "1.1.0"
@@ -69,10 +78,10 @@
   resolved "https://registry.yarnpkg.com/@applitools/types/-/types-1.4.0.tgz#9de5fcfa59c3e2b14bc5560da8bd92afd3078513"
   integrity sha512-oyoAYJyW7C8YNhGKcoCWD67EtOtl3+DZJxe4fr93C/WDnwDE6c4I8u1e15tsGWb3ho79GM0AyoEvejDOVbvr8g==
 
-"@applitools/types@1.4.2":
-  version "1.4.2"
-  resolved "https://registry.yarnpkg.com/@applitools/types/-/types-1.4.2.tgz#b6c5c4678bb49d8625b3fb897cfbba962a72a9af"
-  integrity sha512-q0snFPtSQFH+0FhLNMXDbBsBeHQqOjuQEZPwlYb00KkrBHEwjq+DZ8zt14i/fISLBb/6cXzKkcMKkyWv2l6CMQ==
+"@applitools/types@1.4.3":
+  version "1.4.3"
+  resolved "https://registry.yarnpkg.com/@applitools/types/-/types-1.4.3.tgz#44e0b1ba4adc9a77a3d7d7951fd232613d9a89d4"
+  integrity sha512-2F7pzbFrZ456GuzQBwbfLPCqo6YN6uM7cBl5vInvsYPQ76ipyDjg1zhP9ah5nKjVuNGb4PVcXMqajLQV+8VRdw==
 
 "@applitools/utils@1.2.14":
   version "1.2.14"
@@ -1618,10 +1627,10 @@ appium-youiengine-driver@^1.2.8:
     source-map-support "^0.5.19"
     teen_process "^1.15.0"
 
-appium@^1.22.2:
-  version "1.22.2"
-  resolved "https://registry.yarnpkg.com/appium/-/appium-1.22.2.tgz#07e1c898689f6e3833e36c9c2523d3cc14c54680"
-  integrity sha512-ihIfMmLyCB8IWIvtrOcpR4Z8KX4ONcxvyqgrND49bdsYMo6xKP8AFYOb4wfuWOnJvTRdHXWYBGzR6EAoyC6Cxw==
+appium@^1.22.3:
+  version "1.22.3"
+  resolved "https://registry.yarnpkg.com/appium/-/appium-1.22.3.tgz#ab1cae92e1db67600c79c971dda4f218e26ddc5d"
+  integrity sha512-0/SkcOdC8h79Z5TgCeWbeGEbAQzLzwR3h2jYL5EI6zPIrbqZczGv7S8HgmFQPQ98La2wmf26dpPvL8Vw4r/WXw==
   dependencies:
     "@babel/runtime" "^7.6.0"
     appium-android-driver "^4.20.0"
@@ -2040,6 +2049,14 @@ chalk@4.1.1:
     ansi-styles "^4.1.0"
     supports-color "^7.1.0"
 
+chalk@4.1.2, chalk@^4.1.0:
+  version "4.1.2"
+  resolved "https://registry.yarnpkg.com/chalk/-/chalk-4.1.2.tgz#aac4e2b7734a740867aeb16bf02aad556a1e7a01"
+  integrity sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==
+  dependencies:
+    ansi-styles "^4.1.0"
+    supports-color "^7.1.0"
+
 chalk@^2.0.0:
   version "2.4.2"
   resolved "https://registry.yarnpkg.com/chalk/-/chalk-2.4.2.tgz#cd42541677a54333cf541a49108c1432b44c9424"
@@ -2053,14 +2070,6 @@ chalk@^4.0.0:
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/chalk/-/chalk-4.1.0.tgz#4e14870a618d9e2edd97dd8345fd9d9dc315646a"
   integrity sha512-qwx12AxXe2Q5xQ43Ac//I6v5aXTipYrSESdOgzrN+9XjgEpyjpKuvSGaN4qE93f7TQTlerQQ8S+EQ0EyDoVL1A==
-  dependencies:
-    ansi-styles "^4.1.0"
-    supports-color "^7.1.0"
-
-chalk@^4.1.0:
-  version "4.1.2"
-  resolved "https://registry.yarnpkg.com/chalk/-/chalk-4.1.2.tgz#aac4e2b7734a740867aeb16bf02aad556a1e7a01"
-  integrity sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==
   dependencies:
     ansi-styles "^4.1.0"
     supports-color "^7.1.0"

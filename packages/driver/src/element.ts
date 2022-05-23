@@ -1,5 +1,6 @@
 import type * as types from '@applitools/types'
-import type {Context} from './context'
+import {type Logger} from '@applitools/logger'
+import {type Context} from './context'
 import * as utils from '@applitools/utils'
 import * as specUtils from './spec-utils'
 
@@ -20,7 +21,7 @@ export class Element<TDriver, TContext, TElement, TSelector> {
   private _state: ElementState = {}
   private _originalOverflow: any
   private _touchPadding: number
-  private _logger: any
+  private _logger: Logger
 
   protected readonly _spec: types.SpecDriver<TDriver, TContext, TElement, TSelector>
 
@@ -30,7 +31,7 @@ export class Element<TDriver, TContext, TElement, TSelector> {
     context?: Context<TDriver, TContext, TElement, TSelector>
     selector?: types.Selector<TSelector>
     index?: number
-    logger?: any
+    logger?: Logger
     root?: TElement
   }) {
     if (options.element instanceof Element) return options.element
@@ -92,6 +93,26 @@ export class Element<TDriver, TContext, TElement, TSelector> {
     }
   }
 
+  async contains(innerElement: Element<TDriver, TContext, TElement, TSelector> | TElement): Promise<boolean> {
+    const contains = await this.withRefresh(async () => {
+      innerElement = innerElement instanceof Element ? innerElement.target : innerElement
+      if (this.driver.isWeb) {
+        this._logger.log('Checking if web element with selector', this.selector, 'contains element', innerElement)
+        return false // TODO implement a snipped for web
+      } else {
+        this._logger.log('Checking if native element with selector', this.selector, 'contains element', innerElement)
+        // appium doesn't have a way to check if an element is contained in another element, so juristic applied
+        if (await this.equals(innerElement)) return false
+        // if inner element region is located contained in the this element region, then it is contained
+        const region = await this._spec.getElementRegion(this.driver.target, this.target)
+        const innerRegion = await this._spec.getElementRegion(this.driver.target, innerElement)
+        return utils.geometry.contains(region, innerRegion)
+      }
+    })
+    this._logger.log('Element with selector', this.selector, contains ? 'contains' : `doesn't contain`, innerElement)
+    return contains
+  }
+
   async init(context: Context<TDriver, TContext, TElement, TSelector>): Promise<this> {
     this._context = context
     this._logger = (context as any)._logger
@@ -114,7 +135,13 @@ export class Element<TDriver, TContext, TElement, TSelector> {
         this._logger.log('Extracting region of native element with selector', this.selector)
         const region = await this._spec.getElementRegion(this.driver.target, this.target)
         this._logger.log('Extracted native region', region)
-        return this.driver.normalizeRegion(region)
+        const normalizedRegion = await this.driver.normalizeRegion(region)
+
+        // if element is a child of scrolling element, then region location should be adjusted
+        const scrollingElement = await this.context.getScrollingElement()
+        return (await scrollingElement?.contains(this))
+          ? utils.geometry.offset(normalizedRegion, await scrollingElement.getScrollOffset())
+          : normalizedRegion
       }
     })
     this._logger.log('Extracted region', region)
@@ -283,7 +310,7 @@ export class Element<TDriver, TContext, TElement, TSelector> {
 
   async scrollTo(offset: types.Location): Promise<types.Location> {
     return this.withRefresh(async () => {
-      offset = utils.geometry.round(offset)
+      offset = utils.geometry.round({x: Math.max(offset.x, 0), y: Math.max(offset.y, 0)})
       if (this.driver.isWeb) {
         let actualOffset = await this.context.execute(snippets.scrollTo, [this, offset])
         // iOS has an issue when scroll offset is read immediately after it is been set it will always return the exact value that was set

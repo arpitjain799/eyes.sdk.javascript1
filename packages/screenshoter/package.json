@@ -1,6 +1,6 @@
 {
   "name": "@applitools/screenshoter",
-  "version": "3.3.18",
+  "version": "3.3.22",
   "description": "Applitools universal screenshoter for web and native applications",
   "keywords": [
     "applitools",
@@ -36,7 +36,7 @@
     "test:unit": "mocha ./test/unit/*.spec.js --no-timeouts",
     "test:it": "mocha ./test/it/*.spec.js --no-timeouts",
     "test:e2e": "yarn test:e2e:web && yarn && test:e2e:android && yarn test:e2e:ios",
-    "test:e2e:web": "APPLITOOLS_SHOW_LOGS=true mocha ./test/e2e/web/*.spec.js --no-timeouts -r @applitools/test-utils/mocha-hooks/docker",
+    "test:e2e:web": "mocha ./test/e2e/web/*.spec.js --no-timeouts -r @applitools/test-utils/mocha-hooks/docker",
     "test:e2e:android": "APPLITOOLS_TEST_REMOTE=sauce mocha ./test/e2e/android*/*.spec.js --no-timeouts --parallel --jobs ${MOCHA_JOBS:-2}",
     "test:e2e:ios": "APPLITOOLS_TEST_REMOTE=sauce mocha ./test/e2e/ios*/*.spec.js --no-timeouts --parallel --jobs ${MOCHA_JOBS:-2}",
     "setup:web": "yarn docker:setup",
@@ -60,17 +60,18 @@
     }
   },
   "dependencies": {
+    "@applitools/logger": "1.1.5",
     "@applitools/snippets": "2.2.3",
     "@applitools/utils": "1.3.0",
     "png-async": "0.9.4"
   },
   "devDependencies": {
-    "@applitools/bongo": "^2.1.0",
-    "@applitools/driver": "1.8.2",
+    "@applitools/bongo": "^2.0.3",
+    "@applitools/driver": "^1.8.12",
     "@applitools/scripts": "1.1.0",
     "@applitools/spec-driver-webdriverio": "1.2.9",
     "@applitools/test-utils": "1.3.2",
-    "appium": "^1.22.2",
+    "appium": "^1.22.3",
     "chromedriver": "^95.0.0",
     "eslint": "^7.9.0",
     "eslint-plugin-mocha-no-only": "^1.1.1",
