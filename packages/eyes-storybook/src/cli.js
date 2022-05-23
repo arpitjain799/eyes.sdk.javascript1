@@ -34,13 +34,7 @@ const {performance, timeItAsync} = makeTiming();
 
     const config = generateConfig({argv, defaultConfig, externalConfigParams});
     const logger = makeLogger({level: config.showLogs ? 'info' : 'silent', label: 'eyes'});
-    const packagePath = process.env.STORYBOOK_VERSION
-      ? path.resolve(
-          __dirname,
-          `../test/fixtures/storybook-versions/${process.env.STORYBOOK_VERSION}`,
-        )
-      : process.cwd();
-    await validateAndPopulateConfig({config, logger, packagePath});
+    await validateAndPopulateConfig({config, logger, packagePath: process.cwd()});
     logger.log(`Running with the following config:\n${configDigest(config)}`);
     const [err, results] = await presult(
       timeItAsync('eyesStorybook', () => eyesStorybook({config, logger, performance, timeItAsync})),

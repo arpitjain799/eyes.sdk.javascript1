@@ -1,6 +1,6 @@
 {
-  "name": "storybook-6.5.3-config",
-  "version": "6.5.3",
+  "name": "storybook-next-config",
+  "version": "next",
   "private": true,
   "scripts": {
     "build": "react-scripts build",
@@ -16,19 +16,19 @@
     "react": "16.14.0",
     "react-dom": "16.14.0",
     "react-lifecycles-compat": "^3.0.4",
-    "react-scripts": "^4.0.2"
+    "react-scripts": "^5.0.0"
   },
   "devDependencies": {
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
-    "@storybook/addon-actions": "6.5.3",
-    "@storybook/addon-storyshots": "6.5.3",
-    "@storybook/addons": "6.5.3",
-    "@storybook/builder-webpack4": "6.5.3",
-    "@storybook/preset-create-react-app": "^3.1.6",
-    "@storybook/react": "6.5.3",
+    "@storybook/addon-actions": "latest",
+    "@storybook/addon-storyshots": "latest",
+    "@storybook/addons": "latest",
+    "@storybook/builder-webpack4": "latest",
+    "@storybook/preset-create-react-app": "latest",
+    "@storybook/react": "latest",
     "webpack": "4"
   },
-  "snaptdout":{
-    "snapshotsPrefix": "v_latest_"
+  "snaptdout": {
+    "snapshotsPrefix": "v_next_"
   }
 }

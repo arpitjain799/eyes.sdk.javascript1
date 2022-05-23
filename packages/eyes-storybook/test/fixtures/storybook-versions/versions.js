@@ -1,0 +1,1 @@
+exports.testsSupportedVersions = ['5.0.0', '6.0.0', '6.4.0', 'latest', 'next'];
