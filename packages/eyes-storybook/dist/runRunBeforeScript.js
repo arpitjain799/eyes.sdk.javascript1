@@ -43,6 +43,9 @@ function __runRunBeforeScript(...args) {
         setTimeout(callback, 0);
       });
     }
+    async function getStoryInfo(storyIndex) {
+      return clientAPI.raw()[storyIndex];
+    }
     function getAPI(version) {
       if (version) {
         let api;
@@ -62,6 +65,7 @@ function __runRunBeforeScript(...args) {
                 addons.channel._listeners.setCurrentStory[0]({kind, story});
               },
               onStoryRendered,
+              getStoryInfo,
             };
             break;
           }
@@ -75,6 +79,7 @@ function __runRunBeforeScript(...args) {
                 clientAPI._storyStore.setSelection(clientAPI.raw()[i]);
               },
               onStoryRendered,
+              getStoryInfo,
             };
             break;
           }
@@ -88,6 +93,7 @@ function __runRunBeforeScript(...args) {
                 frameWindow.__STORYBOOK_STORY_STORE__.setSelection({storyId: clientAPI.raw()[i].id});
               },
               onStoryRendered,
+              getStoryInfo,
             };
             break;
           }
@@ -104,6 +110,7 @@ function __runRunBeforeScript(...args) {
                 await frameWindow.__STORYBOOK_PREVIEW__.renderSelection();
               },
               onStoryRendered,
+              getStoryInfo,
             };
             break;
           }

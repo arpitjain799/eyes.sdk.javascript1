@@ -11,6 +11,7 @@ const waitFor = require('./waitFor');
 function makeGetStoryData({logger, takeDomSnapshots, waitBeforeCapture, reloadPagePerStory}) {
   return async function getStoryData({story, storyUrl, page, browser, waitBeforeStory}) {
     const title = getStoryBaselineName(story);
+    let hasPlayFunction = false;
     logger.log(`getting data from story`, title);
 
     const eyesParameters = story.parameters && story.parameters.eyes;
@@ -18,7 +19,12 @@ function makeGetStoryData({logger, takeDomSnapshots, waitBeforeCapture, reloadPa
       const currentUrl = page.url();
       const expectedQueryParams = eyesParameters ? eyesParameters.queryParams : undefined;
       if (urlQueryParamsEquals(currentUrl, expectedQueryParams)) {
-        const err = await page.evaluate(renderStoryWithClientAPI, story.index);
+        const renderResult = await page.evaluate(renderStoryWithClientAPI, story.index);
+        hasPlayFunction =
+          !!(renderResult && renderResult.playFunction &&
+            renderResult.originalStoryFn &&
+            renderResult.originalStoryFn.play);
+        const err = renderResult && renderResult.message ? renderResult : undefined;
         err && handleRenderStoryError(err);
       } else {
         await renderStoryLegacy();
@@ -63,7 +69,7 @@ function makeGetStoryData({logger, takeDomSnapshots, waitBeforeCapture, reloadPa
     }
 
     logger.log(`done getting data from story`, title);
-    return result;
+    return {...result, hasPlayFunction};
 
     async function renderStoryLegacy() {
       logger.log(`getting data from story ${storyUrl}`);
