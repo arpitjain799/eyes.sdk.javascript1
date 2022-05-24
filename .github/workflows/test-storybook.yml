@@ -3,18 +3,18 @@ name: Test2 - sdk storybook
 on:
   workflow_dispatch:
     inputs:
-      packages:
-        description: package names (aliases and variations)
-        type: string
-        required: true
-        default: 'eyes-storybook'
       for_versions:
         description: Storybook version
         type: choice
-        options: ['all', '6.4.0', '5.0.0']
-        default: 'all'
+        options: ["all", "6.4.0", "5.0.0"]
+        default: all
         required: true
-        
+  workflow_call:
+    inputs:
+      for_versions:
+        description: Storybook version
+        type: string
+        default: "all"
 env:
   PACKAGE_DIR: eyes-storybook
   FORCE_COLOR: 3
@@ -34,14 +34,14 @@ jobs:
         id: prepare
         shell: bash
         run: |
-          if [ ${{inputs.for_versions}} = 'all' ]
+          if [ ${{inputs.for_versions}} = "all" ]
           then
             echo "::set-output name=versions::[{\"storybook-version\":\"6.0.0\"}, {\"storybook-version\":\"5.0.0\"}]"
           else
             echo "::set-output name=versions::[{\"storybook-version\": \"${{inputs.for_versions}}\" }]"
           fi
   test:
-    needs: [setup]
+    needs: setup
     strategy:
       max-parallel: 3
       matrix:
