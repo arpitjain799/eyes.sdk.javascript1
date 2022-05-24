@@ -1,4 +1,4 @@
-name: Test2 - sdk storybook
+name: Test - sdk storybook versions
 
 on:
   workflow_dispatch:
@@ -9,12 +9,6 @@ on:
         options: ["all", "6.4.0", "5.0.0"]
         default: "all"
         required: true
-  workflow_call:
-    inputs:
-      for_versions:
-        description: Storybook version
-        type: string
-        default: "all"
 env:
   PACKAGE_DIR: eyes-storybook
   FORCE_COLOR: 3
@@ -45,7 +39,7 @@ jobs:
     strategy:
       max-parallel: 3
       matrix:
-        storybook-version: ["6.4.0", "5.0.0"]
+        storybook-version: ["latest", "next", "6.4.0", "6.0.0", "5.0.0"]
     name: 'Test (Storybook version: ${{matrix.storybook-version}})'
     runs-on: ubuntu-latest
     steps:
