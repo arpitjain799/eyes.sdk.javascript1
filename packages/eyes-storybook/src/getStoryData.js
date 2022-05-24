@@ -20,10 +20,12 @@ function makeGetStoryData({logger, takeDomSnapshots, waitBeforeCapture, reloadPa
       const expectedQueryParams = eyesParameters ? eyesParameters.queryParams : undefined;
       if (urlQueryParamsEquals(currentUrl, expectedQueryParams)) {
         const renderResult = await page.evaluate(renderStoryWithClientAPI, story.index);
-        hasPlayFunction =
-          !!(renderResult && renderResult.playFunction &&
-            renderResult.originalStoryFn &&
-            renderResult.originalStoryFn.play);
+        hasPlayFunction = !!(
+          renderResult &&
+          renderResult.playFunction &&
+          renderResult.originalStoryFn &&
+          renderResult.originalStoryFn.play
+        );
         const err = renderResult && renderResult.message ? renderResult : undefined;
         err && handleRenderStoryError(err);
       } else {

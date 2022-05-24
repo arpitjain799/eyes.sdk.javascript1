@@ -102,7 +102,7 @@ describe('renderStory', () => {
             name: 'State',
             value: 'name',
           },
-          { name: 'Play function', value: false },
+          {name: 'Play function', value: false},
           ...properties,
         ],
         testName: baselineName,

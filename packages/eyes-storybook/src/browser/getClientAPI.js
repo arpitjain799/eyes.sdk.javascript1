@@ -36,16 +36,16 @@ function getClientAPI() {
     }
   }
   function onStoryRendered(callback) {
-    if (addons && addons.channel && addons.channel.once){
+    if (addons && addons.channel && addons.channel.once) {
       addons.channel.once('storyRendered', () => {
         setTimeout(callback, 0);
       });
-    }else{
+    } else {
       setTimeout(callback, 0);
     }
   }
   async function getStoryInfo(storyIndex) {
-    if (typeof clientAPI.raw === 'function'){
+    if (typeof clientAPI.raw === 'function') {
       return clientAPI.raw()[storyIndex];
     }
     return;

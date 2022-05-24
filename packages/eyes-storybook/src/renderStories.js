@@ -114,7 +114,7 @@ function makeRenderStories({
             url: storyUrl,
             story,
             config,
-            hasPlayFunction: storyData.hasPlayFunction
+            hasPlayFunction: storyData.hasPlayFunction,
           });
 
           return onDoneStory(testResults, story);
