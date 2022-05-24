@@ -8,6 +8,7 @@ on:
         type: string
         required: true
         default: 'eyes-storybook'
+        
 env:
   PACKAGE_DIR: eyes-storybook
   FORCE_COLOR: 3
