@@ -45,6 +45,7 @@ describe('renderStory', () => {
         properties: [
           {name: 'Component name', value: 'kind'},
           {name: 'State', value: 'name'},
+          {name: 'Play function', value: false},
         ],
         browser: [{name: 'chrome', width: 800, height: 600}],
         testName: baselineName,
@@ -101,6 +102,7 @@ describe('renderStory', () => {
             name: 'State',
             value: 'name',
           },
+          { name: 'Play function', value: false },
           ...properties,
         ],
         testName: baselineName,
@@ -179,6 +181,7 @@ describe('renderStory', () => {
             name: 'State',
             value: 'name',
           },
+          {name: 'Play function', value: false},
         ],
         testName: baselineName,
         displayName: title,
@@ -279,6 +282,7 @@ describe('renderStory', () => {
             name: 'State',
             value: 'name',
           },
+          {name: 'Play function', value: false},
           ...globalConfig.properties,
           ...eyesOptions.properties,
         ],
@@ -357,6 +361,7 @@ describe('renderStory', () => {
         properties: [
           {name: 'Component name', value: 'kind'},
           {name: 'State', value: 'name'},
+          {name: 'Play function', value: false},
         ],
         testName: baselineName,
         displayName: title,
@@ -393,6 +398,7 @@ describe('renderStory', () => {
         properties: [
           {name: 'Component name', value: 'kind'},
           {name: 'State', value: 'name'},
+          {name: 'Play function', value: false},
         ],
         testName: baselineName,
         displayName: title,

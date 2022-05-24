@@ -53,7 +53,7 @@ function makeRenderStory({logger, testWindow, performance, timeItAsync}) {
     const storyProperties = [
       {name: 'Component name', value: kind},
       {name: 'State', value: name},
-      {name: 'Play function', value: hasPlayFunction},
+      {name: 'Play function', value: hasPlayFunction || false},
       ...(properties || []),
     ];
 

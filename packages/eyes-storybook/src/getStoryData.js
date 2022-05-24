@@ -69,7 +69,8 @@ function makeGetStoryData({logger, takeDomSnapshots, waitBeforeCapture, reloadPa
     }
 
     logger.log(`done getting data from story`, title);
-    return {...result, hasPlayFunction};
+    result.hasPlayFunction = hasPlayFunction;
+    return result;
 
     async function renderStoryLegacy() {
       logger.log(`getting data from story ${storyUrl}`);

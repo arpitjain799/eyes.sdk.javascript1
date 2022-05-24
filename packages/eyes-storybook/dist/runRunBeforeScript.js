@@ -39,12 +39,19 @@ function __runRunBeforeScript(...args) {
       }
     }
     function onStoryRendered(callback) {
-      addons.channel.once('storyRendered', () => {
+      if (addons && addons.channel && addons.channel.once){
+        addons.channel.once('storyRendered', () => {
+          setTimeout(callback, 0);
+        });
+      }else {
         setTimeout(callback, 0);
-      });
+      }
     }
     async function getStoryInfo(storyIndex) {
-      return clientAPI.raw()[storyIndex];
+      if (typeof clientAPI.raw === 'function'){
+        return clientAPI.raw()[storyIndex];
+      }
+      return;
     }
     function getAPI(version) {
       if (version) {
