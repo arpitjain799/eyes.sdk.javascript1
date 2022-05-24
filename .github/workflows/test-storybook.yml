@@ -8,6 +8,12 @@ on:
         type: string
         required: true
         default: 'eyes-storybook'
+      on_versions:
+        description: Storybook version
+        type: choice
+        options: ['6.4.0', '5.0.0']
+        default: '6.4.0'
+        required: false
         
 env:
   PACKAGE_DIR: eyes-storybook
@@ -34,7 +40,7 @@ jobs:
     strategy:
       max-parallel: 3
       matrix:
-        include: ${{fromJSON(needs.setup.outputs.versions)}}
+        storybook-version: ['6.4.0', '5.0.0']
     name: 'Test (Storybook version: ${{matrix.storybook-version}})'
     runs-on: ubuntu-latest
     steps:
