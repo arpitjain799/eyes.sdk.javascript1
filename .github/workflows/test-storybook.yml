@@ -7,7 +7,7 @@ on:
         description: Storybook version
         type: choice
         options: ["all", "6.4.0", "5.0.0"]
-        default: all
+        default: "all"
         required: true
   workflow_call:
     inputs:
@@ -34,18 +34,18 @@ jobs:
         id: prepare
         shell: bash
         run: |
-          if [ ${{inputs.for_versions}} = "all" ]
+          if [ ${{inputs.for_versions || github.event.inputs.for_versions}} = "all" ]
           then
             echo "::set-output name=versions::[{\"storybook-version\":\"6.0.0\"}, {\"storybook-version\":\"5.0.0\"}]"
           else
-            echo "::set-output name=versions::[{\"storybook-version\": \"${{inputs.for_versions}}\" }]"
+            echo "::set-output name=versions::[{\"storybook-version\": \"${{inputs.for_versions || github.event.inputs.for_versions}}\" }]"
           fi
   test:
     needs: setup
     strategy:
       max-parallel: 3
       matrix:
-        include: ${{fromJSON(needs.setup.outputs.versions)}}
+        storybook-version: ["6.4.0", "5.0.0"]
     name: 'Test (Storybook version: ${{matrix.storybook-version}})'
     runs-on: ubuntu-latest
     steps:
