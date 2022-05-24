@@ -1,4 +1,4 @@
-name: Test2 - sdk storybook
+name: Test - sdk storybook
 
 on:
   workflow_dispatch:
@@ -47,7 +47,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: 12
+          node-version: 16
           registry-url: https://registry.npmjs.org
       - name: Run tests
         uses: ./.github/actions/tests
