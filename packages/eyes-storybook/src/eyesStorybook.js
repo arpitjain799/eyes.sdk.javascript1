@@ -130,7 +130,7 @@ async function eyesStorybook({
     });
 
     const renderStory = makeRenderStory({
-      logger: logger.extend('renderStory'),
+      logger: logger.extend({label: 'renderStory'}),
       testWindow,
       performance,
       timeItAsync,

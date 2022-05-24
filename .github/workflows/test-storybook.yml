@@ -3,12 +3,18 @@ name: Test2 - sdk storybook
 on:
   workflow_dispatch:
     inputs:
+      packages:
+        description: package names (aliases and variations)
+        type: string
+        required: true
+        default: 'eyes-storybook'
       for_versions:
         description: Storybook version
         type: choice
         options: ['all', '6.4.0', '5.0.0']
         default: 'all'
         required: true
+        
 env:
   PACKAGE_DIR: eyes-storybook
   FORCE_COLOR: 3
@@ -18,11 +24,28 @@ env:
   APPLITOOLS_API_KEY_SDK: ${{secrets.APPLITOOLS_API_KEY_SDK}}
   APPLITOOLS_API_KEY_READ: ${{secrets.APPLITOOLS_API_KEY_READ}}
 jobs:
+  setup:
+    name: Setup
+    runs-on: ubuntu-latest
+    outputs:
+      versions: ${{steps.prepare.outputs.versions}}
+    steps:
+      - name: Prepare versions
+        id: prepare
+        shell: bash
+        run: |
+          if [ ${{inputs.for_versions}} = 'all' ]
+          then
+            echo "::set-output name=versions::[{\"storybook-version\":\"latest\"}, {\"storybook-version\":\"next\"}, {\"storybook-version\":\"6.4.0\"}, {\"storybook-version\":\"6.0.0\"}, {\"storybook-version\":\"5.0.0\"}]"
+          else
+            echo "::set-output name=versions::[{\"storybook-version\": \"${{inputs.for_versions}}\" }]"
+          fi
   test:
+    needs: [setup]
     strategy:
       max-parallel: 3
       matrix:
-        storybook-version: ['6.4.0', '5.0.0']
+        include: ${{fromJSON(needs.setup.outputs.versions)}}
     name: 'Test (Storybook version: ${{matrix.storybook-version}})'
     runs-on: ubuntu-latest
     steps:
