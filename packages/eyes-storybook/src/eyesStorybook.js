@@ -65,7 +65,7 @@ async function eyesStorybook({
   } = makeVisualGridClient({
     userAgent,
     ...config,
-    logger: logger.extend('vgc'),
+    logger: logger.extend({ label: 'vgc' }),
   });
 
   const initPage = makeInitPage({
