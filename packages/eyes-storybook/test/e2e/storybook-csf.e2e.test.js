@@ -33,6 +33,6 @@ describe('storybook-csf', () => {
       .replace(version, '<version>')
       .replace(/\d+(?:\.\d+)+/g, '<browser_version>');
 
-      await snap(output, `storybook version ${storybookVersion} with CSF and play function`);
+    await snap(output, `storybook version ${storybookVersion} with CSF and play function`);
   });
 });
