@@ -6,7 +6,7 @@ const snap = require('@applitools/snaptdout');
 const {copyStoriesToVersionDir} = require('../fixtures/storybook-versions/copyStoriesToVersionDir');
 const {version} = require('../../package.json');
 
-const envWithColor = {...process.env, FORCE_COLOR: true};
+const envWithColor = {...process.env};//, FORCE_COLOR: true};
 const spawnOptions = {stdio: 'pipe', env: envWithColor};
 const storybookVersion = process.env.STORYBOOK_VERSION;
 const storybookSourceDir = path.resolve(__dirname, '../fixtures/storybookCSF/');
@@ -32,6 +32,8 @@ describe('storybook-csf', () => {
       )
       .replace(version, '<version>')
       .replace(/\d+(?:\.\d+)+/g, '<browser_version>');
+    console.log(stdout);
+    console.log('---------------');
     console.log(output);
     await snap(output, `storybook version ${storybookVersion} with CSF and play function`);
   });
