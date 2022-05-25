@@ -39,19 +39,13 @@ function __getStories(...args) {
       }
     }
     function onStoryRendered(callback) {
-      if (addons && addons.channel && addons.channel.once){
+      if (addons && addons.channel && addons.channel.once) {
         addons.channel.once('storyRendered', () => {
           setTimeout(callback, 0);
         });
-      }else {
-        setTimeout(callback, 0);
+      } else {
+        callback();
       }
-    }
-    async function getStoryInfo(storyIndex) {
-      if (typeof clientAPI.raw === 'function'){
-        return clientAPI.raw()[storyIndex];
-      }
-      return;
     }
     function getAPI(version) {
       if (version) {
@@ -72,7 +66,6 @@ function __getStories(...args) {
                 addons.channel._listeners.setCurrentStory[0]({kind, story});
               },
               onStoryRendered,
-              getStoryInfo,
             };
             break;
           }
@@ -86,7 +79,6 @@ function __getStories(...args) {
                 clientAPI._storyStore.setSelection(clientAPI.raw()[i]);
               },
               onStoryRendered,
-              getStoryInfo,
             };
             break;
           }
@@ -100,7 +92,6 @@ function __getStories(...args) {
                 frameWindow.__STORYBOOK_STORY_STORE__.setSelection({storyId: clientAPI.raw()[i].id});
               },
               onStoryRendered,
-              getStoryInfo,
             };
             break;
           }
@@ -117,7 +108,6 @@ function __getStories(...args) {
                 await frameWindow.__STORYBOOK_PREVIEW__.renderSelection();
               },
               onStoryRendered,
-              getStoryInfo,
             };
             break;
           }
@@ -281,9 +271,14 @@ function __getStories(...args) {
             }
           }
         }
-
+        const hasPlayFunction = !!(
+          story.playFunction &&
+          story.originalStoryFn &&
+          story.originalStoryFn.play
+        );
         return {
           isApi: true,
+          hasPlayFunction,
           index,
           name,
           kind,

@@ -1,4 +1,4 @@
-name: Test2 - sdk storybook
+name: Test - storybook CSF and version
 
 on:
   workflow_dispatch:
@@ -37,7 +37,7 @@ jobs:
   test:
     needs: setup
     strategy:
-      max-parallel: 3
+      max-parallel: 6
       matrix:
         include: ${{fromJSON(needs.setup.outputs.versions)}}
     name: 'Test (Storybook version: ${{matrix.storybook-version}})'

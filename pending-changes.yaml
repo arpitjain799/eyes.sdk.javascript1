@@ -114,7 +114,7 @@ Apollo SDK:
     - 
 "@applitools/eyes-storybook":
   feature:
-    - add support for `storybook play interaction`
+    - Support Storybooks interactions Play functionality, Stories who uses `Play`, screenshot will be taken automatically after `Play` flow is done
   bug-fix:
     - added `properties` and `notifyOnCompletion` as optional Types of Batch (for TS)
     - Allow running with self-signed certificates

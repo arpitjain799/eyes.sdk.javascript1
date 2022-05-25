@@ -6,8 +6,7 @@ function renderStoryWithClientAPI(index) {
     try {
       api = getClientAPI();
       api.selectStory(index);
-      const storyInfo = api.getStoryInfo(index);
-      api.onStoryRendered(() => resolve(storyInfo));
+      api.onStoryRendered(resolve);
     } catch (ex) {
       resolve({message: ex.message, version: api ? api.version : undefined});
     }

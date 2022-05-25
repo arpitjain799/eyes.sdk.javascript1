@@ -93,7 +93,7 @@ jobs:
   test-versions:
     needs: [verify]
     strategy:
-      max-parallel: 3
+      max-parallel: 6
       matrix:
         storybook-version: ["latest", "6.4.0", "6.0.0", "5.3.21", "5.0.0", "next"]
     name: 'Test (Storybook version: ${{matrix.storybook-version}})'

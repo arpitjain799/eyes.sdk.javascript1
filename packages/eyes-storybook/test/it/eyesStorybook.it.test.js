@@ -154,7 +154,6 @@ describe('eyesStorybook', () => {
       const expectedProperties = [
         {name: 'Component name', value: componentName},
         {name: 'State', value: state.replace(/ \[.+\]$/, '')}, // strip off variation
-        {name: 'Play function', value: false},
         {name: 'some prop', value: 'some value'},
       ];
       const queryParamMatch = state.match(/\[(.+)\]$/);

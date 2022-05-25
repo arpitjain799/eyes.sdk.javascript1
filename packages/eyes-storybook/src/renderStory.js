@@ -4,8 +4,8 @@ const getStoryBaselineName = require('./getStoryBaselineName');
 const {deprecationWarning} = require('@applitools/eyes-sdk-core').GeneralUtils;
 
 function makeRenderStory({logger, testWindow, performance, timeItAsync}) {
-  return function renderStory({config, story, snapshot, url, hasPlayFunction}) {
-    const {name, kind, parameters} = story;
+  return function renderStory({config, story, snapshot, url}) {
+    const {name, kind, parameters, hasPlayFunction = false} = story;
     const baselineName = getStoryBaselineName({name, kind, parameters});
     const title = getStoryTitle({name, kind, parameters});
     const eyesParameters = (parameters && parameters.eyes) || {};
@@ -53,9 +53,11 @@ function makeRenderStory({logger, testWindow, performance, timeItAsync}) {
     const storyProperties = [
       {name: 'Component name', value: kind},
       {name: 'State', value: name},
-      {name: 'Play function', value: hasPlayFunction || false},
       ...(properties || []),
     ];
+    if (hasPlayFunction){
+      storyProperties.push({ name: 'Storybook play function', value: hasPlayFunction })
+    }
 
     const openParams = {
       testName: baselineName,

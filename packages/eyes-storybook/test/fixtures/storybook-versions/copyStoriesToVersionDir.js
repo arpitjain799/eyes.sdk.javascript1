@@ -3,14 +3,15 @@ const { exec } = require('child_process');
 const { promisify: p } = require('util');
 const pexec = p(exec);
 const path = require('path');
-let testsSupportedVersions = [];//['5.0.0', '6.0.0', '6.4.0', 'latest', 'next'];
+let testsSupportedVersions = [];
 
-// SB older versions (aka: 5.0.0) expect to have 'config.js' as the config file,
+// SB older versions (aka: 5.0.0 and former) expect to have 'config.js' as the config file,
 // adding other files to older versions will cause a failure
 // adding 'config.js' file to newer versions will also cause failure
 // since each version has it's own configuration, we allow running only for those who were pre-configured (in 'testsSupportedVersions')
 const getConfigFilesListByVersion = ver => {
   switch (ver) {
+    case '4.1.18':
     case '5.0.0':
       return ['config.js'];
     default:

@@ -41,14 +41,8 @@ function getClientAPI() {
         setTimeout(callback, 0);
       });
     } else {
-      setTimeout(callback, 0);
+      callback();
     }
-  }
-  async function getStoryInfo(storyIndex) {
-    if (typeof clientAPI.raw === 'function') {
-      return clientAPI.raw()[storyIndex];
-    }
-    return;
   }
   function getAPI(version) {
     if (version) {
@@ -69,7 +63,6 @@ function getClientAPI() {
               addons.channel._listeners.setCurrentStory[0]({kind, story});
             },
             onStoryRendered,
-            getStoryInfo,
           };
           break;
         }
@@ -83,7 +76,6 @@ function getClientAPI() {
               clientAPI._storyStore.setSelection(clientAPI.raw()[i]);
             },
             onStoryRendered,
-            getStoryInfo,
           };
           break;
         }
@@ -97,7 +89,6 @@ function getClientAPI() {
               frameWindow.__STORYBOOK_STORY_STORE__.setSelection({storyId: clientAPI.raw()[i].id});
             },
             onStoryRendered,
-            getStoryInfo,
           };
           break;
         }
@@ -114,7 +105,6 @@ function getClientAPI() {
               await frameWindow.__STORYBOOK_PREVIEW__.renderSelection();
             },
             onStoryRendered,
-            getStoryInfo,
           };
           break;
         }

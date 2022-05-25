@@ -121,7 +121,6 @@ describe('renderStories', () => {
       return {
         snapshots: `snapshot_${story.name}_${story.kind}_${storyUrl}_${await page.evaluate()}`,
         cookies: [],
-        hasPlayFunction: false,
       };
     };
 
@@ -159,7 +158,6 @@ describe('renderStories', () => {
         return {
           config: {bla: true},
           snapshot: `snapshot_${story.name}_${story.kind}_${storyUrl}_${page}`,
-          hasPlayFunction: false,
           cookies: [],
           story,
           url: storyUrl,
@@ -311,7 +309,6 @@ describe('renderStories', () => {
           return {
             snapshots: `snapshot_${story.name}_${story.kind}_${storyUrl}_${location}`,
             cookies: [],
-            hasPlayFunction: false,
           };
         };
 
@@ -344,7 +341,6 @@ describe('renderStories', () => {
             snapshot:
               'snapshot_s1_k1_http://something/iframe.html?eyes-storybook=true&selectedKind=k1&selectedStory=s1_about:blank',
             cookies: [],
-            hasPlayFunction: false,
           },
         ]);
 
@@ -389,7 +385,6 @@ describe('renderStories', () => {
             return {
               snapshots: `snapshot_${story.name}_${story.kind}_${storyUrl}_${location}`,
               cookies: [],
-              hasPlayFunction: false,
             };
           }
         };
@@ -419,7 +414,6 @@ describe('renderStories', () => {
           config: {},
           story,
           url: storyUrl,
-          hasPlayFunction: false,
           snapshot:
             'snapshot_s1_k1_http://something/iframe.html?eyes-storybook=true&selectedKind=k1&selectedStory=s1_about:blank',
           cookies: [],
