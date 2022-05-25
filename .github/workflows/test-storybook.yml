@@ -101,6 +101,7 @@ jobs:
             packages/${{env.PACKAGE_DIR}}/coverage-tests-metadata.json
             packages/${{env.PACKAGE_DIR}}/coverage-test-report.xml
   test-versions:
+    needs: [verify]
     strategy:
       max-parallel: 3
       matrix:
