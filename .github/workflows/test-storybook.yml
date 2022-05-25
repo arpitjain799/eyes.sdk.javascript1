@@ -3,33 +3,11 @@ name: Test2 - sdk storybook
 on:
   workflow_dispatch:
     inputs:
-      version:
-        description: version type
+      for_versions:
+        description: Storybook version
         type: choice
-        options: [patch, minor, major]
-        default: minor
-      multienv:
-        description: test on multiple environments
-        type: boolean
-        default: true
-  workflow_call:
-    inputs:
-      version:
-        description: version type
-        type: string
-        default: patch
-      multienv:
-        description: test on multiple environments
-        type: boolean
-        default: false
-    secrets:
-      NPM_TOKEN:
-        required: true
-      APPLITOOLS_API_KEY:
-        required: true
-      APPLITOOLS_API_KEY_SDK:
-        required: true
-      APPLITOOLS_API_KEY_READ:
+        options: ["all", "6.4.0", "5.0.0"]
+        default: "all"
         required: true
 env:
   PACKAGE_DIR: eyes-storybook
@@ -40,62 +18,28 @@ env:
   APPLITOOLS_API_KEY_SDK: ${{secrets.APPLITOOLS_API_KEY_SDK}}
   APPLITOOLS_API_KEY_READ: ${{secrets.APPLITOOLS_API_KEY_READ}}
 jobs:
-  verify:
-    name: Verification
+  setup:
+    name: Setup
     runs-on: ubuntu-latest
     outputs:
-      environments: ${{steps.prepare.outputs.environments}}
+      versions: ${{steps.prepare.outputs.versions}}
     steps:
-      - name: Check-out repository
-        uses: actions/checkout@v2
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: lts/*
-          registry-url: https://registry.npmjs.org
-      - name: Run pre-publish verifications
-        shell: bash
-        working-directory: ./packages/${{env.PACKAGE_DIR}}
-        run: |
-          yarn install
-          npx bongo release-pre-check --skip-deps --skip-commit --skip-verify-installed-versions
-          npx bongo verify-changelog
-      - name: Prepare environments
+      - name: Prepare versions
         id: prepare
         shell: bash
         run: |
-          if [ ${{inputs.multienv || github.event.inputs.multienv}} = true ]
+          if [ ${{inputs.for_versions || github.event.inputs.for_versions}} = "all" ]
           then
-            echo "::set-output name=environments::[{\"node-version\":16}, {\"node-version\":14}, {\"node-version\":12}]"
+            echo "::set-output name=versions::[{\"storybook-version\":\"6.0.0\"}, {\"storybook-version\":\"5.0.0\"}]"
           else
-            echo "::set-output name=environments::[{\"node-version\":16}]"
+            echo "::set-output name=versions::[{\"storybook-version\": \"${{inputs.for_versions || github.event.inputs.for_versions}}\" }]"
           fi
   test:
-    needs: [verify]
+    needs: setup
     strategy:
       max-parallel: 3
       matrix:
-        include: ${{fromJSON(needs.verify.outputs.environments)}}
-    name: 'Test (node: ${{matrix.node-version}})'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check-out repository
-        uses: actions/checkout@v2
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{matrix.node-version}}
-          registry-url: https://registry.npmjs.org
-      - name: Run tests
-        uses: ./.github/actions/tests
-        with:
-          package: ${{env.PACKAGE_DIR}}
-  test-versions:
-    needs: [verify]
-    strategy:
-      max-parallel: 3
-      matrix:
-        storybook-version: ["6.4.0", "latest"]
+        include: ${{fromJSON(needs.setup.outputs.versions)}}
     name: 'Test (Storybook version: ${{matrix.storybook-version}})'
     runs-on: ubuntu-latest
     steps:
@@ -113,4 +57,3 @@ jobs:
           test-type: versions
         env:
           STORYBOOK_VERSION: ${{matrix.storybook-version}}
-  
