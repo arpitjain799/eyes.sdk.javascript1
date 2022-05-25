@@ -1,4 +1,4 @@
-name: Test - sdk storybook versions
+name: Test2 - sdk storybook
 
 on:
   workflow_dispatch:
@@ -39,7 +39,7 @@ jobs:
     strategy:
       max-parallel: 3
       matrix:
-        storybook-version: ["latest", "next", "6.4.0", "6.0.0", "5.0.0"]
+        storybook-version: ["6.4.0", "6.0.0"]
     name: 'Test (Storybook version: ${{matrix.storybook-version}})'
     runs-on: ubuntu-latest
     steps:
@@ -54,5 +54,6 @@ jobs:
         uses: ./.github/actions/tests
         with:
           package: ${{env.PACKAGE_DIR}}
+          test-type: versions
         env:
           STORYBOOK_VERSION: ${{matrix.storybook-version}}
