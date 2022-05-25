@@ -55,8 +55,8 @@ function makeRenderStory({logger, testWindow, performance, timeItAsync}) {
       {name: 'State', value: name},
       ...(properties || []),
     ];
-    if (hasPlayFunction){
-      storyProperties.push({ name: 'Storybook play function', value: hasPlayFunction })
+    if (hasPlayFunction) {
+      storyProperties.push({name: 'Storybook play function', value: hasPlayFunction});
     }
 
     const openParams = {
