@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: version type
+        description: version type 2
         type: choice
         options: [patch, minor, major]
         default: minor
@@ -15,7 +15,7 @@ on:
   workflow_call:
     inputs:
       version:
-        description: version type
+        description: version type 1
         type: string
         default: minor
       multienv:
@@ -72,8 +72,31 @@ jobs:
           else
             echo "::set-output name=environments::[{\"node-version\":16}]"
           fi
-  test:
+  test-versions:
     needs: [verify]
+    strategy:
+      max-parallel: 3
+      matrix:
+        storybook-version: ["6.4.0", "latest"]
+    name: 'Test (Storybook version: ${{matrix.storybook-version}})'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          registry-url: https://registry.npmjs.org
+      - name: Run tests
+        uses: ./.github/actions/tests
+        with:
+          package: ${{env.PACKAGE_DIR}}
+          test-type: versions
+        env:
+          STORYBOOK_VERSION: ${{matrix.storybook-version}}
+  test:
+    needs: [test-versions]
     strategy:
       max-parallel: 3
       matrix:
@@ -100,26 +123,4 @@ jobs:
           path: |
             packages/${{env.PACKAGE_DIR}}/coverage-tests-metadata.json
             packages/${{env.PACKAGE_DIR}}/coverage-test-report.xml
-  test-versions:
-    needs: [verify]
-    strategy:
-      max-parallel: 3
-      matrix:
-        storybook-version: ["6.4.0", "latest"]
-    name: 'Test (Storybook version: ${{matrix.storybook-version}})'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check-out repository
-        uses: actions/checkout@v2
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: 16
-          registry-url: https://registry.npmjs.org
-      - name: Run tests
-        uses: ./.github/actions/tests
-        with:
-          package: ${{env.PACKAGE_DIR}}
-          test-type: versions
-        env:
-          STORYBOOK_VERSION: ${{matrix.storybook-version}}
+  
