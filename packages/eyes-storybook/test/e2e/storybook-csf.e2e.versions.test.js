@@ -10,7 +10,7 @@ const envWithColor = {...process.env, FORCE_COLOR: true};
 const spawnOptions = {stdio: 'pipe', env: envWithColor};
 const storybookVersion = process.env.STORYBOOK_VERSION;
 const storybookSourceDir = path.resolve(__dirname, '../fixtures/storybookCSF/');
-const testConfigFile = path.resolve(__dirname, '../e2e/happy-config/storybook-csf.config.js');
+const testConfigFile = path.resolve(__dirname, '../e2e/happy-config/storybook-csf.versions.config.js');
 
 const eyesStorybookPath = path.resolve(__dirname, '../../bin/eyes-storybook');
 
