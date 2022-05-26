@@ -36,9 +36,13 @@ function getClientAPI() {
     }
   }
   function onStoryRendered(callback) {
-    addons.channel.once('storyRendered', () => {
-      setTimeout(callback, 0);
-    });
+    if (addons && addons.channel && addons.channel.once) {
+      addons.channel.once('storyRendered', () => {
+        setTimeout(callback, 0);
+      });
+    } else {
+      callback();
+    }
   }
   function getAPI(version) {
     if (version) {

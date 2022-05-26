@@ -39,9 +39,13 @@ function __getStories(...args) {
       }
     }
     function onStoryRendered(callback) {
-      addons.channel.once('storyRendered', () => {
-        setTimeout(callback, 0);
-      });
+      if (addons && addons.channel && addons.channel.once) {
+        addons.channel.once('storyRendered', () => {
+          setTimeout(callback, 0);
+        });
+      } else {
+        callback();
+      }
     }
     function getAPI(version) {
       if (version) {
@@ -267,9 +271,10 @@ function __getStories(...args) {
             }
           }
         }
-
+        const hasPlayFunction = !!(story.playFunction);
         return {
           isApi: true,
+          hasPlayFunction,
           index,
           name,
           kind,

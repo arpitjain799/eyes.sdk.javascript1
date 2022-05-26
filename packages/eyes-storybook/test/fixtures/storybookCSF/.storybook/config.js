@@ -2,7 +2,7 @@ import { configure, addParameters } from '@storybook/react';
 
 addParameters({
   options: {
-    name: 'Storybook 5.0.0',
+    name: 'Storybook config',
     goFullScreen: true,
     showAddonsPanel: true,
     showSearchBox: false,

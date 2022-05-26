@@ -7,7 +7,7 @@
     "build-storybook": "build-storybook",
     "eject": "react-scripts eject",
     "start": "react-scripts start",
-    "storybook": "start-storybook -p 9010 --no-manager-cache",
+    "storybook": "STORYBOOK_VERSION=next start-storybook -p 9010 --no-manager-cache",
     "test": "npx eyes-storybook"
   },
   "dependencies": {
