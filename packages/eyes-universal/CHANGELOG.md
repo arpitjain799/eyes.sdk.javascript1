@@ -5,6 +5,20 @@
 
 
 
+
+## 2.5.19 - 2022/5/24
+
+### Features
+### Bug fixes
+- exception in TestResultsSummary now should be accepted properly by universal clients, and we now also map `reason` when emitting an error for Eyes exceptions.
+
+## 2.5.18 - 2022/5/24
+
+### Features
+- Added support for running server with SSL certificates
+### Bug fixes
+- Added retry mechanism for tunnel operations in EG client
+
 ## 2.5.17 - 2022/5/23
 
 ### Features
