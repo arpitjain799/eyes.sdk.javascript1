@@ -271,11 +271,7 @@ function __getStories(...args) {
             }
           }
         }
-        const hasPlayFunction = !!(
-          story.playFunction &&
-          story.originalStoryFn &&
-          story.originalStoryFn.play
-        );
+        const hasPlayFunction = !!(story.playFunction);
         return {
           isApi: true,
           hasPlayFunction,

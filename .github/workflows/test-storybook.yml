@@ -6,7 +6,7 @@ on:
       for_versions:
         description: Storybook version
         type: choice
-        options: ["all", "latest", "6.4.0", "6.0.0", "5.3.21", "5.0.0", "next"]
+        options: ["all", "5.0.0", "5.3.21", "6.3.12", "latest", "next"]
         default: "all"
         required: true
 env:
@@ -30,14 +30,14 @@ jobs:
         run: |
           if [ ${{inputs.for_versions || github.event.inputs.for_versions}} = "all" ]
           then
-            echo "::set-output name=versions::[{\"storybook-version\":\"latest\"}, {\"storybook-version\":\"6.4.0\"}, {\"storybook-version\":\"6.0.0\"}, {\"storybook-version\":\"5.3.21\"}, {\"storybook-version\":\"5.0.0\"}, {\"storybook-version\":\"next\"}]"
+            echo "::set-output name=versions::[{\"storybook-version\":\"5.0.0\"}, {\"storybook-version\":\"5.3.21\"}, {\"storybook-version\":\"6.3.12\"}, {\"storybook-version\":\"latest\"}, {\"storybook-version\":\"next\"}]"
           else
             echo "::set-output name=versions::[{\"storybook-version\": \"${{inputs.for_versions || github.event.inputs.for_versions}}\" }]"
           fi
   test:
     needs: setup
     strategy:
-      max-parallel: 6
+      max-parallel: 5
       matrix:
         include: ${{fromJSON(needs.setup.outputs.versions)}}
     name: 'Test (Storybook version: ${{matrix.storybook-version}})'

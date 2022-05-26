@@ -129,11 +129,7 @@ async function getStories({timeout = DEFAULT_TIMEOUT} = {timeout: DEFAULT_TIMEOU
           }
         }
       }
-      const hasPlayFunction = !!(
-        story.playFunction &&
-        story.originalStoryFn &&
-        story.originalStoryFn.play
-      );
+      const hasPlayFunction = !!story.playFunction;
       return {
         isApi: true,
         hasPlayFunction,
