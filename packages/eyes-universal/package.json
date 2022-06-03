@@ -44,8 +44,8 @@
     "build": "yarn build:dist && yarn build:bin",
     "build:dist": "tsc",
     "build:bin": "pkg .",
-    "build:zip": "zip -j ./bin/eyes-universal.zip ./bin/eyes-universal-linux ./bin/eyes-universal-macos ./bin/eyes-universal-win.exe",
-    "build:tgz": "tar -czf ./bin/eyes-universal.tar.gz -C ./bin ./eyes-universal-linux ./eyes-universal-macos ./eyes-universal-win.exe",
+    "build:zip": "zip -j ./bin/eyes-universal.zip ./bin/eyes-universal-alpine ./bin/eyes-universal-linux ./bin/eyes-universal-macos ./bin/eyes-universal-win.exe",
+    "build:tgz": "tar -czf ./bin/eyes-universal.tar.gz -C ./bin ./eyes-universal-alpine ./eyes-universal-linux ./eyes-universal-macos ./eyes-universal-win.exe",
     "test": "yarn test:it && yarn test:e2e",
     "test:unit": "mocha ./test/unit/*.spec.ts --exit --no-timeouts -r ts-node/register",
     "test:it": "echo 'mocha ./test/it/*.spec.js --no-timeouts'",
@@ -101,6 +101,7 @@
     "scripts": "./dist/cli.js",
     "outputPath": "./bin",
     "targets": [
+      "node14-alpine-x64",
       "node14-linux-x64",
       "node14-macos-x64",
       "node14-win-x64"
