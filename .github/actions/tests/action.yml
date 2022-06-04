@@ -36,7 +36,7 @@ runs:
   using: composite
   steps:
     - shell: sh
-      run: echo ${{job.container}}
+      run: echo ${{job.container.id}}
     - shell: sh
       working-directory: ./packages/${{inputs.package}}
       env:

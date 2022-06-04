@@ -75,6 +75,8 @@ jobs:
         with:
           node-version: lts/*
           registry-url: https://registry.npmjs.org
+      - name: Setup Yarn
+        run: npm install -g yarn
       - name: Run tests
         uses: ./.github/actions/tests
         with:
