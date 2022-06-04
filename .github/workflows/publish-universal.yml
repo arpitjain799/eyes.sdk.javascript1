@@ -66,8 +66,7 @@ jobs:
           - os: macos-latest
     name: 'Test (os: ${{matrix.image || matrix.os}})'
     runs-on: ubuntu-latest
-    container:
-      image: ${{matrix.image}}
+    container: ${{matrix.image}}
     steps:
       - name: Check-out repository
         uses: actions/checkout@v2
