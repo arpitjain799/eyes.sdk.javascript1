@@ -68,7 +68,7 @@ jobs:
           #   os: windows-latest
           # - name: macos
           #   os: macos-latest
-    name: 'Test (os: ${{matrix.image || matrix.os}})'
+    name: 'Test (os: ${{matrix.name}})'
     runs-on: ubuntu-latest
     container: ${{matrix.container}}
     steps:
