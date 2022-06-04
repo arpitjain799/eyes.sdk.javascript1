@@ -35,9 +35,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - shell: sh
-      run: echo ${{job.container.id}}
-    - shell: sh
+    - shell: bash
       working-directory: ./packages/${{inputs.package}}
       env:
         APPLITOOLS_TEST_REMOTE: ${{inputs.remote}}
