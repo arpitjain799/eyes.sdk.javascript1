@@ -6,7 +6,7 @@ describe('works', () => {
   it('works with stdout', async () => {
     const server = spawn(`./bin/eyes-universal-${suffixes[process.platform]}`, {
       detached: true,
-      shell: process.platform === 'win32' ? 'C:\\Program Files\\Git\\bin\\bash.exe' : '/bin/bash',
+      shell: process.platform === 'win32' ? 'C:\\Program Files\\Git\\bin\\bash.exe' : process.env.SHELL || '/bin/bash',
       stdio: ['ignore', 'pipe', 'ignore'],
     })
     return new Promise<void>((resolve, reject) => {
