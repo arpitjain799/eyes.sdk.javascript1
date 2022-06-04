@@ -59,14 +59,18 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: ubuntu-latest
-            image: node:16-alpine
-          # - os: ubuntu-latest
-          # - os: windows-latest
-          # - os: macos-latest
+          - name: alpine
+            os: ubuntu-latest
+            container: node:16-alpine # not just "alpine" because it is not possible to setup nodejs in a regular way
+          # - name: ubuntu
+          #   os: ubuntu-latest
+          # - name: windows
+          #   os: windows-latest
+          # - name: macos
+          #   os: macos-latest
     name: 'Test (os: ${{matrix.image || matrix.os}})'
     runs-on: ubuntu-latest
-    container: ${{matrix.image}}
+    container: ${{matrix.container}}
     steps:
       - name: Check-out repository
         uses: actions/checkout@v2
