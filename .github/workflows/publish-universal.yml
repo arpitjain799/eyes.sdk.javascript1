@@ -60,7 +60,7 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            image: alpine
+            image: node:16-alpine
           # - os: ubuntu-latest
           # - os: windows-latest
           # - os: macos-latest
