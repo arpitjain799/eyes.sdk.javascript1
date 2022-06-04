@@ -35,7 +35,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - shell: ash
+    - shell: sh
       echo ${{job.container}}
     - shell: bash
       working-directory: ./packages/${{inputs.package}}
