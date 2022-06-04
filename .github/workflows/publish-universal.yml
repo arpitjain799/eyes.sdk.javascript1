@@ -61,9 +61,9 @@ jobs:
         include:
           - os: ubuntu-latest
             image: alpine
-          - os: ubuntu-latest
-          - os: windows-latest
-          - os: macos-latest
+          # - os: ubuntu-latest
+          # - os: windows-latest
+          # - os: macos-latest
     name: 'Test (os: ${{matrix.image || matrix.os}})'
     runs-on: ubuntu-latest
     container: ${{matrix.image}}
