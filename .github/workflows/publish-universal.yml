@@ -61,6 +61,7 @@ jobs:
         include:
           - name: alpine
             os: ubuntu-latest
+            shell: /bin/ash
             container: node:16-alpine # not just "alpine" because it is not possible to setup nodejs in a regular way
           # - name: ubuntu
           #   os: ubuntu-latest
@@ -71,6 +72,8 @@ jobs:
     name: 'Test (os: ${{matrix.name}})'
     runs-on: ubuntu-latest
     container: ${{matrix.container}}
+    env:
+      SHELL: ${{matrix.shell}}
     steps:
       - name: Check-out repository
         uses: actions/checkout@v2
