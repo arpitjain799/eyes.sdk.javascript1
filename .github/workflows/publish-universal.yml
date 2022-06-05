@@ -61,19 +61,20 @@ jobs:
         include:
           - name: alpine
             os: ubuntu-latest
+            container: node:lts-alpine # not just "alpine" because it is not possible to setup nodejs in a regular way
             shell: /bin/ash
-            container: node:16-alpine # not just "alpine" because it is not possible to setup nodejs in a regular way
-          # - name: ubuntu
-          #   os: ubuntu-latest
-          # - name: windows
-          #   os: windows-latest
-          # - name: macos
-          #   os: macos-latest
+          - name: ubuntu
+            os: ubuntu-latest
+            shell: bash
+          - name: windows
+            os: windows-latest
+            shell: bash
+          - name: macos
+            os: macos-latest
+            shell: bash
     name: 'Test (os: ${{matrix.name}})'
     runs-on: ubuntu-latest
     container: ${{matrix.container}}
-    env:
-      SHELL: ${{matrix.shell}}
     steps:
       - name: Check-out repository
         uses: actions/checkout@v2
@@ -87,6 +88,7 @@ jobs:
         with:
           package: ${{env.PACKAGE_DIR}}
           test-type: e2e
+          shell: ${{matrix.shell}}
   publish:
     if: false
     needs: [test]
