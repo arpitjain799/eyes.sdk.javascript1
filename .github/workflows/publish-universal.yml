@@ -62,7 +62,7 @@ jobs:
           - name: alpine
             os: ubuntu-latest
             container: node:lts-alpine # not just "alpine" because it is not possible to setup nodejs in a regular way
-            shell: ash {0}
+            shell: ash -eo pipefail {0}
           - name: ubuntu
             os: ubuntu-latest
             shell: bash
