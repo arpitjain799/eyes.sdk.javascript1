@@ -147,11 +147,11 @@ jobs:
           workflow: publish-core.yml
   vgc:
     needs: setup
-    if: ${{fromJSON(needs.setup.outputs.packages).universal}}
-    name: universal
-    uses: ./.github/workflows/publish-universal.yml
+    if: ${{fromJSON(needs.setup.outputs.packages).vgc}}
+    name: vgc
+    uses: ./.github/workflows/publish-vgc.yml
     with:
-      version: ${{fromJSON(needs.setup.outputs.packages).universal.releaseVersion}}
+      version: ${{fromJSON(needs.setup.outputs.packages).vgc.releaseVersion}}
     secrets:
       NPM_TOKEN: ${{secrets.NPM_TOKEN}}
       APPLITOOLS_API_KEY: ${{secrets.APPLITOOLS_API_KEY}}
