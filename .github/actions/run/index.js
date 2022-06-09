@@ -7,11 +7,11 @@ const ref = core.getInput('ref')
 console.log(process.env)
 console.log(process.cwd())
 
-const runm1 = spawn(`echo 'hello world'`, {
+const runm1 = spawn(`echo 'hello world'`, [], {
   stdio: 'inherit'
 })
 
-const run0 = spawn(`gh --help`, {
+const run0 = spawn(`gh --help`, [], {
   stdio: 'inherit'
 })
 const run = spawn(`gh workflow run ${workflow} --ref ${ref ?? '$(git rev-parse --abbrev-ref HEAD)'}`, {
