@@ -141,6 +141,8 @@ jobs:
     name: core
     runs-on: ubuntu-latest
     steps:
+      - name: Check-out repository
+        uses: actions/checkout@v3
       - name: Run remote workflow
         uses: ./.github/actions/run
         with:
