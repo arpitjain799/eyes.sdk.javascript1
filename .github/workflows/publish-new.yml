@@ -374,38 +374,6 @@ jobs:
       APPLITOOLS_API_KEY_SDK: ${{secrets.APPLITOOLS_API_KEY_SDK}}
       APPLITOOLS_API_KEY_READ: ${{secrets.APPLITOOLS_API_KEY_READ}}
 
-  # LEGACY SDKS
-  webdriverio-legacy:
-    needs: [setup, types, utils, api, core, vgc, test-utils]
-    if: ${{fromJSON(needs.setup.outputs.packages).webdriverio-legacy}}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check-out repository
-        uses: actions/checkout@v3
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: lts/*
-      - name: Run tests
-        uses: ./.github/actions/tests
-        with:
-          package: ${{fromJSON(needs.setup.outputs.packages).webdriverio-legacy.dirname}}
-          report: prod
-        env: ${{fromJSON(needs.setup.outputs.packages).webdriverio-legacy.env}}
-      - name: Publish to NPM
-        uses: ./.github/actions/publish
-        with:
-          package: ${{fromJSON(needs.setup.outputs.packages).webdriverio-legacy.dirname}}
-          version: ${{fromJSON(needs.setup.outputs.packages).webdriverio-legacy.releaseVersion}}
-      - name: Save release and testing artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: coverage-tests-report-webdriverio-legacy
-          retention-days: 30
-          path: |
-            packages/${{fromJSON(needs.setup.outputs.packages).webdriverio-legacy.dirname}}/coverage-tests-metadata.json
-            packages/${{fromJSON(needs.setup.outputs.packages).webdriverio-legacy.dirname}}/coverage-test-report.xml
-
   # SDK WRAPPERS
   webdriverio-service:
     needs: [setup, webdriverio]
