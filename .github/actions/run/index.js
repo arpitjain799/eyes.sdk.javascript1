@@ -12,3 +12,5 @@ const run = spawn(`gh workflow run ${workflow}`, {
 }, console.log)
 
 run.on('error', console.log)
+
+setTimeout(() => console.log('HELLO!'), 10_000)
