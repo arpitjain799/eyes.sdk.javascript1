@@ -7,7 +7,6 @@ const ref = core.getInput('ref')
 console.log(workflow, ref)
 
 const run = spawnSync(`gh workflow run ${workflow}`, {
-  shell: true,
   encoding: 'utf8'
 }, console.log)
 
