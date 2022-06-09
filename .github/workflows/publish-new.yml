@@ -29,21 +29,21 @@ env:
   AZURE_STORAGE_CONNECTION_STRING: ${{secrets.AZURE_STORAGE_CONNECTION_STRING}}
   FORCE_COLOR: 3
 jobs:
-  setup:
-    name: Setup
-    runs-on: ubuntu-latest
-    outputs:
-      packages: ${{steps.setup.outputs.packages}}
-    steps:
-      - name: Check-out repository
-        uses: actions/checkout@v3
-      - name: Setup
-        uses: ./.github/actions/parser
-        id: setup
-        with:
-          packages: ${{github.event.inputs.packages}}
-          allow-cascading: ${{github.event.inputs.allow-cascading}}
-          release-version: ${{github.event.inputs.version}}
+  # setup:
+  #   name: Setup
+  #   runs-on: ubuntu-latest
+  #   outputs:
+  #     packages: ${{steps.setup.outputs.packages}}
+  #   steps:
+  #     - name: Check-out repository
+  #       uses: actions/checkout@v3
+  #     - name: Setup
+  #       uses: ./.github/actions/parser
+  #       id: setup
+  #       with:
+  #         packages: ${{github.event.inputs.packages}}
+  #         allow-cascading: ${{github.event.inputs.allow-cascading}}
+  #         release-version: ${{github.event.inputs.version}}
 
   # INTERNAL
   # types:
@@ -137,7 +137,7 @@ jobs:
   # CORE
   core:
     needs: setup
-    if: ${{fromJSON(needs.setup.outputs.packages).core}}
+    # if: ${{fromJSON(needs.setup.outputs.packages).core}}
     name: core
     runs-on: ubuntu-latest
     steps:
