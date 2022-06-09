@@ -139,18 +139,12 @@ jobs:
     needs: setup
     if: ${{fromJSON(needs.setup.outputs.packages).core}}
     name: core
-    uses: ./.github/workflows/publish-core.yml
-    with:
-      version: ${{fromJSON(needs.setup.outputs.packages).core.releaseVersion}}
-    secrets:
-      NPM_TOKEN: ${{secrets.NPM_TOKEN}}
-      APPLITOOLS_API_KEY: ${{secrets.APPLITOOLS_API_KEY}}
-      APPLITOOLS_API_KEY_SDK: ${{secrets.APPLITOOLS_API_KEY_SDK}}
-      APPLITOOLS_API_KEY_READ: ${{secrets.APPLITOOLS_API_KEY_READ}}
-      SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
-      SAUCE_ACCESS_KEY: ${{secrets.SAUCE_ACCESS_KEY}}
-      BROWSERSTACK_USERNAME: ${{secrets.BROWSERSTACK_USERNAME}}
-      BROWSERSTACK_ACCESS_KEY: ${{secrets.BROWSERSTACK_ACCESS_KEY}}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run remote workflow
+        uses: ./.github/actions/run
+        with:
+          workflow: publish-core.yml
   vgc:
     needs: setup
     if: ${{fromJSON(needs.setup.outputs.packages).universal}}
