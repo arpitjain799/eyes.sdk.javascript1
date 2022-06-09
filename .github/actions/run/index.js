@@ -8,11 +8,11 @@ console.log(workflow, ref)
 
 async function main() {
   execSync(`gh workflow run ${workflow}`)
-  const {stdout} = execSync(`gh run list --json databaseId --workflow ${workflow} --limit 1`, {encoding: 'utf8'})
+  const g = execSync(`gh run list --json databaseId --workflow ${workflow} --limit 1`, {encoding: 'utf8'})
 
-  console.log(stdout)
+  console.log(g)
 
-  const [{databaseId}] = JSON.parse(stdout)
+  const [{databaseId}] = JSON.parse(g)
 
   console.log(execSync(`gh run watch ${databaseId}`, {stdio: 'inherit'}))
 
