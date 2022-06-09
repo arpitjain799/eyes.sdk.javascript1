@@ -143,9 +143,6 @@ jobs:
     steps:
       - name: Check-out repository
         uses: actions/checkout@v3
-      - run: gh --help
-        env:
-          GITHUB_TOKEN: ${{github.token}}
       - name: Run remote workflow
         uses: ./.github/actions/run
         with:
