@@ -140,6 +140,8 @@ jobs:
     if: ${{fromJSON(needs.setup.outputs.packages).core}}
     name: core
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{github.token}}
     steps:
       - name: Check-out repository
         uses: actions/checkout@v3
