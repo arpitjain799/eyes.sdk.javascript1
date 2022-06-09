@@ -8,6 +8,7 @@ console.log(process.env)
 console.log(process.cwd())
 
 const runm1 = spawn(`echo 'hello world'`, [], {
+  shell: true,
   stdio: 'inherit'
 })
 
