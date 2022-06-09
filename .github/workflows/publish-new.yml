@@ -136,7 +136,7 @@ jobs:
 
   # CORE
   core:
-    needs: setup
+    # needs: setup
     # if: ${{fromJSON(needs.setup.outputs.packages).core}}
     name: core
     runs-on: ubuntu-latest
