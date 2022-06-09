@@ -6,14 +6,16 @@ const ref = core.getInput('ref')
 
 console.log(workflow, ref)
 
-const run = spawnSync('gh', ['workflow', 'run', workflow], {
-  encoding: 'utf8',
-  env: {
-    ...process.env,
-    GITHUB_TOKEN: process.env.GITHUB_TOKEN
-  }
-})
+async function main() {
+  spawnSync('gh', ['workflow', 'run', workflow])
+  const {stdout} = spawnSync('gh', ['run', 'list', '--json', 'databaseId', '--workflow', workflow, '--limit', '1'])
 
-console.log(run)
+  console.log(stdout)
 
-setTimeout(() => console.log('HELLO!'), 10_000)
+  const [{databaseId}] = JSON.parse(stdout)
+
+  console.log(databaseId)
+
+}
+
+main()
