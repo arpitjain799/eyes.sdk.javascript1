@@ -18,7 +18,7 @@ async function main() {
 
   const [{databaseId}] = JSON.parse(g)
 
-  console.log(execSync(`gh run watch ${databaseId}`, {stdio: 'inherit'}))
+  console.log(execSync(`gh run watch ${databaseId} --exit-status`, {stdio: 'inherit'}))
 
 }
 
