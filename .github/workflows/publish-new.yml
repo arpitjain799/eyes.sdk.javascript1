@@ -147,8 +147,8 @@ jobs:
         uses: ./.github/actions/run
         with:
           workflow: publish-core.yml
-        # env:
-        #   GITHUB_TOKEN: ${{github.token}}
+        env:
+          GITHUB_TOKEN: ${{github.token}}
   # vgc:
   #   needs: setup
   #   if: ${{fromJSON(needs.setup.outputs.packages).vgc}}
