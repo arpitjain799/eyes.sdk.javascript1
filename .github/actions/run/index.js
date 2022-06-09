@@ -8,7 +8,10 @@ console.log(workflow, ref)
 
 const run = spawnSync('gh', ['workflow', 'run', workflow], {
   encoding: 'utf8',
-  env: {GITHUB_TOKEN: process.env.GITHUB_TOKEN}
+  env: {
+    ...process.env,
+    GITHUB_TOKEN: process.env.GITHUB_TOKEN
+  }
 })
 
 console.log(run)
