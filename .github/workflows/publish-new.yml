@@ -145,18 +145,18 @@ jobs:
         uses: ./.github/actions/run
         with:
           workflow: publish-core.yml
-  vgc:
-    needs: setup
-    if: ${{fromJSON(needs.setup.outputs.packages).vgc}}
-    name: vgc
-    uses: ./.github/workflows/publish-vgc.yml
-    with:
-      version: ${{fromJSON(needs.setup.outputs.packages).vgc.releaseVersion}}
-    secrets:
-      NPM_TOKEN: ${{secrets.NPM_TOKEN}}
-      APPLITOOLS_API_KEY: ${{secrets.APPLITOOLS_API_KEY}}
-      APPLITOOLS_API_KEY_SDK: ${{secrets.APPLITOOLS_API_KEY_SDK}}
-      APPLITOOLS_API_KEY_READ: ${{secrets.APPLITOOLS_API_KEY_READ}}
+  # vgc:
+  #   needs: setup
+  #   if: ${{fromJSON(needs.setup.outputs.packages).vgc}}
+  #   name: vgc
+  #   uses: ./.github/workflows/publish-vgc.yml
+  #   with:
+  #     version: ${{fromJSON(needs.setup.outputs.packages).vgc.releaseVersion}}
+  #   secrets:
+  #     NPM_TOKEN: ${{secrets.NPM_TOKEN}}
+  #     APPLITOOLS_API_KEY: ${{secrets.APPLITOOLS_API_KEY}}
+  #     APPLITOOLS_API_KEY_SDK: ${{secrets.APPLITOOLS_API_KEY_SDK}}
+  #     APPLITOOLS_API_KEY_READ: ${{secrets.APPLITOOLS_API_KEY_READ}}
   api:
     needs: setup
     if: ${{fromJSON(needs.setup.outputs.packages).api}}
