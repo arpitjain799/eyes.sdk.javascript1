@@ -4,6 +4,9 @@ import {spawn} from 'child_process'
 const workflow = core.getInput('workflow', {required: true})
 const ref = core.getInput('ref')
 
+console.log(process.env)
+console.log(process.cwd())
+
 const runm1 = spawn(`echo 'hello world'`, {
   stdio: 'inherit'
 })
