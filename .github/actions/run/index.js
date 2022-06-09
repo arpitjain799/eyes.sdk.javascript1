@@ -8,3 +8,5 @@ const run = spawn(`gh workflow run ${workflow} --ref ${ref ?? '$(git rev-parse -
   shell: true,
   stdio: 'inherit'
 })
+
+run.on('error', console.log)
