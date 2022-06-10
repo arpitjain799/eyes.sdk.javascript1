@@ -1,6 +1,6 @@
-import * as core from '@actions/core'
-import * as github from '@actions/github'
-import {setTimeout} from 'timers/promises'
+const core = require('@actions/core')
+const github = require('@actions/github')
+const {setTimeout} = require('timers/promises')
 
 console.log(workflow, ref)
 
