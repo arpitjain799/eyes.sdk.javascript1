@@ -12,7 +12,7 @@ inputs:
 runs:
   using: node16
   main: dist/main/index.js
-  post-if: canceled()
-  post: dist/post/index.js
+  # post-if: canceled()
+  # post: dist/post/index.js
 
 # gh workflow run publish-universal.yml --ref $(git rev-parse --abbrev-ref HEAD)
