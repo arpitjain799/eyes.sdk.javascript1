@@ -8807,9 +8807,7 @@ async function runWorkflow(workflowId) {
       per_page: 1
     });
 
-    console.log(response)
-
-    const [run] = response.data
+    const [run] = response.data.workflow_runs
 
     console.log(run)
   }
