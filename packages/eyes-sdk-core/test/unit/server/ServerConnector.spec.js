@@ -16,8 +16,7 @@ const {
 } = require('../../../')
 const {presult} = require('../../../lib/troubleshoot/utils')
 const logger = new makeLogger()
-const httpProxy = require('http-proxy')
-const {promisify} = require('util')
+const startProxyServer = require('../../utils/proxyServer')
 
 // #region temporary
 function createDomResource({cdt, resources}) {
@@ -848,21 +847,8 @@ render height & width are required when deviceEmulationInfo is not provided, req
       await serverConnector.startSession(new SessionStartInfo(sessionInfo))
     })
 
-    it('works with with proxy', async () => {
-      const {port, close} = await startProxyServer({target: serverUrl, secure: false})
-      try {
-        const serverConnector = getServerConnector({
-          serverUrl,
-          proxy: {url: `http://localhost:${port}`, isHttpOnly: false},
-        })
-        await serverConnector.startSession(new SessionStartInfo(sessionInfo))
-      } finally {
-        await close()
-      }
-    })
-
-    it.skip('works with with proxy with isHttpOnly', async () => {
-      const {port, close} = await startProxyServer({target: serverUrl, secure: false})
+    it('works with with proxy with isHttpOnly', async () => {
+      const {port, close} = await startProxyServer()
       try {
         const serverConnector = getServerConnector({
           serverUrl,
@@ -875,17 +861,3 @@ render height & width are required when deviceEmulationInfo is not provided, req
     })
   })
 })
-
-function startProxyServer({target, port = 12345, secure}) {
-  const server = httpProxy.createServer({
-    target,
-    secure,
-  })
-  return new Promise(resolve => {
-    server.listen(port, () => {
-      logger.log('proxy server listening on port', port)
-      const close = promisify(server.close.bind(server))
-      resolve({port, close})
-    })
-  })
-}
