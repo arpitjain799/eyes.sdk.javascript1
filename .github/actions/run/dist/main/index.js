@@ -8787,7 +8787,10 @@ const ref = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('ref')
 
 const octokit = _actions_github__WEBPACK_IMPORTED_MODULE_1__.getOctokit(process.env.GITHUB_TOKEN)
 
-await runWorkflow(workflowId)
+const run = await runWorkflow(workflowId)
+_actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Workflow "${run.name}" is running: ${run.html_url}`)
+
+await waitWorkflowRun(run)
 
 async function runWorkflow(workflowId) {
   await octokit.rest.actions.createWorkflowDispatch({
@@ -8809,13 +8812,26 @@ async function runWorkflow(workflowId) {
 
     const [run] = response.data.workflow_runs
 
-    if (!['in_progress'].includes(run.status)) {
-      console.log([[run]])
+    if (!['queued', 'in_progress'].includes(run.status)) {
       await (0,timers_promises__WEBPACK_IMPORTED_MODULE_2__.setTimeout)(3000)
       return getRunningWorkflow(workflowId)
     }
+
+    return run
   }
 }
+
+async function waitWorkflowRun(run) {
+  const response = await octokit.rest.actions.getWorkflowRunAttempt({
+    owner: _actions_github__WEBPACK_IMPORTED_MODULE_1__.context.repo.owner,
+    repo: _actions_github__WEBPACK_IMPORTED_MODULE_1__.context.repo.repo,
+    run_id: run.id,
+    attempt_number: run.run_attempt,
+  });
+
+  console.log(response)
+}
+
 
 __webpack_handle_async_dependencies__();
 }, 1);
