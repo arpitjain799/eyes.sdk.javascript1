@@ -2,8 +2,6 @@ const core = require('@actions/core')
 const github = require('@actions/github')
 const {setTimeout} = require('timers/promises')
 
-console.log(workflow, ref)
-
 async function main() {
   const workflowId = core.getInput('workflow', {required: true})
   const ref = core.getInput('ref')
