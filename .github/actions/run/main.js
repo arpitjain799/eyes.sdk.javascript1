@@ -25,7 +25,7 @@ async function main() {
     per_page: 1
   });
 
-  console.log(result)
+  console.log(result.data)
 
   // await execp(`gh workflow run ${workflow} --ref ${ref}`)
   // await setTimeout(5000)
