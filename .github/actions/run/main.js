@@ -1,35 +1,28 @@
 import * as core from '@actions/core'
-import * as  github from '@actions/github'
+import * as github from '@actions/github'
 import {setTimeout} from 'timers/promises'
 
 const workflowId = core.getInput('workflow', {required: true})
 const ref = core.getInput('ref')
-
 const octokit = github.getOctokit(process.env.GITHUB_TOKEN)
 
-main()
+let run = await runWorkflow(workflowId)
 
-async function main() {
-  let run = await runWorkflow(workflowId)
+core.notice(`Workflow is running: ${run.html_url}`, {title: run.name})
 
-  core.notice(`Workflow is running: ${run.html_url}`, {title: run.name})
+run = await waitForWorkflowCompleted(run)
 
-  run = await waitForWorkflowCompleted(run)
-
-  console.log(core.summary.stringify())
-
-  if (['cancelled', 'failure', 'timed_out'].includes(run.conclusion)) {
-    core.error(`Workflow was finished with failure status "${run.conclusion}"`, {title: run.name})
-    return core.setFailed(`Workflow "${run.name}" was finished with failure status "${run.conclusion}"`)
-  }
-
-  if (['action_required', 'neutral', 'skipped', 'stale'].includes(run.conclusion)) {
-    core.error(`Workflow was finished with unexpected status "${run.conclusion}"`, {title: run.name})
-    return core.setFailed(`Workflow "${run.name}" was finished with unexpected status "${run.conclusion}"`)
-  }
-
-  core.notice('Workflow was finished successfully', {title: run.name})
+if (['cancelled', 'failure', 'timed_out'].includes(run.conclusion)) {
+  core.error(`Workflow was finished with failure status "${run.conclusion}"`, {title: run.name})
+  return core.setFailed(`Workflow "${run.name}" was finished with failure status "${run.conclusion}"`)
 }
+
+if (['action_required', 'neutral', 'skipped', 'stale'].includes(run.conclusion)) {
+  core.error(`Workflow was finished with unexpected status "${run.conclusion}"`, {title: run.name})
+  return core.setFailed(`Workflow "${run.name}" was finished with unexpected status "${run.conclusion}"`)
+}
+
+core.notice('Workflow was finished successfully', {title: run.name})
 
 async function runWorkflow(workflowId) {
   await octokit.rest.actions.createWorkflowDispatch({
@@ -37,27 +30,24 @@ async function runWorkflow(workflowId) {
     repo: github.context.repo.repo,
     workflow_id: workflowId,
     ref,
-  });
+  })
 
-  return getRunningWorkflow(workflowId)
+  let run
 
-  async function getRunningWorkflow(workflowId) {
+  while (!['queued', 'in_progress'].includes(run?.status)) {
+    await setTimeout(3000)
+  
     const response = await octokit.rest.actions.listWorkflowRuns({
       owner: github.context.repo.owner,
       repo: github.context.repo.repo,
       workflow_id: workflowId,
       per_page: 1
-    });
+    })
 
-    const [run] = response.data.workflow_runs
-
-    if (!['queued', 'in_progress'].includes(run.status)) {
-      await setTimeout(3000)
-      return getRunningWorkflow(workflowId)
-    }
-
-    return run
+    run = response.data.workflow_runs[0]
   }
+
+  return run
 }
 
 async function waitForWorkflowCompleted(run) {
@@ -69,7 +59,7 @@ async function waitForWorkflowCompleted(run) {
       repo: github.context.repo.repo,
       run_id: run.id,
       attempt_number: run.run_attempt,
-    });
+    })
 
     run = response.data
   }
