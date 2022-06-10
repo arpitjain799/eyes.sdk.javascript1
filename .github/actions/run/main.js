@@ -1,6 +1,8 @@
-const core = require('@actions/core')
-const github = require('@actions/github')
-const {setTimeout} = require('timers/promises')
+import * as core from '@actions/core'
+import * as  github from '@actions/github'
+import {setTimeout} from 'timers/promises'
+
+main()
 
 async function main() {
   const workflowId = core.getInput('workflow', {required: true})
@@ -8,11 +10,19 @@ async function main() {
 
   const octokit = github.getOctokit(process.env.GITHUB_TOKEN)
 
-  const result = await octokit.rest.actions.createWorkflowDispatch({
+  // run workflow
+  await octokit.rest.actions.createWorkflowDispatch({
     owner: github.context.repo.owner,
     repo: github.context.repo.repo,
     workflow_id: workflowId,
     ref,
+  });
+
+  const result = await octokit.rest.actions.listWorkflowRuns({
+    owner: github.context.repo.owner,
+    repo: github.context.repo.repo,
+    workflow_id: workflowId,
+    per_page: 1
   });
 
   console.log(result)
@@ -33,5 +43,3 @@ async function main() {
   // console.log(execSync(`gh run watch ${databaseId} --exit-status`, {stdio: 'inherit'}))
 
 }
-
-main()
