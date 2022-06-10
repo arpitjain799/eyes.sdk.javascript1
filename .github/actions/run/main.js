@@ -7,10 +7,28 @@ const ref = core.getInput('ref')
 
 const octokit = github.getOctokit(process.env.GITHUB_TOKEN)
 
-const run = await runWorkflow(workflowId)
-core.notice(`Workflow is running: ${run.html_url}`, {title: run.name})
+main()
 
-await waitWorkflowRun(run)
+async function main() {
+  let run = await runWorkflow(workflowId)
+  core.notice(`Workflow is running: ${run.html_url}`, {title: run.name})
+
+  run = await waitForWorkflowCompleted(run)
+
+  console.log(run)
+
+  if (['canceled', 'failure', 'timed_out'].includes(run.conclusion)) {
+    core.error(`Workflow was finished with failure status "${run.conclusion}"`, {title: run.name})
+    return core.setFailed(`Workflow "${run.name}" was finished with failure status "${run.conclusion}"`)
+  }
+
+  if (['action_required', 'neutral', 'skipped', 'stale'].includes(run.conclusion)) {
+    core.error(`Workflow was finished with unexpected status "${run.conclusion}"`, {title: run.name})
+    return core.setFailed(`Workflow "${run.name}" was finished with unexpected status "${run.conclusion}"`)
+  }
+
+  core.notice('Workflow was finished successfully', {title: run.name})
+}
 
 async function runWorkflow(workflowId) {
   await octokit.rest.actions.createWorkflowDispatch({
@@ -41,7 +59,7 @@ async function runWorkflow(workflowId) {
   }
 }
 
-async function waitWorkflowRun(run) {
+async function waitForWorkflowCompleted(run) {
   while (run.status !== 'completed') {
     await setTimeout(3000)
 
@@ -55,16 +73,6 @@ async function waitWorkflowRun(run) {
     run = response.data
   }
 
-  if (['canceled', 'failure', 'timed_out'].includes(run.conclusion)) {
-    core.error(`Workflow was finished with failure status "${run.conclusion}"`, {title: run.name})
-    return core.setFailed(`Workflow "${run.name}" was finished with failure status "${run.conclusion}"`)
-  }
-
-  if (['action_required', 'neutral', 'skipped', 'stale'].includes(run.conclusion)) {
-    core.error(`Workflow was finished with unexpected status "${run.conclusion}"`, {title: run.name})
-    return core.setFailed(`Workflow "${run.name}" was finished with unexpected status "${run.conclusion}"`)
-  }
-
-  core.notice('Workflow was finished successfully', {title: run.name})
+  return run
 }
 
