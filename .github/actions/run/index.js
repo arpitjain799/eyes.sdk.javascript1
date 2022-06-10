@@ -1,24 +1,38 @@
 import * as core from '@actions/core'
-import {execSync} from 'child_process'
+import * as github from '@actions/github'
 import {setTimeout} from 'timers/promises'
-
-const workflow = core.getInput('workflow', {required: true})
-const ref = core.getInput('ref')
 
 console.log(workflow, ref)
 
 async function main() {
-  execSync(`gh workflow run ${workflow}`)
-  
-  await setTimeout(5000)
+  const workflowId = core.getInput('workflow', {required: true})
+  const ref = core.getInput('ref')
 
-  const g = execSync(`gh run list --json databaseId --workflow ${workflow} --limit 1`, {encoding: 'utf8'})
+  const octokit = github.getOctokit(process.env.GITHUB_TOKEN)
 
-  console.log(g)
+  const result = await octokit.rest.actions.createWorkflowDispatch({
+    owner: github.context.repo.owner,
+    repo: github.context.repo.repo,
+    workflow_id: workflowId,
+    ref,
+  });
 
-  const [{databaseId}] = JSON.parse(g)
+  console.log(result)
 
-  console.log(execSync(`gh run watch ${databaseId} --exit-status`, {stdio: 'inherit'}))
+  // await execp(`gh workflow run ${workflow} --ref ${ref}`)
+  // await setTimeout(5000)
+
+
+
+  // const workflowList = execSync(`gh run list --json databaseId --workflow ${workflow} --limit 1`, {encoding: 'utf8'})
+
+  // console.log(g)
+
+  // const [{databaseId}] = JSON.parse(g)
+
+  // core.info(``)
+
+  // console.log(execSync(`gh run watch ${databaseId} --exit-status`, {stdio: 'inherit'}))
 
 }
 
