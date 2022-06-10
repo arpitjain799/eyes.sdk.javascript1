@@ -25,8 +25,8 @@ function getTunnelAgentFromProxy(proxyObject) {
       host: proxyObject.host,
       port: proxyObject.port || 8080,
       proxyAuth,
-      //rejectUnauthorized: false,
     },
+    //rejectUnauthorized: false,
   })
 }
 
