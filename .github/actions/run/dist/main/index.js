@@ -8833,13 +8833,14 @@ main()
 
 async function main() {
   let run = await runWorkflow(workflowId)
+
   core.notice(`Workflow is running: ${run.html_url}`, {title: run.name})
 
   run = await waitForWorkflowCompleted(run)
 
-  console.log(run)
+  console.log(core.summary.stringify())
 
-  if (['canceled', 'failure', 'timed_out'].includes(run.conclusion)) {
+  if (['cancelled', 'failure', 'timed_out'].includes(run.conclusion)) {
     core.error(`Workflow was finished with failure status "${run.conclusion}"`, {title: run.name})
     return core.setFailed(`Workflow "${run.name}" was finished with failure status "${run.conclusion}"`)
   }
