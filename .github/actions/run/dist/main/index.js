@@ -8809,7 +8809,11 @@ async function runWorkflow(workflowId) {
 
     const [run] = response.data.workflow_runs
 
-    console.log(run)
+    if (!['in_progress'].includes(run.status)) {
+      console.log([[run]])
+      await (0,timers_promises__WEBPACK_IMPORTED_MODULE_2__.setTimeout)(3000)
+      return getRunningWorkflow(workflowId)
+    }
   }
 }
 
