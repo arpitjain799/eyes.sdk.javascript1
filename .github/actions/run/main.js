@@ -8,7 +8,7 @@ const ref = core.getInput('ref')
 const octokit = github.getOctokit(process.env.GITHUB_TOKEN)
 
 const run = await runWorkflow(workflowId)
-core.notice(`Workflow "${run.name}" is running: ${run.html_url}`, {title: 'Started'})
+core.notice(`Workflow is running: ${run.html_url}`, {title: run.name})
 
 await waitWorkflowRun(run)
 
@@ -42,18 +42,29 @@ async function runWorkflow(workflowId) {
 }
 
 async function waitWorkflowRun(run) {
-  const response = await octokit.rest.actions.getWorkflowRunAttempt({
-    owner: github.context.repo.owner,
-    repo: github.context.repo.repo,
-    run_id: run.id,
-    attempt_number: run.run_attempt,
-  });
+  while (run.status !== 'completed') {
+    await setTimeout(3000)
 
-  const run2 = response.data
+    const response = await octokit.rest.actions.getWorkflowRunAttempt({
+      owner: github.context.repo.owner,
+      repo: github.context.repo.repo,
+      run_id: run.id,
+      attempt_number: run.run_attempt,
+    });
 
-  if (run2.status !== 'completed') {
-    return waitWorkflowRun(run)
+    run = response.data
   }
-  console.log(run2)
+
+  if (['canceled', 'failure', 'timed_out'].includes(run.conclusion)) {
+    core.error(`Workflow was finished with failure status "${run.conclusion}"`, {title: run.name})
+    return core.setFailed(`Workflow "${run.name}" was finished with failure status "${run.conclusion}"`)
+  }
+
+  if (['action_required', 'neutral', 'skipped', 'stale'].includes(run.conclusion)) {
+    core.error(`Workflow was finished with unexpected status "${run.conclusion}"`, {title: run.name})
+    return core.setFailed(`Workflow "${run.name}" was finished with unexpected status "${run.conclusion}"`)
+  }
+
+  core.notice('Workflow was finished successfully', {title: run.name})
 }
 

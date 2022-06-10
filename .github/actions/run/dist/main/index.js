@@ -8788,7 +8788,7 @@ const ref = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('ref')
 const octokit = _actions_github__WEBPACK_IMPORTED_MODULE_1__.getOctokit(process.env.GITHUB_TOKEN)
 
 const run = await runWorkflow(workflowId)
-_actions_core__WEBPACK_IMPORTED_MODULE_0__.notice(`Workflow "${run.name}" is running: ${run.html_url}`, {title: 'Started'})
+_actions_core__WEBPACK_IMPORTED_MODULE_0__.notice(`Workflow is running: ${run.html_url}`, {title: run.name})
 
 await waitWorkflowRun(run)
 
@@ -8822,19 +8822,30 @@ async function runWorkflow(workflowId) {
 }
 
 async function waitWorkflowRun(run) {
-  const response = await octokit.rest.actions.getWorkflowRunAttempt({
-    owner: _actions_github__WEBPACK_IMPORTED_MODULE_1__.context.repo.owner,
-    repo: _actions_github__WEBPACK_IMPORTED_MODULE_1__.context.repo.repo,
-    run_id: run.id,
-    attempt_number: run.run_attempt,
-  });
+  while (run.status !== 'completed') {
+    await (0,timers_promises__WEBPACK_IMPORTED_MODULE_2__.setTimeout)(3000)
 
-  const run2 = response.data
+    const response = await octokit.rest.actions.getWorkflowRunAttempt({
+      owner: _actions_github__WEBPACK_IMPORTED_MODULE_1__.context.repo.owner,
+      repo: _actions_github__WEBPACK_IMPORTED_MODULE_1__.context.repo.repo,
+      run_id: run.id,
+      attempt_number: run.run_attempt,
+    });
 
-  if (run2.status !== 'completed') {
-    return waitWorkflowRun(run)
+    run = response.data
   }
-  console.log(run2)
+
+  if (['canceled', 'failure', 'timed_out'].includes(run.conclusion)) {
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.error(`Workflow was finished with failure status "${run.conclusion}"`, {title: run.name})
+    return _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(`Workflow "${run.name}" was finished with failure status "${run.conclusion}"`)
+  }
+
+  if (['action_required', 'neutral', 'skipped', 'stale'].includes(run.conclusion)) {
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.error(`Workflow was finished with unexpected status "${run.conclusion}"`, {title: run.name})
+    return _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(`Workflow "${run.name}" was finished with unexpected status "${run.conclusion}"`)
+  }
+
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.notice('Workflow was finished successfully', {title: run.name})
 }
 
 
