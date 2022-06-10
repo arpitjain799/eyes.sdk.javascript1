@@ -8,7 +8,7 @@ const ref = core.getInput('ref')
 const octokit = github.getOctokit(process.env.GITHUB_TOKEN)
 
 const run = await runWorkflow(workflowId)
-core.info(`Workflow "${run.name}" is running: ${run.html_url}`)
+core.notice(`Workflow "${run.name}" is running: ${run.html_url}`, {title: 'Started'})
 
 await waitWorkflowRun(run)
 
@@ -49,6 +49,11 @@ async function waitWorkflowRun(run) {
     attempt_number: run.run_attempt,
   });
 
-  console.log(response)
+  const run2 = response.data
+
+  if (run2.status !== 'completed') {
+    return waitWorkflowRun(run)
+  }
+  console.log(run2)
 }
 

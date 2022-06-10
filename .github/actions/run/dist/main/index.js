@@ -8788,7 +8788,7 @@ const ref = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('ref')
 const octokit = _actions_github__WEBPACK_IMPORTED_MODULE_1__.getOctokit(process.env.GITHUB_TOKEN)
 
 const run = await runWorkflow(workflowId)
-_actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Workflow "${run.name}" is running: ${run.html_url}`)
+_actions_core__WEBPACK_IMPORTED_MODULE_0__.notice(`Workflow "${run.name}" is running: ${run.html_url}`, {title: 'Started'})
 
 await waitWorkflowRun(run)
 
@@ -8829,7 +8829,12 @@ async function waitWorkflowRun(run) {
     attempt_number: run.run_attempt,
   });
 
-  console.log(response)
+  const run2 = response.data
+
+  if (run2.status !== 'completed') {
+    return waitWorkflowRun(run)
+  }
+  console.log(run2)
 }
 
 
