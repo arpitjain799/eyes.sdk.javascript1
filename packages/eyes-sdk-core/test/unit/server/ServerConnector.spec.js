@@ -818,7 +818,7 @@ render height & width are required when deviceEmulationInfo is not provided, req
     assert.ok(renderErr.message.includes(`Error: combination of url, dom, resources is invalid`))
   })
 
-  describe.only('self-signed certificates', () => {
+  describe('self-signed certificates', () => {
     let serverClose, serverUrl
     const sessionInfo = {
       appIdOrName: 'app id or name',
@@ -861,7 +861,7 @@ render height & width are required when deviceEmulationInfo is not provided, req
       }
     })
 
-    it('works with with proxy with isHttpOnly', async () => {
+    it.skip('works with with proxy with isHttpOnly', async () => {
       const {port, close} = await startProxyServer({target: serverUrl, secure: false})
       try {
         const serverConnector = getServerConnector({
