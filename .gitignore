@@ -2,45 +2,37 @@
 logs
 *.log
 
-# JetBrains
-.idea
+# Credentials
+**/.env
+!**/fixtures/**/.env
+
+# Generated
+packages/*/doc
+packages/*/bin
+packages/*/dist
+packages/*/types/**/*.d.ts
+
+# Coverage tests
+**/test/generic/
+coverage-test-report.xml
+coverage-tests-metadata.json
+
+# Docker
+docker-compose.yaml
 
 # Dependency directory
 node_modules
 
 # Other
+.idea
+.vscode
+.yarn
+.bongo
 .DS_Store
 .eslintcache
+.history/
 *.swp
 *~
-.tmp-changelogs.html
 tmp
-.env
-.vscode
-
-# sdk-release-kit
-.bongo
-
-# sdk-coverage-tests
-**/test/generic/
-**/generated/
-coverage-test-report.xml
-coverage-tests-metadata.json
-
-# yarn
-.yarn
-
-# Docker
-docker-compose.yaml
-
-# other
 tags
 tags.*
-eyes-testcafe-bak
-
-# generated
-dist
-doc
-types
-!packages/types
-.history/

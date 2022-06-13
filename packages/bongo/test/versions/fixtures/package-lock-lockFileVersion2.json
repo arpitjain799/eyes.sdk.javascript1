@@ -87,7 +87,7 @@
         "tunnel": "0.0.6"
       },
       "bin": {
-        "eyes-check-network": "bin/runCheckNetwork.js"
+        "eyes-check-network": "lib/runCheckNetwork.js"
       },
       "engines": {
         "node": ">= 8.9.0"
@@ -329,7 +329,7 @@
         "tunnel": "0.0.6"
       },
       "bin": {
-        "eyes-check-network": "bin/runCheckNetwork.js"
+        "eyes-check-network": "lib/runCheckNetwork.js"
       },
       "engines": {
         "node": ">= 8.9.0"

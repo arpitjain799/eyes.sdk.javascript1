@@ -92,7 +92,7 @@
     "postversion": "bongo postversion --skip-release-notification"
   },
   "bin": {
-    "eyes-check-network": "./bin/runCheckNetwork.js"
+    "eyes-check-network": "./lib/runCheckNetwork.js"
   },
   "license": "SEE LICENSE IN LICENSE",
   "engines": {

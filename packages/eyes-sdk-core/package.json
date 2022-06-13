@@ -45,7 +45,7 @@
   },
   "types": "./index.d.ts",
   "bin": {
-    "eyes-check-network": "./bin/runCheckNetwork.js"
+    "eyes-check-network": "./lib/runCheckNetwork.js"
   },
   "files": [
     "bin",

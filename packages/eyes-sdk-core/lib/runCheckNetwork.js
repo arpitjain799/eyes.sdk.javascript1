@@ -3,6 +3,6 @@
 
 'use strict'
 
-const {makeCheckNetwork} = require('../lib/troubleshoot/checkNetwork')
+const {makeCheckNetwork} = require('./troubleshoot/checkNetwork')
 const checkNetwork = makeCheckNetwork({})
 checkNetwork()

@@ -11,3 +11,4 @@ test/fixtures/storybook-versions/*/stories/
 test/fixtures/storybookCSF/.storybook-temp/
 /logs/
 !/dist
+!/bin
