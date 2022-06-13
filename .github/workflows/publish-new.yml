@@ -47,6 +47,7 @@ jobs:
           allow-cascading: ${{github.event.inputs.allow-cascading}}
           only-changed: ${{github.event.inputs.only-changed}}
           release-version: ${{github.event.inputs.version}}
+      - run: echo '${{steps.setup.outputs.packages}}'
 
   # INTERNAL
   types:

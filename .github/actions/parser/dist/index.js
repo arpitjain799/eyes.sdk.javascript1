@@ -2083,8 +2083,6 @@ if (onlyChanged) {
   jobs = filterInsignificantJobs(jobs)
 }
 
-console.log(jobs)
-
 if (allowCascading) {
   const additionalJobs = createDependencyJobs(jobs)
   jobs = {...jobs, ...additionalJobs}
@@ -2095,6 +2093,8 @@ if (onlyChanged) {
 }
 
 _actions_core__WEBPACK_IMPORTED_MODULE_0__.notice(`Jobs created: "${Object.values(jobs).map(job => job.displayName).join(', ')}"`)
+
+console.log(jobs)
 
 _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('packages', allowVariations ? Object.values(jobs) : jobs)
 
