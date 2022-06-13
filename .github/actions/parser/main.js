@@ -44,8 +44,6 @@ Object.values(packages).forEach(packageInfo => {
   packageInfo.dependencies = packageInfo.dependencies.filter(depName => packages[depName])
 })
 
-// console.log(packages)
-
 let jobs = createJobs(input)
 
 if (onlyChanged) {
@@ -128,7 +126,7 @@ function createDependencyJobs(jobs) {
     for (const dependencyName of packages[packageName].dependencies) {
       if (packageNames.includes(dependencyName)) continue
       packageNames.push(dependencyName)
-      dependencyJobs[dependencyName] = {
+      packages[dependencyName].jobName = {
         displayName: packages[dependencyName].jobName,
         packageName: packages[dependencyName].name,
         name: packages[dependencyName].jobName,
