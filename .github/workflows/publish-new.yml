@@ -177,7 +177,7 @@ jobs:
           workflow: publish-core.yml
           inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).core.version}}"}'
         env:
-          GITHUB_TOKEN: ${{github.token}}
+          GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   ufg-client:
     needs: [ setup, core, logger, test-server, test-utils, utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).ufg-client && !failure() && !cancelled()}}
