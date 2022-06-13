@@ -4,8 +4,8 @@ import * as fs from 'fs/promises'
 import YAML from 'yaml'
 
 const cwd = process.cwd()
-const workflowFilePath = path.resolve(cwd, '../../workflows/publish-new.yml')
-const packagesPath = path.resolve(cwd, '../../../packages')
+const workflowFilePath = path.resolve(cwd, './.github/workflows/publish-new.yml')
+const packagesPath = path.resolve(cwd, './packages')
 
 const workflow = YAML.parseDocument(await fs.readFile(workflowFilePath, {encoding: 'utf8'}))
 

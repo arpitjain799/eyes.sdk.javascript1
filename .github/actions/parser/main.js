@@ -20,7 +20,7 @@ const defaultReleaseVersion = core.getInput('release-version')
 
 core.notice(`Input provided: "${input}"`)
 
-const packagesPath = path.resolve(process.cwd(), '../../../packages')
+const packagesPath = path.resolve(process.cwd(), './packages')
 const packageDirs = await fs.readdir(packagesPath)
 const packages = await packageDirs.reduce(async (packages, packageDir) => {
   const packageManifestPath = path.resolve(packagesPath, packageDir, 'package.json')
