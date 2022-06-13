@@ -12,11 +12,11 @@ on:
         options: [ patch, minor, major ]
         default: patch
       allow-cascading:
-        description: publish also dependencies
+        description: include dependencies
         type: boolean
         default: true
       only-changed:
-        description: publish only packages with new commits
+        description: include only packages with new commits
         type: boolean
         default: true
 env:
@@ -45,6 +45,7 @@ jobs:
         with:
           packages: ${{github.event.inputs.packages}}
           allow-cascading: ${{github.event.inputs.allow-cascading}}
+          only-changed: ${{github.event.inputs.only-changed}}
           release-version: ${{github.event.inputs.version}}
 
   # INTERNAL
@@ -632,45 +633,3 @@ jobs:
           inputs: ${{toJSON(fromJSON(needs.setup.outputs.packages).test-server)}}
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
-
-  # TOOLING
-  bongo:
-    needs: [ setup, utils, bongo ]
-    if: ${{fromJSON(needs.setup.outputs.packages).bongo}}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check-out repository
-        uses: actions/checkout@v3
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: lts/*
-      - name: Run tests
-        uses: ./.github/actions/tests
-        with:
-          package: ${{fromJSON(needs.setup.outputs.packages).bongo.dirname}}
-      - name: Publish to NPM
-        uses: ./.github/actions/publish
-        with:
-          package: ${{fromJSON(needs.setup.outputs.packages).bongo.dirname}}
-          version: ${{fromJSON(needs.setup.outputs.packages).bongo.releaseVersion}}
-  scripts:
-    needs: [ setup, test-utils, bongo ]
-    if: ${{fromJSON(needs.setup.outputs.packages).scripts}}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check-out repository
-        uses: actions/checkout@v3
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: lts/*
-      - name: Run tests
-        uses: ./.github/actions/tests
-        with:
-          package: ${{fromJSON(needs.setup.outputs.packages).scripts.dirname}}
-      - name: Publish to NPM
-        uses: ./.github/actions/publish
-        with:
-          package: ${{fromJSON(needs.setup.outputs.packages).scripts.dirname}}
-          version: ${{fromJSON(needs.setup.outputs.packages).scripts.releaseVersion}}
