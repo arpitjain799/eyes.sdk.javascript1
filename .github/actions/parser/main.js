@@ -55,14 +55,14 @@ if (allowCascading) {
   jobs = {...jobs, ...additionalJobs}
 }
 
+console.log(jobs)
+
 if (onlyChanged) {
   jobs = filterInsignificantJobs(jobs)
 }
 
-core.notice(`Jobs created: "${Object.values(jobs).map(job => job.displayName).join(', ')}"`)
-
 console.log(jobs)
-
+core.notice(`Jobs created: "${Object.values(jobs).map(job => job.displayName).join(', ')}"`)
 core.setOutput('packages', allowVariations ? Object.values(jobs) : jobs)
 
 function createJobs(input) {

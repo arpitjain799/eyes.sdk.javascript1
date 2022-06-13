@@ -2086,14 +2086,14 @@ if (allowCascading) {
   jobs = {...jobs, ...additionalJobs}
 }
 
+console.log(jobs)
+
 if (onlyChanged) {
   jobs = filterInsignificantJobs(jobs)
 }
 
-_actions_core__WEBPACK_IMPORTED_MODULE_0__.notice(`Jobs created: "${Object.values(jobs).map(job => job.displayName).join(', ')}"`)
-
 console.log(jobs)
-
+_actions_core__WEBPACK_IMPORTED_MODULE_0__.notice(`Jobs created: "${Object.values(jobs).map(job => job.displayName).join(', ')}"`)
 _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('packages', allowVariations ? Object.values(jobs) : jobs)
 
 function createJobs(input) {
