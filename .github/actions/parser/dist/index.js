@@ -2086,8 +2086,6 @@ if (allowCascading) {
   jobs = {...jobs, ...additionalJobs}
 }
 
-console.log(jobs)
-
 if (onlyChanged) {
   jobs = filterInsignificantJobs(jobs)
 }
@@ -2157,7 +2155,7 @@ function createDependencyJobs(jobs) {
     for (const dependencyName of packages[packageName].dependencies) {
       if (packageNames.includes(dependencyName)) continue
       packageNames.push(dependencyName)
-      packages[dependencyName].jobName = {
+      packages[packages[dependencyName].jobName] = {
         displayName: packages[dependencyName].jobName,
         packageName: packages[dependencyName].name,
         name: packages[dependencyName].jobName,
