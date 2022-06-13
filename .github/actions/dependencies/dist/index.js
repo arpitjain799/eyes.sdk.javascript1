@@ -10250,8 +10250,8 @@ __nccwpck_require__.a(__webpack_module__, async (__webpack_handle_async_dependen
 
 
 const cwd = process.cwd()
-const workflowFilePath = path__WEBPACK_IMPORTED_MODULE_1__.resolve(cwd, '../../workflows/publish-new.yml')
-const packagesPath = path__WEBPACK_IMPORTED_MODULE_1__.resolve(cwd, '../../../packages')
+const workflowFilePath = path__WEBPACK_IMPORTED_MODULE_1__.resolve(cwd, './.github/workflows/publish-new.yml')
+const packagesPath = path__WEBPACK_IMPORTED_MODULE_1__.resolve(cwd, './packages')
 
 const workflow = yaml__WEBPACK_IMPORTED_MODULE_3__.parseDocument(await fs_promises__WEBPACK_IMPORTED_MODULE_2__.readFile(workflowFilePath, {encoding: 'utf8'}))
 

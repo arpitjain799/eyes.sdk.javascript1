@@ -2051,7 +2051,7 @@ const defaultReleaseVersion = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInpu
 
 _actions_core__WEBPACK_IMPORTED_MODULE_0__.notice(`Input provided: "${input}"`)
 
-const packagesPath = path__WEBPACK_IMPORTED_MODULE_1__.resolve(process.cwd(), '../../../packages')
+const packagesPath = path__WEBPACK_IMPORTED_MODULE_1__.resolve(process.cwd(), './packages')
 const packageDirs = await fs_promises__WEBPACK_IMPORTED_MODULE_2__.readdir(packagesPath)
 const packages = await packageDirs.reduce(async (packages, packageDir) => {
   const packageManifestPath = path__WEBPACK_IMPORTED_MODULE_1__.resolve(packagesPath, packageDir, 'package.json')
