@@ -8777,12 +8777,14 @@ const octokit = _actions_github__WEBPACK_IMPORTED_MODULE_1__.getOctokit(process.
 const status = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getState('status')
 
 if (status === 'in_progress'){
-  const run = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getState('run')
+  const runId = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getState('runId')
+
+  console.log({runId})
 
   await octokit.rest.actions.cancelWorkflowRun({
     owner: _actions_github__WEBPACK_IMPORTED_MODULE_1__.context.repo.owner,
     repo: _actions_github__WEBPACK_IMPORTED_MODULE_1__.context.repo.repo,
-    run_id: run.id,
+    run_id: runId,
   })
 }
 

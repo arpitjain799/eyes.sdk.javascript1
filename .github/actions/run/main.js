@@ -9,7 +9,7 @@ const octokit = github.getOctokit(process.env.GITHUB_TOKEN)
 
 let run = await runWorkflow(workflowId)
 
-core.saveState('run', run)
+core.saveState('runId', run.id)
 core.saveState('status', 'in_progress')
 
 core.notice(`Workflow is running: ${run.html_url}`, {title: run.name})

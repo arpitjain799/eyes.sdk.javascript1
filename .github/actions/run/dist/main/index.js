@@ -8789,7 +8789,7 @@ const octokit = _actions_github__WEBPACK_IMPORTED_MODULE_1__.getOctokit(process.
 
 let run = await runWorkflow(workflowId)
 
-_actions_core__WEBPACK_IMPORTED_MODULE_0__.saveState('run', run)
+_actions_core__WEBPACK_IMPORTED_MODULE_0__.saveState('runId', run.id)
 _actions_core__WEBPACK_IMPORTED_MODULE_0__.saveState('status', 'in_progress')
 
 _actions_core__WEBPACK_IMPORTED_MODULE_0__.notice(`Workflow is running: ${run.html_url}`, {title: run.name})

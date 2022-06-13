@@ -5,11 +5,13 @@ const octokit = github.getOctokit(process.env.GITHUB_TOKEN)
 const status = core.getState('status')
 
 if (status === 'in_progress'){
-  const run = core.getState('run')
+  const runId = core.getState('runId')
+
+  console.log({runId})
 
   await octokit.rest.actions.cancelWorkflowRun({
     owner: github.context.repo.owner,
     repo: github.context.repo.repo,
-    run_id: run.id,
+    run_id: runId,
   })
 }
