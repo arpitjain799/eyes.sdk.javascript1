@@ -8781,7 +8781,7 @@ const response = await octokit.rest.actions.getWorkflowRunAttempt({
   owner: _actions_github__WEBPACK_IMPORTED_MODULE_1__.context.repo.owner,
   repo: _actions_github__WEBPACK_IMPORTED_MODULE_1__.context.repo.repo,
   run_id: _actions_github__WEBPACK_IMPORTED_MODULE_1__.context.runId,
-  attempt_number: _actions_github__WEBPACK_IMPORTED_MODULE_1__.context.runNumber,
+  attempt_number: Number(process.env.GITHUB_RUN_ATTEMPT),
 })
 console.log('POST!')
 console.log(process.env)
