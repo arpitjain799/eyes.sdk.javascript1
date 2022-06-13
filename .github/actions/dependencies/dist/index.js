@@ -10282,10 +10282,11 @@ const dependencies = Object.values(packages).reduce((dependencies, manifest) => 
 }, {})
 
 for (const [jobName, {deps, devDeps}] of Object.entries(dependencies)) {
+  console.log(jobName, {deps, devDeps})
   const needs = [
     'setup',
     ...deps,
-    ...devDeps.filter(depName => !dependencies[depName].deps[jobName])
+    ...devDeps.filter(depName => !dependencies[depName].deps.includes(jobName))
   ]
   workflow.setIn(['jobs', jobName, 'needs'], workflow.createNode(needs, {flow: true}))
 }

@@ -163,8 +163,7 @@ jobs:
         utils,
         spec-selenium,
         test-server,
-        test-utils,
-        ufg-client
+        test-utils
       ]
     if: ${{fromJSON(needs.setup.outputs.packages).core}}
     name: core
