@@ -10,7 +10,7 @@ const packagesPath = path.resolve(cwd, '../../../packages')
 const workflow = YAML.parseDocument(await fs.readFile(workflowFilePath, {encoding: 'utf8'}))
 
 const packageDirs = await fs.readdir(packagesPath)
-const packages = packageDirs.reduce(async (packages, packageDir) => {
+const packages = await packageDirs.reduce(async (packages, packageDir) => {
   const packageManifestPath = path.resolve(packagesPath, packageDir, 'package.json')
   if (await fs.stat(packageManifestPath).catch(() => false)) {
     const manifest = JSON.parse(await fs.readFile(packageManifestPath, {encoding: 'utf8'}))

@@ -133,7 +133,7 @@ function createDependencyJobs(jobs) {
         packageName: packages[dependencyName].name,
         name: packages[dependencyName].jobName,
         dirname: packages[dependencyName].dirname,
-        version: defaultReleaseVersion,
+        // version: defaultReleaseVersion,
       }
     }
   }

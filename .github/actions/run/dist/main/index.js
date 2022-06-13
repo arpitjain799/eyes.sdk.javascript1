@@ -8736,6 +8736,13 @@ module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("stream");
 
 /***/ }),
 
+/***/ 8670:
+/***/ ((module) => {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("timers/promises");
+
+/***/ }),
+
 /***/ 4404:
 /***/ ((module) => {
 
@@ -8761,6 +8768,92 @@ module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("util");
 /***/ ((module) => {
 
 module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("zlib");
+
+/***/ }),
+
+/***/ 8335:
+/***/ ((__webpack_module__, __unused_webpack___webpack_exports__, __nccwpck_require__) => {
+
+__nccwpck_require__.a(__webpack_module__, async (__webpack_handle_async_dependencies__) => {
+/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(2186);
+/* harmony import */ var _actions_github__WEBPACK_IMPORTED_MODULE_1__ = __nccwpck_require__(5438);
+/* harmony import */ var timers_promises__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(8670);
+
+
+
+
+const workflowId = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('workflow', {required: true})
+const inputs = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('inputs')
+const ref = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('ref')
+const octokit = _actions_github__WEBPACK_IMPORTED_MODULE_1__.getOctokit(process.env.GITHUB_TOKEN)
+
+let run = await runWorkflow(workflowId)
+
+_actions_core__WEBPACK_IMPORTED_MODULE_0__.notice(`Workflow is running: ${run.html_url}`, {title: run.name})
+
+run = await waitForWorkflowCompleted(run)
+
+if (['cancelled', 'failure', 'timed_out'].includes(run.conclusion)) {
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.error(`Workflow was finished with failure status "${run.conclusion}"`, {title: run.name})
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(`Workflow "${run.name}" was finished with failure status "${run.conclusion}"`)
+  process.exit(1)
+}
+
+if (['action_required', 'neutral', 'skipped', 'stale'].includes(run.conclusion)) {
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.error(`Workflow was finished with unexpected status "${run.conclusion}"`, {title: run.name})
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(`Workflow "${run.name}" was finished with unexpected status "${run.conclusion}"`)
+  process.exit(1)
+}
+
+_actions_core__WEBPACK_IMPORTED_MODULE_0__.notice('Workflow was finished successfully', {title: run.name})
+
+async function runWorkflow(workflowId) {
+  await octokit.rest.actions.createWorkflowDispatch({
+    owner: _actions_github__WEBPACK_IMPORTED_MODULE_1__.context.repo.owner,
+    repo: _actions_github__WEBPACK_IMPORTED_MODULE_1__.context.repo.repo,
+    workflow_id: workflowId,
+    ref,
+    inputs: inputs ? JSON.parse(inputs) : undefined
+  })
+
+  let run
+
+  while (!['queued', 'in_progress'].includes(run?.status)) {
+    await (0,timers_promises__WEBPACK_IMPORTED_MODULE_2__.setTimeout)(3000)
+  
+    const response = await octokit.rest.actions.listWorkflowRuns({
+      owner: _actions_github__WEBPACK_IMPORTED_MODULE_1__.context.repo.owner,
+      repo: _actions_github__WEBPACK_IMPORTED_MODULE_1__.context.repo.repo,
+      workflow_id: workflowId,
+      per_page: 1
+    })
+
+    run = response.data.workflow_runs[0]
+  }
+
+  return run
+}
+
+async function waitForWorkflowCompleted(run) {
+  while (run.status !== 'completed') {
+    await (0,timers_promises__WEBPACK_IMPORTED_MODULE_2__.setTimeout)(3000)
+
+    const response = await octokit.rest.actions.getWorkflowRunAttempt({
+      owner: _actions_github__WEBPACK_IMPORTED_MODULE_1__.context.repo.owner,
+      repo: _actions_github__WEBPACK_IMPORTED_MODULE_1__.context.repo.repo,
+      run_id: run.id,
+      attempt_number: run.run_attempt,
+    })
+
+    run = response.data
+  }
+
+  return run
+}
+
+
+__webpack_handle_async_dependencies__();
+}, 1);
 
 /***/ }),
 
@@ -8804,101 +8897,89 @@ module.exports = JSON.parse('[[[0,44],"disallowed_STD3_valid"],[[45,46],"valid"]
 /******/ }
 /******/ 
 /************************************************************************/
+/******/ /* webpack/runtime/async module */
+/******/ (() => {
+/******/ 	var webpackThen = typeof Symbol === "function" ? Symbol("webpack then") : "__webpack_then__";
+/******/ 	var webpackExports = typeof Symbol === "function" ? Symbol("webpack exports") : "__webpack_exports__";
+/******/ 	var completeQueue = (queue) => {
+/******/ 		if(queue) {
+/******/ 			queue.forEach((fn) => (fn.r--));
+/******/ 			queue.forEach((fn) => (fn.r-- ? fn.r++ : fn()));
+/******/ 		}
+/******/ 	}
+/******/ 	var completeFunction = (fn) => (!--fn.r && fn());
+/******/ 	var queueFunction = (queue, fn) => (queue ? queue.push(fn) : completeFunction(fn));
+/******/ 	var wrapDeps = (deps) => (deps.map((dep) => {
+/******/ 		if(dep !== null && typeof dep === "object") {
+/******/ 			if(dep[webpackThen]) return dep;
+/******/ 			if(dep.then) {
+/******/ 				var queue = [];
+/******/ 				dep.then((r) => {
+/******/ 					obj[webpackExports] = r;
+/******/ 					completeQueue(queue);
+/******/ 					queue = 0;
+/******/ 				});
+/******/ 				var obj = {};
+/******/ 											obj[webpackThen] = (fn, reject) => (queueFunction(queue, fn), dep['catch'](reject));
+/******/ 				return obj;
+/******/ 			}
+/******/ 		}
+/******/ 		var ret = {};
+/******/ 							ret[webpackThen] = (fn) => (completeFunction(fn));
+/******/ 							ret[webpackExports] = dep;
+/******/ 							return ret;
+/******/ 	}));
+/******/ 	__nccwpck_require__.a = (module, body, hasAwait) => {
+/******/ 		var queue = hasAwait && [];
+/******/ 		var exports = module.exports;
+/******/ 		var currentDeps;
+/******/ 		var outerResolve;
+/******/ 		var reject;
+/******/ 		var isEvaluating = true;
+/******/ 		var nested = false;
+/******/ 		var whenAll = (deps, onResolve, onReject) => {
+/******/ 			if (nested) return;
+/******/ 			nested = true;
+/******/ 			onResolve.r += deps.length;
+/******/ 			deps.map((dep, i) => (dep[webpackThen](onResolve, onReject)));
+/******/ 			nested = false;
+/******/ 		};
+/******/ 		var promise = new Promise((resolve, rej) => {
+/******/ 			reject = rej;
+/******/ 			outerResolve = () => (resolve(exports), completeQueue(queue), queue = 0);
+/******/ 		});
+/******/ 		promise[webpackExports] = exports;
+/******/ 		promise[webpackThen] = (fn, rejectFn) => {
+/******/ 			if (isEvaluating) { return completeFunction(fn); }
+/******/ 			if (currentDeps) whenAll(currentDeps, fn, rejectFn);
+/******/ 			queueFunction(queue, fn);
+/******/ 			promise['catch'](rejectFn);
+/******/ 		};
+/******/ 		module.exports = promise;
+/******/ 		body((deps) => {
+/******/ 			if(!deps) return outerResolve();
+/******/ 			currentDeps = wrapDeps(deps);
+/******/ 			var fn, result;
+/******/ 			var promise = new Promise((resolve, reject) => {
+/******/ 				fn = () => (resolve(result = currentDeps.map((d) => (d[webpackExports]))));
+/******/ 				fn.r = 0;
+/******/ 				whenAll(currentDeps, fn, reject);
+/******/ 			});
+/******/ 			return fn.r ? promise : result;
+/******/ 		}).then(outerResolve, reject);
+/******/ 		isEvaluating = false;
+/******/ 	};
+/******/ })();
+/******/ 
 /******/ /* webpack/runtime/compat */
 /******/ 
 /******/ if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = new URL('.', import.meta.url).pathname.slice(import.meta.url.match(/^file:\/\/\/\w:/) ? 1 : 0, -1) + "/";
 /******/ 
 /************************************************************************/
-var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
-(() => {
-
-// EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
-var core = __nccwpck_require__(2186);
-// EXTERNAL MODULE: ./node_modules/@actions/github/lib/github.js
-var github = __nccwpck_require__(5438);
-;// CONCATENATED MODULE: external "timers/promises"
-const promises_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("timers/promises");
-;// CONCATENATED MODULE: ./main.js
-
-
-
-
-const workflowId = core.getInput('workflow', {required: true})
-const ref = core.getInput('ref')
-
-const octokit = github.getOctokit(process.env.GITHUB_TOKEN)
-
-main()
-
-async function main() {
-  let run = await runWorkflow(workflowId)
-
-  core.notice(`Workflow is running: ${run.html_url}`, {title: run.name})
-
-  run = await waitForWorkflowCompleted(run)
-
-  console.log(core.summary.stringify())
-
-  if (['cancelled', 'failure', 'timed_out'].includes(run.conclusion)) {
-    core.error(`Workflow was finished with failure status "${run.conclusion}"`, {title: run.name})
-    return core.setFailed(`Workflow "${run.name}" was finished with failure status "${run.conclusion}"`)
-  }
-
-  if (['action_required', 'neutral', 'skipped', 'stale'].includes(run.conclusion)) {
-    core.error(`Workflow was finished with unexpected status "${run.conclusion}"`, {title: run.name})
-    return core.setFailed(`Workflow "${run.name}" was finished with unexpected status "${run.conclusion}"`)
-  }
-
-  core.notice('Workflow was finished successfully', {title: run.name})
-}
-
-async function runWorkflow(workflowId) {
-  await octokit.rest.actions.createWorkflowDispatch({
-    owner: github.context.repo.owner,
-    repo: github.context.repo.repo,
-    workflow_id: workflowId,
-    ref,
-  });
-
-  return getRunningWorkflow(workflowId)
-
-  async function getRunningWorkflow(workflowId) {
-    const response = await octokit.rest.actions.listWorkflowRuns({
-      owner: github.context.repo.owner,
-      repo: github.context.repo.repo,
-      workflow_id: workflowId,
-      per_page: 1
-    });
-
-    const [run] = response.data.workflow_runs
-
-    if (!['queued', 'in_progress'].includes(run.status)) {
-      await (0,promises_namespaceObject.setTimeout)(3000)
-      return getRunningWorkflow(workflowId)
-    }
-
-    return run
-  }
-}
-
-async function waitForWorkflowCompleted(run) {
-  while (run.status !== 'completed') {
-    await (0,promises_namespaceObject.setTimeout)(3000)
-
-    const response = await octokit.rest.actions.getWorkflowRunAttempt({
-      owner: github.context.repo.owner,
-      repo: github.context.repo.repo,
-      run_id: run.id,
-      attempt_number: run.run_attempt,
-    });
-
-    run = response.data
-  }
-
-  return run
-}
-
-
-})();
-
+/******/ 
+/******/ // startup
+/******/ // Load entry module and return exports
+/******/ // This entry module used 'module' so it can't be inlined
+/******/ var __webpack_exports__ = __nccwpck_require__(8335);
+/******/ __webpack_exports__ = await __webpack_exports__;
+/******/ 

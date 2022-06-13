@@ -11,12 +11,14 @@ on:
         type: choice
         options: [ patch, minor, major ]
         default: patch
-        required: false
       allow-cascading:
-        description: allow cascading
+        description: publish also dependencies
         type: boolean
         default: true
-        required: false
+      only-changed:
+        description: publish only packages with new commits
+        type: boolean
+        default: true
 env:
   CVG_TESTS_REMOTE: http://localhost:4444/wd/hub
   CVG_TESTS_EG_REMOTE: ${{secrets.CVG_TESTS_EG_REMOTE}}
@@ -47,6 +49,7 @@ jobs:
 
   # INTERNAL
   types:
+    needs: [ setup, bongo ]
     if: ${{fromJSON(needs.setup.outputs.packages).types}}
     name: types
     runs-on: ubuntu-latest
@@ -61,6 +64,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   utils:
+    needs: [ setup, bongo ]
     if: ${{fromJSON(needs.setup.outputs.packages).utils}}
     name: utils
     runs-on: ubuntu-latest
@@ -75,6 +79,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   logger:
+    needs: [ setup, utils, bongo ]
     if: ${{fromJSON(needs.setup.outputs.packages).logger}}
     name: logger
     runs-on: ubuntu-latest
@@ -89,6 +94,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   snippets:
+    needs: [ setup, bongo ]
     if: ${{fromJSON(needs.setup.outputs.packages).snippets}}
     name: snippets
     runs-on: ubuntu-latest
@@ -103,6 +109,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   screenshoter:
+    needs:
+      [
+        setup,
+        logger,
+        snippets,
+        utils,
+        bongo,
+        driver,
+        scripts,
+        spec-webdriverio,
+        test-utils
+      ]
     if: ${{fromJSON(needs.setup.outputs.packages).screenshoter}}
     name: screenshoter
     runs-on: ubuntu-latest
@@ -117,6 +135,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   driver:
+    needs: [ setup, logger, snippets, types, utils, bongo ]
     if: ${{fromJSON(needs.setup.outputs.packages).driver}}
     name: driver
     runs-on: ubuntu-latest
@@ -133,6 +152,22 @@ jobs:
 
   # CORE
   core:
+    needs:
+      [
+        setup,
+        driver,
+        eg-client,
+        logger,
+        screenshoter,
+        snippets,
+        types,
+        utils,
+        bongo,
+        spec-selenium,
+        test-server,
+        test-utils,
+        ufg-client
+      ]
     if: ${{fromJSON(needs.setup.outputs.packages).core}}
     name: core
     runs-on: ubuntu-latest
@@ -147,6 +182,16 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   ufg-client:
+    needs:
+      [
+        setup,
+        core,
+        logger,
+        bongo,
+        test-server,
+        test-utils,
+        utils
+      ]
     if: ${{fromJSON(needs.setup.outputs.packages).ufg-client}}
     name: ufg-client
     runs-on: ubuntu-latest
@@ -161,6 +206,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   eg-client:
+    needs: [ setup, logger, utils, bongo ]
     if: ${{fromJSON(needs.setup.outputs.packages).eg-client}}
     name: eg-client
     runs-on: ubuntu-latest
@@ -175,6 +221,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   universal:
+    needs:
+      [
+        setup,
+        eg-client,
+        core,
+        logger,
+        utils,
+        ufg-client,
+        bongo,
+        test-utils,
+        types
+      ]
     if: ${{fromJSON(needs.setup.outputs.packages).universal}}
     name: universal
     runs-on: ubuntu-latest
@@ -189,6 +247,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   api:
+    needs: [ setup, logger, types, utils, bongo ]
     if: ${{fromJSON(needs.setup.outputs.packages).api}}
     name: api
     runs-on: ubuntu-latest
@@ -205,6 +264,7 @@ jobs:
 
   # SPEC DRIVERS
   spec-playwright:
+    needs: [ setup, types, utils, bongo, scripts, test-utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).spec-playwright}}
     name: spec-playwright
     runs-on: ubuntu-latest
@@ -219,6 +279,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   spec-puppeteer:
+    needs: [ setup, types, utils, bongo, scripts, test-utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).spec-puppeteer}}
     name: spec-puppeteer
     runs-on: ubuntu-latest
@@ -233,6 +294,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   spec-selenium:
+    needs: [ setup, types, utils, bongo, scripts, test-utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).spec-selenium}}
     name: spec-selenium
     runs-on: ubuntu-latest
@@ -247,6 +309,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   spec-webdriverio:
+    needs: [ setup, types, utils, bongo, scripts, test-utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).spec-webdriverio}}
     name: spec-webdriverio
     runs-on: ubuntu-latest
@@ -263,6 +326,17 @@ jobs:
 
   # SDKS
   playwright:
+    needs:
+      [
+        setup,
+        api,
+        core,
+        spec-playwright,
+        ufg-client,
+        bongo,
+        scripts,
+        test-utils
+      ]
     if: ${{fromJSON(needs.setup.outputs.packages).playwright}}
     name: playwright
     runs-on: ubuntu-latest
@@ -277,6 +351,17 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   puppeteer:
+    needs:
+      [
+        setup,
+        api,
+        core,
+        spec-puppeteer,
+        ufg-client,
+        bongo,
+        scripts,
+        test-utils
+      ]
     if: ${{fromJSON(needs.setup.outputs.packages).puppeteer}}
     name: puppeteer
     runs-on: ubuntu-latest
@@ -291,6 +376,17 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   webdriverio:
+    needs:
+      [
+        setup,
+        api,
+        core,
+        spec-webdriverio,
+        ufg-client,
+        bongo,
+        scripts,
+        test-utils
+      ]
     if: ${{fromJSON(needs.setup.outputs.packages).webdriverio}}
     name: webdriverio
     runs-on: ubuntu-latest
@@ -305,6 +401,17 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   selenium:
+    needs:
+      [
+        setup,
+        api,
+        core,
+        spec-selenium,
+        ufg-client,
+        bongo,
+        scripts,
+        test-utils
+      ]
     if: ${{fromJSON(needs.setup.outputs.packages).selenium}}
     name: selenium
     runs-on: ubuntu-latest
@@ -319,6 +426,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   protractor:
+    needs:
+      [
+        setup,
+        api,
+        core,
+        types,
+        utils,
+        ufg-client,
+        bongo,
+        scripts,
+        test-utils
+      ]
     if: ${{fromJSON(needs.setup.outputs.packages).protractor}}
     name: protractor
     runs-on: ubuntu-latest
@@ -333,6 +452,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   nightwatch:
+    needs:
+      [
+        setup,
+        api,
+        core,
+        types,
+        utils,
+        ufg-client,
+        bongo,
+        scripts,
+        test-utils
+      ]
     if: ${{fromJSON(needs.setup.outputs.packages).nightwatch}}
     name: nightwatch
     runs-on: ubuntu-latest
@@ -347,6 +478,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   testcafe:
+    needs:
+      [
+        setup,
+        api,
+        core,
+        utils,
+        ufg-client,
+        bongo,
+        scripts,
+        test-server,
+        test-utils
+      ]
     if: ${{fromJSON(needs.setup.outputs.packages).testcafe}}
     name: testcafe
     runs-on: ubuntu-latest
@@ -361,6 +504,20 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   cypress:
+    needs:
+      [
+        setup,
+        api,
+        universal,
+        logger,
+        ufg-client,
+        bongo,
+        scripts,
+        test-server,
+        test-utils,
+        types,
+        utils
+      ]
     if: ${{fromJSON(needs.setup.outputs.packages).cypress}}
     name: cypress
     runs-on: ubuntu-latest
@@ -375,6 +532,17 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   browser-extension:
+    needs:
+      [
+        setup,
+        core,
+        utils,
+        ufg-client,
+        bongo,
+        scripts,
+        spec-playwright,
+        test-utils
+      ]
     if: ${{fromJSON(needs.setup.outputs.packages).browser-extension}}
     name: browser-extension
     runs-on: ubuntu-latest
@@ -389,6 +557,19 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   storybook:
+    needs:
+      [
+        setup,
+        driver,
+        core,
+        logger,
+        spec-puppeteer,
+        test-server,
+        utils,
+        ufg-client,
+        bongo,
+        scripts
+      ]
     if: ${{fromJSON(needs.setup.outputs.packages).storybook}}
     name: storybook
     runs-on: ubuntu-latest
@@ -405,6 +586,7 @@ jobs:
 
   # SDK WRAPPERS
   webdriverio-service:
+    needs: [ setup, webdriverio, bongo, test-utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).webdriverio-service}}
     name: webdriverio-service
     runs-on: ubuntu-latest
@@ -421,6 +603,7 @@ jobs:
 
   # TESTING BASE
   test-utils:
+    needs: [ setup, bongo ]
     if: ${{fromJSON(needs.setup.outputs.packages).test-utils}}
     name: test-utils
     runs-on: ubuntu-latest
@@ -435,6 +618,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   test-server:
+    needs: [ setup, utils, bongo ]
     if: ${{fromJSON(needs.setup.outputs.packages).test-server}}
     name: test-server
     runs-on: ubuntu-latest

@@ -10256,7 +10256,7 @@ const packagesPath = path__WEBPACK_IMPORTED_MODULE_1__.resolve(cwd, '../../../pa
 const workflow = yaml__WEBPACK_IMPORTED_MODULE_3__.parseDocument(await fs_promises__WEBPACK_IMPORTED_MODULE_2__.readFile(workflowFilePath, {encoding: 'utf8'}))
 
 const packageDirs = await fs_promises__WEBPACK_IMPORTED_MODULE_2__.readdir(packagesPath)
-const packages = packageDirs.reduce(async (packages, packageDir) => {
+const packages = await packageDirs.reduce(async (packages, packageDir) => {
   const packageManifestPath = path__WEBPACK_IMPORTED_MODULE_1__.resolve(packagesPath, packageDir, 'package.json')
   if (await fs_promises__WEBPACK_IMPORTED_MODULE_2__.stat(packageManifestPath).catch(() => false)) {
     const manifest = JSON.parse(await fs_promises__WEBPACK_IMPORTED_MODULE_2__.readFile(packageManifestPath, {encoding: 'utf8'}))

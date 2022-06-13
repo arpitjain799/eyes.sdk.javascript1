@@ -15,12 +15,14 @@ run = await waitForWorkflowCompleted(run)
 
 if (['cancelled', 'failure', 'timed_out'].includes(run.conclusion)) {
   core.error(`Workflow was finished with failure status "${run.conclusion}"`, {title: run.name})
-  return core.setFailed(`Workflow "${run.name}" was finished with failure status "${run.conclusion}"`)
+  core.setFailed(`Workflow "${run.name}" was finished with failure status "${run.conclusion}"`)
+  process.exit(1)
 }
 
 if (['action_required', 'neutral', 'skipped', 'stale'].includes(run.conclusion)) {
   core.error(`Workflow was finished with unexpected status "${run.conclusion}"`, {title: run.name})
-  return core.setFailed(`Workflow "${run.name}" was finished with unexpected status "${run.conclusion}"`)
+  core.setFailed(`Workflow "${run.name}" was finished with unexpected status "${run.conclusion}"`)
+  process.exit(1)
 }
 
 core.notice('Workflow was finished successfully', {title: run.name})

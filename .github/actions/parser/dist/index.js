@@ -2044,9 +2044,9 @@ const OS = {
 }
 
 const input = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('packages', {required: true})
-const allowVariations = false //core.getBooleanInput('allow-variations')
-const allowCascading = true //core.getBooleanInput('allow-cascading')
-const onlyChanged = true //core.getBooleanInput('only-changed')
+const allowVariations = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getBooleanInput('allow-variations')
+const allowCascading = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getBooleanInput('allow-cascading')
+const onlyChanged = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getBooleanInput('only-changed')
 const defaultReleaseVersion = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('release-version')
 
 _actions_core__WEBPACK_IMPORTED_MODULE_0__.notice(`Input provided: "${input}"`)
@@ -2135,7 +2135,7 @@ function createJobs(input) {
       packageName: packageInfo.name,
       name: packageInfo.jobName,
       dirname: packageInfo.dirname,
-      releaseVersion,
+      version: releaseVersion,
       os: OS[jobOS ?? 'linux'],
       node: nodeVersion ?? 'lts/*',
       env: {
@@ -2164,7 +2164,7 @@ function createDependencyJobs(jobs) {
         packageName: packages[dependencyName].name,
         name: packages[dependencyName].jobName,
         dirname: packages[dependencyName].dirname,
-        releaseVersion: defaultReleaseVersion,
+        // version: defaultReleaseVersion,
       }
     }
   }
@@ -2174,8 +2174,15 @@ function createDependencyJobs(jobs) {
 
 function filterInsignificantJobs(jobs) {
   const filteredJobs = Object.entries(jobs).reduce((filteredJobs, [jobName, job]) => {
-    const commits = (0,child_process__WEBPACK_IMPORTED_MODULE_3__.execSync)(`git log $(git describe --tags --match "${job.packageName}@*" --abbrev=0)..HEAD --oneline -- ${path__WEBPACK_IMPORTED_MODULE_1__.resolve(packagesPath, job.dirname)}`, {encoding: 'utf8'})
-    if (commits) filteredJobs[jobName] = job
+    let tag
+    try { 
+      tag = (0,child_process__WEBPACK_IMPORTED_MODULE_3__.execSync)(`git describe --tags --match "${job.packageName}@*" --abbrev=0`, {encoding: 'utf-8'})
+    } catch {}
+    if (tag) {
+      const commits = (0,child_process__WEBPACK_IMPORTED_MODULE_3__.execSync)(`git log ${tag.trim()}..HEAD --oneline -- ${path__WEBPACK_IMPORTED_MODULE_1__.resolve(packagesPath, job.dirname)}`, {encoding: 'utf8'})
+      if (!commits) return filteredJobs
+    }
+    filteredJobs[jobName] = job
     return filteredJobs
   }, {})
   let more = true
