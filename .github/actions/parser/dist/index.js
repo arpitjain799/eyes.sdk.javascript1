@@ -2096,7 +2096,7 @@ if (onlyChanged) {
 
 _actions_core__WEBPACK_IMPORTED_MODULE_0__.notice(`Jobs created: "${Object.values(jobs).map(job => job.displayName).join(', ')}"`)
 
-// core.setOutput('packages', allowVariations ? Object.values(jobs) : jobs)
+_actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('packages', allowVariations ? Object.values(jobs) : jobs)
 
 function createJobs(input) {
   return input.split(/[\s,]+/).reduce((jobs, input) => {

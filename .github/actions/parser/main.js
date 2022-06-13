@@ -65,7 +65,7 @@ if (onlyChanged) {
 
 core.notice(`Jobs created: "${Object.values(jobs).map(job => job.displayName).join(', ')}"`)
 
-// core.setOutput('packages', allowVariations ? Object.values(jobs) : jobs)
+core.setOutput('packages', allowVariations ? Object.values(jobs) : jobs)
 
 function createJobs(input) {
   return input.split(/[\s,]+/).reduce((jobs, input) => {
