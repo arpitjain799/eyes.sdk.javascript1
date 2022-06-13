@@ -8793,6 +8793,8 @@ _actions_core__WEBPACK_IMPORTED_MODULE_0__.notice(`Workflow is running: ${run.ht
 
 run = await waitForWorkflowCompleted(run)
 
+_actions_core__WEBPACK_IMPORTED_MODULE_0__.saveState('run', run)
+
 if (['cancelled', 'failure', 'timed_out'].includes(run.conclusion)) {
   _actions_core__WEBPACK_IMPORTED_MODULE_0__.error(`Workflow was finished with failure status "${run.conclusion}"`, {title: run.name})
   _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(`Workflow "${run.name}" was finished with failure status "${run.conclusion}"`)

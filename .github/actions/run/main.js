@@ -13,6 +13,8 @@ core.notice(`Workflow is running: ${run.html_url}`, {title: run.name})
 
 run = await waitForWorkflowCompleted(run)
 
+core.saveState('run', run)
+
 if (['cancelled', 'failure', 'timed_out'].includes(run.conclusion)) {
   core.error(`Workflow was finished with failure status "${run.conclusion}"`, {title: run.name})
   core.setFailed(`Workflow "${run.name}" was finished with failure status "${run.conclusion}"`)
