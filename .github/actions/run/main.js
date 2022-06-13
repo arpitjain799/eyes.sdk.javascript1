@@ -9,23 +9,28 @@ const octokit = github.getOctokit(process.env.GITHUB_TOKEN)
 
 let run = await runWorkflow(workflowId)
 
+core.saveState('run', run)
+core.saveState('status', 'in_progress')
+
 core.notice(`Workflow is running: ${run.html_url}`, {title: run.name})
 
 run = await waitForWorkflowCompleted(run)
 
-core.saveState('run', run)
-
 if (['cancelled', 'failure', 'timed_out'].includes(run.conclusion)) {
+  core.saveState('status', 'failure')
   core.error(`Workflow was finished with failure status "${run.conclusion}"`, {title: run.name})
   core.setFailed(`Workflow "${run.name}" was finished with failure status "${run.conclusion}"`)
   process.exit(1)
 }
 
 if (['action_required', 'neutral', 'skipped', 'stale'].includes(run.conclusion)) {
+  core.saveState('status', 'failure')
   core.error(`Workflow was finished with unexpected status "${run.conclusion}"`, {title: run.name})
   core.setFailed(`Workflow "${run.name}" was finished with unexpected status "${run.conclusion}"`)
   process.exit(1)
 }
+
+core.saveState('status', 'success')
 
 core.notice('Workflow was finished successfully', {title: run.name})
 

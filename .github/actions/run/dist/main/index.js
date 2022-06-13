@@ -8789,23 +8789,28 @@ const octokit = _actions_github__WEBPACK_IMPORTED_MODULE_1__.getOctokit(process.
 
 let run = await runWorkflow(workflowId)
 
+_actions_core__WEBPACK_IMPORTED_MODULE_0__.saveState('run', run)
+_actions_core__WEBPACK_IMPORTED_MODULE_0__.saveState('status', 'in_progress')
+
 _actions_core__WEBPACK_IMPORTED_MODULE_0__.notice(`Workflow is running: ${run.html_url}`, {title: run.name})
 
 run = await waitForWorkflowCompleted(run)
 
-_actions_core__WEBPACK_IMPORTED_MODULE_0__.saveState('run', run)
-
 if (['cancelled', 'failure', 'timed_out'].includes(run.conclusion)) {
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.saveState('status', 'failure')
   _actions_core__WEBPACK_IMPORTED_MODULE_0__.error(`Workflow was finished with failure status "${run.conclusion}"`, {title: run.name})
   _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(`Workflow "${run.name}" was finished with failure status "${run.conclusion}"`)
   process.exit(1)
 }
 
 if (['action_required', 'neutral', 'skipped', 'stale'].includes(run.conclusion)) {
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.saveState('status', 'failure')
   _actions_core__WEBPACK_IMPORTED_MODULE_0__.error(`Workflow was finished with unexpected status "${run.conclusion}"`, {title: run.name})
   _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(`Workflow "${run.name}" was finished with unexpected status "${run.conclusion}"`)
   process.exit(1)
 }
+
+_actions_core__WEBPACK_IMPORTED_MODULE_0__.saveState('status', 'success')
 
 _actions_core__WEBPACK_IMPORTED_MODULE_0__.notice('Workflow was finished successfully', {title: run.name})
 

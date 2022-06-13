@@ -8774,20 +8774,17 @@ __nccwpck_require__.a(__webpack_module__, async (__webpack_handle_async_dependen
 
 
 const octokit = _actions_github__WEBPACK_IMPORTED_MODULE_1__.getOctokit(process.env.GITHUB_TOKEN)
-const run = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getState('run')
+const status = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getState('status')
 
+if (status === 'in_progress'){
+  const run = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getState('run')
 
-const response = await octokit.rest.actions.getWorkflowRunAttempt({
-  owner: _actions_github__WEBPACK_IMPORTED_MODULE_1__.context.repo.owner,
-  repo: _actions_github__WEBPACK_IMPORTED_MODULE_1__.context.repo.repo,
-  run_id: _actions_github__WEBPACK_IMPORTED_MODULE_1__.context.runId,
-  attempt_number: Number(process.env.GITHUB_RUN_ATTEMPT),
-})
-console.log('POST!')
-console.log(process.env)
-console.log(response.data)
-
-console.log(run)
+  await octokit.rest.actions.cancelWorkflowRun({
+    owner: _actions_github__WEBPACK_IMPORTED_MODULE_1__.context.repo.owner,
+    repo: _actions_github__WEBPACK_IMPORTED_MODULE_1__.context.repo.repo,
+    run_id: run.id,
+  })
+}
 
 __webpack_handle_async_dependencies__();
 }, 1);
