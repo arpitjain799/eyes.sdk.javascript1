@@ -1,5 +1,5 @@
 {
-  "name": "@applitools/action-run",
+  "name": "@applitools/action-dependencies",
   "version": "1.0.0",
   "type": "module",
   "scripts": {

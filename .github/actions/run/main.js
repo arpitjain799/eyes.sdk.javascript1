@@ -3,6 +3,7 @@ import * as github from '@actions/github'
 import {setTimeout} from 'timers/promises'
 
 const workflowId = core.getInput('workflow', {required: true})
+const inputs = core.getInput('inputs')
 const ref = core.getInput('ref')
 const octokit = github.getOctokit(process.env.GITHUB_TOKEN)
 
@@ -30,6 +31,7 @@ async function runWorkflow(workflowId) {
     repo: github.context.repo.repo,
     workflow_id: workflowId,
     ref,
+    inputs: inputs ? JSON.parse(inputs) : undefined
   })
 
   let run

@@ -10241,19 +10241,56 @@ exports.visitAsync = visitAsync;
 
 __nccwpck_require__.a(__webpack_module__, async (__webpack_handle_async_dependencies__) => {
 /* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(2186);
-/* harmony import */ var yaml__WEBPACK_IMPORTED_MODULE_1__ = __nccwpck_require__(4083);
-/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(1017);
-/* harmony import */ var fs_promises__WEBPACK_IMPORTED_MODULE_3__ = __nccwpck_require__(3292);
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1__ = __nccwpck_require__(1017);
+/* harmony import */ var fs_promises__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(3292);
+/* harmony import */ var yaml__WEBPACK_IMPORTED_MODULE_3__ = __nccwpck_require__(4083);
 
 
 
 
 
-const workflowFilePath = (0,path__WEBPACK_IMPORTED_MODULE_2__.resolve)(process.cwd(), '../../workflows/publish-new.yml')
+const cwd = process.cwd()
+const workflowFilePath = path__WEBPACK_IMPORTED_MODULE_1__.resolve(cwd, '../../workflows/publish-new.yml')
+const packagesPath = path__WEBPACK_IMPORTED_MODULE_1__.resolve(cwd, '../../../packages')
 
-const workflow = yaml__WEBPACK_IMPORTED_MODULE_1__.parse(await (0,fs_promises__WEBPACK_IMPORTED_MODULE_3__.readFile)(workflowFilePath, {encoding: 'utf8'}))
+const workflow = yaml__WEBPACK_IMPORTED_MODULE_3__.parseDocument(await fs_promises__WEBPACK_IMPORTED_MODULE_2__.readFile(workflowFilePath, {encoding: 'utf8'}))
 
-console.log(workflow)
+const packageDirs = await fs_promises__WEBPACK_IMPORTED_MODULE_2__.readdir(packagesPath)
+const packages = packageDirs.reduce(async (packages, packageDir) => {
+  const packageManifestPath = path__WEBPACK_IMPORTED_MODULE_1__.resolve(packagesPath, packageDir, 'package.json')
+  if (await fs_promises__WEBPACK_IMPORTED_MODULE_2__.stat(packageManifestPath).catch(() => false)) {
+    const manifest = JSON.parse(await fs_promises__WEBPACK_IMPORTED_MODULE_2__.readFile(packageManifestPath, {encoding: 'utf8'}))
+    manifest.aliases ??= [packageDir]
+    const [jobName] = manifest.aliases
+    if (workflow.hasIn(['jobs', jobName])) {
+      packages = await packages
+      packages[manifest.name] = manifest
+    } else {
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.warning(`There is no job for package "${manifest.name}"`)
+    }
+  }
+  return packages
+}, Promise.resolve({}))
+
+const dependencies = Object.values(packages).reduce((dependencies, manifest) => {
+  const [jobName] = manifest.aliases
+  dependencies[jobName] = {
+    deps: Object.keys(manifest.dependencies ?? {}).reduce((deps, depName) => packages[depName] ? deps.concat(packages[depName].aliases[0]) : deps, []),
+    devDeps: Object.keys(manifest.devDependencies ?? {}).reduce((deps, depName) => packages[depName] ? deps.concat(packages[depName].aliases[0]) : deps, []),
+  }
+  return dependencies
+}, {})
+
+for (const [jobName, {deps, devDeps}] of Object.entries(dependencies)) {
+  const needs = [
+    'setup',
+    ...deps,
+    ...devDeps.filter(depName => !dependencies[depName].deps[jobName])
+  ]
+  workflow.setIn(['jobs', jobName, 'needs'], workflow.createNode(needs, {flow: true}))
+}
+
+await fs_promises__WEBPACK_IMPORTED_MODULE_2__.writeFile(workflowFilePath, yaml__WEBPACK_IMPORTED_MODULE_3__.stringify(workflow))
 __webpack_handle_async_dependencies__();
 }, 1);
 
