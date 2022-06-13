@@ -2155,7 +2155,7 @@ function createDependencyJobs(jobs) {
     for (const dependencyName of packages[packageName].dependencies) {
       if (packageNames.includes(dependencyName)) continue
       packageNames.push(dependencyName)
-      packages[packages[dependencyName].jobName] = {
+      dependencyJobs[packages[dependencyName].jobName] = {
         displayName: packages[dependencyName].jobName,
         packageName: packages[dependencyName].name,
         name: packages[dependencyName].jobName,
