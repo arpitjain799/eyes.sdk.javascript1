@@ -9,7 +9,7 @@ const response = await octokit.rest.actions.getWorkflowRunAttempt({
   owner: github.context.repo.owner,
   repo: github.context.repo.repo,
   run_id: github.context.runId,
-  attempt_number: github.context.runNumber,
+  attempt_number: Number(process.env.GITHUB_RUN_ATTEMPT),
 })
 console.log('POST!')
 console.log(process.env)
