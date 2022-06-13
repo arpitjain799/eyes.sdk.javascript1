@@ -61,7 +61,7 @@ jobs:
         uses: ./.github/actions/run
         with:
           workflow: publish-types.yml
-          inputs: ${{toJSON(fromJSON(needs.setup.outputs.packages).types)}}
+          inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).types.version}}"}'
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   utils:
@@ -76,7 +76,7 @@ jobs:
         uses: ./.github/actions/run
         with:
           workflow: publish-utils.yml
-          inputs: ${{toJSON(fromJSON(needs.setup.outputs.packages).utils)}}
+          inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).utils.version}}"}'
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   logger:
@@ -91,7 +91,7 @@ jobs:
         uses: ./.github/actions/run
         with:
           workflow: publish-logger.yml
-          inputs: ${{toJSON(fromJSON(needs.setup.outputs.packages).logger)}}
+          inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).logger.version}}"}'
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   snippets:
@@ -106,7 +106,7 @@ jobs:
         uses: ./.github/actions/run
         with:
           workflow: publish-snippets.yml
-          inputs: ${{toJSON(fromJSON(needs.setup.outputs.packages).snippets)}}
+          inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).snippets.version}}"}'
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   screenshoter:
@@ -130,7 +130,7 @@ jobs:
         uses: ./.github/actions/run
         with:
           workflow: publish-screenshoter.yml
-          inputs: ${{toJSON(fromJSON(needs.setup.outputs.packages).screenshoter)}}
+          inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).screenshoter.version}}"}'
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   driver:
@@ -145,7 +145,7 @@ jobs:
         uses: ./.github/actions/run
         with:
           workflow: publish-driver.yml
-          inputs: ${{toJSON(fromJSON(needs.setup.outputs.packages).driver)}}
+          inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).driver.version}}"}'
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
 
@@ -177,7 +177,7 @@ jobs:
           workflow: publish-core.yml
           inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).core.version}}"}'
         env:
-          GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
+          GITHUB_TOKEN: ${{github.token}}
   ufg-client:
     needs: [ setup, core, logger, test-server, test-utils, utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).ufg-client && !failure() && !cancelled()}}
@@ -190,7 +190,7 @@ jobs:
         uses: ./.github/actions/run
         with:
           workflow: publish-ufg-client.yml
-          inputs: ${{toJSON(fromJSON(needs.setup.outputs.packages).ufg-client)}}
+          inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).ufg-client.version}}"}'
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   eg-client:
@@ -205,7 +205,7 @@ jobs:
         uses: ./.github/actions/run
         with:
           workflow: publish-eg-client.yml
-          inputs: ${{toJSON(fromJSON(needs.setup.outputs.packages).eg-client)}}
+          inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).eg-client.version}}"}'
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   universal:
@@ -230,7 +230,7 @@ jobs:
         uses: ./.github/actions/run
         with:
           workflow: publish-universal.yml
-          inputs: ${{toJSON(fromJSON(needs.setup.outputs.packages).universal)}}
+          inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).universal.version}}"}'
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   api:
@@ -245,7 +245,7 @@ jobs:
         uses: ./.github/actions/run
         with:
           workflow: publish-api.yml
-          inputs: ${{toJSON(fromJSON(needs.setup.outputs.packages).api)}}
+          inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).api.version}}"}'
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
 
@@ -262,7 +262,7 @@ jobs:
         uses: ./.github/actions/run
         with:
           workflow: publish-spec-playwright.yml
-          inputs: ${{toJSON(fromJSON(needs.setup.outputs.packages).spec-playwright)}}
+          inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).spec-playwright.version}}"}'
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   spec-puppeteer:
@@ -277,7 +277,7 @@ jobs:
         uses: ./.github/actions/run
         with:
           workflow: publish-spec-puppeteer.yml
-          inputs: ${{toJSON(fromJSON(needs.setup.outputs.packages).spec-puppeteer)}}
+          inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).spec-puppeteer.version}}"}'
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   spec-selenium:
@@ -292,7 +292,7 @@ jobs:
         uses: ./.github/actions/run
         with:
           workflow: publish-spec-selenium.yml
-          inputs: ${{toJSON(fromJSON(needs.setup.outputs.packages).spec-selenium)}}
+          inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).spec-selenium.version}}"}'
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   spec-webdriverio:
@@ -307,7 +307,7 @@ jobs:
         uses: ./.github/actions/run
         with:
           workflow: publish-spec-webdriverio.yml
-          inputs: ${{toJSON(fromJSON(needs.setup.outputs.packages).spec-webdriverio)}}
+          inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).spec-webdriverio.version}}"}'
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
 
@@ -332,7 +332,7 @@ jobs:
         uses: ./.github/actions/run
         with:
           workflow: publish-playwright.yml
-          inputs: ${{toJSON(fromJSON(needs.setup.outputs.packages).playwright)}}
+          inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).playwright.version}}"}'
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   puppeteer:
@@ -355,7 +355,7 @@ jobs:
         uses: ./.github/actions/run
         with:
           workflow: publish-puppeteer.yml
-          inputs: ${{toJSON(fromJSON(needs.setup.outputs.packages).puppeteer)}}
+          inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).puppeteer.version}}"}'
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   webdriverio:
@@ -378,7 +378,7 @@ jobs:
         uses: ./.github/actions/run
         with:
           workflow: publish-webdriverio.yml
-          inputs: ${{toJSON(fromJSON(needs.setup.outputs.packages).webdriverio)}}
+          inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).webdriverio.version}}"}'
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   selenium:
@@ -401,7 +401,7 @@ jobs:
         uses: ./.github/actions/run
         with:
           workflow: publish-selenium.yml
-          inputs: ${{toJSON(fromJSON(needs.setup.outputs.packages).selenium)}}
+          inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).selenium.version}}"}'
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   protractor:
@@ -425,7 +425,7 @@ jobs:
         uses: ./.github/actions/run
         with:
           workflow: publish-protractor.yml
-          inputs: ${{toJSON(fromJSON(needs.setup.outputs.packages).protractor)}}
+          inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).protractor.version}}"}'
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   nightwatch:
@@ -449,7 +449,7 @@ jobs:
         uses: ./.github/actions/run
         with:
           workflow: publish-nightwatch.yml
-          inputs: ${{toJSON(fromJSON(needs.setup.outputs.packages).nightwatch)}}
+          inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).nightwatch.version}}"}'
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   testcafe:
@@ -473,7 +473,7 @@ jobs:
         uses: ./.github/actions/run
         with:
           workflow: publish-testcafe.yml
-          inputs: ${{toJSON(fromJSON(needs.setup.outputs.packages).testcafe)}}
+          inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).testcafe.version}}"}'
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   cypress:
@@ -499,7 +499,7 @@ jobs:
         uses: ./.github/actions/run
         with:
           workflow: publish-cypress.yml
-          inputs: ${{toJSON(fromJSON(needs.setup.outputs.packages).cypress)}}
+          inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).cypress.version}}"}'
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   browser-extension:
@@ -522,7 +522,7 @@ jobs:
         uses: ./.github/actions/run
         with:
           workflow: publish-browser-extension.yml
-          inputs: ${{toJSON(fromJSON(needs.setup.outputs.packages).browser-extension)}}
+          inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).browser-extension.version}}"}'
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   storybook:
@@ -547,7 +547,7 @@ jobs:
         uses: ./.github/actions/run
         with:
           workflow: publish-storybook.yml
-          inputs: ${{toJSON(fromJSON(needs.setup.outputs.packages).storybook)}}
+          inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).storybook.version}}"}'
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
 
@@ -564,7 +564,7 @@ jobs:
         uses: ./.github/actions/run
         with:
           workflow: publish-webdriverio-service.yml
-          inputs: ${{toJSON(fromJSON(needs.setup.outputs.packages).webdriverio-service)}}
+          inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).webdriverio-service.version}}"}'
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
 
@@ -581,7 +581,7 @@ jobs:
         uses: ./.github/actions/run
         with:
           workflow: publish-test-utils.yml
-          inputs: ${{toJSON(fromJSON(needs.setup.outputs.packages).test-utils)}}
+          inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).test-utils.version}}"}'
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   test-server:
@@ -596,6 +596,6 @@ jobs:
         uses: ./.github/actions/run
         with:
           workflow: publish-test-server.yml
-          inputs: ${{toJSON(fromJSON(needs.setup.outputs.packages).test-server)}}
+          inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).test-server.version}}"}'
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}

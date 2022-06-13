@@ -8779,8 +8779,6 @@ const status = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getState('status')
 if (status === 'in_progress'){
   const runId = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getState('runId')
 
-  console.log({runId})
-
   await octokit.rest.actions.cancelWorkflowRun({
     owner: _actions_github__WEBPACK_IMPORTED_MODULE_1__.context.repo.owner,
     repo: _actions_github__WEBPACK_IMPORTED_MODULE_1__.context.repo.repo,
