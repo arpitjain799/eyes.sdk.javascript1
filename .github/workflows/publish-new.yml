@@ -175,7 +175,7 @@ jobs:
         uses: ./.github/actions/run
         with:
           workflow: publish-core.yml
-          inputs: ${{toJSON(fromJSON(needs.setup.outputs.packages).core)}}
+          inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).core.version}}"}'
         env:
           GITHUB_TOKEN: ${{secrets.RUN_GITHUB_TOKEN}}
   ufg-client:

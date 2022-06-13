@@ -9,6 +9,9 @@ inputs:
     description: branch or tag name
     type: string
     default: ${{github.ref}}
+  inputs:
+    description: workflow inputs
+    type: string
 runs:
   using: node16
   main: dist/main/index.js
