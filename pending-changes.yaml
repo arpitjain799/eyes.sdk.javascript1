@@ -12,24 +12,24 @@ Apollo SDK:
   feature:
     - 
   bug-fix:
-    - 
+    - Fixed native screenshots of the elements under large collapsing areas
 "@applitools/eyes-selenium":
   feature:
-    - 
+    - Add the ability for the SDK to lazy load the page prior to performing a check window
   bug-fix:
     - Fix issue that prevented self-signed certificates from working when connecting through a proxy server
+    - Fixed native screenshots of the elements under large collapsing areas
 "@applitools/eyes-webdriverio":
   feature:
     - 
   bug-fix:
-    - |
-      Fix calling `waitBeforeCapture` when failed to set required viewport size
-    - Fix rendering issues with Salesforce Lightning design system
-    - Fix issue that prevented self-signed certificates from working when connecting through a proxy server
+    - 
 "@applitools/eyes-playwright":
   feature:
     - Added support for taking full screenshots of elements that are scroll by pages only
     - Allowed `` values in custom properties
+    - Add special attribute for pseudo elements
+    - Add the ability for the SDK to lazy load the page prior to performing a check window
   bug-fix:
     - Fixed broken links to enums implementation in the README.md
     - |
@@ -42,6 +42,8 @@ Apollo SDK:
   feature:
     - Added support for taking full screenshots of elements that are scroll by pages only
     - Allowed `` values in custom properties
+    - Add special attribute for pseudo elements
+    - Add the ability for the SDK to lazy load the page prior to performing a check window
   bug-fix:
     - Fixed the "Maximum Call Stack Size Exceeded" error when taking screenshots on iOS Safari
     - Fixed an issue with wrong cropped screenshots of elements out of viewport bounds on native devices
@@ -52,10 +54,13 @@ Apollo SDK:
       Fix calling `waitBeforeCapture` when failed to set required viewport size
     - Fix rendering issues with Salesforce Lightning design system
     - Fix issue that prevented self-signed certificates from working when connecting through a proxy server
+    - Fixed native screenshots of the elements under large collapsing areas
 "@applitools/eyes-puppeteer":
   feature:
     - Added support for taking full screenshots of elements that are scroll by pages only
     - Allowed `` values in custom properties
+    - Add special attribute for pseudo elements
+    - Add the ability for the SDK to lazy load the page prior to performing a check window
   bug-fix:
     - Fixed broken links to enums implementation in the README.md
     - |
@@ -64,9 +69,10 @@ Apollo SDK:
       Fix calling `waitBeforeCapture` when failed to set required viewport size
     - Fix rendering issues with Salesforce Lightning design system
     - Fix issue that prevented self-signed certificates from working when connecting through a proxy server
+    - Fixed native screenshots of the elements under large collapsing areas
 "@applitools/eyes-testcafe":
   feature:
-    - 
+    - Add the ability for the SDK to lazy load the page prior to performing a check window
   bug-fix:
     - |
       Fix calling `waitBeforeCapture` when failed to set required viewport size
@@ -76,6 +82,8 @@ Apollo SDK:
   feature:
     - Added support for taking full screenshots of elements that are scroll by pages only
     - Allowed `` values in custom properties
+    - Add special attribute for pseudo elements
+    - Add the ability for the SDK to lazy load the page prior to performing a check window
   bug-fix:
     - Fixed the "Maximum Call Stack Size Exceeded" error when taking screenshots on iOS Safari
     - Fixed an issue with wrong cropped screenshots of elements out of viewport bounds on native devices
@@ -86,24 +94,29 @@ Apollo SDK:
       Fix calling `waitBeforeCapture` when failed to set required viewport size
     - Fix rendering issues with Salesforce Lightning design system
     - Fix issue that prevented self-signed certificates from working when connecting through a proxy server
+    - Fixed native screenshots of the elements under large collapsing areas
 "@applitools/eyes-cypress":
   feature:
-    - 
+    - Add special attribute for pseudo elements
+    - Add the ability for the SDK to lazy load the page prior to performing a check window
   bug-fix:
     - Fix rendering issues with Salesforce Lightning design system
     - Fix issue that prevented self-signed certificates from working when connecting through a proxy server
 "@applitools/eyes-storybook":
   feature:
     - Allowed `` values in custom properties
+    - Add special attribute for pseudo elements
   bug-fix:
     - Fixed broken links to enums implementation in the README.md
     - Fix rendering issues with Salesforce Lightning design system
 "@applitools/eyes-webdriverio5-service":
   feature:
     - Support UFG for native mobile
-    - Dorp support for Node.js versions <=12
+    - Drop support for Node.js versions <=12
     - Added support for taking full screenshots of elements that are scroll by pages only
     - Allowed `` values in custom properties
+    - Add special attribute for pseudo elements
+    - Add the ability for the SDK to lazy load the page prior to performing a check window
   bug-fix:
     - |
       `extractText` now supports regions that don't use hints while using `x`/`y` coordinates
@@ -123,10 +136,12 @@ Apollo SDK:
       Fix calling `waitBeforeCapture` when failed to set required viewport size
     - Fix rendering issues with Salesforce Lightning design system
     - Fix issue that prevented self-signed certificates from working when connecting through a proxy server
+    - Fixed native screenshots of the elements under large collapsing areas
 eyes-browser-extension:
   feature:
     - Added support for taking full screenshots of elements that are scroll by pages only
     - Allowed `` values in custom properties
+    - Add the ability for the SDK to lazy load the page prior to performing a check window
   bug-fix:
     - |
       `extractText` now supports regions that don't use hints while using `x`/`y` coordinates
