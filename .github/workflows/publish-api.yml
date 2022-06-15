@@ -17,12 +17,11 @@ on:
     secrets:
       NPM_TOKEN:
         required: true
-defaults:
-  run:
-    working-directory: ./packages/eyes-api
+
 env:
   FORCE_COLOR: 3
   NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+
 jobs:
   test:
     strategy:
@@ -41,6 +40,8 @@ jobs:
           always-auth: true
       - name: Run tests
         uses: ./.github/actions/tests
+        with:
+          working-directory: ./packages/eyes-api
   publish:
     needs: [test]
     name: Publish
@@ -57,4 +58,5 @@ jobs:
       - name: Publish to NPM
         uses: ./.github/actions/publish
         with:
+          working-directory: ./packages/eyes-api
           version: ${{inputs.version || github.event.inputs.version}}

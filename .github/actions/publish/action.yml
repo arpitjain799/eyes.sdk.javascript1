@@ -1,12 +1,14 @@
 name: Publish
 description: Publish a package to NPM
 inputs:
+  working-directory:
+    description: the path to the directory from repository root
+    type: string
+    required: true
   version:
     description: version type (patch, major, minor)
     type: string
-  dirname:
-    description: the path to the directory from repository root
-    type: string
+    default: patch
   skip-npm:
     description: should the package be published in npm
     type: boolean
@@ -21,6 +23,7 @@ runs:
   steps:
     - id: publish
       shell: bash
+      working-directory: ${{inputs.working-directory}}
       run: |
         echo "::group::Prepare package"
         if [ ! -z "${{inputs.dirname}}" ]; then cd ${{github.workspace}}/${{inputs.dirname}}; fi

@@ -1,9 +1,10 @@
 name: Tests
 description: Run tests for a package
 inputs:
-  dirname:
+  working-directory:
     description: the path to the directory from repository root
     type: string
+    required: true
   test-type:
     description: type of the testing (unit, it, e2e, coverage)
     type: string
@@ -39,15 +40,12 @@ runs:
   using: composite
   steps:
     - shell: ${{inputs.shell}}
+      working-directory: ${{github.working-directory}}
       env:
         APPLITOOLS_TEST_REMOTE: ${{inputs.remote}}
         MOCHA_GREP: ${{inputs.grep}}
         MOCHA_JOBS: ${{inputs.remote == 'eg' && 50 || inputs.jobs}}
       run: |
-        echo "::group::Prepare package"
-        if [ ! -z "${{inputs.dirname}}" ]; then cd ${{github.workspace}}/${{inputs.dirname}}; fi
-        echo "::endgroup::"
-
         echo "::group::Configure NPM and YARN"
         if [ "${{runner.os}}" = "Windows" ]; then npm config set script-shell "C:\\Program Files\\Git\\bin\\bash.exe"; fi
         yarn config set ignore-engines true
