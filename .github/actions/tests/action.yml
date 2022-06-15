@@ -45,7 +45,7 @@ runs:
         MOCHA_JOBS: ${{inputs.remote == 'eg' && 50 || inputs.jobs}}
       run: |
         echo "::group::Prepare package"
-        if [ ! -z "${{inputs.dirname}}" ]; then cd ${{github.workspace}}/${{input.dirname}}; fi
+        if [ ! -z "${{inputs.dirname}}" ]; then cd ${{github.workspace}}/${{inputs.dirname}}; fi
         echo "::endgroup::"
 
         echo "::group::Configure NPM and YARN"
