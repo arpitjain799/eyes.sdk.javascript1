@@ -17,6 +17,8 @@ async function takeStitchedScreenshot({
 }) {
   logger.verbose('Taking full image of...')
 
+  if (await scroller.element.isPager()) overlap = {top: 0, bottom: 0}
+
   const driver = context.driver
   const takeViewportScreenshot = makeTakeViewportScreenshot({logger, driver, stabilization, debug})
   const scrollerState = await scroller.preserveState()
@@ -49,13 +51,12 @@ async function takeStitchedScreenshot({
   const targetRegion = region
     ? utils.geometry.intersect(utils.geometry.region(postMoveOffset, scrollerRegion), region)
     : scrollerRegion
+  logger.log('Target region calculated: ', targetRegion)
 
-  // TODO the solution should not check driver specifics,
-  // in this case target region coordinate should be already related to the scrolling element of the context
-  let cropRegion = driver.isNative ? targetRegion : await driver.getRegionInViewport(context, targetRegion)
+  const cropRegion = await driver.getRegionInViewport(context, targetRegion)
+  logger.log('Crop region calculated: ', cropRegion)
   if (utils.geometry.isEmpty(cropRegion)) throw new Error('Screenshot region is out of viewport')
 
-  logger.verbose('cropping... cropRegion is', cropRegion)
   image.crop(withStatusBar ? utils.geometry.offset(cropRegion, {x: 0, y: driver.statusBarHeight}) : cropRegion)
   await image.debug({...debug, name: 'initial', suffix: 'region'})
 
@@ -95,7 +96,11 @@ async function takeStitchedScreenshot({
     const partName = `${partRegion.x}_${partRegion.y}_${partRegion.width}x${partRegion.height}`
     logger.verbose(`Processing part ${partName}`)
 
-    const compensateOffset = {x: 0, y: initialRegion.y !== partRegion.y ? overlap.top : 0}
+    // compensate scroller region being shifted and top overlap
+    const compensateOffset = {
+      x: scrollerRegionShift.x + 0,
+      y: scrollerRegionShift.y + (initialRegion.y !== partRegion.y ? overlap.top : 0),
+    }
     const requiredOffset = utils.geometry.offsetNegative(utils.geometry.location(partRegion), compensateOffset)
 
     logger.verbose('Move to', requiredOffset)

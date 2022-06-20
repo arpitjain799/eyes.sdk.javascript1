@@ -17,7 +17,7 @@ exports.mochaHooks = {
         } else if (name === 'firefox') {
           driver = await remote({
             protocol: 'https',
-            hostname: 'ondemand.saucelabs.com',
+            hostname: 'ondemand.us-west-1.saucelabs.com',
             path: '/wd/hub',
             port: 443,
             logLevel: 'silent',
@@ -39,7 +39,7 @@ exports.mochaHooks = {
         } else if (name === 'internet explorer') {
           driver = await remote({
             protocol: 'https',
-            hostname: 'ondemand.saucelabs.com',
+            hostname: 'ondemand.us-west-1.saucelabs.com',
             path: '/wd/hub',
             port: 443,
             logLevel: 'silent',
@@ -60,7 +60,7 @@ exports.mochaHooks = {
           drivers.set('internet explorer', {driver, cleanup: () => driver.deleteSession()})
         } else if (name === 'ios safari') {
           let options
-          if (process.env.APPLITOOLS_TEST_REMOTE === 'local') {
+          if (process.env.APPLITOOLS_TEST_REMOTE === 'local-appium') {
             options = {
               protocol: 'http',
               hostname: '0.0.0.0',
@@ -72,7 +72,7 @@ exports.mochaHooks = {
                 browserName: 'Safari',
                 deviceName: 'iPhone XS',
                 deviceOrientation: 'portrait',
-                platformVersion: '15.4',
+                platformVersion: '15.5',
                 platformName: 'iOS',
               },
               connectionRetryCount: 0,
@@ -85,14 +85,16 @@ exports.mochaHooks = {
               port: 443,
               logLevel: 'silent',
               capabilities: {
-                name: 'Snippets tests',
                 browserName: 'Safari',
-                deviceName: 'iPhone XS Simulator',
-                deviceOrientation: 'portrait',
-                platformVersion: '15.4',
                 platformName: 'iOS',
-                username: process.env.SAUCE_USERNAME,
-                accessKey: process.env.SAUCE_ACCESS_KEY,
+                'appium:platformVersion': '15.4',
+                'appium:deviceName': 'iPhone XS Simulator',
+                'sauce:options': {
+                  name: 'Snippets tests',
+                  deviceOrientation: 'portrait',
+                  username: process.env.SAUCE_USERNAME,
+                  accessKey: process.env.SAUCE_ACCESS_KEY,
+                },
               },
               connectionRetryCount: 0,
             }

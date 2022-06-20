@@ -1,7 +1,7 @@
 import assert from 'assert'
 import {parseCapabilities} from '../../src/capabilities'
 
-describe('user agent', () => {
+describe('capabilities', () => {
   it('should work with Chrome on Docker Container using W3C', () => {
     const driverInfo = parseCapabilities({
       acceptInsecureCerts: false,
@@ -970,6 +970,231 @@ describe('user agent', () => {
     })
   })
 
+  it('should keep android platformName with lowercase if config.keepPlatformNameAsIs is set to true', () => {
+    const customConfig = {
+      keepPlatformNameAsIs: true,
+    }
+    const driverInfo = parseCapabilities(
+      {
+        deviceName: 'emulator-5554',
+        takesScreenshot: true,
+        orientation: 'PORTRAIT',
+        viewportRect: {width: 1080, top: 72, height: 2004, left: 0},
+        app: '/tmp/tmpHNTQ8x/eyes-android-hello-world.apk',
+        networkConnectionEnabled: true,
+        deviceUDID: 'emulator-5554',
+        newCommandTimeout: 600,
+        deviceManufacturer: 'unknown',
+        deviceScreenSize: '1080x2220',
+        appPackage: 'com.applitools.helloworld.android',
+        deviceModel: 'Android SDK built for x86_64',
+        'webdriver.remote.quietExceptions': false,
+        locationContextEnabled: false,
+        platform: 'LINUX',
+        'webdriver.remote.sessionid': 'a6c14e78e8014db29891f1000703063a',
+        maxTypingFrequency: 8,
+        noSign: true,
+        deviceApiLevel: 24,
+        platformName: 'android', // THIS IS THE IMPORTANT PART
+        events: {
+          commands: [[Object], [Object], [Object], [Object], [Object], [Object]],
+        },
+        pixelRatio: 3,
+        deviceScreenDensity: 480,
+        warnings: {},
+        javascriptEnabled: true,
+        automationName: 'uiautomator2',
+        databaseEnabled: false,
+        noReset: true,
+        desired: {
+          deviceName: 'Samsung Galaxy S8 FHD GoogleAPI Emulator',
+          orientation: 'PORTRAIT',
+          udid: 'emulator-5554',
+          app: '/tmp/tmpHNTQ8x/eyes-android-hello-world.apk',
+          'webdriver.remote.quietExceptions': false,
+          noReset: true,
+          platformVersion: '7.0',
+          browserName: '',
+          maxTypingFrequency: 8,
+          automationName: 'uiautomator2',
+          newCommandTimeout: 600,
+          noSign: true,
+          platformName: 'android',
+          eventTimings: true,
+          proxy: {
+            proxyAutoconfigUrl: 'http://127.0.0.1:19876/pac.js',
+            proxyType: 'PAC',
+          },
+        },
+        browserName: '',
+        hasMetadata: true,
+        proxy: {
+          proxyAutoconfigUrl: 'http://127.0.0.1:19876/pac.js',
+          proxyType: 'PAC',
+        },
+        platformVersion: '7.0',
+        webStorageEnabled: false,
+        eventTimings: true,
+        udid: 'emulator-5554',
+        statBarHeight: 72,
+      },
+      customConfig,
+    )
+    assert.deepStrictEqual(driverInfo, {
+      browserName: undefined,
+      browserVersion: undefined,
+      platformName: 'android', // THIS IS THE IMPORTANT PART (it did not change because keepPlatformNameAsIs was set to true)
+      platformVersion: '7.0',
+      deviceName: 'Samsung Galaxy S8 FHD GoogleAPI Emulator',
+      displaySize: {height: 2220, width: 1080},
+      orientation: 'portrait',
+      statusBarHeight: 72,
+      pixelRatio: 3,
+      isW3C: true,
+      isMobile: true,
+      isNative: true,
+      isIOS: false,
+      isAndroid: true,
+    })
+  })
+
+  it('should set android platformName to start with uppercase if config.keepPlatformNameAsIs is not set', () => {
+    const driverInfo = parseCapabilities({
+      deviceName: 'emulator-5554',
+      takesScreenshot: true,
+      orientation: 'PORTRAIT',
+      viewportRect: {width: 1080, top: 72, height: 2004, left: 0},
+      app: '/tmp/tmpHNTQ8x/eyes-android-hello-world.apk',
+      networkConnectionEnabled: true,
+      deviceUDID: 'emulator-5554',
+      newCommandTimeout: 600,
+      deviceManufacturer: 'unknown',
+      deviceScreenSize: '1080x2220',
+      appPackage: 'com.applitools.helloworld.android',
+      deviceModel: 'Android SDK built for x86_64',
+      'webdriver.remote.quietExceptions': false,
+      locationContextEnabled: false,
+      platform: 'LINUX',
+      'webdriver.remote.sessionid': 'a6c14e78e8014db29891f1000703063a',
+      maxTypingFrequency: 8,
+      noSign: true,
+      deviceApiLevel: 24,
+      platformName: 'android', // THIS IS THE IMPORTANT PART
+      events: {
+        commands: [[Object], [Object], [Object], [Object], [Object], [Object]],
+      },
+      pixelRatio: 3,
+      deviceScreenDensity: 480,
+      warnings: {},
+      javascriptEnabled: true,
+      automationName: 'uiautomator2',
+      databaseEnabled: false,
+      noReset: true,
+      desired: {
+        deviceName: 'Samsung Galaxy S8 FHD GoogleAPI Emulator',
+        orientation: 'PORTRAIT',
+        udid: 'emulator-5554',
+        app: '/tmp/tmpHNTQ8x/eyes-android-hello-world.apk',
+        'webdriver.remote.quietExceptions': false,
+        noReset: true,
+        platformVersion: '7.0',
+        browserName: '',
+        maxTypingFrequency: 8,
+        automationName: 'uiautomator2',
+        newCommandTimeout: 600,
+        noSign: true,
+        platformName: 'android',
+        eventTimings: true,
+        proxy: {
+          proxyAutoconfigUrl: 'http://127.0.0.1:19876/pac.js',
+          proxyType: 'PAC',
+        },
+      },
+      browserName: '',
+      hasMetadata: true,
+      proxy: {
+        proxyAutoconfigUrl: 'http://127.0.0.1:19876/pac.js',
+        proxyType: 'PAC',
+      },
+      platformVersion: '7.0',
+      webStorageEnabled: false,
+      eventTimings: true,
+      udid: 'emulator-5554',
+      statBarHeight: 72,
+    })
+    assert.deepStrictEqual(driverInfo, {
+      browserName: undefined,
+      browserVersion: undefined,
+      platformName: 'Android', // THIS IS THE IMPORTANT PART (it was capitalized because keepPlatformNameAsIs was not set)
+      platformVersion: '7.0',
+      deviceName: 'Samsung Galaxy S8 FHD GoogleAPI Emulator',
+      displaySize: {height: 2220, width: 1080},
+      orientation: 'portrait',
+      statusBarHeight: 72,
+      pixelRatio: 3,
+      isW3C: true,
+      isMobile: true,
+      isNative: true,
+      isIOS: false,
+      isAndroid: true,
+    })
+  })
+
+  it('should keep ios platformName with lowercase if config.keepPlatformNameAsIs is set to true', () => {
+    const driverInfo = parseCapabilities(
+      {
+        deviceName: 'iPhone 8',
+        platformVersion: '11.0',
+        platformName: 'ios', // THIS IS THE IMPORTANT PART
+        orientation: 'PORTRAIT',
+        pixelRatio: 2,
+      },
+      {keepPlatformNameAsIs: true},
+    )
+    assert.deepStrictEqual(driverInfo, {
+      browserName: undefined,
+      browserVersion: undefined,
+      deviceName: 'iPhone 8',
+      platformName: 'ios', // THIS IS THE IMPORTANT PART (it did not change because keepPlatformNameAsIs was set to true)
+      platformVersion: '11.0',
+      displaySize: undefined,
+      orientation: 'portrait',
+      statusBarHeight: undefined,
+      pixelRatio: 2,
+      isW3C: true,
+      isMobile: true,
+      isNative: true,
+      isIOS: true,
+      isAndroid: false,
+    })
+  })
+
+  it('should set ios platformName to start with uppercase if config.keepPlatformNameAsIs is not set', () => {
+    const driverInfo = parseCapabilities({
+      deviceName: 'iPhone 8',
+      platformVersion: '11.0',
+      platformName: 'ios', // THIS IS THE IMPORTANT PART
+      orientation: 'PORTRAIT',
+      pixelRatio: 2,
+    })
+    assert.deepStrictEqual(driverInfo, {
+      browserName: undefined,
+      browserVersion: undefined,
+      deviceName: 'iPhone 8',
+      platformName: 'iOS', // THIS IS THE IMPORTANT PART (it did not change because keepPlatformNameAsIs was set to true)
+      platformVersion: '11.0',
+      displaySize: undefined,
+      orientation: 'portrait',
+      statusBarHeight: undefined,
+      pixelRatio: 2,
+      isW3C: true,
+      isMobile: true,
+      isNative: true,
+      isIOS: true,
+      isAndroid: false,
+    })
+  })
+
   it('should work with Safari on iPhone 8 using Appium 1.8 in Sauce', () => {
     const driverInfo = parseCapabilities({
       deviceName: 'iPhone 8',
@@ -1363,6 +1588,7 @@ describe('user agent', () => {
       platformName: 'iOS',
       platformVersion: '13.4',
       deviceName: 'iPhone 11 Pro',
+      displaySize: undefined,
       orientation: 'portrait',
       pixelRatio: undefined,
       statusBarHeight: undefined,
@@ -1427,6 +1653,7 @@ describe('user agent', () => {
       platformName: 'iOS',
       platformVersion: '13.0',
       deviceName: 'iPhone XS',
+      displaySize: undefined,
       orientation: 'portrait',
       pixelRatio: 3,
       statusBarHeight: 44,

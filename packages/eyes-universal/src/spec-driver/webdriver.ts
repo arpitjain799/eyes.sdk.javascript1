@@ -1,14 +1,22 @@
 import type {Size, Region, Cookie, DriverInfo} from '@applitools/types'
 import type * as WD from 'webdriver'
 import * as utils from '@applitools/utils'
+import {parse as parseUrl} from 'url'
 import WebDriver, {command} from 'webdriver'
+import ProxyAgent from 'proxy-agent'
 
 export type Driver = WD.Client
 export type Element = {'element-6066-11e4-a52e-4f735466cecf': string} | {ELEMENT: string}
 export type Selector = {using: string; value: string}
 
-type StaticDriver = {sessionId: string; serverUrl: string; capabilities: Record<string, any>}
-type StaticElement = {elementId: string}
+export type StaticDriver = {
+  sessionId: string
+  serverUrl: string
+  proxyUrl?: string
+  proxy?: {url: string}
+  capabilities?: Record<string, any>
+}
+export type StaticElement = {elementId: string}
 type ShadowRoot = {'shadow-6066-11e4-a52e-4f735466cecf': string}
 type CommonSelector = string | {selector: Selector | string; type?: string}
 
@@ -25,10 +33,10 @@ const APPIUM_CAPABILITIES = ['appiumVersion', 'deviceType', 'deviceOrientation',
 const LEGACY_APPIUM_CAPABILITIES = ['appium-version', 'device-type', 'device-orientation']
 const CHROME_CAPABILITIES = ['chrome', 'goog:chromeOptions']
 const MOBILE_BROWSER_NAMES = ['ipad', 'iphone', 'android']
-const ANDROID_AUTOMATION_NAME = 'uiautomator2'
 const ANDROID_PLATFORM_NAME = 'android'
+const ANDROID_AUTOMATION_NAME = 'uiautomator2'
 
-function extractElementId(element: Element): string {
+function extractElementId(element: Element | StaticElement): string {
   return (element as any).elementId ?? (element as any)[ELEMENT_ID] ?? (element as any)[LEGACY_ELEMENT_ID]
 }
 function transformShadowRoot(shadowRoot: ShadowRoot | Element): Element {
@@ -50,8 +58,8 @@ function extractEnvironment(capabilities: Record<string, any>) {
     LEGACY_APPIUM_CAPABILITIES.some(capability => capabilities.hasOwnProperty(capability)) ||
     MOBILE_BROWSER_NAMES.includes(capabilities.browserName?.toLowerCase())
   const isAndroid =
-    capabilities.automationName?.toLowerCase() === ANDROID_AUTOMATION_NAME ||
-    capabilities.platformName?.toLowerCase() === ANDROID_PLATFORM_NAME
+    capabilities.platformName?.toLowerCase() === ANDROID_PLATFORM_NAME ||
+    capabilities.automationName?.toLowerCase() === ANDROID_AUTOMATION_NAME
 
   return {
     isAndroid,
@@ -60,7 +68,6 @@ function extractEnvironment(capabilities: Record<string, any>) {
     isW3C,
   }
 }
-
 // #endregion
 
 // #region UTILITY
@@ -92,6 +99,13 @@ export function transformDriver(driver: Driver | StaticDriver): Driver {
     logLevel: 'silent',
     ...environment,
   }
+
+  if (driver.proxyUrl || driver.proxy?.url) {
+    const proxy = {...parseUrl(driver.proxyUrl ?? driver.proxy.url), rejectUnauthorized: false}
+    const agent = new ProxyAgent(proxy as any)
+    options.agent = {http: agent, https: agent}
+  }
+
   if (!options.port) {
     if (options.protocol === 'http') options.port = 80
     if (options.protocol === 'https') options.port = 443
@@ -134,11 +148,12 @@ export function transformDriver(driver: Driver | StaticDriver): Driver {
   if (environment.isAndroid) {
     modifiedDriver?.updateSettings({allowInvisibleElements: true})
   }
+  // console.log('transformDriver attach completed, returning modified driver', modifiedDriver)
   return modifiedDriver
 }
 export function transformElement(element: Element | StaticElement): Element {
-  if (!utils.types.has(element, 'elementId')) return element
-  return {[ELEMENT_ID]: element.elementId, [LEGACY_ELEMENT_ID]: element.elementId}
+  const elementId = extractElementId(element)
+  return {[ELEMENT_ID]: elementId, [LEGACY_ELEMENT_ID]: elementId}
 }
 export function transformSelector(selector: Selector | CommonSelector): Selector {
   if (utils.types.isString(selector)) {
@@ -184,7 +199,7 @@ export async function childContext(driver: Driver, element: Element): Promise<Dr
   await driver.switchToFrame(element)
   return driver
 }
-export async function findElement(driver: Driver, selector: Selector, parent?: Element): Promise<Element | null> {
+export async function findElement(driver: Driver, selector: Selector, parent?: Element): Promise<Element> {
   const parentElement = parent ? transformShadowRoot(parent) : null
   const element = parentElement
     ? await driver.findElementFromElement(extractElementId(parentElement), selector.using, selector.value)
@@ -269,16 +284,22 @@ export async function type(driver: Driver, element: Element, value: string): Pro
 
 // #region NATIVE COMMANDS
 
-export async function getBarsHeight(browser: Driver): Promise<{statusBarHeight: number; navigationBarHeight: number}> {
+export async function getBarsSize(
+  browser: Driver,
+): Promise<{statusBarHeight: number; navigationBarHeight: number; navigationBarWidth: number}> {
   const {statusBar, navigationBar}: any = await browser.getSystemBars()
   return {
     statusBarHeight: statusBar.visible ? statusBar.height : 0,
     navigationBarHeight: navigationBar.visible ? navigationBar.height : 0,
+    navigationBarWidth: navigationBar.visible ? navigationBar.width : 0,
   }
 }
 export async function getOrientation(browser: Driver): Promise<'portrait' | 'landscape'> {
   const orientation = await browser.getOrientation()
   return orientation.toLowerCase() as 'portrait' | 'landscape'
+}
+export async function setOrientation(browser: Driver, orientation: 'portrait' | 'landscape') {
+  return await browser.setOrientation(orientation)
 }
 export async function getElementRegion(driver: Driver, element: Element): Promise<Region> {
   return driver.getElementRect(extractElementId(element))

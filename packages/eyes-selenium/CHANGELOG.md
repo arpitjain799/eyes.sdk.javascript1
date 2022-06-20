@@ -4,6 +4,51 @@
 
 
 
+
+
+
+
+## 4.59.2 - 2022/6/9
+
+### Features
+- Added support for taking full screenshots of elements that are scroll by pages only
+- Allowed `` values in custom properties
+### Bug fixes
+- Fixed the "Maximum Call Stack Size Exceeded" error when taking screenshots on iOS Safari
+- Fixed an issue with wrong cropped screenshots of elements out of viewport bounds on native devices
+- Fixed broken links to enums implementation in the README.md
+- Fixed `forceFullPageScreenshot` option behavior
+- Fix calling `waitBeforeCapture` when failed to set required viewport size
+- Fix rendering issues with Salesforce Lightning design system
+
+## 4.59.1 - 2022/6/2
+
+### Features
+### Bug fixes
+- Fix rounding error of image size when scaling introduces fractions
+
+## 4.59.0 - 2022/6/1
+
+### Features
+- Dorp support for Node.js versions <=12
+### Bug fixes
+- Fixed incorrect calculation of coded regions in classic mode when using CSS stitching
+
+## 4.58.5 - 2022/5/27
+
+### Features
+- Support iPhone SE `IosDeviceName.iPhone_SE` and iPhone 8 Plus `IosDeviceName.iPhone_8_Plus` iOS devices
+- Support Galaxy S22 `DeviceName.Galaxy_S22` emulation device
+- Added support for drivers that return screenshots in jpeg format
+### Bug fixes
+- Fixed check region fully in classic execution when using CSS stitching
+- Fixed handling of navigation bar size on various devices
+- Fixed bug in native apps when screenshot of the element was taken only for the small visible part of the element
+- Fixed bug when navigation bar was presented in screenshot on Android 12
+- Fixed `CheckSetting`'s `fully` being overridden by `Configuration`'s `forceFullPageScreenshot`
+- Set EyesExceptions (such as new test, diffs exception and failed test exception) to exception property in TestResultsSummary
+- Improve error message when failed to set viewport size
+
 ## 4.58.4 - 2022/4/14
 
 ### Features

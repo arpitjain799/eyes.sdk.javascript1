@@ -1,8 +1,6 @@
-'use strict'
-
 const assert = require('assert')
-const assertRejects = require('assert-rejects')
 const settle = require('axios/lib/core/settle')
+const fs = require('fs')
 const {startFakeEyesServer} = require('@applitools/sdk-fake-eyes-server')
 const {makeLogger} = require('@applitools/logger')
 const {
@@ -18,6 +16,7 @@ const {
 } = require('../../../')
 const {presult} = require('../../../lib/troubleshoot/utils')
 const logger = new makeLogger()
+const startProxyServer = require('../../utils/proxyServer')
 
 // #region temporary
 function createDomResource({cdt, resources}) {
@@ -77,10 +76,7 @@ function isBrowserDependantResource({url}) {
 function createResourceHashObject({value, type}) {
   return {
     hashFormat: 'sha256',
-    hash: crypto
-      .createHash('sha256')
-      .update(value)
-      .digest('hex'),
+    hash: crypto.createHash('sha256').update(value).digest('hex'),
     contentType: type,
   }
 }
@@ -99,15 +95,13 @@ function sanitizeBrowserName(browserName) {
 }
 
 const userAgents = {
-  IE:
-    'Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; .NET4.0C; .NET4.0E; .NET CLR 2.0.50727; .NET CLR 3.0.30729; .NET CLR 3.5.30729; rv:11.0) like Gecko',
+  IE: 'Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; .NET4.0C; .NET4.0E; .NET CLR 2.0.50727; .NET CLR 3.0.30729; .NET CLR 3.5.30729; rv:11.0) like Gecko',
   Chrome:
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36',
   Firefox: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:93.0) Gecko/20100101 Firefox/93.0',
   Safari:
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Safari/605.1.15',
-  Edge:
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36 Edge/18.17763',
+  Edge: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36 Edge/18.17763',
   Edgechromium:
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4501.0 Safari/537.36 Edg/91.0.866.0',
 }
@@ -130,14 +124,18 @@ describe('ServerConnector', () => {
       const appIdOrName = 'ServerConnector unit test'
       const scenarioIdOrName = "doesn't throw exception on server failure"
       const batchId = String(Date.now())
-      const runningSession = await serverConnector.startSession({
-        appIdOrName,
-        scenarioIdOrName,
-        environment: {displaySize: {width: 1, height: 2}},
-        batchInfo: {
-          id: batchId,
-        },
-      })
+      const runningSession = await serverConnector.startSession(
+        new SessionStartInfo({
+          agentId: 'agent-id/1',
+          appIdOrName,
+          scenarioIdOrName,
+          environment: {displaySize: {width: 1, height: 2}},
+          batchInfo: {
+            id: batchId,
+          },
+          defaultMatchSettings: {},
+        }),
+      )
       const sessionId = `${appIdOrName}__${scenarioIdOrName}`
       assert.deepStrictEqual(runningSession.toJSON(), {
         baselineId: `${sessionId}__baseline`,
@@ -155,18 +153,10 @@ describe('ServerConnector', () => {
 
   it('retry startSession if it blocked by concurrency', async () => {
     const serverConnector = getServerConnector()
-    assert.deepStrictEqual(serverConnector._axios.defaults.concurrencyBackoff, [
-      2000,
-      2000,
-      2000,
-      2000,
-      2000,
-      5000,
-      5000,
-      5000,
-      5000,
-      10000,
-    ])
+    assert.deepStrictEqual(
+      serverConnector._axios.defaults.concurrencyBackoff,
+      [2000, 2000, 2000, 2000, 2000, 5000, 5000, 5000, 5000, 10000],
+    )
     serverConnector._axios.defaults.concurrencyBackoff = [50, 50, 100, 100, 100]
     let retries = 0
     let timeoutPassed = false
@@ -296,7 +286,20 @@ describe('ServerConnector', () => {
     try {
       const serverUrl = `http://localhost:${port}`
       const serverConnector = getServerConnector({serverUrl})
-      const [err] = await presult(serverConnector.startSession({}))
+      const [err] = await presult(
+        serverConnector.startSession(
+          new SessionStartInfo({
+            agentId: 'agent-id/1',
+            appIdOrName: 'app',
+            scenarioIdOrName: 'name',
+            batchInfo: {
+              id: 'batch-id',
+            },
+            environment: {displaySize: {width: 1, height: 2}},
+            defaultMatchSettings: {},
+          }),
+        ),
+      )
       assert.deepStrictEqual(err, new Error('Error in request startSession: socket hang up'))
     } finally {
       await close()
@@ -544,7 +547,18 @@ describe('ServerConnector', () => {
       config,
     })
 
-    const runningSession = await serverConnector.startSession({})
+    const runningSession = await serverConnector.startSession(
+      new SessionStartInfo({
+        agentId: 'agent-id/1',
+        appIdOrName: 'app',
+        scenarioIdOrName: 'name',
+        batchInfo: {
+          id: 'batch-id',
+        },
+        environment: {displaySize: {width: 1, height: 2}},
+        defaultMatchSettings: {},
+      }),
+    )
     assert.strictEqual(runningSession.getIsNew(), false)
   })
 
@@ -556,7 +570,18 @@ describe('ServerConnector', () => {
       config,
     })
 
-    const runningSession = await serverConnector.startSession({})
+    const runningSession = await serverConnector.startSession(
+      new SessionStartInfo({
+        agentId: 'agent-id/1',
+        appIdOrName: 'app',
+        scenarioIdOrName: 'name',
+        batchInfo: {
+          id: 'batch-id',
+        },
+        environment: {displaySize: {width: 1, height: 2}},
+        defaultMatchSettings: {},
+      }),
+    )
     assert.strictEqual(runningSession.getIsNew(), true)
   })
 
@@ -568,7 +593,18 @@ describe('ServerConnector', () => {
       config,
     })
 
-    const runningSessionWithIsNewTrue = await serverConnector.startSession({})
+    const runningSessionWithIsNewTrue = await serverConnector.startSession(
+      new SessionStartInfo({
+        agentId: 'agent-id/1',
+        appIdOrName: 'app',
+        scenarioIdOrName: 'name',
+        batchInfo: {
+          id: 'batch-id',
+        },
+        environment: {displaySize: {width: 1, height: 2}},
+        defaultMatchSettings: {},
+      }),
+    )
     assert.strictEqual(runningSessionWithIsNewTrue.getIsNew(), true)
 
     serverConnector._axios.defaults.adapter = async config => ({
@@ -577,7 +613,18 @@ describe('ServerConnector', () => {
       config,
     })
 
-    const runningSessionWithIsNewFalse = await serverConnector.startSession({})
+    const runningSessionWithIsNewFalse = await serverConnector.startSession(
+      new SessionStartInfo({
+        agentId: 'agent-id/1',
+        appIdOrName: 'app',
+        scenarioIdOrName: 'name',
+        batchInfo: {
+          id: 'batch-id',
+        },
+        environment: {displaySize: {width: 1, height: 2}},
+        defaultMatchSettings: {},
+      }),
+    )
     assert.strictEqual(runningSessionWithIsNewFalse.getIsNew(), false)
   })
 
@@ -589,7 +636,21 @@ describe('ServerConnector', () => {
       throw {config, code: 'ENOTFOUND'}
     }
 
-    await assertRejects(serverConnector.startSession({}), 'ENOTFOUND')
+    await assert.rejects(
+      serverConnector.startSession(
+        new SessionStartInfo({
+          agentId: 'agent-id/1',
+          appIdOrName: 'app',
+          scenarioIdOrName: 'name',
+          batchInfo: {
+            id: 'batch-id',
+          },
+          environment: {displaySize: {width: 1, height: 2}},
+          defaultMatchSettings: {},
+        }),
+      ),
+      'ENOTFOUND',
+    )
     assert.strictEqual(tries, 6)
   })
 
@@ -677,12 +738,18 @@ describe('ServerConnector', () => {
       appOutput: new AppOutput({screenshot: buff, imageLocation: new Location(20, 40)}),
     })
     try {
-      const runningSession = await serverConnector.startSession({
-        appIdOrName: 'appIdOrName',
-        scenarioIdOrName: 'scenarioIdOrName',
-        environment: {displaySize: {width: 1, height: 2}},
-        batchInfo: {},
-      })
+      const runningSession = await serverConnector.startSession(
+        new SessionStartInfo({
+          agentId: 'agent-id/1',
+          appIdOrName: 'app',
+          scenarioIdOrName: 'name',
+          batchInfo: {
+            id: 'batch-id',
+          },
+          environment: {displaySize: {width: 1, height: 2}},
+          defaultMatchSettings: {},
+        }),
+      )
       await serverConnector.matchWindow(runningSession, matchWindowData)
     } finally {
       await close()
@@ -692,14 +759,16 @@ describe('ServerConnector', () => {
   it('outputs correct error message for bad requests to Eyes server', async () => {
     const serverConnector = getServerConnector()
     const [err] = await presult(
-      serverConnector.startSession({
-        appIdOrName: 'app id or name',
-        scenarioIdOrName: 'scenario id or name',
-        agentId: 'agent id',
-        batchInfo: {name: 'batch name'},
-        environment: {os: 'os', hostingApp: 'hosting app', displaySize: {width: 1.5, height: 1.5}},
-        defaultMatchSettings: {},
-      }),
+      serverConnector.startSession(
+        new SessionStartInfo({
+          appIdOrName: 'app id or name',
+          scenarioIdOrName: 'scenario id or name',
+          agentId: 'agent id',
+          batchInfo: {name: 'batch name'},
+          environment: {os: 'os', hostingApp: 'hosting app', displaySize: {width: 1.5, height: 1.5}},
+          defaultMatchSettings: {},
+        }),
+      ),
     )
 
     // Eyes doesn't handle fractions well, so it fails to parse the environment.displaySize value and therefore detects the entire startInfo as null
@@ -746,5 +815,52 @@ render height & width are required when deviceEmulationInfo is not provided, req
       ),
     )
     assert.ok(renderErr.message.includes(`Error: combination of url, dom, resources is invalid`))
+  })
+
+  describe('self-signed certificates', () => {
+    let serverClose, serverUrl
+    const sessionInfo = {
+      appIdOrName: 'app id or name',
+      scenarioIdOrName: 'scenario id or name',
+      agentId: 'agent id',
+      batchInfo: {name: 'batch name'},
+      environment: {os: 'os', hostingApp: 'hosting app', displaySize: {width: 1.5, height: 1.5}},
+      defaultMatchSettings: {},
+    }
+
+    before(async () => {
+      const {port, close} = await startFakeEyesServer({
+        cert: fs.readFileSync('./test/fixtures/certificate.pem'),
+        key: fs.readFileSync('./test/fixtures/key.pem'),
+        logger,
+      })
+      serverUrl = `https://localhost:${port}`
+      serverClose = close
+    })
+
+    after(async () => {
+      await serverClose()
+    })
+
+    it('works', async () => {
+      const serverConnector = getServerConnector({serverUrl})
+      await serverConnector.startSession(new SessionStartInfo(sessionInfo))
+    })
+
+    // TODO: figure out why this causes tests to hang in GH actions
+    it.skip('works with with proxy with isHttpOnly', async () => {
+      let closeProxy
+      try {
+        const {port, close} = await startProxyServer()
+        closeProxy = close
+        const serverConnector = getServerConnector({
+          serverUrl,
+          proxy: {url: `http://localhost:${port}`, isHttpOnly: true},
+        })
+        await serverConnector.startSession(new SessionStartInfo(sessionInfo))
+      } finally {
+        await closeProxy()
+      }
+    })
   })
 })

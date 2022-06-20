@@ -4,7 +4,7 @@ import * as api from '@applitools/eyes-api'
 import * as fs from 'fs'
 import * as path from 'path'
 import * as spec from './spec-driver'
-import {ConfigUtils, TestResultsFormatter} from '@applitools/eyes-sdk-core'
+import {TestResultsFormatter} from '@applitools/eyes-sdk-core'
 
 export interface LegacyTestCafeEyes<TDriver, TSelector> {
   open(options: {t: TDriver} & TestCafeConfiguration): Promise<TDriver>
@@ -35,7 +35,8 @@ export function LegacyTestCafeEyesMixin<TDriver extends Driver, TElement extends
 ): LegacyTestCafeEyesConstructor<TDriver, TElement, TSelector> {
   return class TestCafeEyes
     extends Eyes<TDriver, TElement, TSelector>
-    implements LegacyTestCafeEyes<TDriver, TSelector> {
+    implements LegacyTestCafeEyes<TDriver, TSelector>
+  {
     private _testcafeConfig: TestCafeConfiguration
 
     constructor(runner?: api.EyesRunner, config?: api.ConfigurationPlain<TElement, TSelector>)
@@ -49,12 +50,14 @@ export function LegacyTestCafeEyesMixin<TDriver extends Driver, TElement extends
       configOrRunner?: api.ConfigurationPlain<TElement, TSelector> | api.EyesRunner,
     ) {
       if (utils.types.isNull(runnerOrConfigOrOptions) || utils.types.has(runnerOrConfigOrOptions, 'configPath')) {
-        const testcafeConfig = ConfigUtils.getConfig({configPath: runnerOrConfigOrOptions?.configPath})
+        const testcafeConfig = utils.config.getConfig({
+          paths: runnerOrConfigOrOptions?.configPath && [runnerOrConfigOrOptions.configPath],
+          params: ['failTestcafeOnDiff'],
+        })
         const runner =
           runnerOrConfigOrOptions?.runner ??
           new api.VisualGridRunner({testConcurrency: testcafeConfig.concurrency ?? testcafeConfig.testConcurrency ?? 1})
         super(runner, transformConfig(testcafeConfig))
-        testcafeConfig.failTestcafeOnDiff ??= true
         this._testcafeConfig = testcafeConfig
       } else {
         super(runnerOrConfigOrOptions as api.EyesRunner, configOrRunner as api.ConfigurationPlain<TElement, TSelector>)
@@ -113,12 +116,12 @@ export function LegacyTestCafeEyesMixin<TDriver extends Driver, TElement extends
     }
 
     async close(throwErr = true): Promise<api.TestResults> {
-      return super.close(throwErr && Boolean(this._testcafeConfig?.failTestcafeOnDiff))
+      return super.close(throwErr && (this._testcafeConfig?.failTestcafeOnDiff ?? true))
     }
 
     async waitForResults(throwErr = true) {
       const resultsSummary = await this.runner.getAllTestResults(
-        throwErr && Boolean(this._testcafeConfig?.failTestcafeOnDiff),
+        throwErr && (this._testcafeConfig?.failTestcafeOnDiff ?? true),
       )
       if (this._testcafeConfig?.tapDirPath) {
         const results = resultsSummary.getAllResults().map(r => r.getTestResults())
@@ -199,6 +202,7 @@ export type TestCafeConfiguration = {
   concurrency?: number
   failTestcafeOnDiff?: boolean
   tapDirPath?: string
+  showLogs?: boolean
 }
 
 export function transformConfig<TElement, TSelector>(
@@ -229,6 +233,7 @@ export function transformConfig<TElement, TSelector>(
     }
   }
   if (utils.types.isString(options.proxy)) config.proxy = {url: options.proxy}
+  if (options.showLogs) config.logs = {type: 'console'}
   return config
 }
 

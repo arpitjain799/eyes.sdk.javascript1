@@ -7,6 +7,53 @@
 
 
 
+
+
+## 3.26.3 - 2022/6/17
+
+### Features
+- Add special attribute for pseudo elements
+- Add the ability for the SDK to lazy load the page prior to performing a check window
+- Support padding for regions in the following region types - ignoreRegions, layoutRegions, strictRegions, contentRegions
+- Allow configuration file to be loaded from ancestor directories
+### Bug fixes
+- Fix rendering issues with Salesforce Lightning design system
+- Fix issue that prevented self-signed certificates from working when connecting through a proxy server
+
+## 3.26.2 - 2022/6/8
+
+### Features
+- add support for secure websocket
+- Allowed `` values in custom properties
+### Bug fixes
+- Fix incorrect test results when dealing with a page that contains CORS iframes
+- Fixed broken links to enums implementation in the README.md
+- Fix calling `waitBeforeCapture` when failed to set required viewport size
+
+## 3.26.1 - 2022/6/2
+
+### Features
+- Improve type definitions
+- Dorp support for Node.js versions <=12
+### Bug fixes
+- Support `cy.eyesGetAllTestResults` in TypeScript
+- Set EyesExceptions (such as new test, diffs exception and failed test exception) to exception property in TestResultsSummary
+- Improve error message when failed to set viewport size
+
+## 3.26.0 - 2022/5/19
+
+### Features
+- `cy.eyesCheckWindow` now supports passing DOM elements and jQuery object for target and regions.
+### Bug fixes
+- Support `cy.eyesGetAllTestResults` in TypeScript
+
+## 3.25.7 - 2022/5/6
+
+### Features
+### Bug fixes
+- update the README entry 'saveNewTests'
+- added `properties` and `notifyOnCompletion` as optional Types of Batch (for TS)
+
 ## 3.25.6 - 2022/4/25
 
 ### Features

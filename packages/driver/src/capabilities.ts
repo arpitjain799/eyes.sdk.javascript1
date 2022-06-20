@@ -2,8 +2,23 @@ import type * as types from '@applitools/types'
 
 type Capabilities = Record<string, any>
 
-export function parseCapabilities(capabilities: Capabilities): types.DriverInfo {
+export function parseCapabilities(
+  capabilities: Capabilities,
+  customConfig?: types.CustomCapabilitiesConfig,
+): types.DriverInfo {
   if (capabilities.capabilities) capabilities = capabilities.capabilities
+
+  if (!customConfig?.keepPlatformNameAsIs) {
+    // We use `startsWith` for just a theorerical reason. It's not based on any concrete case that we knew of at the time of writing this code.
+    if (capabilities.platformName?.startsWith('android')) {
+      capabilities.platformName = capabilities.platformName.charAt(0).toUpperCase() + capabilities.platformName.slice(1)
+    }
+
+    // We use `startsWith` for just a theorerical reason. It's not based on any concrete case that we knew of at the time of writing this code.
+    if (capabilities.platformName?.startsWith('ios')) {
+      capabilities.platformName = 'iOS' + capabilities.platformName.slice(3)
+    }
+  }
 
   const info: types.DriverInfo = {
     browserName:
@@ -29,6 +44,7 @@ export function parseCapabilities(capabilities: Capabilities): types.DriverInfo 
   if (info.isNative) {
     info.pixelRatio = capabilities.pixelRatio
     info.statusBarHeight = capabilities.statBarHeight
+    info.displaySize = extractDisplaySize(capabilities)
   }
 
   return info
@@ -71,4 +87,11 @@ function isIOS(capabilities: Capabilities) {
 
 function isAndroid(capabilities: Capabilities) {
   return /Android/i.test(capabilities.platformName) || /Android/i.test(capabilities.browserName)
+}
+
+function extractDisplaySize(capabilities: Capabilities): types.Size {
+  if (!capabilities.deviceScreenSize) return undefined
+  const [width, height] = capabilities.deviceScreenSize.split('x')
+  if (Number.isNaN(Number(width)) || Number.isNaN(Number(height))) return undefined
+  return {width: Number(width), height: Number(height)}
 }

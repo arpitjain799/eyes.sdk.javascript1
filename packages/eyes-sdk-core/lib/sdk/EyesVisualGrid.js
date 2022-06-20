@@ -1,18 +1,19 @@
 const utils = require('@applitools/utils')
 const {Driver} = require('@applitools/driver')
-const BrowserType = require('../config/BrowserType')
 const Configuration = require('../config/Configuration')
 const TypeUtils = require('../utils/TypeUtils')
 const GeneralUtils = require('../utils/GeneralUtils')
 const ArgumentGuard = require('../utils/ArgumentGuard')
 const TestResultsFormatter = require('../TestResultsFormatter')
 const CorsIframeHandler = require('../capture/CorsIframeHandler')
-const CorsIframeHandles = require('../capture/CorsIframeHandles')
 const VisualGridRunner = require('../runner/VisualGridRunner')
 const takeDomSnapshots = require('../utils/takeDomSnapshots')
 const takeVHSes = require('../utils/takeVHSes')
 const EyesCore = require('./EyesCore')
 const CheckSettingsUtils = require('../sdk/CheckSettingsUtils')
+const EyesUtils = require('./EyesUtils')
+const {lazyLoad} = require('@applitools/snippets')
+const makeLazyLoadOptions = require('../config/LazyLoadOptions')
 
 class EyesVisualGrid extends EyesCore {
   static specialize({agentId, spec, cwd, VisualGridClient}) {
@@ -47,7 +48,7 @@ class EyesVisualGrid extends EyesCore {
     /** @private @type {boolean} */
     this._isVisualGrid = true
     /** @private @type {CorsIframeHandle} */
-    this._corsIframeHandle = CorsIframeHandles.BLANK
+    this._corsIframeHandle = 'BLANK'
 
     /** @private */
     this._checkWindowCommand = undefined
@@ -63,7 +64,8 @@ class EyesVisualGrid extends EyesCore {
   async open(driver, optArg1, optArg2, optArg3, optArg4) {
     ArgumentGuard.notNull(driver, 'driver')
     const useCeilForViewportSize = this._configuration.getUseCeilForViewportSize()
-    const customConfig = {useCeilForViewportSize}
+    const keepPlatformNameAsIs = this._configuration.getKeepPlatformNameAsIs()
+    const customConfig = {useCeilForViewportSize, keepPlatformNameAsIs}
     this._driver = await new Driver({spec: this.spec, driver, logger: this._logger, customConfig}).init()
     this._context = this._driver.currentContext
 
@@ -94,25 +96,21 @@ class EyesVisualGrid extends EyesCore {
 
     if (!browsersInfo || browsersInfo.length === 0) {
       const vs = this._configuration.getViewportSize()
-      this._configuration.addBrowser(vs.getWidth(), vs.getHeight(), BrowserType.CHROME)
+      this._configuration.addBrowser(vs.getWidth(), vs.getHeight(), 'chrome')
     }
 
-    const {
-      openEyes,
-      getResourceUrlsInCache,
-      getIosDevicesSizes,
-      getEmulatedDevicesSizes,
-    } = await this._runner.getVisualGridClientWithCache({
-      logger: this._logger,
-      agentId: this.getFullAgentId(),
-      apiKey: this._configuration.getApiKey(),
-      showLogs: this._configuration.getShowLogs(),
-      proxy: this._configuration.getProxy(),
-      autProxy: this._configuration.getAutProxy(),
-      serverUrl: this._configuration.getServerUrl(),
-      concurrency: this._runner.legacyConcurrency || this._configuration.getConcurrentSessions(),
-      testConcurrency: this._runner.testConcurrency,
-    })
+    const {openEyes, getResourceUrlsInCache, getIosDevicesSizes, getEmulatedDevicesSizes} =
+      await this._runner.getVisualGridClientWithCache({
+        logger: this._logger,
+        agentId: this.getFullAgentId(),
+        apiKey: this._configuration.getApiKey(),
+        showLogs: this._configuration.getShowLogs(),
+        proxy: this._configuration.getProxy(),
+        autProxy: this._configuration.getAutProxy(),
+        serverUrl: this._configuration.getServerUrl(),
+        concurrency: this._runner.legacyConcurrency || this._configuration.getConcurrentSessions(),
+        testConcurrency: this._runner.testConcurrency,
+      })
 
     if (this._configuration.getViewportSize()) {
       const vs = this._configuration.getViewportSize()
@@ -134,10 +132,16 @@ class EyesVisualGrid extends EyesCore {
     this._getEmulatedDevicesSizes = getEmulatedDevicesSizes
   }
 
-  async _check(checkSettings, closeAfterMatch = false, throwEx = true) {
+  async _check(checkSettings, driver, closeAfterMatch = false, throwEx = true) {
     this._logger.log(`check started with tag "${checkSettings.name}" for test "${this._configuration.getTestName()}"`)
-
-    await this._driver.init()
+    if (driver) {
+      const useCeilForViewportSize = this._configuration.getUseCeilForViewportSize()
+      const keepPlatformNameAsIs = this._configuration.getKeepPlatformNameAsIs()
+      const customConfig = {useCeilForViewportSize, keepPlatformNameAsIs}
+      this._driver = await new Driver({spec: this.spec, driver, logger: this._logger, customConfig}).init()
+    } else {
+      await this._driver.init()
+    }
 
     return this._checkPrepare(checkSettings, async () => {
       const {persistedCheckSettings, cleanupPersistance} = await CheckSettingsUtils.toPersistedCheckSettings({
@@ -160,6 +164,7 @@ class EyesVisualGrid extends EyesCore {
           checkSettings.waitBeforeCapture,
           this._configuration.getWaitBeforeCapture(),
         )
+        const lazyLoadOptions = makeLazyLoadOptions(checkSettings.lazyLoad)
         const showLogs = this._configuration.getShowLogs()
 
         const snapshotArgs = {}
@@ -176,10 +181,28 @@ class EyesVisualGrid extends EyesCore {
             getIosDevicesSizes: this._getIosDevicesSizes,
             showLogs,
             waitBeforeCapture: () => utils.general.sleep(waitBeforeCapture),
+            lazyLoadBeforeCapture: async () => {
+              if (lazyLoadOptions) {
+                this._logger.log('lazy loading the page before capturing snapshots')
+                const scripts = {
+                  main: {
+                    script: lazyLoad,
+                    args: [[lazyLoadOptions]],
+                  },
+                  poll: {
+                    script: lazyLoad,
+                    args: [[]],
+                  },
+                }
+                await EyesUtils.executePollScript(this._logger, this._driver, scripts, {
+                  pollTimeout: lazyLoadOptions.waitingTime,
+                })
+              }
+            },
           })
 
           const [{url}] = snapshots
-          if (this.getCorsIframeHandle() === CorsIframeHandles.BLANK) {
+          if (this.getCorsIframeHandle() === 'BLANK') {
             snapshots.forEach(CorsIframeHandler.blankCorsIframeSrcOfCdt)
           }
           snapshotArgs.url = url

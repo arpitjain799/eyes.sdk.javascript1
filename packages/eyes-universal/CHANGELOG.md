@@ -8,6 +8,231 @@
 
 
 
+## 2.9.1 - 2022/6/17
+
+### Features
+### Bug fixes
+- Support self signed certificates in webdriver proxy
+- Remove tunnel proxy since this functionality is already handled by default proxy
+
+## 2.9.0 - 2022/6/17
+
+### Features
+- Support padding for regions in the following region types - ignoreRegions, layoutRegions, strictRegions, contentRegions
+- Add proxy and tunneling support for connecting to the driver instance
+### Bug fixes
+- Fixed native screenshots of the elements under large collapsing areas
+- Fixed scrolling on some android devices
+
+## 2.8.0 - 2022/6/14
+
+### Features
+- Add special attribute for pseudo elements
+- Add the ability for the SDK to lazy load the page prior to performing a check window
+### Bug fixes
+
+## 2.7.2 - 2022/6/10
+
+### Features
+### Bug fixes
+- Fix rendering issues with Salesforce Lightning design system
+- Fix issue that prevented self-signed certificates from working when connecting through a proxy server
+
+## 2.7.1 - 2022/6/8
+
+### Features
+### Bug fixes
+- Fix calling `waitBeforeCapture` when failed to set required viewport size
+
+## 2.7.0 - 2022/6/8
+
+### Features
+- Add the option to send driver to check method
+- Added Alpine Linux binaries
+- Added support for taking full screenshots of elements that are scroll by pages only
+- Allowed `` values in custom properties
+### Bug fixes
+- Fixed the "Maximum Call Stack Size Exceeded" error when taking screenshots on iOS Safari
+- Fix how we send parameters to the cli from makeServerProcess
+- Fixed an issue with wrong cropped screenshots of elements out of viewport bounds on native devices
+- Fixed `forceFullPageScreenshot` option behavior
+
+## 2.6.1 - 2022/6/2
+
+### Features
+### Bug fixes
+- Fix rounding error of image size when scaling introduces fractions
+
+## 2.6.0 - 2022/6/1
+
+### Features
+- Dorp support for Node.js versions <=12
+### Bug fixes
+- Fixed incorrect calculation of coded regions in classic mode when using CSS stitching
+
+## 2.5.22 - 2022/6/1
+
+### Features
+### Bug fixes
+- Improve request logging for commands to STDOUT, so the full object depth is visible
+
+## 2.5.21 - 2022/5/27
+
+### Features
+### Bug fixes
+- Fix issue with unexpected full-page screenshots
+
+## 2.5.20 - 2022/5/27
+
+### Features
+- Added support for drivers that return screenshots in jpeg format
+- Increased max payload size from 100Mb to 254Mb
+### Bug fixes
+- Fixed `CheckSetting`'s `fully` being overridden by `Configuration`'s `forceFullPageScreenshot`
+
+## 2.5.19 - 2022/5/24
+
+### Features
+### Bug fixes
+- exception in TestResultsSummary now should be accepted properly by universal clients, and we now also map `reason` when emitting an error for Eyes exceptions.
+
+## 2.5.18 - 2022/5/24
+
+### Features
+- Added support for running server with SSL certificates
+### Bug fixes
+- Added retry mechanism for tunnel operations in EG client
+
+## 2.5.17 - 2022/5/23
+
+### Features
+### Bug fixes
+- Fixed bug in native apps when screenshot of the element was taken only for the small visible part of the element
+
+## 2.5.16 - 2022/5/22
+
+### Features
+### Bug fixes
+- Fixed bug in native apps when screenshot of the element was taken only for the small visible part of the element
+- Fixed bug when navigation bar was presented in screenshot on Android 12
+
+## 2.5.15 - 2022/5/19
+
+### Features
+### Bug fixes
+- revert back to sending the config as a string to cli from universal-server-process
+
+## 2.5.14 - 2022/5/19
+
+### Features
+### Bug fixes
+- Fixed handling of navigation bar size on various devices
+
+## 2.5.13 - 2022/5/18
+
+### Features
+### Bug fixes
+- Added support for node versions >= 12.x
+
+## 2.5.12 - 2022/5/18
+
+### Features
+### Bug fixes
+- Improved body processing in EG client
+
+## 2.5.11 - 2022/5/18
+
+### Features
+### Bug fixes
+- Allow running with self-signed certificates
+
+## 2.5.10 - 2022/5/17
+
+### Features
+### Bug fixes
+- Fixed retry mechanism in EG client
+
+## 2.5.9 - 2022/5/16
+
+### Features
+### Bug fixes
+- Fix build settings
+
+## 2.5.8 - 2022/5/16
+
+### Features
+- Improve EG client performance
+- Add proxy support to EG client
+### Bug fixes
+- Fix request issues with EG client
+
+## 2.5.7 - 2022/5/12
+
+### Features
+### Bug fixes
+- Handle network errors in EG client
+
+## 2.5.6 - 2022/5/12
+
+### Features
+- Replace `--eg` flag with `eg-client` command
+### Bug fixes
+
+## 2.5.5 - 2022/5/10
+
+### Features
+- add `--fork` flag to the cli to run server in the fork
+### Bug fixes
+
+## 2.5.4 - 2022/5/9
+
+### Features
+### Bug fixes
+- handle `firstMatch` property during start session request in eg-client
+
+## 2.5.3 - 2022/5/9
+
+### Features
+### Bug fixes
+- Passthrough requests for execution grid client respond with a body now
+
+## 2.5.2 - 2022/5/9
+
+### Features
+### Bug fixes
+- Passthrough requests for execution grid client respond with a body now
+
+## 2.5.1 - 2022/5/6
+
+### Features
+### Bug fixes
+- improve logging around Eyes start session requests
+
+## 2.5.0 - 2022/5/5
+
+### Features
+- Add execution grid tunnel support to the execution grid client
+### Bug fixes
+
+## 2.4.0 - 2022/5/4
+
+### Features
+- Add the ability to launch the execution grid client through a command-line argument
+### Bug fixes
+
+## 2.3.1 - 2022/5/4
+
+### Features
+### Bug fixes
+- Make sure `ios` platformName is changed to `iOS` (fixing a bug in Java Appium)
+
+## 2.3.0 - 2022/5/3
+
+### Features
+### Bug fixes
+- Account for an Appium bug when calculating system bars height
+- Make sure android platformName starts with uppercase if `config.keepPlatformNameAsIs` is set to true
+
 ## 2.2.8 - 2022/4/26
 
 ### Features

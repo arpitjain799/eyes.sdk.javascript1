@@ -1,14 +1,18 @@
 import type * as types from '@applitools/types'
-import type {Context} from './context'
+import {type Logger} from '@applitools/logger'
+import {type Context} from './context'
 import * as utils from '@applitools/utils'
 import * as specUtils from './spec-utils'
 
 const snippets = require('@applitools/snippets')
 
-export type ElementState = {
+export type ElementState<TElement> = {
   contentSize?: types.Size
   scrollOffset?: types.Location
   transforms?: any
+  attributes?: Record<string, string | Error>
+  touchPadding?: number
+  containedElements?: Map<TElement, boolean>
 }
 
 export class Element<TDriver, TContext, TElement, TSelector> {
@@ -17,10 +21,9 @@ export class Element<TDriver, TContext, TElement, TSelector> {
   private _context: Context<TDriver, TContext, TElement, TSelector>
   private _selector: types.Selector<TSelector>
   private _index: number
-  private _state: ElementState = {}
+  private _state: ElementState<TElement> = {}
   private _originalOverflow: any
-  private _touchPadding: number
-  private _logger: any
+  private _logger: Logger
 
   protected readonly _spec: types.SpecDriver<TDriver, TContext, TElement, TSelector>
 
@@ -30,7 +33,7 @@ export class Element<TDriver, TContext, TElement, TSelector> {
     context?: Context<TDriver, TContext, TElement, TSelector>
     selector?: types.Selector<TSelector>
     index?: number
-    logger?: any
+    logger?: Logger
     root?: TElement
   }) {
     if (options.element instanceof Element) return options.element
@@ -92,6 +95,51 @@ export class Element<TDriver, TContext, TElement, TSelector> {
     }
   }
 
+  async contains(innerElement: Element<TDriver, TContext, TElement, TSelector> | TElement): Promise<boolean> {
+    const contains = await this.withRefresh(async () => {
+      innerElement = innerElement instanceof Element ? innerElement.target : innerElement
+      if (this.driver.isWeb) {
+        this._logger.log('Checking if web element with selector', this.selector, 'contains element', innerElement)
+        return false // TODO implement a snipped for web
+      } else {
+        if (this._state.containedElements?.has(innerElement)) return this._state.containedElements.get(innerElement)
+
+        this._logger.log('Checking if native element with selector', this.selector, 'contains element', innerElement)
+        // appium doesn't have a way to check if an element is contained in another element, so juristic applied
+        if (await this.equals(innerElement)) return false
+        // if the inner element region is contained in this element region, then it then could be assumed that the inner element is contained in this element
+        const contentRegion = await this.getAttribute('contentSize')
+          .then(data => {
+            const contentSize = JSON.parse(data)
+            return {
+              x: contentSize.left,
+              y: contentSize.top,
+              width: contentSize.width,
+              height: this.driver.isIOS
+                ? Math.max(contentSize.height, contentSize.scrollableOffset)
+                : contentSize.height + contentSize.scrollableOffset,
+            }
+          })
+          .catch(() => this._spec.getElementRegion(this.driver.target, this.target))
+        const contentSize = await this.driver.helper?.getContentSize(this)
+
+        const region = {
+          x: contentRegion.x,
+          y: contentRegion.y,
+          width: Math.max(contentSize?.width ?? 0, contentRegion.width),
+          height: Math.max(contentSize?.height ?? 0, contentRegion.height),
+        }
+        const innerRegion = await this._spec.getElementRegion(this.driver.target, innerElement)
+        const contains = utils.geometry.contains(region, innerRegion)
+        this._state.containedElements ??= new Map()
+        this._state.containedElements.set(innerElement, contains)
+        return contains
+      }
+    })
+    this._logger.log('Element with selector', this.selector, contains ? 'contains' : `doesn't contain`, innerElement)
+    return contains
+  }
+
   async init(context: Context<TDriver, TContext, TElement, TSelector>): Promise<this> {
     this._context = context
     this._logger = (context as any)._logger
@@ -105,7 +153,7 @@ export class Element<TDriver, TContext, TElement, TSelector> {
     }
   }
 
-  async getRegion(shouldIgnoreSafeRegion?: boolean): Promise<types.Region> {
+  async getRegion(): Promise<types.Region> {
     const region = await this.withRefresh(async () => {
       if (this.driver.isWeb) {
         this._logger.log('Extracting region of web element with selector', this.selector)
@@ -114,7 +162,13 @@ export class Element<TDriver, TContext, TElement, TSelector> {
         this._logger.log('Extracting region of native element with selector', this.selector)
         const region = await this._spec.getElementRegion(this.driver.target, this.target)
         this._logger.log('Extracted native region', region)
-        return this.driver.normalizeRegion(region, shouldIgnoreSafeRegion)
+        const normalizedRegion = await this.driver.normalizeRegion(region)
+
+        // if element is a child of scrolling element, then region location should be adjusted
+        const scrollingElement = await this.context.getScrollingElement()
+        return (await scrollingElement?.contains(this))
+          ? utils.geometry.offset(normalizedRegion, await scrollingElement.getScrollOffset())
+          : normalizedRegion
       }
     })
     this._logger.log('Extracted region', region)
@@ -144,21 +198,21 @@ export class Element<TDriver, TContext, TElement, TSelector> {
       } else {
         this._logger.log('Extracting content size of native element with selector', this.selector)
         try {
-          const {touchPadding, ...contentRegion}: any = await this.getAttribute('contentSize')
+          const contentRegion = await this.getAttribute('contentSize')
             .then(data => {
               const contentSize = JSON.parse(data)
               return {
-                touchPadding: contentSize.touchPadding,
                 x: contentSize.left,
                 y: contentSize.top,
                 width: contentSize.width,
-                height: (this.driver.isAndroid ? contentSize.height : 0) + contentSize.scrollableOffset,
+                height: this.driver.isIOS
+                  ? Math.max(contentSize.height, contentSize.scrollableOffset)
+                  : contentSize.height + contentSize.scrollableOffset,
               }
             })
             .catch(err => {
-              this._logger.log(
-                `Unable to get the attribute 'contentSize' when looking up touchPadding due to the following error:`,
-                `'${err.message}'`,
+              this._logger.warn(
+                `Unable to get the attribute 'contentSize' due to the following error: '${err.message}'`,
               )
               return this._spec.getElementRegion(this.driver.target, this.target)
             })
@@ -171,8 +225,6 @@ export class Element<TDriver, TContext, TElement, TSelector> {
             width: Math.max(contentSize?.width ?? 0, contentRegion.width),
             height: Math.max(contentSize?.height ?? 0, contentRegion.height),
           }
-          this._touchPadding = touchPadding ?? this._touchPadding
-          this._logger.log('touchPadding', this._touchPadding)
 
           if (this.driver.isAndroid) {
             this._state.contentSize = utils.geometry.scale(this._state.contentSize, 1 / this.driver.pixelRatio)
@@ -180,15 +232,6 @@ export class Element<TDriver, TContext, TElement, TSelector> {
 
           if (contentRegion.y < this.driver.statusBarHeight) {
             this._state.contentSize.height -= this.driver.statusBarHeight - contentRegion.y
-          }
-
-          // android has a bug when after extracting 'contentSize' attribute the element is being scrolled by undetermined number of pixels
-          if (this.driver.isAndroid) {
-            this._logger.log('Stabilizing android scroll offset')
-            const originalScrollOffset = await this.getScrollOffset()
-            this._state.scrollOffset = {x: -1, y: -1}
-            await this.scrollTo({x: 0, y: 0})
-            await this.scrollTo(originalScrollOffset)
           }
 
           return this._state.contentSize
@@ -204,8 +247,22 @@ export class Element<TDriver, TContext, TElement, TSelector> {
     return size
   }
 
+  async isPager(): Promise<boolean> {
+    this._logger.log('Check if element with selector', this.selector, 'is scrollable by pages')
+    const isPager = await this.withRefresh(async () => {
+      if (this.driver.isAndroid) {
+        const className = await this.getAttribute('className')
+        return ['androidx.viewpager.widget.ViewPager'].includes(className)
+      } else {
+        return false
+      }
+    })
+    this._logger.log('Element scrollable by pages', isPager)
+    return isPager
+  }
+
   async isScrollable(): Promise<boolean> {
-    this._logger.log('Check is element with selector', this.selector, 'is scrollable')
+    this._logger.log('Check if element with selector', this.selector, 'is scrollable')
     const isScrollable = await this.withRefresh(async () => {
       if (this.driver.isWeb) {
         return this.context.execute(snippets.isElementScrollable, [this])
@@ -234,23 +291,26 @@ export class Element<TDriver, TContext, TElement, TSelector> {
   }
 
   async getTouchPadding(): Promise<number> {
-    if (this._touchPadding == null) {
-      if (this.driver.isWeb) this._touchPadding = 0
-      else if (this.driver.isIOS) this._touchPadding = 10
+    if (this._state.touchPadding == null) {
+      if (this.driver.isWeb) this._state.touchPadding = 0
+      else if (this.driver.isIOS) this._state.touchPadding = 10
       else if (this.driver.isAndroid) {
-        const data = await this.getAttribute('contentSize')
-          .then(JSON.parse)
-          .catch(err => {
-            this._logger.log(
-              `Unable to get the attribute 'contentSize' when looking up touchPadding due to the following error:`,
-              `'${err.message}'`,
-            )
-          })
-        this._touchPadding = data?.touchPadding ?? 20
-        this._logger.log('touchPadding', this._touchPadding)
+        if (this.driver.helper?.name === 'android') {
+          this._state.touchPadding = await this.driver.helper?.getTouchPadding()
+        } else {
+          const touchPadding = await this.getAttribute('contentSize')
+            .then(data => JSON.parse(data).touchPadding)
+            .catch(err => {
+              this._logger.warn(
+                `Unable to get the attribute 'contentSize' when looking up 'touchPadding' due to the following error: '${err.message}'`,
+              )
+            })
+          this._state.touchPadding = touchPadding ?? 20
+        }
+        this._logger.log('Touch padding set:', this._state.touchPadding)
       }
     }
-    return this._touchPadding
+    return this._state.touchPadding
   }
 
   async getText(): Promise<string> {
@@ -267,12 +327,39 @@ export class Element<TDriver, TContext, TElement, TSelector> {
   }
 
   async getAttribute(name: string): Promise<string> {
-    if (this.driver.isWeb) {
-      const properties = await this.context.execute(snippets.getElementProperties, [this, [name]])
-      return properties[name]
-    } else {
-      return this._spec.getElementAttribute(this.driver.target, this.target, name)
+    // we assumes that attributes are not changed during the session
+    if (this._state.attributes?.[name]) {
+      if (this._state.attributes[name] instanceof Error) throw this._state.attributes[name]
+      return this._state.attributes[name] as any
     }
+
+    const value = await this.withRefresh(async () => {
+      if (this.driver.isWeb) {
+        const properties = await this.context.execute(snippets.getElementProperties, [this, [name]])
+        return properties[name]
+      } else {
+        this._logger.log(`Extracting "${name}" attribute of native element with selector`, this.selector)
+        this._state.attributes ??= {}
+        try {
+          this._state.attributes[name] = await this._spec.getElementAttribute(this.driver.target, this.target, name)
+          return this._state.attributes[name]
+        } catch (err) {
+          this._state.attributes[name] = err
+          throw err
+        } finally {
+          if (this.driver.isAndroid && name === 'contentSize') {
+            // android has a bug when after extracting 'contentSize' attribute the element is being scrolled by undetermined number of pixels
+            this._logger.log('Stabilizing android scroll offset')
+            const originalScrollOffset = await this.getScrollOffset()
+            await this.scrollTo({x: 0, y: 0}, {force: true})
+            await this.scrollTo(originalScrollOffset)
+          }
+        }
+      }
+    })
+
+    this._logger.log(`Extracted element "${name}" attribute:`, value)
+    return value
   }
 
   async setAttribute(name: string, value: string): Promise<void> {
@@ -281,9 +368,9 @@ export class Element<TDriver, TContext, TElement, TSelector> {
     }
   }
 
-  async scrollTo(offset: types.Location): Promise<types.Location> {
+  async scrollTo(offset: types.Location, options?: {force: boolean}): Promise<types.Location> {
     return this.withRefresh(async () => {
-      offset = utils.geometry.round(offset)
+      offset = utils.geometry.round({x: Math.max(offset.x, 0), y: Math.max(offset.y, 0)})
       if (this.driver.isWeb) {
         let actualOffset = await this.context.execute(snippets.scrollTo, [this, offset])
         // iOS has an issue when scroll offset is read immediately after it is been set it will always return the exact value that was set
@@ -292,90 +379,136 @@ export class Element<TDriver, TContext, TElement, TSelector> {
       } else {
         const currentScrollOffset = await this.getScrollOffset()
 
-        if (utils.geometry.equals(offset, currentScrollOffset)) return currentScrollOffset
+        if (!options?.force && utils.geometry.equals(offset, currentScrollOffset)) return currentScrollOffset
 
         const contentSize = await this.getContentSize()
         const scrollableRegion = await this.getClientRegion()
 
-        const effectiveRegion = this.driver.isAndroid
-          ? utils.geometry.scale(scrollableRegion, this.driver.pixelRatio)
-          : scrollableRegion
         const maxOffset = {
           x: Math.round(scrollableRegion.width * (contentSize.width / scrollableRegion.width - 1)),
           y: Math.round(scrollableRegion.height * (contentSize.height / scrollableRegion.height - 1)),
         }
         const requiredOffset = {x: Math.min(offset.x, maxOffset.x), y: Math.min(offset.y, maxOffset.y)}
-        let remainingOffset =
-          offset.x === 0 && offset.y === 0
-            ? {x: -maxOffset.x, y: -maxOffset.y} // if it has to be scrolled to the very beginning, then scroll maximum amount of pixels
-            : utils.geometry.offsetNegative(requiredOffset, currentScrollOffset)
+
+        if (this.driver.helper?.name === 'android' && utils.geometry.equals(requiredOffset, {x: 0, y: 0})) {
+          await this.driver.helper.scrollToTop(this)
+          this._state.scrollOffset = requiredOffset
+          return this._state.scrollOffset
+        }
+
+        let effectiveRegion = scrollableRegion
+        let remainingOffset = utils.geometry.equals(requiredOffset, {x: 0, y: 0})
+          ? {x: -maxOffset.x, y: -maxOffset.y} // if it has to be scrolled to the very beginning, then scroll maximum amount of pixels
+          : utils.geometry.offsetNegative(requiredOffset, currentScrollOffset)
 
         if (this.driver.isAndroid) {
-          remainingOffset = utils.geometry.scale(remainingOffset, this.driver.pixelRatio)
+          remainingOffset = utils.geometry.round(utils.geometry.scale(remainingOffset, this.driver.pixelRatio))
+          effectiveRegion = utils.geometry.round(utils.geometry.scale(effectiveRegion, this.driver.pixelRatio))
         }
 
         const actions = []
 
+        const isPager = await this.isPager()
+
         const touchPadding = await this.getTouchPadding()
 
-        const xPadding = Math.max(Math.floor(effectiveRegion.width * 0.1), touchPadding)
+        // horizontal scrolling
+        const xPadding = Math.max(Math.floor(effectiveRegion.width * 0.07), touchPadding)
         const yTrack = Math.floor(effectiveRegion.y + effectiveRegion.height / 2) // center
         const xLeft = effectiveRegion.y + xPadding
-        const xDirection = remainingOffset.y > 0 ? 'right' : 'left'
+        const xDirection = remainingOffset.x > 0 ? 'right' : 'left'
         const xGap = xDirection === 'right' ? -touchPadding : touchPadding
         let xRemaining = Math.abs(remainingOffset.x)
+        if (isPager) {
+          const xPages = Math.floor(xRemaining / effectiveRegion.width)
+          xRemaining = (effectiveRegion.width - xPadding * 2) * xPages
+        }
         while (xRemaining > 0) {
           const xRight = effectiveRegion.x + Math.min(xRemaining + xPadding, effectiveRegion.width - xPadding)
           const [xStart, xEnd] = xDirection === 'right' ? [xRight, xLeft] : [xLeft, xRight]
-          actions.push([
-            {action: 'press', y: yTrack, x: xStart},
-            {action: 'wait', ms: 100},
-            {action: 'moveTo', y: yTrack, x: xStart + xGap},
-            {action: 'wait', ms: 100},
-            {action: 'moveTo', y: yTrack, x: xEnd + xGap},
-            {action: 'wait', ms: 100},
-            {action: 'moveTo', y: yTrack + 1, x: xEnd + xGap},
-            {action: 'release'},
-          ])
+          if (isPager) {
+            actions.push([
+              {action: 'press', y: yTrack, x: xStart},
+              // scroll through the page
+              {action: 'wait', ms: 170},
+              {action: 'moveTo', y: yTrack, x: xEnd},
+              {action: 'release'},
+            ])
+          } else {
+            actions.push([
+              {action: 'press', y: yTrack, x: xStart},
+              // move through scrolling gap (actual scrolling will be triggered only after that)
+              {action: 'wait', ms: 100},
+              {action: 'moveTo', y: yTrack, x: xStart + xGap},
+              // perform actual scrolling
+              {action: 'wait', ms: 100},
+              {action: 'moveTo', y: yTrack, x: xEnd + xGap},
+              // prevent inertial scrolling after release
+              {action: 'wait', ms: 100},
+              {action: 'moveTo', y: yTrack + 1, x: xEnd + xGap},
+              {action: 'release'},
+            ])
+          }
           xRemaining -= xRight - xLeft
         }
 
-        const yPadding = Math.max(Math.floor(effectiveRegion.height * 0.1), touchPadding)
+        // vertical scrolling
+        const yPadding = Math.max(Math.floor(effectiveRegion.height * 0.07), touchPadding)
         const xTrack = Math.floor(effectiveRegion.x + 5) // a little bit off left border
         const yBottom = effectiveRegion.y + effectiveRegion.height - yPadding
         const yDirection = remainingOffset.y > 0 ? 'down' : 'up'
         const yGap = yDirection === 'down' ? -touchPadding : touchPadding
         let yRemaining = Math.abs(remainingOffset.y)
+        if (isPager) {
+          const yPages = Math.floor(yRemaining / effectiveRegion.height)
+          yRemaining = (effectiveRegion.height - yPadding * 2) * yPages
+        }
         while (yRemaining > 0) {
           const yTop = Math.max(yBottom - yRemaining, effectiveRegion.y + yPadding)
           const [yStart, yEnd] = yDirection === 'down' ? [yBottom, yTop] : [yTop, yBottom]
-          actions.push([
-            {action: 'press', x: xTrack, y: yStart},
-            {action: 'wait', ms: 100},
-            {action: 'moveTo', x: xTrack, y: yStart + yGap},
-            {action: 'wait', ms: 100},
-            {action: 'moveTo', x: xTrack, y: yEnd + yGap},
-            {action: 'wait', ms: 100},
-            {action: 'moveTo', x: xTrack + 1, y: yEnd + yGap},
-            {action: 'release'},
-          ])
+          if (isPager) {
+            actions.push([
+              {action: 'press', x: xTrack, y: yStart},
+              // scroll through the page
+              {action: 'wait', ms: 170},
+              {action: 'moveTo', x: xTrack, y: yEnd},
+              {action: 'release'},
+            ])
+          } else {
+            actions.push([
+              {action: 'press', x: xTrack, y: yStart},
+              // move through scrolling gap (actual scrolling will be triggered only after that)
+              {action: 'wait', ms: 100},
+              {action: 'moveTo', x: xTrack, y: yStart + yGap},
+              // perform actual scrolling
+              {action: 'wait', ms: 100},
+              {action: 'moveTo', x: xTrack, y: yEnd + yGap},
+              // prevent inertial scrolling after release
+              {action: 'wait', ms: 100},
+              {action: 'moveTo', x: xTrack + 1, y: yEnd + yGap},
+              {action: 'release'},
+            ])
+          }
           yRemaining -= yBottom - yTop
         }
 
         // ios actions should be executed one-by-one sequentially, otherwise the result isn't stable
-        if (this.driver.isIOS) {
+        // pages should be scrolled one-by-one as well
+        if (isPager || this.driver.isIOS) {
           for (const action of actions) {
             await this._spec.performAction(this.driver.target, action)
           }
-        } else {
+        } else if (actions.length > 0) {
           await this._spec.performAction(this.driver.target, [].concat(...actions))
         }
 
         const actualScrollableRegion = await this.getClientRegion()
-        this._state.scrollOffset = utils.geometry.offsetNegative(requiredOffset, {
-          x: scrollableRegion.x - actualScrollableRegion.x,
-          y: scrollableRegion.y - actualScrollableRegion.y,
-        })
+        this._state.scrollOffset = utils.geometry.round(
+          utils.geometry.offsetNegative(requiredOffset, {
+            x: scrollableRegion.x - actualScrollableRegion.x,
+            y: scrollableRegion.y - actualScrollableRegion.y,
+          }),
+        )
 
         return this._state.scrollOffset
       }
@@ -423,7 +556,7 @@ export class Element<TDriver, TContext, TElement, TSelector> {
     await this._spec.type(this.context.target, this.target, value)
   }
 
-  async preserveState(): Promise<ElementState> {
+  async preserveState(): Promise<ElementState<TElement>> {
     if (this.driver.isNative) return
     // TODO create single js snippet
     const scrollOffset = await this.getScrollOffset()
@@ -438,7 +571,7 @@ export class Element<TDriver, TContext, TElement, TSelector> {
     return {scrollOffset, transforms}
   }
 
-  async restoreState(state: ElementState = this._state): Promise<void> {
+  async restoreState(state: ElementState<TElement> = this._state): Promise<void> {
     if (this.driver.isNative) return
     if (state.scrollOffset) await this.scrollTo(state.scrollOffset)
     if (state.transforms) await this.context.execute(snippets.setElementStyleProperties, [this, state.transforms])

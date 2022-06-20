@@ -4,8 +4,15 @@ const pixelmatch = require('pixelmatch')
 const makeImage = require('../../src/image')
 
 describe('image', () => {
-  it('should provide access to image width/height before it parsed', async () => {
+  it('should provide access to png image width/height before it parsed', async () => {
     const buffer = fs.readFileSync('./test/fixtures/image/house.png')
+    const image = makeImage(buffer)
+    assert.strictEqual(image.width, 612)
+    assert.strictEqual(image.height, 512)
+  })
+
+  it('should provide access to jpeg image width/height before it parsed', async () => {
+    const buffer = fs.readFileSync('./test/fixtures/image/house.jpeg')
     const image = makeImage(buffer)
     assert.strictEqual(image.width, 612)
     assert.strictEqual(image.height, 512)
@@ -36,25 +43,19 @@ describe('image', () => {
   })
 
   it('should scale', async () => {
-    const actual = await makeImage('./test/fixtures/image/house.png')
-      .scale(0.5)
-      .toObject()
+    const actual = await makeImage('./test/fixtures/image/house.png').scale(0.5).toObject()
     const expected = await makeImage('./test/fixtures/image/house.scaled.png').toObject()
     assert.ok(pixelmatch(actual.data, expected.data, null, expected.width, expected.height) === 0)
   })
 
   it('should rotate', async () => {
-    const actual = await makeImage('./test/fixtures/image/house.png')
-      .rotate(90)
-      .toObject()
+    const actual = await makeImage('./test/fixtures/image/house.png').rotate(90).toObject()
     const expected = await makeImage('./test/fixtures/image/house.rotated.png').toObject()
     assert.ok(pixelmatch(actual.data, expected.data, null, expected.width, expected.height) === 0)
   })
 
   it('should rotate a big image without heap overflow', async () => {
-    const actual = await makeImage({width: 1000, height: 50000})
-      .rotate(270)
-      .toObject()
+    const actual = await makeImage({width: 1000, height: 50000}).rotate(270).toObject()
     assert.strictEqual(actual.width, 50000)
     assert.strictEqual(actual.height, 1000)
   })

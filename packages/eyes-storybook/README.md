@@ -49,6 +49,7 @@ Applitools Eyes SDK for [Storybook](http://storybook.js.org).
     - [`layoutBreakpoints`](#layoutbreakpoints)
   - [Running Eyes-Storybook in Docker](#running-eyes-storybook-in-docker)
   - [Dealing with dynamic data](#dealing-with-dynamic-data)
+  - [Storybook interactions Play functionality](#storybook-interactions-play-functionality)
 
 ## Installation
 
@@ -292,7 +293,7 @@ module.exports = {
 
 Possible values for screen orientation are `landscape` and `portrait`, and if no value is specified, the default is `portrait`.
 
-The list of device names is available at https://github.com/applitools/eyes.sdk.javascript1/blob/master/packages/eyes-sdk-core/lib/config/DeviceName.js
+The list of device names is available at https://github.com/applitools/eyes.sdk.javascript1/blob/master/packages/eyes-api/src/enums/DeviceName.ts
 
 In addition, it's possible to use chrome's device emulation with custom viewport sizes, pixel density and mobile mode, by passing `deviceScaleFactor` and `mobile` in addition to `width` and `height`. For example:
 
@@ -322,7 +323,7 @@ module.exports = {
 }
 ```
 
-The list of devices is available at https://github.com/applitools/eyes.sdk.javascript1/blob/master/packages/eyes-sdk-core/lib/config/IosDeviceName.js
+The list of devices is available at https://github.com/applitools/eyes.sdk.javascript1/blob/master/packages/eyes-api/src/enums/IosDeviceName.ts
 
 Possible values for `iosVersion` are:
 
@@ -848,3 +849,11 @@ const date = new Date(isBeingTested ? SOME_FIXED_DATE : undefined)
 
 storiesOf('Some kind', module).add('Date', () => <div>{date}</div>)
 ```
+
+## Storybook interactions Play functionality
+
+Since version 3.28.0, there is a support for Storybooks' Interactions Play functionality: Stories who use 'Play', screenshot will be taken _automatically_ after the 'Play' flow is done.
+This will replace the existing point of taking screenshots, it should not affect any new or existing Stories which are **not** using the 'Play' functionality.
+Tests that use the _`waitBeforeCapture`_ property, the wait period will begin **after** the 'Play' flow is done.
+You can read more at Storybook interactions documentation:
+https://storybook.js.org/docs/react/essentials/interactions

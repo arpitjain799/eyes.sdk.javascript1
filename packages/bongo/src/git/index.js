@@ -52,7 +52,7 @@ async function expandAutoCommitLogEntry(logEntry) {
   for (const dep of internalDeps) {
     let results = await gitLog(dep)
     // expand auto-commits
-    if (results.find(entry => isAutoCommit(entry))) {
+    if (results && results.find(entry => isAutoCommit(entry))) {
       const autoCommits = results.filter(entry => isAutoCommit(entry))
       for (const commit of autoCommits) {
         const moreResults = await expandAutoCommitLogEntry(commit)
@@ -114,18 +114,31 @@ async function gitLog({
   const pkgName = packageName || require(path.join(cwd, 'package.json')).name
   const packagePath = getPackagePath(pkgName)
   const exclusions = `":(exclude,icase)../*/changelog.md" ":!../*/test/*"`
-  const command = `git log --oneline --grep ${pkgName}@${upperVersion} --invert-grep ${pkgName}@${lowerVersion}..${pkgName}@${upperVersion} -- ${packagePath} ${exclusions}`
-  const {stdout} = await pexec(command)
-  const entries = stdout && stdout.split('\n').filter(entry => entry)
-  if (!expandAutoCommitLogEntries) return entries
-  let results = []
-  for (const entry of entries) {
-    isAutoCommit(entry)
-      ? results.push(...(await expandAutoCommitLogEntry(entry)))
-      : results.push(entry)
+  const command = `git log --oneline --grep ${pkgName}@${upperVersion.replace(
+    /^\^/,
+    '',
+  )} --invert-grep ${pkgName}@${lowerVersion.replace(/^\^/, '')}..${pkgName}@${upperVersion.replace(
+    /^\^/,
+    '',
+  )} -- ${packagePath} ${exclusions}`
+  try {
+    const {stdout} = await pexec(command)
+    const entries = stdout && stdout.split('\n').filter(entry => entry)
+    if (!expandAutoCommitLogEntries) return entries
+    let results = []
+    for (const entry of entries) {
+      isAutoCommit(entry)
+        ? results.push(...(await expandAutoCommitLogEntry(entry)))
+        : results.push(entry)
+    }
+    // remove release commits & duplicates
+    return [...new Set(results.filter(entry => !isReleaseCommit(entry)))]
+  } catch (error) {
+    // It is possible for an invalid release version to be used even though it is not
+    // included in the tagged versions list. So skip on error.
+    if (/bad revision/.test(error.message)) return []
+    throw error
   }
-  // remove release commits & duplicates
-  return [...new Set(results.filter(entry => !isReleaseCommit(entry)))]
 }
 
 async function gitPullWithRebase() {

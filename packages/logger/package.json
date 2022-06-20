@@ -1,6 +1,6 @@
 {
   "name": "@applitools/logger",
-  "version": "1.0.12",
+  "version": "1.1.12",
   "description": "Applitools logger",
   "keywords": [
     "applitools",
@@ -22,24 +22,33 @@
     "name": "Applitools Team",
     "email": "team@applitools.com"
   },
-  "main": "./index.js",
+  "aliases": [
+    "logger"
+  ],
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "browser": "./dist/browser.js",
+      "default": "./dist/index.js"
+    },
+    "./dist/*": "./dist/*.js",
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.js",
   "browser": {
-    "tunnel": false
+    ".": "./dist/browser.js",
+    "./dist/handler-file.js": false,
+    "./dist/handler-rolling-file.js": false
   },
-  "types": "./index.d.ts",
-  "directories": {
-    "lib": "./src",
-    "test": "./test"
-  },
+  "types": "./types/index.d.ts",
   "files": [
-    "src",
-    "index.js",
-    "index.d.ts"
+    "dist",
+    "types"
   ],
   "scripts": {
-    "lint": "eslint '**/*.js'",
-    "test": "yarn test:e2e",
-    "test:e2e": "mocha --no-timeouts \"test/e2e/**/*.spec.js\"",
+    "lint": "eslint '**/*.ts'",
+    "build": "tsc",
+    "test": "mocha --no-timeouts -r ts-node/register ./test/**/*.spec.ts",
     "deps": "bongo deps",
     "preversion": "bongo preversion",
     "version": "bongo version",
@@ -51,20 +60,27 @@
     }
   },
   "dependencies": {
-    "@applitools/utils": "1.2.14",
-    "chalk": "3.0.0"
+    "@applitools/utils": "1.3.8",
+    "chalk": "4.1.2"
   },
   "devDependencies": {
-    "@applitools/bongo": "^2.0.3",
-    "eslint": "^7.9.0",
+    "@applitools/bongo": "^2.1.5",
+    "@types/mocha": "^9.1.1",
+    "@types/node": "12",
+    "@typescript-eslint/eslint-plugin": "^5.22.0",
+    "@typescript-eslint/parser": "^5.22.0",
+    "eslint": "^8.16.0",
+    "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-mocha-no-only": "^1.1.1",
     "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-prettier": "^3.1.4",
+    "eslint-plugin-prettier": "^4.0.0",
     "husky": "^4.3.8",
-    "mocha": "^8.0.1",
-    "prettier": "^2.1.2"
+    "mocha": "10.0.0",
+    "prettier": "^2.6.2",
+    "ts-node": "^10.8.0",
+    "typescript": "^4.7.2"
   },
   "engines": {
-    "node": ">= 8.9.0"
+    "node": ">=12.13.0"
   }
 }

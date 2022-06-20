@@ -3,6 +3,65 @@
 ## Unreleased
 
 
+
+
+
+
+
+
+
+
+
+## 1.17.2 - 2022/6/8
+
+### Features
+- Allowed `` values in custom properties
+### Bug fixes
+- Fixed broken links to enums implementation in the README.md
+- Fixed `forceFullPageScreenshot` option behavior
+
+## 1.17.1 - 2022/6/2
+
+### Features
+### Bug fixes
+- Fix rounding error of image size when scaling introduces fractions
+
+## 1.17.0 - 2022/6/1
+
+### Features
+- Dorp support for Node.js versions <=12
+### Bug fixes
+- Fixed incorrect calculation of coded regions in classic mode when using CSS stitching
+
+## 1.16.2 - 2022/5/27
+
+### Features
+### Bug fixes
+- Fixed `CheckSetting`'s `fully` being overridden by `Configuration`'s `forceFullPageScreenshot`
+- Set EyesExceptions (such as new test, diffs exception and failed test exception) to exception property in TestResultsSummary
+- Returned support of `showLogs` in configuration file and object
+- Improve error message when failed to set viewport size
+
+## 1.16.1 - 2022/5/19
+
+### Features
+- Support Galaxy S22 `DeviceName.Galaxy_S22` emulation device
+### Bug fixes
+- Fixed the error with importing `testcafe` module
+
+## 1.16.0 - 2022/5/17
+
+### Features
+- Support UFG for native mobile
+- `runner.getAllTestResults` returns the corresponding UFG browser/device configuration for each test. This is available as `runner.getAllTestResults()[i].browserInfo`.
+- Support `failTestcafeOnDiff` as environment variable `APPLITOOLS_FAIL_TESTCAFE_ON_DIFF`
+- Support iPhone SE `IosDeviceName.iPhone_SE` and iPhone 8 Plus `IosDeviceName.iPhone_8_Plus` iOS devices
+### Bug fixes
+- `runner.getAllTestResults` now aborts unclosed tests
+- `runner.getAllTestResults` now returns all results, including aborted tests
+- `extractText` now supports regions that don't use hints while using `x`/`y` coordinates
+- Support data urls in iframes
+
 ## 1.15.5 - 2022/2/22
 
 - add support for configuring notifyOnCompletion through an environment variable ([Trello](https://trello.com/c/WWdwQvpv))

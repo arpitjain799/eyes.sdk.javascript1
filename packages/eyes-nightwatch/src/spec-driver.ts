@@ -34,7 +34,7 @@ function call<
     ...args: [...infer TArgs, (result: Nightwatch.NightwatchCallbackResult<infer TResult>) => any]
   ) => any
     ? TResult
-    : void
+    : void,
 >(driver: Driver, command: TCommand, ...args: any[]): Promise<TResult> {
   return new Promise<TResult>((resolve, reject) => {
     const promise = (driver[command] as any)(...args, (result: Nightwatch.NightwatchCallbackResult<TResult>) => {
@@ -214,10 +214,7 @@ const browserOptionsNames: Record<string, string> = {
 export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
   // config prep
   const parseEnv = require('@applitools/test-utils/src/parse-env')
-  const {browser = '', capabilities, url, configurable = true, args = [], headless} = parseEnv({
-    ...env,
-    legacy: true,
-  })
+  const {browser = '', capabilities, url, configurable = true, args = [], headless} = parseEnv({...env, legacy: true})
   const desiredCapabilities = {browserName: browser, ...capabilities}
   if (configurable) {
     const browserOptionsName = browserOptionsNames[browser || desiredCapabilities.browserName]
@@ -247,7 +244,7 @@ export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
           output: false,
           webdriver: {
             host: !url.host.includes('localhost') ? url.host : undefined,
-            port: url.port || 4444,
+            port: url.port || (url.protocol === 'https:' ? 443 : undefined),
             default_path_prefix: url.pathname,
           },
           desiredCapabilities,

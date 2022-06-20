@@ -43,7 +43,7 @@ export function toJSON<TObject extends Record<PropertyKey, any>, TKey extends st
 export function toJSON<
   TObject extends Record<PropertyKey, any>,
   TKey extends string,
-  TProps extends Readonly<Record<TKey, PropertyKey>>
+  TProps extends Readonly<Record<TKey, PropertyKey>>,
 >(
   object: TObject,
   props: TProps,

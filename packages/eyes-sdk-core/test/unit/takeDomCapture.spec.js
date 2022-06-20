@@ -1,9 +1,9 @@
 const assert = require('assert')
-const assertRejects = require('assert-rejects')
 const Axios = require('axios')
 const {Driver} = require('@applitools/driver')
 const {MockDriver, spec} = require('@applitools/driver/fake')
 const takeDomCapture = require('../../lib/utils/takeDomCapture')
+const {makeLogger} = require('@applitools/logger')
 
 describe('takeDomCapture', () => {
   let logger = {log: () => {}, warn: () => {}, error: () => {}, verbose: () => {}}
@@ -55,7 +55,7 @@ describe('takeDomCapture', () => {
         children: [{selector: 'frame2-2', frame: true, isCORS: true}],
       },
     ])
-    driver = new Driver({logger, spec, driver: mock})
+    driver = new Driver({spec, driver: mock, logger: makeLogger()})
     await driver.init()
   })
 
@@ -70,7 +70,7 @@ describe('takeDomCapture', () => {
   })
 
   it('works with polling', async () => {
-    mock.mockScript('dom-capture', function() {
+    mock.mockScript('dom-capture', function () {
       this.poll = this.poll || 0
       if (this.poll === 0) {
         this.domCapture = createDomCapture('dom capture')
@@ -87,7 +87,7 @@ describe('takeDomCapture', () => {
   })
 
   it('handle frames', async () => {
-    mock.mockScript('dom-capture', function() {
+    mock.mockScript('dom-capture', function () {
       let value
       if (this.name === null) {
         value = createDomCapture('main frame dom capture [@@@@@frame1@@@@@] [@@@@@frame2,frame2-2@@@@@]')
@@ -131,7 +131,7 @@ describe('takeDomCapture', () => {
       return JSON.stringify({status: 'ERROR', error: 'Oops! Something went wrong!'})
     })
 
-    assertRejects(
+    assert.rejects(
       takeDomCapture(logger, driver.currentContext),
       `Error during capture dom and pull script: 'Oops! Something went wrong!'`,
     )
@@ -142,6 +142,6 @@ describe('takeDomCapture', () => {
       return JSON.stringify({status: 'WIP'})
     })
 
-    assertRejects(takeDomCapture(logger, driver.currentContext, {executionTimeout: 1000}), 'dom-capture Timed out')
+    assert.rejects(takeDomCapture(logger, driver.currentContext, {executionTimeout: 1000}), 'dom-capture Timed out')
   })
 })

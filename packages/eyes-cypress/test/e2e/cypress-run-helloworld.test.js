@@ -27,7 +27,7 @@ describe('hello world', () => {
   });
 
   after(async () => {
-    //fs.rmdirSync(targetTestAppPath, {recursive: true});
+    fs.rmdirSync(targetTestAppPath, {recursive: true});
   });
 
   it('works for helloworld.js', async () => {

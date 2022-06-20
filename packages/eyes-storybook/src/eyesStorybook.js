@@ -3,7 +3,7 @@ const puppeteer = require('puppeteer');
 const getStories = require('../dist/getStories');
 const {makeVisualGridClient} = require('@applitools/visual-grid-client');
 const {presult, delay} = require('@applitools/functional-commons');
-const chalk = require('./chalkify');
+const chalk = require('chalk');
 const makeInitPage = require('./initPage');
 const makeRenderStory = require('./renderStory');
 const makeRenderStories = require('./renderStories');
@@ -65,7 +65,7 @@ async function eyesStorybook({
   } = makeVisualGridClient({
     userAgent,
     ...config,
-    logger: logger.extend('vgc'),
+    logger: logger.extend({label: 'vgc'}),
   });
 
   const initPage = makeInitPage({
@@ -130,7 +130,7 @@ async function eyesStorybook({
     });
 
     const renderStory = makeRenderStory({
-      logger: logger.extend('renderStory'),
+      logger: logger.extend({label: 'renderStory'}),
       testWindow,
       performance,
       timeItAsync,

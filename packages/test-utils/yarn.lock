@@ -2,12 +2,12 @@
 # yarn lockfile v1
 
 
-"@applitools/bongo@^2.0.3":
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/@applitools/bongo/-/bongo-2.0.3.tgz#bed4f6db83201bb229db7fd8d0133f4b630512af"
-  integrity sha512-a3Hl+Liblxh+Cmaw90DTLQ0D8Qs7yLY69mZ5rj/T41O5Ztb7kdil+IJSJonUu4iISW9zLfptcXOcPk8JmKrbCA==
+"@applitools/bongo@^2.1.5":
+  version "2.1.5"
+  resolved "https://registry.npmjs.org/@applitools/bongo/-/bongo-2.1.5.tgz#2a94520bfa9e9b9afb12de50b5b1b7c99f5b5fcd"
+  integrity sha512-0+hOeRs8CDPo2cx/9Dwbcus7XW2pr98/7c3ByrJFELpB5wv6F1pNGMf5HyST7hRTSmnr6AYmsSO27G5cbYP9dw==
   dependencies:
-    "@applitools/utils" "1.2.14"
+    "@applitools/utils" "1.3.5"
     chalk "3.0.0"
     compare-versions "4.1.3"
     js-yaml "4.1.0"
@@ -16,10 +16,10 @@
     node-fetch "2.6.1"
     yargs "15.0.2"
 
-"@applitools/utils@1.2.14":
-  version "1.2.14"
-  resolved "https://registry.yarnpkg.com/@applitools/utils/-/utils-1.2.14.tgz#9e6b3a2b992e7c6e1a9f4447f8ac2b48b6037a2e"
-  integrity sha512-pnul7WuGuVScqm8jyHJQgBP3QcApzWC4u/RjZkWxFSFVVapVJsnuBENbs0aAOMeYtxqRvUWDG5MyyjMZIpEDxw==
+"@applitools/utils@1.3.5":
+  version "1.3.5"
+  resolved "https://registry.npmjs.org/@applitools/utils/-/utils-1.3.5.tgz#ac4e7e257334672e51f31028e439b83f01a485ff"
+  integrity sha512-w1XJWj/MzZmTRbCUU/f5SvGAa4lKCeelNaI6HEi0VSqZirYmrzZdXFMlHqoh2RlDneLUEbBTbLhWC/RixaA1RA==
 
 "@babel/code-frame@^7.0.0":
   version "7.12.13"
@@ -219,14 +219,6 @@ chalk@3.0.0:
     ansi-styles "^4.1.0"
     supports-color "^7.1.0"
 
-chalk@4.1.1, chalk@^4.0.0, chalk@^4.1.0:
-  version "4.1.1"
-  resolved "https://registry.yarnpkg.com/chalk/-/chalk-4.1.1.tgz#c80b3fab28bf6371e6863325eee67e618b77e6ad"
-  integrity sha512-diHzdDKxcU+bAsUboHLPEDQiw0qEe0qd7SYUn3HgcFlWgbDcfLGswOHYeGrHKzG9z6UYf01d9VFMfZxPM1xZSg==
-  dependencies:
-    ansi-styles "^4.1.0"
-    supports-color "^7.1.0"
-
 chalk@^2.0.0, chalk@^2.1.0:
   version "2.4.2"
   resolved "https://registry.yarnpkg.com/chalk/-/chalk-2.4.2.tgz#cd42541677a54333cf541a49108c1432b44c9424"
@@ -235,6 +227,14 @@ chalk@^2.0.0, chalk@^2.1.0:
     ansi-styles "^3.2.1"
     escape-string-regexp "^1.0.5"
     supports-color "^5.3.0"
+
+chalk@^4.0.0, chalk@^4.1.0:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/chalk/-/chalk-4.1.1.tgz#c80b3fab28bf6371e6863325eee67e618b77e6ad"
+  integrity sha512-diHzdDKxcU+bAsUboHLPEDQiw0qEe0qd7SYUn3HgcFlWgbDcfLGswOHYeGrHKzG9z6UYf01d9VFMfZxPM1xZSg==
+  dependencies:
+    ansi-styles "^4.1.0"
+    supports-color "^7.1.0"
 
 chardet@^0.7.0:
   version "0.7.0"

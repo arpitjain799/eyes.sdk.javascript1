@@ -40,7 +40,7 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   private _config: ConfigurationData<TElement, TSelector>
   private _runner: EyesRunner
   private _driver: TDriver
-  private _eyes: types.Eyes<TElement, TSelector>
+  private _eyes: types.Eyes<TDriver, TElement, TSelector>
   private _events: Map<string, Set<(...args: any[]) => any>> = new Map()
   private _handlers: SessionEventHandlers = new SessionEventHandlers()
 
@@ -175,7 +175,7 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
 
     if (this._config.isDisabled) return driver
 
-    const config = this._config.toJSON()
+    const config: types.EyesConfig<TElement, TSelector> = this._config.toJSON()
     if (utils.types.instanceOf(configOrAppName, ConfigurationData)) {
       Object.assign(config, configOrAppName.toJSON())
     } else if (utils.types.isObject(configOrAppName)) {
@@ -186,6 +186,11 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     if (utils.types.isString(testName)) config.testName = testName
     if (utils.types.has(viewportSize, ['width', 'height'])) config.viewportSize = viewportSize
     if (utils.types.isEnumValue(sessionType, SessionTypeEnum)) config.sessionType = sessionType
+
+    // TODO remove when major version of sdk should be released
+    config.keepPlatformNameAsIs = true
+    // TODO remove when major version of sdk should be released
+    if (config.proxy) config.proxy.isHttpOnly ??= false
 
     this._eyes = await this._runner.openEyes({
       driver,
@@ -264,10 +269,13 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
         : {...checkSettingsOrName}
     }
 
+    const config = this._config.toJSON()
     // TODO remove when major version of sdk should be released
-    settings.fully ??= false
+    if (config.proxy) config.proxy.isHttpOnly ??= false
+    // TODO remove when major version of sdk should be released
+    config.forceFullPageScreenshot ??= false
 
-    const result = await this._eyes.check({settings, config: this._config.toJSON()})
+    const result = await this._eyes.check({settings, config})
 
     return new MatchResultData(result)
   }
@@ -278,7 +286,11 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     if (this._config.isDisabled) return null
     if (!this.isOpen) throw new EyesError('Eyes not open')
 
-    return this._eyes.locate({settings, config: this._config.toJSON()})
+    const config = this._config.toJSON()
+    // TODO remove when major version of sdk should be released
+    if (config.proxy) config.proxy.isHttpOnly ??= false
+
+    return this._eyes.locate({settings, config})
   }
 
   async extractTextRegions<TPattern extends string>(
@@ -287,14 +299,22 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     if (this._config.isDisabled) return null
     if (!this.isOpen) throw new EyesError('Eyes not open')
 
-    return this._eyes.extractTextRegions({settings, config: this._config.toJSON()})
+    const config = this._config.toJSON()
+    // TODO remove when major version of sdk should be released
+    if (config.proxy) config.proxy.isHttpOnly ??= false
+
+    return this._eyes.extractTextRegions({settings, config})
   }
 
   async extractText(regions: OCRRegion<TElement, TSelector>[]): Promise<string[]> {
     if (this._config.isDisabled) return null
     if (!this.isOpen) throw new EyesError('Eyes not open')
 
-    return this._eyes.extractText({regions, config: this._config.toJSON()})
+    const config = this._config.toJSON()
+    // TODO remove when major version of sdk should be released
+    if (config.proxy) config.proxy.isHttpOnly ??= false
+
+    return this._eyes.extractText({regions, config})
   }
 
   async close(throwErr = true): Promise<TestResultsData> {

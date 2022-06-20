@@ -2,6 +2,32 @@
 
 ## Unreleased
 
+
+## 3.29.1 - 2022/6/16
+
+### Features
+- Allowed `` values in custom properties
+- Add special attribute for pseudo elements
+- Support padding for regions in the following region types - ignoreRegions, layoutRegions, strictRegions, contentRegions
+### Bug fixes
+- Fixed broken links to enums implementation in the README.md
+- Fix rendering issues with Salesforce Lightning design system
+- Add timeout when attempting to get data for a story
+
+## 3.29.0 - 2022/6/2
+
+### Features
+- Dorp support for Node.js versions <=12
+### Bug fixes
+
+## 3.28.0 - 2022/5/26
+
+### Features
+- Support [Storybook interactions](https://storybook.js.org/docs/react/essentials/interactions). For stories which have a `Play` function defined, the screenshot will be taken automatically after the `Play` flow is done.
+### Bug fixes
+- added `properties` and `notifyOnCompletion` as optional Types of Batch (for TS)
+- Allow running with self-signed certificates
+
 ## 3.27.6 - 2022/4/13
 
 ### Features

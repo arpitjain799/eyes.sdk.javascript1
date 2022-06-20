@@ -1,5 +1,6 @@
 const path = require('path')
-const EyesService = require('@applitools/eyes-webdriverio/dist/service')
+const {mochaHooks} = require('@applitools/test-utils/mocha-hooks/docker.js')
+const {EyesService} = require('../index')
 
 exports.config = {
   runner: 'local',
@@ -21,5 +22,7 @@ exports.config = {
   mochaOpts: {
     ui: 'bdd',
     timeout: 120000,
+    require: [],
   },
+  onPrepare: () => mochaHooks.beforeAll(),
 }

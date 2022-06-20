@@ -3,13 +3,12 @@ const webdriverio = require('webdriverio')
 const pixelmatch = require('pixelmatch')
 const utils = require('@applitools/utils')
 const spec = require('@applitools/spec-driver-webdriverio')
+const {makeLogger} = require('@applitools/logger')
 const {Driver} = require('@applitools/driver')
 const makeImage = require('../../src/image')
 const takeScreenshot = require('../../src/take-screenshot')
 
-exports.logger = process.env.APPLITOOLS_SHOW_LOGS
-  ? {log: console.log, warn: console.log, error: console.log, verbose: console.log}
-  : {log: () => {}, warn: () => {}, error: () => {}, verbose: () => {}}
+exports.logger = makeLogger()
 
 async function sanitizeAndroidStatusBar(image) {
   const leftPatchImage = makeImage({
@@ -41,6 +40,7 @@ exports.test = async function test({type, tag, driver, ...options} = {}) {
       else if (type === 'ios') await sanitizeIOSStatusBar(screenshot.image)
     }
     const actual = await screenshot.image.toObject()
+
     const expected = await makeImage(`./test/fixtures/${type}/${tag}.png`).toObject()
     assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
   } catch (err) {
@@ -52,7 +52,7 @@ exports.test = async function test({type, tag, driver, ...options} = {}) {
   }
 }
 
-exports.makeDriver = async function makeDriver({type, app, orientation, logger}) {
+exports.makeDriver = async function makeDriver({type, app, orientation, logger, deviceName, platformVersion}) {
   const workerId = process.env.MOCHA_WORKER_ID ? Number(process.env.MOCHA_WORKER_ID) : 0
   console.log(`makeDriver called for worker #${process.env.MOCHA_WORKER_ID}`, workerId)
   const androidEmulatorIds = process.env.ANDROID_EMULATOR_UDID
@@ -61,7 +61,7 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger})
   const iosSimulatorIds = process.env.IOS_SIMULATOR_UDID ? process.env.IOS_SIMULATOR_UDID.split(',') : []
   const apps = {
     android: 'https://applitools.jfrog.io/artifactory/Examples/android/1.3/app-debug.apk',
-    androidx: 'https://applitools.jfrog.io/artifactory/Examples/androidx/1.3.4/app_androidx.apk',
+    androidx: 'https://applitools.jfrog.io/artifactory/Examples/androidx/1.3.6/app_androidx.apk',
     ios: 'https://applitools.jfrog.io/artifactory/Examples/IOSTestApp/1.9/app/IOSTestApp.zip',
   }
 
@@ -86,28 +86,47 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger})
         nativeWebScreenshot: true,
         skipUnlock: true,
         isHeadless: true,
+        // noReset: true,
         browserName: app === 'chrome' ? app : '',
-        app: apps[app || type],
-        deviceName: 'Google Pixel 3a XL',
+        app: app === 'chrome' ? undefined : apps[app || type] || app,
+        deviceName: deviceName || 'Google Pixel 3a XL',
         platformName: 'Android',
-        platformVersion: '10.0',
+        platformVersion: platformVersion || '10.0',
         automationName: 'uiautomator2',
         orientation: orientation ? orientation.toUpperCase() : 'PORTRAIT',
       },
     },
     'android-sauce': {
-      url: 'https://ondemand.saucelabs.com:443/wd/hub',
+      url: 'https://ondemand.us-west-1.saucelabs.com/wd/hub',
       capabilities: {
         name: 'Android screenshoter',
         appiumVersion: '1.20.2',
         username: process.env.SAUCE_USERNAME,
         accessKey: process.env.SAUCE_ACCESS_KEY,
         browserName: app === 'chrome' ? app : '',
-        app: apps[app || type],
-        deviceName: 'Google Pixel 3a XL GoogleAPI Emulator',
+        app: app === 'chrome' ? undefined : apps[app || type] || app,
+        deviceName: deviceName || 'Google Pixel 3a XL GoogleAPI Emulator',
         platformName: 'Android',
-        platformVersion: '10.0',
+        platformVersion: platformVersion || '10.0',
+        extendedDebugging: true,
         deviceOrientation: orientation ? orientation.toUpperCase() : 'PORTRAIT',
+      },
+    },
+    'android-bs': {
+      url: 'https://hub.browserstack.com/wd/hub',
+      capabilities: {
+        'bstack:options': {
+          realMobile: 'true',
+          appiumVersion: '1.20.2',
+          deviceOrientation: orientation ? orientation.toUpperCase() : 'PORTRAIT',
+          userName: process.env.BROWSERSTACK_USERNAME,
+          accessKey: process.env.BROWSERSTACK_ACCESS_KEY,
+        },
+        browserName: app === 'chrome' ? app : '',
+        platformName: 'Android',
+        'appium:platformVersion': platformVersion || '9.0',
+        'appium:deviceName': deviceName || 'Google Pixel 3a XL',
+        'appium:app': app === 'chrome' ? undefined : apps[app || type] || app,
       },
     },
     ios: {
@@ -123,10 +142,10 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger})
         usePrebuiltWDA: true,
         isHeadless: true,
         browserName: app === 'safari' ? app : '',
-        app: apps[app || type],
-        deviceName: 'iPhone 12',
+        app: apps[app || type] || (app !== 'safari' ? app : undefined),
+        deviceName: deviceName || 'iPhone 12',
         platformName: 'iOS',
-        platformVersion: '14.5',
+        platformVersion: platformVersion || '14.5',
         automationName: 'XCUITest',
         orientation: orientation ? orientation.toUpperCase() : 'PORTRAIT',
       },
@@ -139,10 +158,10 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger})
         username: process.env.SAUCE_USERNAME,
         accessKey: process.env.SAUCE_ACCESS_KEY,
         browserName: app === 'safari' ? app : '',
-        app: apps[app || type],
-        deviceName: 'iPhone 12 Simulator',
+        app: apps[app || type] || (app !== 'safari' ? app : undefined),
+        deviceName: deviceName || 'iPhone 12 Simulator',
         platformName: 'iOS',
-        platformVersion: '14.5',
+        platformVersion: platformVersion || '14.5',
         deviceOrientation: orientation ? orientation.toUpperCase() : 'PORTRAIT',
       },
     },
@@ -162,7 +181,7 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger})
 
   const driver = await new Driver({driver: browser, spec, logger}).init()
   if (process.env.APPLITOOLS_TEST_REMOTE === 'sauce')
-    console.log(`Running on Sauce Labs at: https://app.saucelabs.com/tests/${driver._target.sessionId}`)
+    console.log(`Running on Sauce Labs at: https://app.saucelabs.com/tests/${driver.target.sessionId}`)
   return [
     driver,
     async () => {

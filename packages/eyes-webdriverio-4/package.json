@@ -9,6 +9,7 @@
   },
   "license": "SEE LICENSE IN LICENSE",
   "author": "Applitools Team <team@applitools.com> (http://www.applitools.com/)",
+  "aliases": ["webdriverio-legacy", "wdio-legacy"],
   "main": "./dist/index.js",
   "types": "./types/index.d.ts",
   "files": [
@@ -47,7 +48,7 @@
   },
   "devDependencies": {
     "@applitools/api-extractor": "1.2.2",
-    "@applitools/bongo": "^2.0.3",
+    "@applitools/bongo": "^2.1.5",
     "@applitools/scripts": "1.0.1",
     "@applitools/sdk-coverage-tests": "2.3.16",
     "@applitools/sdk-shared": "0.9.8",

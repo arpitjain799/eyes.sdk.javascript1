@@ -1,18 +1,29 @@
 import {spawn, fork} from 'child_process'
+import fs from 'fs'
 
 describe('works', () => {
-  const suffixes = {darwin: 'macos', linux: 'linux', win32: 'win'}
-
   it('works with stdout', async () => {
-    const server = spawn(`./bin/eyes-universal-${suffixes[process.platform]}`, {
+    let platform
+    if (process.platform === 'darwin') {
+      platform = 'macos'
+    } else if (process.platform === 'win32') {
+      platform = 'win'
+    } else if (process.platform === 'linux') {
+      if (fs.existsSync('/etc/alpine-release')) {
+        platform = 'alpine'
+      } else {
+        platform = 'linux'
+      }
+    }
+    const server = spawn(`./bin/eyes-universal-${platform}`, {
       detached: true,
-      shell: process.platform === 'win32' ? 'C:\\Program Files\\Git\\bin\\bash.exe' : '/bin/bash',
+      shell: process.platform === 'win32' ? 'C:\\Program Files\\Git\\bin\\bash.exe' : '/bin/sh',
       stdio: ['ignore', 'pipe', 'ignore'],
     })
     return new Promise<void>((resolve, reject) => {
       server.on('error', reject)
 
-      const timeout = setTimeout(() => reject(new Error('No output from the server for 10 seconds')), 10000)
+      const timeout = setTimeout(() => reject(new Error('No output from the server for 20 seconds')), 20000)
       server.stdout.once('data', data => {
         clearTimeout(timeout)
         const [firstLine] = String(data).split('\n', 1)
@@ -30,7 +41,7 @@ describe('works', () => {
     return new Promise<void>((resolve, reject) => {
       server.on('error', reject)
 
-      const timeout = setTimeout(() => reject(new Error('No output from the server for 10 seconds')), 10000)
+      const timeout = setTimeout(() => reject(new Error('No output from the server for 20 seconds')), 20000)
       server.on('message', (data: any) => {
         clearTimeout(timeout)
         if (data.name === 'port' && Number.isInteger(data.payload.port)) {

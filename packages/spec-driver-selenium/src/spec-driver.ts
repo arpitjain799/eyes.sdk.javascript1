@@ -103,7 +103,7 @@ export async function childContext(driver: Driver, element: Element): Promise<Dr
 export async function findElement(driver: Driver, selector: Selector, parent?: Element): Promise<Element | null> {
   try {
     const root = parent ? transformShadowRoot(driver, parent) : driver
-    return await root.findElement(selector)
+    return await root.findElement(selector as Selenium.Locator)
   } catch (err) {
     if (err.name === 'NoSuchElementError') return null
     else throw err
@@ -111,7 +111,7 @@ export async function findElement(driver: Driver, selector: Selector, parent?: E
 }
 export async function findElements(driver: Driver, selector: Selector, parent?: Element): Promise<Element[]> {
   const root = parent ? transformShadowRoot(driver, parent) : driver
-  return root.findElements(selector)
+  return root.findElements(selector as Selenium.Locator)
 }
 export async function waitForSelector(
   driver: Driver,
@@ -120,7 +120,7 @@ export async function waitForSelector(
   options?: WaitOptions,
 ): Promise<Element | null> {
   if ((options?.state ?? 'exists') === 'exist') {
-    return driver.wait(Selenium.until.elementLocated(selector), options?.timeout)
+    return driver.wait(Selenium.until.elementLocated(selector as Selenium.Locator), options?.timeout)
   } else if (options?.state === 'visible') {
     const element = await findElement(driver, selector)
     return driver.wait(Selenium.until.elementIsVisible(element), options?.timeout)
@@ -241,31 +241,25 @@ export async function waitUntilDisplayed(driver: Driver, selector: Selector, tim
 // #endregion
 
 // #region MOBILE COMMANDS
-export async function getBarsHeight(driver: Driver): Promise<{statusBarHeight: number; navigationBarHeight: number}> {
+export async function getBarsSize(
+  driver: Driver,
+): Promise<{statusBarHeight: number; navigationBarHeight: number; navigationBarWidth: number}> {
   const {Command} = require('selenium-webdriver/lib/command')
-  const orientation = await getOrientation(driver)
 
-  // when calling getSystemBars when orientation is landscape it seems that appium is buggy and returns the wrong dimensions
-  // therefore, we set the orientation to portrait to get the correct systemBars dimensions and we flip back to landscape
-  if (orientation.toLowerCase() === 'landscape') {
-    await setOrientation(driver, 'portrait')
-  }
   const getSystemBarsCommand = new Command('getSystemBars')
   const {statusBar, navigationBar} =
     process.env.APPLITOOLS_SELENIUM_MAJOR_VERSION === '3'
       ? await (driver as any).schedule(getSystemBarsCommand)
       : await driver.execute(getSystemBarsCommand)
 
-  if (orientation.toLowerCase() === 'landscape') {
-    await setOrientation(driver, 'landscape')
-  }
   return {
     statusBarHeight: statusBar.visible ? statusBar.height : 0,
     navigationBarHeight: navigationBar.visible ? navigationBar.height : 0,
+    navigationBarWidth: navigationBar.visible ? navigationBar.width : 0,
   }
 }
 
-async function setOrientation(driver: Driver, orientation: ScreenOrientation) {
+export async function setOrientation(driver: Driver, orientation: ScreenOrientation) {
   const {Command} = require('selenium-webdriver/lib/command')
   const setOrientationCommand = new Command('setOrientation').setParameters({orientation})
   process.env.APPLITOOLS_SELENIUM_MAJOR_VERSION === '3'

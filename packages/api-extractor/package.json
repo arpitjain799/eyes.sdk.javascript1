@@ -1,6 +1,6 @@
 {
   "name": "@applitools/api-extractor",
-  "version": "1.2.7",
+  "version": "1.2.8",
   "description": "Ultimate api extractor for typescript project",
   "keywords": [
     "applitools",
@@ -22,6 +22,7 @@
     "name": "Applitools Team",
     "email": "team@applitools.com"
   },
+  "aliases": ["ts-transform-api"],
   "main": "./dist/transformer.js",
   "files": [
     "dist"
@@ -35,14 +36,9 @@
     "postversion": "bongo postversion",
     "deps": "bongo deps"
   },
-  "husky": {
-    "hooks": {
-      "pre-push": "yarn bongo lint"
-    }
-  },
   "dependencies": {},
   "devDependencies": {
-    "@applitools/bongo": "^2.0.3",
+    "@applitools/bongo": "^2.1.5",
     "@types/mocha": "^9.0.0",
     "@types/node": "^16.11.7",
     "@typescript-eslint/eslint-plugin": "^4.15.1",
@@ -56,12 +52,17 @@
     "mocha": "^9.1.3",
     "prettier": "^2.4.1",
     "ts-node": "^10.4.0",
-    "typescript": "^4.5.5"
+    "typescript": "4.7.2"
   },
   "peerDependencies": {
     "typescript": ">=4.4.0"
   },
   "engines": {
-    "node": ">=8.9.0"
+    "node": ">=12.13.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-push": "yarn bongo lint"
+    }
   }
 }

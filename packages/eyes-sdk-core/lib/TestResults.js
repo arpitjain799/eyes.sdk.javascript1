@@ -1,8 +1,6 @@
 'use strict'
 const GeneralUtils = require('./utils/GeneralUtils')
-const DateTimeUtils = require('./utils/DateTimeUtils')
 const RectangleSize = require('./geometry/RectangleSize')
-const TestResultsStatuses = require('./TestResultsStatus')
 
 /**
  * @typedef {import('./TestResultsStatus').TestResultsStatus} TestResultsStatus
@@ -421,7 +419,7 @@ class TestResults {
     }
 
     if (startedAt && !(startedAt instanceof Date)) {
-      startedAt = DateTimeUtils.fromISO8601DateTime(startedAt)
+      startedAt = new Date(startedAt)
     }
 
     if (stepsInfo && stepsInfo.length > 0 && !(stepsInfo[0] instanceof StepInfo)) {
@@ -890,7 +888,7 @@ class TestResults {
    * @return {boolean} - Whether or not this test passed.
    */
   isPassed() {
-    return this._status === TestResultsStatuses.Passed
+    return this._status === 'Passed'
   }
 
   /**

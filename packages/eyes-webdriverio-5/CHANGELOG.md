@@ -5,6 +5,81 @@
 
 
 
+
+
+
+
+
+## 5.35.4 - 2022/6/17
+
+### Features
+### Bug fixes
+- Fixed scrolling on some android devices
+
+## 5.35.3 - 2022/6/14
+
+### Features
+- Add special attribute for pseudo elements
+- Add the ability for the SDK to lazy load the page prior to performing a check window
+### Bug fixes
+- Fix calling `waitBeforeCapture` when failed to set required viewport size
+- Fix rendering issues with Salesforce Lightning design system
+- Fix issue that prevented self-signed certificates from working when connecting through a proxy server
+- Fixed native screenshots of the elements under large collapsing areas
+
+## 5.35.2 - 2022/6/8
+
+### Features
+- Added support for taking full screenshots of elements that are scroll by pages only
+- Allowed `` values in custom properties
+### Bug fixes
+- Fixed the "Maximum Call Stack Size Exceeded" error when taking screenshots on iOS Safari
+- Fixed an issue with wrong cropped screenshots of elements out of viewport bounds on native devices
+- Fixed broken links to enums implementation in the README.md
+- Fixed `forceFullPageScreenshot` option behavior
+
+## 5.35.1 - 2022/6/2
+
+### Features
+### Bug fixes
+- Fix rounding error of image size when scaling introduces fractions
+
+## 5.35.0 - 2022/6/1
+
+### Features
+- Dorp support for Node.js versions <=12
+### Bug fixes
+- Fixed incorrect calculation of coded regions in classic mode when using CSS stitching
+
+## 5.34.16 - 2022/5/27
+
+### Features
+- Added support for drivers that return screenshots in jpeg format
+### Bug fixes
+- Improve error message when failed to set viewport size
+
+## 5.34.15 - 2022/5/23
+
+### Features
+- Support iPhone SE `IosDeviceName.iPhone_SE` and iPhone 8 Plus `IosDeviceName.iPhone_8_Plus` iOS devices
+- Support Galaxy S22 `DeviceName.Galaxy_S22` emulation device
+### Bug fixes
+- Fixed handling of navigation bar size on various devices
+- Allow running with self-signed certificates
+- Fixed bug in native apps when screenshot of the element was taken only for the small visible part of the element
+- Fixed bug when navigation bar was presented in screenshot on Android 12
+
+## 5.34.14 - 2022/5/5
+
+### Features
+- Support UFG for native mobile
+### Bug fixes
+- `extractText` now supports regions that don't use hints while using `x`/`y` coordinates
+- accept ios and android lowercase as driver platformName capability when using custom grid
+- Fixed check region fully in classic execution when using CSS stitching
+- Support data urls in iframes
+- Account for an Appium bug when calculating system bars height
+
 ## 5.34.13 - 2022/3/25
 
 ### Features

@@ -57,12 +57,14 @@ export type TextRegion = Region & {text: string}
 
 export type ImageRotation = -270 | -180 | -90 | 0 | 90 | 180 | 270
 
-export type ImageCropRect = {
-  top: number
-  right: number
-  bottom: number
-  left: number
+export type OffsetRect = {
+  top?: number
+  right?: number
+  bottom?: number
+  left?: number
 }
+
+export type ImageCropRect = OffsetRect
 
 export type ImageCropRegion = {
   x: number
@@ -118,6 +120,7 @@ export type ChromeEmulationDevice =
   | 'Galaxy S10'
   | 'Galaxy S10 Plus'
   | 'Galaxy S20'
+  | 'Galaxy S22'
   | 'Galaxy Tab S7'
   | 'iPad'
   | 'iPad 6th Gen'
@@ -187,7 +190,9 @@ export type IOSDevice =
   | 'iPhone Xs'
   | 'iPhone X'
   | 'iPhone 8'
+  | 'iPhone 8 Plus'
   | 'iPhone 7'
+  | 'iPhone SE (1st generation)'
   | 'iPad Pro (12.9-inch) (3rd generation)'
   | 'iPad (7th generation)'
   | 'iPad (9th generation)'
@@ -303,6 +308,12 @@ export type AppUrls = {
 export type SessionUrls = {
   readonly batch?: string
   readonly session?: string
+}
+
+export type LazyLoadOptions = {
+  scrollLength?: number
+  waitingTime?: number
+  maxAmountToScroll?: number
 }
 
 export type TestResultContainer = {

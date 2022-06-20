@@ -4,11 +4,13 @@ const {Driver} = require('@applitools/driver')
 const TypeUtils = require('../utils/TypeUtils')
 const ArgumentGuard = require('../utils/ArgumentGuard')
 const Location = require('../geometry/Location')
-const FailureReports = require('../FailureReports')
 const ClassicRunner = require('../runner/ClassicRunner')
 const takeDomCapture = require('../utils/takeDomCapture')
 const EyesCore = require('./EyesCore')
 const CheckSettingsUtils = require('./CheckSettingsUtils')
+const EyesUtils = require('./EyesUtils')
+const {lazyLoad} = require('@applitools/snippets')
+const makeLazyLoadOptions = require('../config/LazyLoadOptions')
 
 class EyesClassic extends EyesCore {
   static specialize({agentId, cwd, spec}) {
@@ -48,7 +50,8 @@ class EyesClassic extends EyesCore {
   async open(driver, appName, testName, viewportSize, sessionType) {
     ArgumentGuard.notNull(driver, 'driver')
     const useCeilForViewportSize = this._configuration.getUseCeilForViewportSize()
-    const customConfig = {useCeilForViewportSize}
+    const keepPlatformNameAsIs = this._configuration.getKeepPlatformNameAsIs()
+    const customConfig = {useCeilForViewportSize, keepPlatformNameAsIs}
     this._driver = await new Driver({spec: this.spec, driver, logger: this._logger, customConfig}).init()
     this._context = this._driver.currentContext
 
@@ -76,8 +79,15 @@ class EyesClassic extends EyesCore {
   }
 
   // set waitBeofreCpature from checkSettings in configuration.
-  async _check(checkSettings = {}, closeAfterMatch = false, throwEx = true) {
+  async _check(checkSettings = {}, driver, closeAfterMatch = false, throwEx = true) {
+    if (driver) {
+      const useCeilForViewportSize = this._configuration.getUseCeilForViewportSize()
+      const keepPlatformNameAsIs = this._configuration.getKeepPlatformNameAsIs()
+      const customConfig = {useCeilForViewportSize, keepPlatformNameAsIs}
+      this._driver = new Driver({spec: this.spec, driver, logger: this._logger, customConfig})
+    }
     await this._driver.init()
+
     this._context = await this._driver.refreshContexts()
     await this._context.main.setScrollingElement(this._scrollRootElement)
     await this._context.setScrollingElement(checkSettings.scrollRootElement)
@@ -122,7 +132,7 @@ class EyesClassic extends EyesCore {
           scrollingElement: frame.scrollRootElement,
         })),
       region: this._checkSettings.region,
-      fully: this._checkSettings.fully || this._configuration.getForceFullPageScreenshot(),
+      fully: TypeUtils.getOrDefault(this._checkSettings.fully, this._configuration.getForceFullPageScreenshot()),
       framed: this._driver.isNative,
       hideScrollbars: this._configuration.getHideScrollbars(),
       hideCaret: this._configuration.getHideCaret(),
@@ -135,6 +145,24 @@ class EyesClassic extends EyesCore {
         rotation: this.getRotation(),
       },
     }
+
+    const lazyLoadOptions = makeLazyLoadOptions(this._checkSettings.lazyLoad)
+
+    if (lazyLoadOptions) {
+      this._logger.log('lazy loading the page before capturing a screenshot')
+      const scripts = {
+        main: {
+          script: lazyLoad,
+          args: [[lazyLoadOptions]],
+        },
+        poll: {
+          script: lazyLoad,
+          args: [[]],
+        },
+      }
+      await EyesUtils.executePollScript(this._logger, this._driver, scripts, {pollTimeout: lazyLoadOptions.waitingTime})
+    }
+
     let dom
     let afterScreenShotScrollingOffeset = null
     const screenshot = await takeScreenshot({
@@ -242,9 +270,9 @@ class EyesClassic extends EyesCore {
   }
 
   setFailureReport(mode) {
-    if (mode === FailureReports.IMMEDIATE) {
+    if (mode === 'IMMEDIATE') {
       this._failureReportOverridden = true
-      mode = FailureReports.ON_CLOSE
+      mode = 'ON_CLOSE'
     }
 
     EyesCore.prototype.setFailureReport.call(this, mode)

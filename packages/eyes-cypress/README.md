@@ -173,43 +173,66 @@ Applitools will take screenshots and perform the visual comparisons in the backg
 <br/>
 
 ### Index
-- [Commands](#Commands)
-  - [Open](#Open)
-  - [CheckWindow](#Check-window)
-    - [tag](#tag)
-    - [target](#target)
-    - [fully](#fully)
-    - [selector](#selector)
-    - [region](#region)
-    - [ignore](#ignore)
-    - [floating](#floating)
-    - [layout](#layout)
-    - [strict](#strict)
-    - [content](#content)
-    - [accessibility](#accessibility)
-    - [region in shadow DOM](#region-in-shadow-dom)
-    - [scriptHooks](#scriptHooks)
-    - [layoutBreakpoints](#layoutBreakpoints)
-    - [sendDom](#sendDom)
-    - [variationGroupId](#variationGroupId)
-    - [waitBeforeCapture](#waitBeforeCapture)
-  - [Close](#Close)
-  - [GetAllTestResults](#GetAllTestResults)
-  - [deletTestResults](#deleteTestResults)
-- [Concurrency](#Concurrency)
-- [Advanced configuration](#Advanced-configuration)
-  - [Scoped configuration](#Here-are-the-available-configuration-properties)
-  - [Global configuration](#global-configuration-properties)
-  - [Examples](#Method-1-Arguments-for-cyeyesOpen)
-    - [Arguments for `cy.eyesOpen`](#Method-1-Arguments-for-cyeyesOpen)
-    - [Environment variables](#Method-2-Environment-variables)
-    - [The `applitools.config.js` file](#Method-3-The-applitoolsconfigjs-file)
-- [Configuring the browser](#Configuring-the-browser)
-  - [Device emulation](#Device-emulation)
-- [IDE Code Completion](#Intelligent-Code-Completion)
-  - [Triple slash directives](#1-Triple-slash-directives)
-  - [Reference type declarations via `tsconfig`](#2-Reference-type-declarations-via-tsconfig)
-- [Troubleshooting](#Troubleshooting)
+- [Eyes-Cypress](#eyes-cypress)
+  - [Installation](#installation)
+    - [Install npm package](#install-npm-package)
+    - [Configure plugin and commands](#configure-plugin-and-commands)
+      - [Automatic configuration](#automatic-configuration)
+      - [Manual configuration](#manual-configuration)
+        - [1. Configure Eyes-Cypress plugin](#1-configure-eyes-cypress-plugin)
+        - [2. Configure custom commands](#2-configure-custom-commands)
+        - [3. (Optional) TypeScript configuration](#3-optional-typescript-configuration)
+    - [Applitools API key](#applitools-api-key)
+    - [Eyes server URL (optional)](#eyes-server-url-optional)
+  - [Usage](#usage)
+    - [Example](#example)
+    - [Best practice for using the SDK](#best-practice-for-using-the-sdk)
+    - [Index](#index)
+    - [Commands](#commands)
+      - [Open](#open)
+      - [Check window](#check-window)
+        - [Arguments to `cy.eyesCheckWindow`](#arguments-to-cyeyescheckwindow)
+        - [`tag`](#tag)
+        - [`target`](#target)
+        - [`fully`](#fully)
+        - [`selector`](#selector)
+        - [`region`](#region)
+        - [`element`](#element)
+        - [`ignore`](#ignore)
+        - [`floating`](#floating)
+        - [`layout`](#layout)
+        - [`strict`](#strict)
+        - [`content`](#content)
+        - [`accessibility`](#accessibility)
+        - [`region in shadow DOM`](#region-in-shadow-dom)
+        - [`scriptHooks`](#scripthooks)
+        - [`layoutBreakpoints`](#layoutbreakpoints)
+        - [`sendDom`](#senddom)
+        - [`variationGroupId`](#variationgroupid)
+        - [`waitBeforeCapture`](#waitbeforecapture)
+        - [`useDom`](#usedom)
+        - [`enablePatterns`](#enablepatterns)
+        - [`matchLevel`](#matchlevel)
+        - [`visualGridOptions`](#visualgridoptions)
+      - [Close](#close)
+      - [GetAllTestResults](#getalltestresults)
+      - [deleteTestResults](#deletetestresults)
+  - [Concurrency](#concurrency)
+  - [Advanced configuration](#advanced-configuration)
+    - [Here are the available configuration properties:](#here-are-the-available-configuration-properties)
+    - [Global configuration properties:](#global-configuration-properties)
+    - [Method 1: Arguments for `cy.eyesOpen`](#method-1-arguments-for-cyeyesopen)
+    - [Method 2: Environment variables](#method-2-environment-variables)
+    - [Method 3: The `applitools.config.js` file](#method-3-the-applitoolsconfigjs-file)
+  - [Configuring the browser](#configuring-the-browser)
+    - [Previous browser versions](#previous-browser-versions)
+    - [Getting a screenshot of multiple browsers in parallel](#getting-a-screenshot-of-multiple-browsers-in-parallel)
+    - [Device emulation](#device-emulation)
+    - [iOS device](#ios-device)
+  - [Intelligent Code Completion](#intelligent-code-completion)
+      - [There are two ways you can add Eyes-Cypress intelliSense to your tests:](#there-are-two-ways-you-can-add-eyes-cypress-intellisense-to-your-tests)
+    - [1. Triple slash directives](#1-triple-slash-directives)
+    - [2. Reference type declarations via `tsconfig`](#2-reference-type-declarations-via-tsconfig)
 
 <br/><hr/><br/>
 
@@ -255,7 +278,7 @@ cy.eyesCheckWindow({ tag: 'Login screen', target: 'your target' })
 <br/> 1. `window` 
   This is the default value. If set then the captured image is of the entire page or the viewport, use [`fully`](#fully) for specifying what `window` mode to use.
 <br/>2. `region` 
-  If set then the captured image is of the parts of the page, use this parameter with [`region`](#region) or [`selector`](#selector) for specifying the areas to captured.
+  If set then the captured image is of the parts of the page, use this parameter with [`region`](#region), [`selector`](#selector), or [`element`](#element) for specifying the areas to captured.
 
 ##### `fully`
 
@@ -310,18 +333,72 @@ cy.eyesCheckWindow({ tag: 'Login screen', target: 'your target' })
   });
   ```
 
+##### `element`
+
+(optional): In case [`target`](#target) is `region`, this should be an instance of either an HTML element or a jQuery object. For example:
+
+  ```js
+// passing a jQuery object
+cy.get('body > div > h1')
+  .then($el => {
+      cy.eyesCheckWindow({
+        target: 'region',
+        element: $el
+      })
+  })
+
+// passing an HTML element
+cy.document()
+  .then(doc => {
+    const el = document.querySelector('div')
+    cy.eyesCheckWindow({
+      target: 'region',
+      element: el
+    })
+  })
+```
+
 ##### `ignore`
 
 (optional): A single or an array of regions to ignore when checking for visual differences. For example:
 
-  ```js
+```js
+// ignore region by coordinates
+cy.eyesCheckWindow({
+  ignore: {top: 100, left: 0, width: 1000, height: 100},
+});
+
+// ignore regions by selector
+cy.eyesCheckWindow({
+  ignore: {selector: '.some-div-to-ignore'} // all elements matching this selector would become ignore regions
+});
+
+// ignore regions by jQuery or DOM elements
+cy.get('.some-div-to-ignore').then($el => {
+  cy.eyesCheckWindow({
+    ignore: $el
+  });
+})
+
+// mix multiple ignore regions with different methods
+cy.eyesCheckWindow({
+  ignore: [
+    {top: 100, left: 0, width: 1000, height: 100},
+    {selector: '.some-div-to-ignore'}
+  ]
+});
+
+// mix multiple ignore regions with different methods including element
+cy.get('.some-div-to-ignore').then($el => {
   cy.eyesCheckWindow({
     ignore: [
       {top: 100, left: 0, width: 1000, height: 100},
       {selector: '.some-div-to-ignore'}
+      $el
     ]
   });
-  ```
+})
+```
 
 ##### `floating`
 
@@ -334,6 +411,15 @@ cy.eyesCheckWindow({
     {selector: '.some-div-to-float', maxUpOffset: 20, maxDownOffset: 20, maxLeftOffset: 20, maxRightOffset: 20}
   ]
 });
+
+// use jQuery or DOM elements
+cy.get('.some-div-to-float').then($el => {
+  cy.eyesCheckWindow({
+    floating: [
+        {element: $el, maxUpOffset: 20, maxDownOffset: 20, maxLeftOffset: 20, maxRightOffset: 20},
+    ]
+  })
+})
 ```
 
 ##### `layout`
@@ -347,6 +433,13 @@ cy.eyesCheckWindow({
       {selector: '.some-div-to-test-as-layout'}
     ]
   });
+
+    // use jQuery or DOM elements
+  cy.get('.some-div-to-test-as-layout').then($el => {
+      cy.eyesCheckWindow({
+        layout: $el
+    });
+  })
   ```
 
 ##### `strict`
@@ -360,6 +453,13 @@ cy.eyesCheckWindow({
       {selector: '.some-div-to-test-as-strict'}
     ]
   });
+
+  // use jQuery or DOM elements
+  cy.get('.some-div-to-test-as-strict').then($el => {
+      cy.eyesCheckWindow({
+        strict: $el
+    });
+  })
   ```
 
 ##### `content`
@@ -373,6 +473,13 @@ cy.eyesCheckWindow({
       {selector: '.some-div-to-test-as-content'}
     ]
   });
+
+  // use jQuery or DOM elements
+  cy.get('.some-div-to-test-as-content').then($el => {
+      cy.eyesCheckWindow({
+        content: $el
+    });
+  })
   ```
 
 ##### `accessibility`
@@ -387,6 +494,16 @@ cy.eyesCheckWindow({
       {accessibilityType: 'BoldText', top: 100, left: 0, width: 1000, height: 100},
     ]
   });
+
+// use jQuery or DOM elements
+  cy.get('.some-div').then($el => {
+     cy.eyesCheckWindow({
+    accessibility: [
+      {accessibilityType: 'RegularText', element: $el},
+    ]
+  });
+  })
+
   ```
 
   Possible accessibilityType values are: `IgnoreContrast`,`RegularText`,`LargeText`,`BoldText` and `GraphicalObject`.
@@ -580,7 +697,7 @@ The list above is also the order of precedence, which means that if you pass a p
 | `baselineBranchName`      | undefined                   | The name of the baseline branch. |
 | `parentBranchName`        | undefined                   | Sets the branch under which new branches are created. |
 | `saveFailedTests`         | false                       | Set whether or not failed tests are saved by default. |
-| `saveNewTests`            | false                       | Set whether or not new tests are saved by default. |
+| `saveNewTests`            | true                       | Set whether or not new tests are saved by default. |
 | `properties`              | undefined                   | Custom properties for the eyes test. The format is an array of objects with name/value properties. For example: `[{name: 'My prop', value:'My value'}]`. |
 | `ignoreDisplacements`     | false                       | Sets whether Test Manager should intially display mismatches for image features that have only been displaced, as opposed to real mismatches. |
 | `compareWithParentBranch` | false                       |  |
@@ -733,7 +850,7 @@ cy.eyesOpen({
 
 Possible values for screen orientation are `landscape` and `portrait`, and if no value is specified, the default is `portrait`.
 
-The list of device names is available at https://github.com/applitools/eyes.sdk.javascript1/blob/master/packages/eyes-sdk-core/lib/config/DeviceName.js
+The list of device names is available at https://github.com/applitools/eyes.sdk.javascript1/blob/master/packages/eyes-api/src/enums/DeviceName.ts
 
 In addition, it's possible to use chrome's device emulation with custom viewport sizes, pixel density and mobile mode, by passing `deviceScaleFactor` and `mobile` in addition to `width` and `height`. For example:
 
@@ -765,7 +882,7 @@ cy.eyesOpen({
 })
 ```
 
-The list of devices is available at https://github.com/applitools/eyes.sdk.javascript1/blob/master/packages/eyes-sdk-core/lib/config/IosDeviceName.js
+The list of devices is available at https://github.com/applitools/eyes.sdk.javascript1/blob/master/packages/eyes-api/src/enums/IosDeviceName.ts
 
 Possible values for `iosVersion` are:
 

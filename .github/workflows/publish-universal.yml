@@ -41,9 +41,9 @@ jobs:
       environments: ${{steps.prepare.outputs.environments}}
     steps:
       - name: Check-out repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: lts/*
           registry-url: https://registry.npmjs.org
@@ -53,18 +53,33 @@ jobs:
         run: |
           yarn install
           npx bongo release-pre-check --skip-deps --skip-commit --skip-verify-installed-versions
+          npx bongo verify-changelog
   test:
     needs: [verify]
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-    name: 'Test (os: ${{matrix.os}})'
-    runs-on: ubuntu-latest
+        include:
+          - name: alpine
+            os: ubuntu-latest
+            container: node:lts-alpine # not just "alpine" because it is not possible to setup nodejs in a regular way
+            shell: ash -eo pipefail {0}
+          - name: ubuntu
+            os: ubuntu-latest
+            shell: bash
+          - name: windows
+            os: windows-latest
+            shell: bash
+          - name: macos
+            os: macos-latest
+            shell: bash
+    name: 'Test (os: ${{matrix.name}})'
+    runs-on: ${{matrix.os}}
+    container: ${{matrix.container}}
     steps:
       - name: Check-out repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: lts/*
           registry-url: https://registry.npmjs.org
@@ -72,16 +87,17 @@ jobs:
         uses: ./.github/actions/tests
         with:
           package: ${{env.PACKAGE_DIR}}
-          type: e2e
+          test-type: e2e
+          shell: ${{matrix.shell}}
   publish:
     needs: [test]
     name: Publish
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: lts/*
           registry-url: https://registry.npmjs.org
@@ -97,6 +113,7 @@ jobs:
           tag_name: ${{steps.publish.outputs.tag}}
           name: ${{steps.publish.outputs.tag}}
           files: |
+            packages/${{env.PACKAGE_DIR}}/bin/eyes-universal-alpine
             packages/${{env.PACKAGE_DIR}}/bin/eyes-universal-linux
             packages/${{env.PACKAGE_DIR}}/bin/eyes-universal-macos
             packages/${{env.PACKAGE_DIR}}/bin/eyes-universal-win.exe

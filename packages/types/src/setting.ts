@@ -2,10 +2,12 @@ import {Selector} from './driver'
 import {
   MatchLevel,
   Region,
+  OffsetRect,
   AccessibilityRegionType,
   AccessibilityGuidelinesVersion,
   AccessibilityLevel,
   Proxy,
+  LazyLoadOptions,
 } from './data'
 
 type RegionReference<TElement, TSelector> = Region | ElementReference<TElement, TSelector>
@@ -32,6 +34,11 @@ type AccessibilityRegion<TRegion> = {
   type?: AccessibilityRegionType
 }
 
+type PaddedRegion<TRegion> = {
+  region: TRegion
+  padding?: number | OffsetRect
+}
+
 export type MatchSettings<TRegion> = {
   exact?: {
     minDiffIntensity: number
@@ -49,10 +56,10 @@ export type MatchSettings<TRegion> = {
     level?: AccessibilityLevel
     guidelinesVersion?: AccessibilityGuidelinesVersion
   }
-  ignoreRegions?: TRegion[]
-  layoutRegions?: TRegion[]
-  strictRegions?: TRegion[]
-  contentRegions?: TRegion[]
+  ignoreRegions?: (TRegion | PaddedRegion<TRegion>)[]
+  layoutRegions?: (TRegion | PaddedRegion<TRegion>)[]
+  strictRegions?: (TRegion | PaddedRegion<TRegion>)[]
+  contentRegions?: (TRegion | PaddedRegion<TRegion>)[]
   floatingRegions?: (TRegion | FloatingRegion<TRegion>)[]
   accessibilityRegions?: (TRegion | AccessibilityRegion<TRegion>)[]
   pageId?: string
@@ -74,7 +81,9 @@ export type CheckSettings<TElement, TSelector> = MatchSettings<RegionReference<T
     hooks?: {beforeCaptureScreenshot: string}
     renderId?: string
     variationGroupId?: string
+    waitBeforeCapture?: number
     timeout?: number
+    lazyLoad?: boolean | LazyLoadOptions
   }
 
 export type OCRExtractSettings<TElement, TSelector> = {

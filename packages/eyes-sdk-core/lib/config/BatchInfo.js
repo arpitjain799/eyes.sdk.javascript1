@@ -1,8 +1,6 @@
-'use strict'
-const ArgumentGuard = require('../utils/ArgumentGuard')
+const utils = require('@applitools/utils')
 const GeneralUtils = require('../utils/GeneralUtils')
 const TypeUtils = require('../utils/TypeUtils')
-const DateTimeUtils = require('../utils/DateTimeUtils')
 
 /**
  * @typedef BatchInfoObject
@@ -59,17 +57,17 @@ class BatchInfo {
     }
 
     let {id, name, properties, startedAt, sequenceName, notifyOnCompletion, isCompleted, isGeneratedId} = varArg1 || {}
-    ArgumentGuard.isString(id, 'batchId', false)
-    ArgumentGuard.isString(name, 'batchName', false)
-    ArgumentGuard.isString(sequenceName, 'sequenceName', false)
-    ArgumentGuard.isArray(properties, 'properties', false)
-    ArgumentGuard.isBoolean(notifyOnCompletion, 'notifyOnCompletion', false)
-    ArgumentGuard.isBoolean(isCompleted, 'isCompleted', false)
-    ArgumentGuard.isBoolean(isGeneratedId, 'isGeneratedId', false)
+    utils.guard.isString(id, {name: 'batchId', strict: false})
+    utils.guard.isString(name, {name: 'batchName', strict: false})
+    utils.guard.isString(sequenceName, {name: 'sequenceName', strict: false})
+    utils.guard.isArray(properties, {name: 'properties', strict: false})
+    utils.guard.isBoolean(notifyOnCompletion, {name: 'notifyOnCompletion', strict: false})
+    utils.guard.isBoolean(isCompleted, {name: 'isCompleted', strict: false})
+    utils.guard.isBoolean(isGeneratedId, {name: 'isGeneratedId', strict: false})
 
     if (startedAt && !(startedAt instanceof Date)) {
-      ArgumentGuard.isString(startedAt, 'startedAt', false)
-      startedAt = DateTimeUtils.fromISO8601DateTime(startedAt)
+      utils.guard.isString(startedAt, {name: 'startedAt', strict: false})
+      startedAt = new Date(startedAt)
     }
 
     this._id = id || GeneralUtils.getEnvValue('BATCH_ID')
@@ -108,7 +106,7 @@ class BatchInfo {
    * @return {this}
    */
   setId(value) {
-    ArgumentGuard.notNullOrEmpty(value, 'id')
+    utils.guard.notNull(value, {name: 'id'})
     this._id = value
     return this
   }

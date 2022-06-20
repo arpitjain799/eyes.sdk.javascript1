@@ -3,6 +3,49 @@
 ## Unreleased
 
 
+
+
+
+
+
+
+## 1.12.1 - 2022/6/2
+
+### Features
+### Bug fixes
+- Fix rounding error of image size when scaling introduces fractions
+
+## 1.12.0 - 2022/6/1
+
+### Features
+- Dorp support for Node.js versions <=12
+### Bug fixes
+- Fixed incorrect calculation of coded regions in classic mode when using CSS stitching
+
+## 1.11.4 - 2022/5/27
+
+### Features
+- Support iPhone SE `IosDeviceName.iPhone_SE` and iPhone 8 Plus `IosDeviceName.iPhone_8_Plus` iOS devices
+- Support Galaxy S22 `DeviceName.Galaxy_S22` emulation device
+### Bug fixes
+- Allow running with self-signed certificates
+- Fixed `CheckSetting`'s `fully` being overridden by `Configuration`'s `forceFullPageScreenshot`
+- Set EyesExceptions (such as new test, diffs exception and failed test exception) to exception property in TestResultsSummary
+- Improve error message when failed to set viewport size
+
+## 1.11.3 - 2022/5/2
+
+### Features
+- Support UFG for native mobile
+- `runner.getAllTestResults` returns the corresponding UFG browser/device configuration for each test. This is available as `runner.getAllTestResults()[i].browserInfo`.
+### Bug fixes
+- `runner.getAllTestResults` now aborts unclosed tests
+- `runner.getAllTestResults` now returns all results, including aborted tests
+- `extractText` now supports regions that don't use hints while using `x`/`y` coordinates
+- accept ios and android lowercase as driver platformName capability when using custom grid
+- Fixed check region fully in classic execution when using CSS stitching
+- Support data urls in iframes
+
 ## 1.11.2 - 2022/1/13
 
 - fix taking multiple dom snapshots with `layoutBreakpoints`

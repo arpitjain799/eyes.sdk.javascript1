@@ -1,5 +1,4 @@
 import type * as types from '@applitools/types'
-import type {Socket} from './socket'
 import type {
   Driver as CustomDriver,
   Context as CustomContext,
@@ -11,8 +10,8 @@ import os from 'os'
 import path from 'path'
 import {makeSDK, checkSpecDriver} from '@applitools/eyes-sdk-core'
 import {makeLogger} from '@applitools/logger'
-import {makeHandler} from './handler'
-import {makeSocket} from './socket'
+import {makeHandler, type HandlerOptions} from './handler'
+import {makeSocket, type Socket} from './socket'
 import {makeRefer} from './refer'
 import {withTracker} from './debug/tracker'
 import {makeSpec} from './spec-driver/custom'
@@ -20,19 +19,27 @@ import * as webdriverSpec from './spec-driver/webdriver'
 import {abort} from './universal-server-eyes-commands'
 
 const IDLE_TIMEOUT = 900000 // 15min
-const LOG_DIRNAME = path.resolve(os.tmpdir(), `applitools-logs`)
+const LOG_DIRNAME = process.env.APPLITOOLS_LOG_DIR ?? path.resolve(os.tmpdir(), `applitools-logs`)
 
-export async function makeServer({debug = false, idleTimeout = IDLE_TIMEOUT, showLogs = false, ...serverConfig} = {}) {
-  const {server, port} = await makeHandler(serverConfig)
+export type ServerOptions = HandlerOptions & {
+  debug?: boolean
+  idleTimeout?: number
+  showLogs?: boolean
+}
+
+export async function makeServer({
+  debug = false,
+  idleTimeout = IDLE_TIMEOUT,
+  showLogs = false,
+  ...handlerOptions
+}: ServerOptions = {}): Promise<{port: number; close: () => void}> {
+  const {server, port} = await makeHandler({...handlerOptions, debug})
   console.log(port) // NOTE: this is a part of the generic protocol
   process.send?.({name: 'port', payload: {port}}) // NOTE: this is a part of the js specific protocol
   if (!server) {
-    return console.log(`You are trying to spawn a duplicated server, use the server on port ${port} instead`)
+    console.log(`You are trying to spawn a duplicated server, use the server on port ${port} instead`)
+    return
   }
-
-  console.log(`Logs saved in: ${LOG_DIRNAME}`)
-
-  let idle = setTimeout(() => server.close(), idleTimeout)
 
   const baseLogger = makeLogger({
     handler: {type: 'rolling file', name: 'eyes', dirname: LOG_DIRNAME},
@@ -41,22 +48,28 @@ export async function makeServer({debug = false, idleTimeout = IDLE_TIMEOUT, sho
     colors: false,
   })
 
+  console.log(`Logs saved in: ${LOG_DIRNAME}`)
+  baseLogger.log('Server is started')
+
+  let idle = setTimeout(() => server.close(), idleTimeout)
+  let serverClosed = false
+
+  server.on('close', () => {
+    clearTimeout(idle)
+    serverClosed = true
+  })
+
   server.on('connection', client => {
     const refer = makeRefer()
     const socket = withTracker({
       debug,
-      socket: makeSocket({ws: client, logger: showLogs ? makeLogger() : undefined}) as types.ServerSocket<
-        CustomDriver,
-        CustomContext,
-        CustomElement,
-        CustomSelector
-      > &
+      socket: makeSocket(client, {logger: baseLogger}) as types.ServerSocket<CustomDriver, CustomContext, CustomElement, CustomSelector> &
         Omit<Socket, 'command' | 'request'>,
     })
 
     clearTimeout(idle)
     socket.on('close', () => {
-      if (server.clients.size > 0) return
+      if (server.clients.size > 0 || serverClosed) return
       idle = setTimeout(() => server.close(), idleTimeout)
     })
 
@@ -68,6 +81,9 @@ export async function makeServer({debug = false, idleTimeout = IDLE_TIMEOUT, sho
         fatal: (message: string) => socket.emit('Server.log', {level: 'fatal', message}),
       },
     })
+
+    logger.console.log(`Logs saved in: ${LOG_DIRNAME}`)
+
     socket.command('Server.getInfo', async () => {
       return {logsDir: LOG_DIRNAME}
     })
@@ -119,8 +135,8 @@ export async function makeServer({debug = false, idleTimeout = IDLE_TIMEOUT, sho
       return refer.deref(manager).closeManager({throwErr})
     })
 
-    socket.command('Eyes.check', async ({eyes, settings, config}) => {
-      return refer.deref(eyes).check({settings, config})
+    socket.command('Eyes.check', async ({eyes, settings, config, driver}) => {
+      return refer.deref(eyes).check({settings, config, driver})
     })
     socket.command('Eyes.locate', async ({eyes, settings, config}) => {
       return refer.deref(eyes).locate({settings, config})

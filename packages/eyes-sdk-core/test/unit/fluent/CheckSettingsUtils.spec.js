@@ -1,5 +1,6 @@
 const assert = require('assert')
 const utils = require('@applitools/utils')
+const {makeLogger} = require('@applitools/logger')
 const {Driver} = require('@applitools/driver')
 const {MockDriver, spec} = require('@applitools/driver/fake')
 const {Configuration} = require('../../../index')
@@ -27,7 +28,7 @@ describe('CheckSettingsUtils', () => {
       {selector: 'element4', rect: {x: 40, y: 41, width: 401, height: 402}},
       {selector: 'element4', rect: {x: 42, y: 43, width: 403, height: 404}},
     ])
-    const driver = new Driver({logger, spec, driver: mockDriver})
+    const driver = new Driver({spec, driver: mockDriver})
     const checkSettings = {
       ignoreRegions: [await mockDriver.findElement('element0'), 'element1', {x: 1, y: 2, width: 3, height: 5}],
       floatingRegions: [
@@ -95,7 +96,7 @@ describe('CheckSettingsUtils', () => {
         ],
       },
     ])
-    const driver = new Driver({logger, spec, driver: mockDriver})
+    const driver = new Driver({spec, driver: mockDriver})
     const checkSettings = {
       frame: ['frame1'],
       shadow: ['shadow1'],
@@ -133,7 +134,7 @@ describe('CheckSettingsUtils', () => {
   it('toCheckWindowConfiguration handles region target with selector', async () => {
     const mockDriver = new MockDriver()
     mockDriver.mockElements([{selector: 'some selector', rect: {x: 1, y: 2, width: 500, height: 501}}])
-    const driver = new Driver({logger, spec, driver: mockDriver})
+    const driver = new Driver({spec, driver: mockDriver})
 
     const regionCheckSettings = {region: 'some selector'}
     const {persistedCheckSettings} = await CheckSettingsUtils.toPersistedCheckSettings({
@@ -160,7 +161,7 @@ describe('CheckSettingsUtils', () => {
   it('toCheckWindowConfiguration handles region target with element', async () => {
     const mockDriver = new MockDriver()
     mockDriver.mockElements([{selector: 'some selector', rect: {x: 1, y: 2, width: 500, height: 501}}])
-    const driver = new Driver({logger, spec, driver: mockDriver})
+    const driver = new Driver({spec, driver: mockDriver})
 
     const regionCheckSettings = {region: await mockDriver.findElement('some selector')}
     const {persistedCheckSettings} = await CheckSettingsUtils.toPersistedCheckSettings({
@@ -434,7 +435,7 @@ describe('CheckSettingsUtils', () => {
       mockDriver = new MockDriver()
       mockDriver.mockElement('custom selector', {rect: region1})
       mockDriver.mockElement('custom selector', {rect: region2})
-      driver = await new Driver({logger, spec, driver: mockDriver}).init()
+      driver = await new Driver({spec, driver: mockDriver, logger: makeLogger()}).init()
     })
 
     it('handle region by coordinates', async () => {
@@ -592,5 +593,42 @@ describe('CheckSettingsUtils', () => {
         )
       })
     })
+  })
+  it('toCheckWindowConfiguration handles regions padding', async () => {
+    const mockDriver = new MockDriver()
+    mockDriver.mockElements([
+      {selector: 'element0', rect: {x: 1, y: 2, width: 500, height: 501}},
+      {selector: 'element1', rect: {x: 10, y: 11, width: 101, height: 102}},
+      {selector: 'element2', rect: {x: 20, y: 21, width: 201, height: 202}},
+      {selector: 'element3', rect: {x: 30, y: 31, width: 301, height: 302}},
+      {selector: 'element4', rect: {x: 40, y: 41, width: 401, height: 402}},
+    ])
+    const driver = new Driver({spec, driver: mockDriver})
+    const checkSettings = {
+      ignoreRegions: [
+        await mockDriver.findElement('element0'),
+        {region: 'element1', padding: {top: 10, right: 20}},
+        {region: 'element2', padding: 12},
+        {region: 'element3', padding: {top: 15, right: 15, bottom: 15, left: 15}},
+        {region: 'element4', padding: 15},
+      ],
+    }
+
+    const {persistedCheckSettings} = await CheckSettingsUtils.toPersistedCheckSettings({
+      checkSettings,
+      context: driver,
+      logger,
+    })
+
+    const checkWindowConfiguration = CheckSettingsUtils.toCheckWindowConfiguration({
+      checkSettings: persistedCheckSettings,
+      configuration: new Configuration(),
+    })
+
+    // expect that padding as an 'Object' and padding as a Number will have equal result
+    assert.deepStrictEqual(
+      checkWindowConfiguration.ignore,
+      persistedCheckSettings.ignoreRegions.map(({region, ...offsets}) => ({...transformRegion(region), ...offsets})),
+    )
   })
 })

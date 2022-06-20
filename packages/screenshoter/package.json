@@ -1,6 +1,6 @@
 {
   "name": "@applitools/screenshoter",
-  "version": "3.3.17",
+  "version": "3.4.3",
   "description": "Applitools universal screenshoter for web and native applications",
   "keywords": [
     "applitools",
@@ -25,6 +25,16 @@
     "name": "Applitools Team",
     "email": "team@applitools.com"
   },
+  "aliases": [
+    "screenshoter"
+  ],
+  "exports": {
+    ".": {
+      "default": "./index.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
   "main": "./index.js",
   "files": [
     "src",
@@ -35,8 +45,8 @@
     "test": "yarn test:it && yarn test:e2e",
     "test:unit": "mocha ./test/unit/*.spec.js --no-timeouts",
     "test:it": "mocha ./test/it/*.spec.js --no-timeouts",
-    "test:e2e": "yarn test:e2e:web && yarn && test:e2e:android && yarn test:e2e:ios",
-    "test:e2e:web": "APPLITOOLS_SHOW_LOGS=true mocha ./test/e2e/web/*.spec.js --no-timeouts -r @applitools/test-utils/mocha-hooks/docker",
+    "test:e2e": "yarn test:e2e:web && yarn && yarn test:e2e:android && yarn test:e2e:ios",
+    "test:e2e:web": "mocha ./test/e2e/web/*.spec.js --no-timeouts -r @applitools/test-utils/mocha-hooks/docker",
     "test:e2e:android": "APPLITOOLS_TEST_REMOTE=sauce mocha ./test/e2e/android*/*.spec.js --no-timeouts --parallel --jobs ${MOCHA_JOBS:-2}",
     "test:e2e:ios": "APPLITOOLS_TEST_REMOTE=sauce mocha ./test/e2e/ios*/*.spec.js --no-timeouts --parallel --jobs ${MOCHA_JOBS:-2}",
     "setup:web": "yarn docker:setup",
@@ -60,29 +70,31 @@
     }
   },
   "dependencies": {
-    "@applitools/snippets": "2.2.3",
-    "@applitools/utils": "1.2.14",
+    "@applitools/logger": "1.1.12",
+    "@applitools/snippets": "2.4.2",
+    "@applitools/utils": "1.3.8",
+    "jpeg-js": "0.4.4",
     "png-async": "0.9.4"
   },
   "devDependencies": {
-    "@applitools/bongo": "^2.0.3",
-    "@applitools/driver": "1.7.1",
+    "@applitools/bongo": "^2.1.5",
+    "@applitools/driver": "^1.9.4",
     "@applitools/scripts": "1.1.0",
-    "@applitools/spec-driver-webdriverio": "1.2.8",
-    "@applitools/test-utils": "1.3.1",
-    "appium": "^1.22.2",
-    "chromedriver": "^95.0.0",
-    "eslint": "^7.9.0",
+    "@applitools/spec-driver-webdriverio": "1.2.12",
+    "@applitools/test-utils": "1.3.3",
+    "appium": "^1.22.3",
+    "chromedriver": "^101.0.0",
+    "eslint": "^8.16.0",
     "eslint-plugin-mocha-no-only": "^1.1.1",
     "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-prettier": "^3.1.4",
+    "eslint-plugin-prettier": "^4.0.0",
     "husky": "^4.3.8",
-    "mocha": "^9.2.0",
-    "pixelmatch": "^5.2.1",
-    "prettier": "1.19.0",
-    "webdriverio": "^7.16.7"
+    "mocha": "^10.0.0",
+    "pixelmatch": "^5.3.0",
+    "prettier": "2.6.2",
+    "webdriverio": "^7.19.7"
   },
   "engines": {
-    "node": ">= 10.0.0"
+    "node": ">=12.13.0"
   }
 }

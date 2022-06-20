@@ -1,13 +1,17 @@
 {
-  "name": "eyes-browser-extension",
+  "name": "@applitools/eyes-browser-extension",
   "version": "0.2.0",
-  "description": "",
-  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/applitools/eyes.sdk.javascript1.git",
+    "directory": "packages/eyes-browser-extension"
+  },
   "license": "ISC",
   "author": {
     "name": "Applitools Team",
     "email": "team@applitools.com"
   },
+  "aliases": ["browser-extension", "extension"],
   "scripts": {
     "lint": "eslint '**/*.js'",
     "build": "yarn build:dist && yarn build:zip",
@@ -25,11 +29,6 @@
     "version": "yarn build && bongo version",
     "postversion": "bongo postversion --skip-release-notification"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/applitools/eyes.sdk.javascript1.git",
-    "directory": "packages/eyes-browser-extension"
-  },
   "dependencies": {
     "@applitools/eyes-sdk-core": "12.23.12",
     "@applitools/utils": "1.2.3",
@@ -37,7 +36,7 @@
     "webextension-polyfill": "0.7.0"
   },
   "devDependencies": {
-    "@applitools/bongo": "^2.0.3",
+    "@applitools/bongo": "^2.1.5",
     "@applitools/scripts": "^1.0.1",
     "@applitools/sdk-coverage-tests": "^2.3.15",
     "@applitools/spec-driver-playwright": "^1.2.0",
@@ -72,8 +71,5 @@
     "util": "^0.12.3",
     "webpack": "^5.55.1",
     "webpack-cli": "^4.8.0"
-  },
-  "engines": {
-    "node": ">=14.0.0"
   }
 }
