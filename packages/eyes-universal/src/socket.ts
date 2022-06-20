@@ -16,7 +16,7 @@ export interface Socket {
   unref(): () => void
 }
 
-export function makeSocket(ws: WebSocket, {logger}: {logger?: Logger} = {}): Socket {
+export function makeSocket(ws?: WebSocket, {logger}: {logger?: Logger} = {}): Socket {
   let socket: WebSocket = null
   const listeners = new Map<string, Set<(...args: any[]) => any>>()
   const queue = new Set<() => any>()

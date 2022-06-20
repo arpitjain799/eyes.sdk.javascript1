@@ -12,7 +12,7 @@ import type {Socket} from '../../../src/socket'
 import {spawn} from 'child_process'
 import {makeSocket} from '../../../src/socket'
 import {transform} from './transform-driver'
-import {makeLogger} from '@applitools/logger'
+import {type Logger, makeLogger} from '@applitools/logger'
 import {exec} from 'child_process'
 import {promisify} from 'util'
 const pexec = promisify(exec)
@@ -33,6 +33,7 @@ export class UniversalClient implements types.Core<Driver, Element, Selector> {
   private _server: ChildProcess
   private _socket: ClientSocket
   private _driverType: DriverType
+  private _logger: Logger
 
   static async killServer() {
     const pid = (await pexec('lsof -ti :21077').catch(() => ({stdout: ''}))).stdout.trim()
@@ -42,8 +43,9 @@ export class UniversalClient implements types.Core<Driver, Element, Selector> {
   }
 
   constructor({driverType = 'local'}: {driverType?: DriverType} = {}) {
+    this._logger = makeLogger({label: 'universal-client'})
     this._driverType = driverType
-    this._socket = makeSocket({logger: makeLogger()})
+    this._socket = makeSocket(undefined, {logger: this._logger})
     this._server = spawn(`node`, ['./dist/cli.js'], {
       detached: true,
       stdio: ['ignore', 'pipe', 'ignore'],
@@ -52,6 +54,7 @@ export class UniversalClient implements types.Core<Driver, Element, Selector> {
     this._server.stdout.once('data', data => {
       ;(this._server.stdout as any).unref()
       const [port] = String(data).split('\n', 1)
+      this._logger.log('server is spawned at port', port)
       this._socket.connect(`http://localhost:${port}/eyes`)
       this._socket.emit('Core.makeSDK', {
         name: 'eyes-universal-tests',

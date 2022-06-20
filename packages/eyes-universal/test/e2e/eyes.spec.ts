@@ -12,7 +12,7 @@ describe('Universal server', () => {
 
     beforeEach(async () => {
       ;[driver, destroyDriver] = await spec.build({browser: 'chrome'})
-      await driver.get('https://example.org')
+      await driver.get('https://applitools.github.io/demo/TestPages/FramesTestPage/')
 
       client = new UniversalClient()
     })
@@ -21,23 +21,32 @@ describe('Universal server', () => {
       await destroyDriver()
       await client.closeServer()
     })
-    it('works', async () => {
-      const timeoutId = setTimeout(() => console.log('ugly hack'), 1000000)
 
+    let timeoutId
+    beforeEach(() => {
+      timeoutId = setTimeout(() => console.log('ugly hack'), 1000000)
+    })
+    afterEach(() => {
+      clearTimeout(timeoutId)
+    })
+
+    it('works', async () => {
       const config = {
         appName: 'universal e2e tests',
         testName: 'universal e2e test',
         saveNewTests: false,
         // browsersInfo: [{androidDeviceInfo: {deviceName: 'Pixel 4 XL', androidVersion: 'latest'}}],
       }
-      const manager = await client.makeManager({type: 'vg', concurrency: 5})
+      // const manager = await client.makeManager({type: 'vg', concurrency: 5})
+      const manager = await client.makeManager({})
       const eyes = await manager.openEyes({driver, config})
-      await eyes.check({settings: {}})
+      await eyes.check({
+        settings: {ignoreRegions: [{region: '#overflowing-div', padding: {left: 10, top: 20, right: 30, bottom: 40}}]},
+      })
       const results = await eyes.close({throwErr: false})
       assert.strictEqual(results[0].status, 'Passed')
       const allResults = await manager.closeManager({throwErr: false})
       assert.strictEqual(allResults.results[0].testResults.status, 'Passed')
-      clearTimeout(timeoutId)
     })
   })
 
