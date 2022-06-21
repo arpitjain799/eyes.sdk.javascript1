@@ -7,7 +7,8 @@
     "types/",
     "test/generic",
     "*.d.ts",
-    "*.ts"
+    "*.ts",
+    "test/coverage/generic/cypress.config.js"
   ],
   "env": {
     "commonjs": true,
