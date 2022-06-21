@@ -5,10 +5,10 @@ import {StitchMode, StitchModeEnum} from '../enums/StitchMode'
 import {MatchLevel, MatchLevelEnum} from '../enums/MatchLevel'
 import {BrowserType, BrowserTypeEnum} from '../enums/BrowserType'
 import {DeviceName} from '../enums/DeviceName'
-import {AndroidDeviceName, AndroidVersion, IosDeviceName, IosVersion} from '..'
-//import {AndroidVersion} from '../enums/AndroidVersion'
-// import {IosDeviceName} from '../enums/IosDeviceName'
-// import {IosVersion} from '../enums/IosVersion'
+import {AndroidDeviceName} from '../enums/AndroidDeviceName'
+import {AndroidVersion} from '../enums/AndroidVersion'
+import {IosDeviceName, IosDeviceNameEnum} from '../enums/IosDeviceName'
+import {IosVersion} from '../enums/IosVersion'
 import {ScreenOrientation, ScreenOrientationEnum} from '../enums/ScreenOrientation'
 import {AccessibilitySettings} from './AccessibilitySettings'
 import {
@@ -1049,18 +1049,28 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   addMobileDevice(deviceName: AndroidDeviceName, screenOrientation: ScreenOrientation, version?: AndroidVersion): this
   addMobileDevice(deviceName: IosDeviceName, screenOrientation: ScreenOrientation, version?: IosVersion): this
   addMobileDevice(
-    deviceNameIosOrAndroid: IosDeviceName | AndroidDeviceName,
+    deviceName: IosDeviceName | AndroidDeviceName,
     screenOrientation?: ScreenOrientation,
     version?: AndroidVersion | IosVersion,
   ) {
     if (!this.browsersInfo) this.browsersInfo = []
 
-    if (utils.types.isEnumValue(deviceNameIosOrAndroid, IosDeviceName)) {
+    if (utils.types.isEnumValue(deviceName, IosDeviceNameEnum)) {
       this.browsersInfo.push({
-        iosDeviceInfo: {deviceName: deviceNameIosOrAndroid, screenOrientation, iosVersion: version},
+        iosDeviceInfo: {
+          deviceName: deviceName as IosDeviceName,
+          screenOrientation,
+          iosVersion: version as IosVersion,
+        },
       })
     } else {
-      this.browsersInfo.push({androidDeviceInfo: {deviceName: deviceNameIosOrAndroid, screenOrientation, version}})
+      this.browsersInfo.push({
+        androidDeviceInfo: {
+          deviceName: deviceName as AndroidDeviceName,
+          screenOrientation,
+          version: version as AndroidVersion,
+        },
+      })
     }
     return this
   }
