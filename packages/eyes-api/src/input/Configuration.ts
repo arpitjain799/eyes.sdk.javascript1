@@ -1051,7 +1051,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   addMobileDevice(
     deviceNameIosOrAndroid: IosDeviceName | AndroidDeviceName,
     screenOrientation: ScreenOrientation,
-    version?: any,
+    version?: AndroidVersion | IosVersion,
   ) {
     if (!this.browsersInfo) this.browsersInfo = []
 
