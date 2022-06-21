@@ -13,10 +13,10 @@ export enum AndroidDeviceNameEnum {
   Galaxy_Note_10 = 'Galaxy Note 10',
   Galaxy_Note_10_Plus = 'Galaxy Note 10 Plus',
   Galaxy_S20 = 'Galaxy S20',
-  Galaxy_S20_PLUS = 'Galaxy S20 Plus',
+  Galaxy_S20_Plus = 'Galaxy S20 Plus',
   Galaxy_S21 = 'Galaxy S21',
-  Galaxy_S21_PLUS = 'Galaxy S21 Plus',
-  Galaxy_S21_ULTRA = 'Galaxy S21 Ultra',
+  Galaxy_S21_Plus = 'Galaxy S21 Plus',
+  Galaxy_S21_Ultra = 'Galaxy S21 Ultra',
 }
 
 export type AndroidDeviceName = `${AndroidDeviceNameEnum}`
