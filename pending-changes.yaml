@@ -70,7 +70,6 @@ Apollo SDK:
     - Add special attribute for pseudo elements
     - Add the ability for the SDK to lazy load the page prior to performing a check window
     - Support padding for regions in the following region types - ignoreRegions, layoutRegions, strictRegions, contentRegions
-    - Support `addMobileDevice` in user API for NMG
   bug-fix:
     - Fixed broken links to enums implementation in the README.md
     - |
