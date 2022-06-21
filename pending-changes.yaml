@@ -34,6 +34,7 @@ Apollo SDK:
     - Add special attribute for pseudo elements
     - Add the ability for the SDK to lazy load the page prior to performing a check window
     - Support padding for regions in the following region types - ignoreRegions, layoutRegions, strictRegions, contentRegions
+    - Support `addMobileDevice` in user API for NMG
   bug-fix:
     - Fixed broken links to enums implementation in the README.md
     - |
@@ -49,6 +50,7 @@ Apollo SDK:
     - Add special attribute for pseudo elements
     - Add the ability for the SDK to lazy load the page prior to performing a check window
     - Support padding for regions in the following region types - ignoreRegions, layoutRegions, strictRegions, contentRegions
+    - Support `addMobileDevice` in user API for NMG
   bug-fix:
     - Fixed the "Maximum Call Stack Size Exceeded" error when taking screenshots on iOS Safari
     - Fixed an issue with wrong cropped screenshots of elements out of viewport bounds on native devices
@@ -68,6 +70,7 @@ Apollo SDK:
     - Add special attribute for pseudo elements
     - Add the ability for the SDK to lazy load the page prior to performing a check window
     - Support padding for regions in the following region types - ignoreRegions, layoutRegions, strictRegions, contentRegions
+    - Support `addMobileDevice` in user API for NMG
   bug-fix:
     - Fixed broken links to enums implementation in the README.md
     - |
@@ -94,6 +97,7 @@ Apollo SDK:
     - Add special attribute for pseudo elements
     - Add the ability for the SDK to lazy load the page prior to performing a check window
     - Support padding for regions in the following region types - ignoreRegions, layoutRegions, strictRegions, contentRegions
+    - Support `addMobileDevice` in user API for NMG
   bug-fix:
     - Fixed the "Maximum Call Stack Size Exceeded" error when taking screenshots on iOS Safari
     - Fixed an issue with wrong cropped screenshots of elements out of viewport bounds on native devices
@@ -124,6 +128,7 @@ Apollo SDK:
     - Allowed `` values in custom properties
     - Add special attribute for pseudo elements
     - Add the ability for the SDK to lazy load the page prior to performing a check window
+    - Support `addMobileDevice` in user API for NMG
   bug-fix:
     - |
       `extractText` now supports regions that don't use hints while using `x`/`y` coordinates
