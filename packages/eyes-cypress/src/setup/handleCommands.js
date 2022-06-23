@@ -31,14 +31,13 @@ function handlerCommandsCypress10(cwd) {
   } else {
     if (fs.existsSync(path.resolve(cwd, 'cypress/support/e2e.js'))) {
       supportFilePath = path.resolve(cwd, 'cypress/support/e2e.js');
-    }
-    if (fs.existsSync(path.resolve(cwd, 'cypress/support/component.js'))) {
+    } else if (fs.existsSync(path.resolve(cwd, 'cypress/support/component.js'))) {
       supportFilePath = path.resolve(cwd, 'cypress/support/component.js');
     }
   }
 
   if (supportFilePath) {
-    const commandsFileContent = fs.readFileSync(path.resolve(cwd, supportFilePath), 'utf-8');
+    const commandsFileContent = fs.readFileSync(supportFilePath, 'utf-8');
     if (!isCommandsDefined(commandsFileContent)) {
       writeFileSync(supportFilePath, addEyesCommands(commandsFileContent));
       console.log(chalk.cyan('Commands defined.'));

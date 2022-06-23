@@ -27,7 +27,7 @@ function handlerPluginCypress10(cwd) {
   const configContent = fs.readFileSync(path.resolve(cwd, 'cypress.config.js'), 'utf-8');
   const legacyPluginsFilePath = getLegacyPuginFilePath(cwd, configContent);
   if (legacyPluginsFilePath) {
-    const pluginsFileContent = readFileSync(legacyPluginsFilePath).toString();
+    const pluginsFileContent = readFileSync(legacyPluginsFilePath, 'utf-8');
     if (!isPluginDefined(pluginsFileContent)) {
       writeFileSync(legacyPluginsFilePath, addEyesCypressPlugin(pluginsFileContent));
       console.log(chalk.cyan('Plugins defined.'));
