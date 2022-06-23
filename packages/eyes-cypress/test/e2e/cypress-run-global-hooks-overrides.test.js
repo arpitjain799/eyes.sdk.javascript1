@@ -83,7 +83,7 @@ describe('global hooks override', () => {
   });
 
   it('supports running *sync* user defined global hooks', async () => {
-    await updateConfigFile('index-global-hooks-overrides-sync');
+    await updateConfigFile('index-global-hooks-overrides-sync.js');
     const [err, output] = await presult(runCypress());
     expect(err).to.be.undefined;
     expect(output).to.contain('@@@ before:run @@@');
