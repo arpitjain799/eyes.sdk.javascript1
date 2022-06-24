@@ -42,9 +42,15 @@ export function parseCapabilities(
   }
 
   if (info.isNative) {
+    info.displaySize = extractDisplaySize(capabilities)
     info.pixelRatio = capabilities.pixelRatio
     info.statusBarHeight = capabilities.statBarHeight
-    info.displaySize = extractDisplaySize(capabilities)
+    if (info.displaySize && info.orientation && capabilities.viewportRect) {
+      info.navigationBarHeight =
+        info.orientation === 'landscape'
+          ? info.displaySize.width - (capabilities.viewportRect.left + capabilities.viewportRect.width)
+          : info.displaySize.height - (capabilities.viewportRect.top + capabilities.viewportRect.height)
+    }
   }
 
   return info
