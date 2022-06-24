@@ -2,15 +2,12 @@
 const isGlobalHooksSupported = require('./isGlobalHooksSupported');
 const {presult} = require('@applitools/functional-commons');
 const makeGlobalRunHooks = require('./hooks');
-let alreadyCalled = false
 
 function makePluginExport({startServer, eyesConfig}) {
   return function pluginExport(pluginModule) {
     let eyesServer;
     const pluginModuleExports = pluginModule.exports?.e2e?.setupNodeEvents || pluginModule.exports;
     pluginModule.exports = async function(...args) {
-      if(alreadyCalled) return
-      alreadyCalled = true
       const {server, port, closeManager, closeBatches, closeUniversalServer} = await startServer();
       eyesServer = server;
 

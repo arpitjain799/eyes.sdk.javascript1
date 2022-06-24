@@ -36,12 +36,7 @@ async function updateConfigFile(pluginFileName, testName = 'global-hooks-overrid
 
       const replaced = contents
         .replace(/index-run.js/g, pluginFileName)
-        .replace(/integration-run/g, `integration-run/${testName}`)
-        .replace(
-          ` return require('./cypress/plugins/index-run.js')(on, config);`,
-          ` require('../../../../')(module);
-        return module.exports(on, config)`,
-        );
+        .replace(/integration-run/g, `integration-run/${testName}`);
 
       fs.writeFile(
         path.resolve(targetTestAppPath, `./cypress.config.js`),
@@ -59,9 +54,21 @@ async function updateConfigFile(pluginFileName, testName = 'global-hooks-overrid
   await promise;
 }
 
+function updateGlobalHooks(globalHooks) {
+  let configContent = fs.readFileSync(
+    path.resolve(targetTestAppPath, `./cypress.config.js`),
+    'utf-8',
+  );
+  const content = configContent.replace(/setupNodeEvents\(on, config\) {/g, globalHooks);
+  fs.writeFileSync(path.resolve(targetTestAppPath, `./cypress.config.js`), content, 'utf-8');
+}
+
 describe('global hooks override in cypress.config.js file', () => {
   beforeEach(async () => {
-    await pexec(`cp ${sourceTestAppPath}/cypress.config.js ${targetTestAppPath}`);
+    fs.copyFileSync(
+      `${__dirname}/../fixtures/cypressConfig-global-hooks-overrides-config-file.js`,
+      `${targetTestAppPath}/cypress.config.js`,
+    );
   });
 
   before(async () => {
@@ -89,23 +96,17 @@ describe('global hooks override in cypress.config.js file', () => {
 
   it('supports running user defined global hooks from cypress.config.js file', async () => {
     await updateConfigFile('index-run.js');
-    let configContent = fs.readFileSync(
-      path.resolve(targetTestAppPath, `./cypress.config.js`),
-      'utf-8',
-    );
     const globalHooks = `setupNodeEvents(on, config) {
       on('before:run', () => {
       console.log('@@@ before:run @@@');
       return null;
     });
-  
+
     on('after:run', () => {
       console.log('@@@ after:run @@@');
       return null;
     });`;
-    const content = configContent.replace(/setupNodeEvents\(on, config\) {/g, globalHooks);
-
-    fs.writeFileSync(path.resolve(targetTestAppPath, `./cypress.config.js`), content, 'utf-8');
+    updateGlobalHooks(globalHooks);
     const [err, output] = await presult(runCypress());
     expect(err).to.be.undefined;
     expect(output).to.contain('@@@ before:run @@@');
