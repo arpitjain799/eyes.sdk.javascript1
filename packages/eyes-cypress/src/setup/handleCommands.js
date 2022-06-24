@@ -27,7 +27,9 @@ function handlerCommandsCypress10(cwd) {
   const configContent = fs.readFileSync(path.resolve(cwd, 'cypress.config.js'), 'utf-8');
   let supportFilePath;
   if (configContent.includes('supportFile')) {
-    supportFilePath = configContent.match(/[supportFile: '][a-z | \/]*.js'/g)[0];
+    const regex = new RegExp(/(?:supportFile:)(?:\s*)(.*)/g);
+    const filePath = regex.exec(configContent)[1].replace(/['|"|,]*/g, '');
+    supportFilePath = path.resolve(cwd, filePath);
   } else {
     if (fs.existsSync(path.resolve(cwd, 'cypress/support/e2e.js'))) {
       supportFilePath = path.resolve(cwd, 'cypress/support/e2e.js');
