@@ -118,7 +118,7 @@ Apollo SDK:
     - Prevented navbar from appearing on Android 12 screenshots
 "@applitools/eyes-cypress":
   feature:
-    - 
+    - Add support for cypress 10
   bug-fix:
     - 
 "@applitools/eyes-storybook":
