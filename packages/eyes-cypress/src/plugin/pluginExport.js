@@ -6,7 +6,9 @@ const makeGlobalRunHooks = require('./hooks');
 function makePluginExport({startServer, eyesConfig}) {
   return function pluginExport(pluginModule) {
     let eyesServer;
-    const pluginModuleExports = pluginModule.exports?.e2e?.setupNodeEvents || pluginModule.exports;
+    const pluginModuleExports = pluginModule.exports.e2e
+      ? pluginModule.exports.e2e.setupNodeEvents
+      : pluginModule.exports;
     pluginModule.exports = async function(...args) {
       const {server, port, closeManager, closeBatches, closeUniversalServer} = await startServer();
       eyesServer = server;
