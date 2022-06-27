@@ -39,7 +39,9 @@
     "cypress": "cypress open --config-file test/fixtures/cypress-play.json",
     "cypress:new": "cd test/play && yarn && npx cypress open",
     "cypress:run": "cypress run --config-file test/fixtures/cypress-play.json --spec=test/fixtures/testApp/cypress/integration-play/play.js",
-    "cypress:run:new": "cd test/fixtures/testAppCypress10 && npx cypress run --config-file ../../play/cypress.config.js --spec=cypress/integration-play/play.js",
+
+    "cypress:run:new": "cd test/play && yarn && npx cypress run --spec=../fixtures/testAppCypress10/cypress/integration-play/play.js",
+
     "cypress:play": "cd test/fixtures/testApp && cypress run --config integrationFolder=cypress/integration-play,pluginsFile=cypress/plugins/index-play.js,supportFile=cypress/support/index-run.js --spec=cypress/integration-play/play.js",
     "render": "run(){ npx cypress run --config integrationFolder=test/fixtures/testApp/cypress/render,pluginsFile=test/fixtures/testApp/cypress/plugins/index-render.js,supportFile=test/fixtures/testApp/cypress/support/index-run.js --env url=$1; }; run",
     "prepublish:setup": "sudo apt-get install xvfb",
