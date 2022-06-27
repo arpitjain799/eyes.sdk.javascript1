@@ -11,9 +11,14 @@ const cwd = process.cwd();
 
 console.log(chalk.cyan('Setup eyes-cypress', version));
 const packageJson = JSON.parse(fs.readFileSync('package.json'));
-const cypressVersion = packageJson.dependencies?.cypress || packageJson.devDependencies?.cypress
+let cypressVersion;
 console.log(chalk.cyan('Cypress version that was found', cypressVersion));
 
+if (packageJson.dependencies && packageJson.dependencies.cypress) {
+  cypressVersion = packageJson.dependencies.cypress;
+} else if (packageJson.devDependencies && packageJson.devDependencies.cypress) {
+  cypressVersion = packageJson.devDependencies.cypress;
+}
 
 try {
   if (parseFloat(cypressVersion, 10) < 10) {
@@ -21,9 +26,9 @@ try {
     handleCommands(cwd);
     handleTypeScript(cwd);
   } else {
-    handlerPluginCypress10(cwd)
-    const supportFilePath = handlerCommandsCypress10(cwd)
-    handlerTypeScriptCypress10(supportFilePath)
+    handlerPluginCypress10(cwd);
+    const supportFilePath = handlerCommandsCypress10(cwd);
+    handlerTypeScriptCypress10(supportFilePath);
   }
 } catch (e) {
   console.log(chalk.red('Setup error:\n', e));
