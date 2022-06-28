@@ -78,7 +78,7 @@ jobs:
         uses: ./.github/actions/tests
         with:
           working-directory: ${{matrix.dirname}}
-          test-type: ${{github.event_name === 'workflow_dispatch' && github.event.inputs.test-type || 'sanity'}}
+          test-type: ${{github.event_name == 'workflow_dispatch' && github.event.inputs.test-type || 'sanity'}}
           build-type: ${{github.event.inputs.build-type}}
           setup-type: ${{github.event.inputs.setup-type}}
           links: ${{github.event.inputs.links}}
