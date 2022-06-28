@@ -12,14 +12,13 @@ const cwd = process.cwd();
 console.log(chalk.cyan('Setup eyes-cypress', version));
 const packageJson = JSON.parse(fs.readFileSync('package.json'));
 let cypressVersion;
-console.log(chalk.cyan('Cypress version that was found', cypressVersion));
 
 if (packageJson.dependencies && packageJson.dependencies.cypress) {
   cypressVersion = packageJson.dependencies.cypress;
 } else if (packageJson.devDependencies && packageJson.devDependencies.cypress) {
   cypressVersion = packageJson.devDependencies.cypress;
 }
-
+console.log(chalk.cyan('Cypress version that was found', cypressVersion));
 try {
   if (parseFloat(cypressVersion, 10) < 10) {
     handlePlugin(cwd);
