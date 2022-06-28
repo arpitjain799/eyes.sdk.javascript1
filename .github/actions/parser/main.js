@@ -184,7 +184,7 @@ function changedSinceLastTag(job) {
 }
 
 function changedInCurrentBranch() {
-  const changedFiles = execSync('git --no-pager diff --name-only master', {encoding: 'utf8'})
+  const changedFiles = execSync('git --no-pager diff --name-only origin/master', {encoding: 'utf8'})
   const packageDirs = changedFiles.split('\n').reduce((packageDirs, filePath) => {
     filePath = path.resolve(process.cwd(), filePath)
     if (filePath.startsWith(packagesPath)) {
