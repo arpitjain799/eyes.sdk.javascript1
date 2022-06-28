@@ -224,7 +224,7 @@ function makeCheckWindow({
 
       if (renderStatusErr) {
         logger.log('got render status error aborting tests')
-        testController.setFatalError(renderStatusErr)
+        testController.setError(index, renderStatusErr)
         if (renderJobs.has(renderRequest)) renderJobs.get(renderRequest)()
         return
       }
