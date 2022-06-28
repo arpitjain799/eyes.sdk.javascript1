@@ -9032,7 +9032,7 @@ function changedSinceLastTag(job) {
 }
 
 function changedInCurrentBranch() {
-  const changedFiles = (0,child_process__WEBPACK_IMPORTED_MODULE_4__.execSync)('git --no-pager diff --name-only master', {encoding: 'utf8'})
+  const changedFiles = (0,child_process__WEBPACK_IMPORTED_MODULE_4__.execSync)('git --no-pager diff --name-only origin/master', {encoding: 'utf8'})
   const packageDirs = changedFiles.split('\n').reduce((packageDirs, filePath) => {
     filePath = path__WEBPACK_IMPORTED_MODULE_2__.resolve(process.cwd(), filePath)
     if (filePath.startsWith(packagesPath)) {
