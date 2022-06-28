@@ -3,19 +3,20 @@
 const fs = require('fs')
 const path = require('path')
 const chalk = require('chalk')
-const {exec} = require('child_process')
+const {execSync} = require('child_process')
 const yargs = require('yargs')
 
 yargs
-  .usage('yarn link [options]')
+  .usage('link <link-packages> [options]')
   .command({
-    command: '*',
+    command: '* <link-packages>',
     builder: yargs =>
       yargs.options({
-        unlink: {
-          description: 'Unlink packages instead of linking them',
-          type: 'boolean',
-          default: false,
+        linkPackages: {
+          alias: ['include'],
+          description: 'Package names to link',
+          type: 'string',
+          coerce: string => string.split(/[\s,]+/)
         },
         packagePath: {
           alias: ['package'],
@@ -39,19 +40,6 @@ yargs
           type: 'boolean',
           default: true,
         },
-        include: {
-          description: 'Package names to link',
-          type: 'array',
-        },
-        exclude: {
-          description: 'Package names to not link',
-          type: 'array',
-        },
-        maxDepth: {
-          alias: ['depth'],
-          type: 'number',
-          default: 0,
-        },
       }),
     handler: async args => {
       try {
@@ -66,146 +54,45 @@ yargs
   .help().argv
 
 async function link({
-  include = [],
-  exclude = [],
+  linkPackages = [],
   packagePath = process.cwd(),
   packagesPath = path.resolve(packagePath, '..'),
   runInstall = false,
   runBuild = true,
-  maxDepth = 0,
 } = {}) {
-  const target = await getPackage(packagePath)
-  if (!target) process.exit(1)
+  const packageManifest = JSON.parse(fs.readFileSync(path.resolve(packagePath, 'package.json'), {encoding: 'utf8'}))
+  const packages = getPackages(packagesPath)
+  const package = packages[packageManifest.name]
+  if (!package) throw new Error('Package not found!')
 
-  const packages = await getPackages(packagesPath, {include, exclude})
+  linkPackages = Object.values(packages).filter(package => linkPackages.some(linkName => [package.name, package.dirname, ...package.aliases].includes(linkName)))
 
-  const results = await task(target, packages)
+  for (const linkPackage of linkPackages) {
+    const commands = ['yarn link']
+    if (runInstall || runBuild) commands.push('yarn install', 'npm run upgrade:framework --if-present')
+    if (runBuild) commands.push('npm run build --if-present')
+    execSync(commands.join(' && '), {cwd: path.resolve(packagesPath, linkPackage.dirname), encoding: 'utf8'})
+  }
 
-  results.forEach(result => {
-    if (result.error) {
-      console.error(
-        chalk.redBright(
-          `${chalk.bold.yellow(result.dependency.name)} wasn't linked to ${chalk.bold.yellow(
-            result.target.name,
-          )} due to error`,
-        ),
-      )
-      console.error(result.error)
-      console.error('STDOUT:', result.stdout)
-      console.error('STDERR:', result.stderr)
-    }
-    console.log(
-      chalk.greenBright(
-        `${chalk.bold.cyan(result.dependency.name)} was successfully linked to ${chalk.bold.cyan(result.target.name)}`,
-      ),
-    )
-    console.error('STDOUT:', result.stdout)
-  })
+  for (const targetPackage of [package, ...linkPackages]) {
+    const linkCommands = linkPackages.map(linkPackage => `yarn link ${linkPackage.name}`)
+    execSync(linkCommands.join(' && '), {cwd: path.resolve(packagesPath, targetPackage.dirname), encoding: 'utf8'})
+  }
+}
 
-  results.forEach(result => result.error && process.exit(1))
-
-  async function task(target, packages, {depth = 0} = {}) {
-    const dependencies = target.dependencies
-      .filter(dependencyName => packages.has(dependencyName))
-      .map(dependencyName => packages.get(dependencyName))
-
-    return dependencies.reduce(async (promise, dependency) => {
-      const results = await promise
-      let [result, ...nestedResults] = await new Promise(async resolve => {
-        const nestedResults = depth < maxDepth ? await task(dependency, packages, {depth: depth + 1}) : []
-        const commands = ['yarn link']
-        if (runInstall) commands.push('yarn install', 'npm run upgrade:framework --if-present')
-        if (runBuild && dependency.hasBuild) commands.push('yarn build')
-        exec(commands.join(' && '), {cwd: dependency.path}, async (error, stdout, stderr) => {
-          resolve([{target, dependency, error, stdout, stderr}, ...nestedResults])
-        })
-      })
-      if (!result.error) {
-        result = await new Promise(resolve => {
-          exec(`yarn link ${dependency.name}`, {cwd: target.path}, (error, stdout, stderr) => {
-            resolve({target, dependency, error, stdout, stderr})
-          })
-        })
+function getPackages(packagesPath) {
+  const packageDirs = fs.readdirSync(packagesPath)
+  return packageDirs.reduce((packages, packageDir) => {
+    const packageManifestPath = path.resolve(packagesPath, packageDir, 'package.json')
+    if (fs.existsSync(packageManifestPath)) {
+      const manifest = JSON.parse(fs.readFileSync(packageManifestPath, {encoding: 'utf8'}))
+      packages[manifest.name]  = {
+        name: manifest.name,
+        dirname: packageDir,
+        aliases: manifest.aliases || [],
+        dependencies: [...Object.keys(manifest.dependencies ?? {}), ...Object.keys(manifest.devDependencies ?? {})]
       }
-      return results.concat(result, nestedResults)
-    }, Promise.resolve([]))
-  }
-}
-
-async function unlink({
-  include = [],
-  exclude = [],
-  packagePath = process.cwd(),
-  packagesPath = path.resolve(packagePath, '..'),
-} = {}) {
-  const target = await getPackage(packagePath)
-  if (!target) process.exit(1)
-
-  const packages = await getPackages(packagesPath, [include, exclude])
-
-  const dependencies = target.dependencies
-    .filter(dependencyName => packages.has(dependencyName))
-    .map(dependencyName => packages.get(dependencyName))
-
-  const result = await new Promise(resolve => {
-    const commands = [`yarn unlink ${dependencies.map(dependency => dependency.name).join(' ')}`]
-    exec(commands.join(' && '), {cwd: packagePath}, error => resolve({error}))
-  })
-
-  if (result.error) {
-    console.error(chalk.redBright('Something went wrong'))
-    console.error(result.error)
-    process.exit(1)
-  }
-
-  console.log(chalk.greenBright('All local dependencies are successfully unlinked'))
-}
-
-async function isFile(filePath) {
-  return new Promise(resolve => {
-    fs.stat(filePath, (err, stats) => resolve(!err ? stats.isFile() : false))
-  })
-}
-
-async function getManifest(packagePath) {
-  const manifestPath = path.resolve(packagePath, './package.json')
-  if (!(await isFile(manifestPath))) return null
-  return require(manifestPath)
-}
-
-async function getPackage(packagePath) {
-  const manifest = await getManifest(packagePath)
-  if (!manifest) return null
-  return {
-    name: manifest.name,
-    alias: path.basename(packagePath),
-    path: packagePath,
-    dependencies: Object.keys({
-      ...manifest.dependencies,
-      ...manifest.devDependencies,
-      ...manifest.optionalDependencies,
-    }),
-    hasBuild: Boolean(manifest.scripts && manifest.scripts.build),
-  }
-}
-
-async function getPackages(packagesPath, {include = [], exclude = []} = {}) {
-  const entries = await new Promise(resolve => {
-    fs.readdir(packagesPath, (err, entries) => resolve(!err ? entries : []))
-  })
-  return entries.reduce(async (promise, entry) => {
-    const data = await getPackage(path.resolve(packagesPath, entry))
-    const packages = await promise
-
-    if (
-      !data ||
-      exclude.some(name => name === data.name || name === data.alias) ||
-      include.every(name => name !== data.name && name !== data.alias)
-    ) {
-      return packages
     }
-
-    packages.set(data.name, data)
     return packages
-  }, Promise.resolve(new Map()))
+  }, {})
 }

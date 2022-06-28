@@ -83,9 +83,9 @@ core.notice(`Jobs created: "${Object.values(jobs).map(job => job.displayName).jo
 core.setOutput('packages', allowVariations ? Object.values(jobs) : jobs)
 
 function createJobs(input) {
-  return input.split(/[\s,]+/).reduce((jobs, input) => {
-    let [_, packageKey,  releaseVersion, frameworkVersion, frameworkProtocol, nodeVersion, jobOS, shortReleaseVersion, shortFrameworkVersion, shortFrameworkProtocol]
-      = input.match(/^(.*?)(?:\((?:version:(patch|minor|major);?)?(?:framework:([\d.]+);?)?(?:protocol:(.+?);?)?(?:node:([\d.]+);?)?(?:os:(linux|ubuntu|mac|macos|win|windows);?)?\))?(?::(patch|minor|major))?(?:@([\d.]+))?(?:\+(.+?))?$/i)
+  return input.split(/[\s,]+(?=(?:[^(]*\([^))]*\))*[^\()]*$)/).reduce((jobs, input) => {
+    let [_, packageKey,  releaseVersion, frameworkVersion, frameworkProtocol, nodeVersion, jobOS, linkPackages, shortReleaseVersion, shortFrameworkVersion, shortFrameworkProtocol]
+      = input.match(/^(.*?)(?:\((?:version:(patch|minor|major);?)?(?:framework:([\d.]+);?)?(?:protocol:(.+?);?)?(?:node:([\d.]+);?)?(?:os:(linux|ubuntu|mac|macos|win|windows);?)?(?:links:(.+?);?)?\))?(?::(patch|minor|major))?(?:@([\d.]+))?(?:\+(.+?))?$/i)
   
     releaseVersion ??= shortReleaseVersion ?? defaultReleaseVersion
     frameworkVersion ??= shortFrameworkVersion
@@ -122,6 +122,7 @@ function createJobs(input) {
       version: releaseVersion,
       os: OS[jobOS ?? 'linux'],
       node: nodeVersion ?? 'lts/*',
+      links: linkPackages,
       env: {
         [`APPLITOOLS_${packageInfo.jobName.toUpperCase()}_MAJOR_VERSION`]: frameworkVersion,
         [`APPLITOOLS_${packageInfo.jobName.toUpperCase()}_VERSION`]: frameworkVersion,
@@ -200,5 +201,5 @@ function changedInCurrentBranch() {
     }
     return packageDirs
   }, new Set())
-  return Array.from(packageDirs.values()).join(' ')
+  return Array.from(packageDirs.values(), packageDir => `${packageDir}(links:${packageDirs.join(',')})`).join(' ')
 }
