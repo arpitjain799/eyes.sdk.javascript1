@@ -24,13 +24,20 @@ const OS = {
 
 const packagesPath = path.resolve(process.cwd(), './js/packages')
 
-const input = github.context.eventName === 'pull_request' ? changedInCurrentBranch() : core.getInput('packages', {required: true}) 
 const allowVariations = core.getBooleanInput('allow-variations')
 const allowCascading = core.getBooleanInput('allow-cascading')
 const onlyChanged = core.getBooleanInput('only-changed')
 const defaultReleaseVersion = core.getInput('release-version')
 
-core.notice(`Input provided: "${input}"`)
+let input
+if (github.context.eventName === 'workflow_dispatch') {
+  input = core.getInput('packages', {required: true}) 
+  core.notice(`Input provided: "${input}"`)
+} else {
+  input = changedInCurrentBranch()
+  core.notice(`Packages with changes: "${input}"`)
+}
+
 
 const packageDirs = await fs.readdir(packagesPath)
 const packages = await packageDirs.reduce(async (packages, packageDir) => {
