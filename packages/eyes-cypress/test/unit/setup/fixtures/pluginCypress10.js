@@ -1,9 +1,6 @@
 const {defineConfig} = require('cypress');
 
-    
-let eyesSetup = false 
-
-module.exports = defineConfig({
+    module.exports = defineConfig({
       chromeWebSecurity: true,
       video: false,
       screenshotOnRunFailure: false,
@@ -14,12 +11,6 @@ module.exports = defineConfig({
         // We've imported your old cypress plugins here.
         // You may want to clean this up later by importing these.
         setupNodeEvents(on, config) {
-          if(!eyesSetup) {
-            eyesSetup = true
-            require('@applitools/eyes-cypress')(module)
-            return module.exports(on, config) 
-          }
-    
 
           on('before:run', async () => {
             console.log('@@@ before:run @@@');
@@ -34,3 +25,5 @@ module.exports = defineConfig({
         },
       },
     });
+
+require('@applitools/eyes-cypress')(module);

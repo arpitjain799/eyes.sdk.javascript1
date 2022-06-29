@@ -26,21 +26,21 @@ function handlePlugin(cwd) {
 function handlerPluginCypress10(cwd) {
   const configContent = fs.readFileSync(path.resolve(cwd, 'cypress.config.js'), 'utf-8');
   const legacyPluginsFilePath = getLegacyPuginFilePath(cwd, configContent);
+  let content;
+  let pathToContent;
+
   if (legacyPluginsFilePath) {
-    const pluginsFileContent = readFileSync(legacyPluginsFilePath, 'utf-8');
-    if (!isPluginDefined(pluginsFileContent)) {
-      writeFileSync(legacyPluginsFilePath, addEyesCypressPlugin(pluginsFileContent));
-      console.log(chalk.cyan('Plugins defined.'));
-    } else {
-      console.log(chalk.cyan('Plugins already defined'));
-    }
+    content = readFileSync(legacyPluginsFilePath, 'utf-8');
+    pathToContent = legacyPluginsFilePath;
   } else {
-    if (!isPluginDefined(configContent)) {
-      writeFileSync(path.resolve(cwd, 'cypress.config.js'), addEyesCypress10Plugin(configContent));
-      console.log(chalk.cyan('Plugins defined.'));
-    } else {
-      console.log(chalk.cyan('Plugins already defined'));
-    }
+    content = configContent;
+    pathToContent = path.resolve(cwd, 'cypress.config.js');
+  }
+  if (!isPluginDefined(content)) {
+    writeFileSync(pathToContent, addEyesCypressPlugin(content));
+    console.log(chalk.cyan('Plugins defined.'));
+  } else {
+    console.log(chalk.cyan('Plugins already defined'));
   }
 }
 

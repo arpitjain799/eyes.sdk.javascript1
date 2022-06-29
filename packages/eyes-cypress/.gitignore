@@ -20,3 +20,4 @@ test/coverage/generic/cypress/e2e/generic
 test/coverage/generic/cypress/screenshots
 test/coverage/generic/package-lock.json
 test/play/yarn.lock
+test/coverage/generic/yarn.lock

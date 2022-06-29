@@ -35,7 +35,7 @@
     "test:ts:compile": "tsc --project test/e2e/ts/cypress",
     "test:ts:run": "cypress run --config-file test/e2e/ts/cypress-ts.json",
     "test:ts": "yarn test:ts:compile && yarn test:ts:run",
-    "test:coverage": "yarn generate:tests && cd test/coverage/generic && unset APPLITOOLS_API_KEY && APPLITOOLS_BATCH_NAME='JS Coverage Tests: eyes-selenium' APPLITOOLS_BATCH_ID=$(uuidgen) cypress run",
+    "test:coverage": "yarn generate:tests && cd test/coverage/generic && yarn && unset APPLITOOLS_API_KEY && APPLITOOLS_BATCH_NAME='JS Coverage Tests: eyes-selenium' APPLITOOLS_BATCH_ID=$(uuidgen) npx cypress run",
     "cypress": "cypress open --config-file test/fixtures/cypress-play.json",
     "cypress:new": "cd test/play && yarn && npx cypress open",
     "cypress:run": "cypress run --config-file test/fixtures/cypress-play.json --spec=test/fixtures/testApp/cypress/integration-play/play.js",

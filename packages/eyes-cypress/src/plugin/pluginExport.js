@@ -9,7 +9,7 @@ function makePluginExport({startServer, eyesConfig}) {
     const pluginModuleExports = pluginModule.exports.e2e
       ? pluginModule.exports.e2e.setupNodeEvents
       : pluginModule.exports;
-    pluginModule.exports = async function(...args) {
+    const setupNodeEvents = async function(...args) {
       const {server, port, closeManager, closeBatches, closeUniversalServer} = await startServer();
       eyesServer = server;
 
@@ -53,6 +53,11 @@ function makePluginExport({startServer, eyesConfig}) {
         }
       }
     };
+    if (pluginModule.exports.e2e) {
+      pluginModule.exports.e2e.setupNodeEvents = setupNodeEvents;
+    } else {
+      pluginModule.exports = setupNodeEvents;
+    }
     return function getCloseServer() {
       return eyesServer.close();
     };

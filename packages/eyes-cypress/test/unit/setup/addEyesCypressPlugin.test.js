@@ -80,6 +80,6 @@ describe('addEyesCypressPlugin', () => {
       'utf-8',
     );
 
-    expect(addEyesCypress10Plugin(content)).to.equal(expected);
+    expect(addEyesCypressPlugin(content)).to.equal(expected);
   });
 });

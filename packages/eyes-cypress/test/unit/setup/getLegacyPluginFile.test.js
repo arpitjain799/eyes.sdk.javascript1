@@ -6,7 +6,7 @@ const {expect} = require('chai');
 describe('works with cypress10 and legacy plugin file', () => {
   it('works for legacy plugin file', () => {
     const configFileContent = fs.readFileSync(
-      `${__dirname}/fixtures/cypressConfig-legacy-file.js`,
+      `${__dirname}/fixtures/cypressConfig-legacy-file/cypress.config.js`,
       'utf-8',
     );
     const path = getLegacyPuginFilePath(__dirname, configFileContent);
