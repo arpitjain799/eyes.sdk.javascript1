@@ -31,7 +31,7 @@
     "test": "yarn test:unit && yarn test:it && yarn test:e2e && yarn test:ts && yarn test:coverage",
     "test:sanity": "yarn test:unit && yarn test:it && yarn test:ts",
     "test:unit": "mocha --no-timeouts 'test/unit/**/*.test.js'",
-    "test:it": "mocha --no-timeouts 'test/it/**/*.test.js'",
+    "test:it": "yarn build && mocha --no-timeouts 'test/it/**/*.test.js'",
     "test:ts": "yarn test:ts:compile && yarn test:ts:run",
     "test:ts:compile": "tsc --project test/e2e/ts/cypress",
     "test:ts:run": "cypress run --config-file test/e2e/ts/cypress-ts.json",
