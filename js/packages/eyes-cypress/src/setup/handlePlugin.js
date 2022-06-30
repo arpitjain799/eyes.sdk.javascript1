@@ -2,7 +2,7 @@
 
 const {readFileSync, writeFileSync} = require('fs');
 const chalk = require('chalk');
-const {addEyesCypressPlugin, addEyesCypress10Plugin} = require('./addEyesCypressPlugin');
+const {addEyesCypressPlugin} = require('./addEyesCypressPlugin');
 const isPluginDefined = require('./isPluginDefined');
 const getFilePath = require('./getFilePath');
 const getCypressConfig = require('./getCypressConfig');
