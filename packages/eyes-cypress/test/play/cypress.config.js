@@ -9,7 +9,7 @@ module.exports = defineConfig({
     setupNodeEvents(on, config) {
       return require('../fixtures/testApp/cypress/plugins/index-play.js')(on, config);
     },
-    specPattern: '../fixtures/testAppCypress10/cypress/integration-play/',
+    specPattern: '../fixtures/testApp/cypress/integration-play/',
     supportFile: 'support.js',
   },
 });
