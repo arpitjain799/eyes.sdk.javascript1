@@ -8,7 +8,7 @@ const pexec = p(exec);
 const fs = require('fs');
 const {presult} = require('@applitools/functional-commons');
 
-const sourceTestAppPath = path.resolve(__dirname, '../fixtures/testAppCypress10');
+const sourceTestAppPath = path.resolve(__dirname, '../fixtures/testApp');
 const targetTestAppPath = path.resolve(
   __dirname,
   '../fixtures/testAppCopies/testApp-global-hooks-overrides-config-file',
@@ -76,6 +76,8 @@ describe('global hooks override in cypress.config.js file', () => {
       fs.rmdirSync(targetTestAppPath, {recursive: true});
     }
     await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`);
+    await pexec(`cp ${sourceTestAppPath}Cypress10/cypress.config.js ${targetTestAppPath}`);
+    fs.unlinkSync(`${targetTestAppPath}/cypress.json`);
     const packageJsonPath = path.resolve(targetTestAppPath, 'package.json');
 
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath));
