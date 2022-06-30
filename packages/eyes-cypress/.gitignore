@@ -21,4 +21,3 @@ test/coverage/generic/cypress/screenshots
 test/coverage/generic/package-lock.json
 test/play/yarn.lock
 test/coverage/generic/yarn.lock
-test/it/setup/fixtures/cypress.config.js
