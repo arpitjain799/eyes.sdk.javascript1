@@ -24,12 +24,15 @@ npx eyes-setup
 
 The above command will add the necessary imports to your cypress `pluginsFile` and `supportFile` (and create the TypeScript definitions file), as described in the manual configuration below.
 
-#### Manual configuration: cypress version  < 10
+#### Manual configuration
 
 ##### 1. Configure Eyes-Cypress plugin
-
+<br>
+ 
 Eyes-Cypress acts as a [Cypress plugin](https://docs.cypress.io/guides/tooling/plugins-guide.html), so it should be configured as such.
-Unfortunately there's no easy way to do this automatically, so you need to manually add the following code to your `pluginsFile`:
+Unfortunately there's no easy way to do this automatically, so you need to manually:
+ #### Cypress version < 10:
+Add the following code to your `pluginsFile`:
 
 **Important**: add this code **after** the definition of `module.exports`:
 
@@ -38,7 +41,16 @@ require('@applitools/eyes-cypress')(module)
 ```
 
 Normally, this is `cypress/plugins/index.js`. You can read more about it in Cypress' docs [here](https://docs.cypress.io/guides/references/configuration.html#Folders-Files).
+<br>
 
+ #### Cypress version >= 10:
+
+ Add the following code to your `cypress.config.js` file after `module.exports`:
+
+```js
+require('@applitools/eyes-cypress')(module)
+```
+This file is normally at the root of the project
 ##### 2. Configure custom commands
 
 Eyes-Cypress exposes new commands to your tests. This means that more methods will be available on the `cy` object. To enable this, it's required to configure these custom commands.
@@ -48,60 +60,7 @@ As with the plugin, there's no automatic way to configure this in cypress, so yo
 import '@applitools/eyes-cypress/commands'
 ```
 
-Normally, this is `cypress/support/index.js`. You can read more about it in Cypress' docs [here](https://docs.cypress.io/guides/references/configuration.html#Folders-Files).
-
-##### 3. (Optional) TypeScript configuration
-
-Eyes-Cypress ships with official type declarations for TypeScript. This allows you to add eyes commands to your TypeScript tests.
-
-Add this file to your project with either: 
-1. Adding the path to your [tsconfig](https://www.typescriptlang.org/docs/handbook/tsconfig-json.html) file:
-    ```
-    {
-      "files": ["./node_modules/@applitools/eyes-cypress/eyes-index.d.ts"],
-      ...
-    }
-    ```
-  2. Copying the file to to your [cypress/support/](https://docs.cypress.io/guides/core-concepts/writing-and-organizing-tests.html#Folder-Structure) dir:
-      ```
-      cp node_modules/@applitools/eyes-cypress/eyes-index.d.ts ./cypress/support/    
-      ```
-
-#### Manual configuration: cypress version  >= 10
-
-##### 1. Configure Eyes-Cypress plugin
-
-Eyes-Cypress acts as a [Cypress plugin](https://docs.cypress.io/guides/tooling/plugins-guide.html), so it should be configured as such.
-Unfortunately there's no easy way to do this automatically, so you need to manually add the following code to your `pluginsFile`:
-
-**Before module.exports:**
-
-```js
-let eyesSetup = false
-```
-
-**In setupNodeEvents:**
-
-```js
-if(!eyesSetup) {
-    eyesSetup = true
-     require('@applitools/eyes-cypress')(module)
-     return module.exports(on, config) 
-  }
-```
-
-You can read more about `setupNodeEvents` [here](https://docs.cypress.io/guides/tooling/plugins-guide#Installing-plugins)
-
-##### 2. Configure custom commands
-
-Eyes-Cypress exposes new commands to your tests. This means that more methods will be available on the `cy` object. To enable this, it's required to configure these custom commands.
-As with the plugin, there's no automatic way to configure this in cypress, so you need to manually add the following code to your `supportFile`:
-
-```js
-import '@applitools/eyes-cypress/commands'
-```
-
-Normally, this is `cypress/support/index.js`. You can read more about it in Cypress' docs [here](https://docs.cypress.io/guides/references/configuration.html#Folders-Files).
+Normally, this is `cypress/support/index.js` for cypress version < 10 and `cypress/support/e2e.js` for cypress version >= 10. You can read more about it in Cypress' docs [here](https://docs.cypress.io/guides/references/configuration.html#Folders-Files).
 
 ##### 3. (Optional) TypeScript configuration
 
