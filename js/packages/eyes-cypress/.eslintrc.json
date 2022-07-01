@@ -6,17 +6,7 @@
     "tmp/",
     "types/",
     "test/generic",
-    "*.d.ts",
-    "*.ts",
-    "test/coverage/generic/cypress.config.js",
-    "/test/unit/setup/fixtures/pluginCypress10.js",
-    "/test/unit/setup/fixtures/cypressConfig-legacy-file/cypress.config.js",
-    "test/play/support.js",
-    "test/unit/setup/fixtures/supportFile-handle-commands.js",
-    "test/it/setup/fixtures/cypress.config.js",
-    "test/play/cypress"
-
-
+    "*.d.ts"
   ],
   "env": {
     "commonjs": true,

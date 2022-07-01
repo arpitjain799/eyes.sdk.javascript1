@@ -2,7 +2,7 @@
 'use strict';
 
 const chalk = require('chalk');
-const {handlePlugin, handlerPluginCypress10} = require('../src/setup/handlePlugin');
+const {handlePlugin} = require('../src/setup/handlePlugin');
 const {handleCommands, handlerCommandsCypress10} = require('../src/setup/handleCommands');
 const {handleTypeScript, handlerTypeScriptCypress10} = require('../src/setup/handleTypeScript');
 const {version} = require('../package');
@@ -19,13 +19,14 @@ if (packageJson.dependencies && packageJson.dependencies.cypress) {
   cypressVersion = packageJson.devDependencies.cypress;
 }
 console.log(chalk.cyan('Cypress version that was found', cypressVersion));
+const isCypress10 = parseFloat(cypressVersion, 10) >= 10 ? true : false;
 try {
-  if (parseFloat(cypressVersion, 10) < 10) {
-    handlePlugin(cwd);
+  if (!isCypress10) {
+    handlePlugin(cwd, isCypress10);
     handleCommands(cwd);
     handleTypeScript(cwd);
   } else {
-    handlerPluginCypress10(cwd);
+    handlePlugin(cwd, isCypress10);
     const supportFilePath = handlerCommandsCypress10(cwd);
     handlerTypeScriptCypress10(supportFilePath);
   }
