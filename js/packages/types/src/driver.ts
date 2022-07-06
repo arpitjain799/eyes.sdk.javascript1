@@ -125,8 +125,8 @@ export interface SpecDriver<TDriver, TContext, TElement, TSelector> {
   // #endregion
 }
 
-// Idealy would be transform SpecDriver type to the type with single object argument
-// but typescript doesn't have a possiblity to convert named tuples to object types at the moment
+// Ideally would be transform SpecDriver type to the type with single object argument
+// but typescript doesn't have a possibility to convert named tuples to object types at the moment
 export interface UniversalSpecDriver<TDriver, TContext, TElement, TSelector> {
   // #region UTILITY
   isEqualElements?(options: {context: TContext; element1: TElement; element2: TElement}): Promise<boolean>

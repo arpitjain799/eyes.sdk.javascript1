@@ -41,6 +41,15 @@ export type Batch = {
   properties?: CustomProperty[]
 }
 
+export type Environment = {
+  os?: string
+  osInfo?: string
+  hostingApp?: string
+  hostingAppInfo?: string
+  deviceName?: string
+  viewportSize?: Size
+}
+
 export type Location = {
   x: number
   y: number
@@ -246,13 +255,13 @@ export type AndroidDeviceRenderer = {
     screenOrientation?: ScreenOrientation
   }
 }
-export type BrowserInfoRenderer =
+export type Renderer =
   | DesktopBrowserRenderer
   | ChromeEmulationDeviceRenderer
   | IOSDeviceRenderer
   | AndroidDeviceRenderer
 
-export type MatchResult = {
+export type CheckResult = {
   readonly asExpected?: boolean
   readonly windowId?: number
 }
@@ -331,7 +340,7 @@ export type LazyLoadOptions = {
 export type TestResultContainer = {
   readonly exception?: Error
   readonly testResults?: TestResult
-  readonly browserInfo?: BrowserInfoRenderer
+  readonly browserInfo?: Renderer
 }
 
 export type TestResultSummary = {

@@ -1,60 +1,65 @@
-import {Size, Region, TextRegion, MatchResult, TestResult, TestResultSummary} from './data'
-import {EyesManagerConfig, EyesConfig} from './config'
-import {
-  CheckSettings,
-  LocateSettings,
-  OCRExtractSettings,
-  OCRSearchSettings,
-  DeleteTestSettings,
-  CloseBatchesSettings,
-} from './setting'
+import {TestResultSummary} from './data'
 import {Logger} from './debug'
+import * as ClassicCore from './core-classic'
+import * as UFGCore from './core-ufg'
 
-export interface Core<TDriver, TElement, TSelector> {
-  isDriver(driver: any): driver is TDriver
-  isElement(element: any): element is TElement
-  isSelector(selector: any): selector is TSelector
-  makeManager(config?: EyesManagerConfig): Promise<EyesManager<TDriver, TElement, TSelector>>
-  getViewportSize(options: {driver: TDriver; logger?: Logger}): Promise<Size>
-  setViewportSize(options: {driver: TDriver; size: Size; logger?: Logger}): Promise<void>
-  closeBatches(options: {settings: CloseBatchesSettings; logger?: Logger}): Promise<void>
-  deleteTest(results: {settings: DeleteTestSettings; logger?: Logger}): Promise<void>
-}
+export * from './core-base'
 
-export interface EyesManager<TDriver, TElement, TSelector> {
+export interface Core<TDriver, TElement, TSelector, TType extends 'ufg' | 'classic' = 'ufg' | 'classic'>
+  extends ClassicCore.Core<TDriver, TElement, TSelector>,
+    UFGCore.Core<TDriver, TElement, TSelector> {
   openEyes(options: {
-    driver: TDriver
-    config?: EyesConfig<TElement, TSelector>
+    type?: TType
+    target?: TDriver
+    config?: TType extends 'classic' ? ClassicCore.Config : UFGCore.Config
     logger?: Logger
     on?: (event: string, data?: Record<string, any>) => void
-  }): Promise<Eyes<TDriver, TElement, TSelector>>
+  }): Promise<
+    TType extends 'classic'
+      ? ClassicCore.Eyes<TDriver, TElement, TSelector>
+      : UFGCore.Eyes<TDriver, TElement, TSelector>
+  >
+  makeManager(config?: {
+    type: TType
+    concurrency: TType extends 'ufg' ? number : never
+    legacy?: TType extends 'ufg' ? boolean : never
+  }): Promise<EyesManager<TType, TDriver, TElement, TSelector>>
+}
+
+export interface EyesManager<TType extends 'ufg' | 'classic', TDriver, TElement, TSelector> {
+  openEyes(options: {
+    target?: TDriver
+    config?: TType extends 'ufg' ? UFGCore.Config : ClassicCore.Config
+    logger?: Logger
+    on?: (event: string, data?: Record<string, any>) => void
+  }): Promise<
+    TType extends 'ufg' ? UFGCore.Eyes<TDriver, TElement, TSelector> : ClassicCore.Eyes<TDriver, TElement, TSelector>
+  >
   closeManager: (options?: {throwErr: boolean}) => Promise<TestResultSummary>
 }
 
-export interface Eyes<TDriver, TElement, TSelector> {
-  check(options: {
-    settings?: CheckSettings<TElement, TSelector>
-    config?: EyesConfig<TElement, TSelector>
-    driver?: TDriver
-  }): Promise<MatchResult>
-  locate<TLocator extends string>(options: {
-    settings: LocateSettings<TLocator>
-    config?: EyesConfig<TElement, TSelector>
-  }): Promise<Record<TLocator, Region[]>>
-  extractText(options: {
-    regions: OCRExtractSettings<TElement, TSelector>[]
-    config?: EyesConfig<TElement, TSelector>
-  }): Promise<string[]>
-  extractTextRegions<TPattern extends string>(options: {
-    settings: OCRSearchSettings<TPattern>
-    config?: EyesConfig<TElement, TSelector>
-  }): Promise<Record<TPattern, TextRegion[]>>
-  close(options?: {throwErr: boolean}): Promise<TestResult[]>
-  abort(): Promise<TestResult[]>
-}
+export type Eyes<TDriver, TElement, TSelector> =
+  | ClassicCore.Eyes<TDriver, TElement, TSelector>
+  | UFGCore.Eyes<TDriver, TElement, TSelector>
 
-export interface EyesError extends Error {
-  reason: string
-  info: Record<string, any>
-  original: Error
-}
+export type Config = ClassicCore.Config & UFGCore.Config
+
+export type CheckSettings<TElement, TSelector> = ClassicCore.CheckSettings<TElement, TSelector> &
+  UFGCore.CheckSettings<TElement, TSelector>
+
+export type LocateSettings<TLocator extends string, TElement, TSelector> = ClassicCore.LocateSettings<
+  TLocator,
+  TElement,
+  TSelector
+> &
+  UFGCore.LocateSettings<TLocator, TElement, TSelector>
+
+export type LocateTextSettings<TPattern extends string, TElement, TSelector> = ClassicCore.LocateTextSettings<
+  TPattern,
+  TElement,
+  TSelector
+> &
+  UFGCore.LocateTextSettings<TPattern, TElement, TSelector>
+
+export type ExtractTextSettings<TElement, TSelector> = ClassicCore.ExtractTextSettings<TElement, TSelector> &
+  UFGCore.ExtractTextSettings<TElement, TSelector>
