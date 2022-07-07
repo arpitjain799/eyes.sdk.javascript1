@@ -127,11 +127,8 @@ class CheckRegionKeywords(object):
         """
         Check specified region by selector
 
-            | =Arguments=   | =Description=                         |
-            |  Selector     | *Mandatory* - The selector to check.  |
-
         *Example:*
-            |  Eyes Check Region By Element  |  css:#selector  |
+            |  Eyes Check Region By Target Path  |  Shadow By Selector  |  css:#selector  | Region By Selector  |  css:#selector  |
         """
         check_settings = collect_check_settings_with_tag_and_target_path(
             tag, Target.region, *check_settings_keywords
