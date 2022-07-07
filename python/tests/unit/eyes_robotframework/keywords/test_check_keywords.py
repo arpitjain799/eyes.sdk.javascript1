@@ -44,6 +44,10 @@ def patched_run_keyword(eyes_library_with_selenium):
             return TargetPathKeywords(eyes_library_with_selenium).region_by_selector(
                 *args
             )
+        if name == "Region By Element":
+            return TargetPathKeywords(eyes_library_with_selenium).region_by_element(
+                *args
+            )
         raise Exception("Unknown keyword: `{}`".format(name))
 
     with mock.patch(
@@ -137,6 +141,17 @@ def test_check_window(check_keyword, data, patched_run_keyword):
             check_region_result=TargetPath.shadow([By.ID, "overflow-div"])
             .shadow(WEB_ELEMENT)
             .region([By.ID, "overflow-div"]),
+        ),
+        TestData(
+            "check_region_by_target_path",
+            check_values=[
+                "Shadow By Element",
+                WEB_ELEMENT,
+                "Region By Element",
+                WEB_ELEMENT,
+            ],
+            check_region_result=TargetPath.shadow(WEB_ELEMENT)
+            .region(WEB_ELEMENT),
         ),
     ],
     ids=lambda d: str(d),
