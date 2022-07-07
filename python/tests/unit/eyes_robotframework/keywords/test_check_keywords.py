@@ -150,8 +150,7 @@ def test_check_window(check_keyword, data, patched_run_keyword):
                 "Region By Element",
                 WEB_ELEMENT,
             ],
-            check_region_result=TargetPath.shadow(WEB_ELEMENT)
-            .region(WEB_ELEMENT),
+            check_region_result=TargetPath.shadow(WEB_ELEMENT).region(WEB_ELEMENT),
         ),
     ],
     ids=lambda d: str(d),
