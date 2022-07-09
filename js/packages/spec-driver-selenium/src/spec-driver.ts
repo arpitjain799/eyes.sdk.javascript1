@@ -3,7 +3,7 @@ import type {Size, Region, Cookie, DriverInfo, WaitOptions, ScreenOrientation} f
 import * as Selenium from 'selenium-webdriver'
 import * as utils from '@applitools/utils'
 
-export type Driver = Selenium.WebDriver & {__applitoolsBrand?: never}
+export type Driver = Selenium.WebDriver & {__serverUrl?: string} & {__applitoolsBrand?: never}
 export type Element = Selenium.WebElement & {__applitoolsBrand?: never}
 export type Selector = (
   | Exclude<Selenium.Locator, Function>
@@ -379,7 +379,8 @@ export async function build({selenium, ...env}: any): Promise<[Driver, () => Pro
       noProxy: proxy.bypass,
     })
   }
-  const driver = await builder.build()
+  const driver: Driver = await builder.build()
+  driver.__serverUrl = url
   return [driver, () => driver.quit()]
 }
 

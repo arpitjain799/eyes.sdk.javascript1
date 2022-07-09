@@ -1,5 +1,5 @@
 import * as _mocha from 'mocha' // to avoid VSCode errors, I couldn't know how to avoid it otherwise
-import {Eyes} from './utils/selenium-api'
+import {Eyes} from '@applitools/universal-client'
 import * as spec from '@applitools/spec-driver-selenium'
 import * as assert from 'assert'
 
@@ -18,15 +18,6 @@ describe('Universal selenium', () => {
       await destroyDriver()
     })
 
-    let timeoutId
-    before(() => {
-      timeoutId = setTimeout(() => console.log('ugly hack'), 1000000)
-    })
-
-    after(() => {
-      clearTimeout(timeoutId)
-    })
-
     it('works', async () => {
       const config = {
         appName: 'universal e2e tests',
@@ -34,8 +25,9 @@ describe('Universal selenium', () => {
         saveNewTests: false,
       }
       await eyes.open(driver, config)
-    //   await eyes.check()
+      await eyes.check()
       const results = await eyes.close(false)
+      console.log(results)
       assert.strictEqual(results.status, 'Passed')
       const allResults = await eyes.getRunner().getAllTestResults(false)
       assert.strictEqual(allResults.getAllResults()[0].testResults.status, 'Passed')
