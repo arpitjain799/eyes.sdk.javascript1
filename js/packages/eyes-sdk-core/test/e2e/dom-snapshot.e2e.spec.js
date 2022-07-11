@@ -25,9 +25,23 @@ describe('core e2e', () => {
     const manager = await sdk.makeManager({type: 'vg', concurrency: 5})
     const eyes = await manager.openEyes({
       driver,
-      config: {appName: 'core e2e', testName: 'data url html iframe', saveNewTests: false},
+      config: {appName: 'core e2e', testName: 'template and slot usage', saveNewTests: false},
     })
     await driver.get(`${baseUrl}/frames/data-url-html-iframe.html`)
+    await eyes.check()
+    await eyes.close({throwErr: true})
+  })
+  it('produces correct snapshot for pages with template and slots', async () => {
+    const sdk = getSDK()
+    const driver = getDriver()
+    const baseUrl = getBaseUrl()
+
+    const manager = await sdk.makeManager({type: 'vg', concurrency: 5})
+    const eyes = await manager.openEyes({
+      driver,
+      config: {appName: 'core e2e', testName: 'template and slot usage', saveNewTests: false},
+    })
+    await driver.get(`${baseUrl}/dom-template-and-slot.html`)
     await eyes.check()
     await eyes.close({throwErr: true})
   })
