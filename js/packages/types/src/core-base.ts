@@ -88,7 +88,7 @@ export interface ServerSettings {
   apiKey: string
   proxy?: Proxy
   agentId?: string
-}
+  isDisabled?: boolean
 
 export interface OpenSettings extends ServerSettings {
   appName: string
@@ -309,4 +309,74 @@ export interface EyesError extends Error {
   reason: string
   info: Record<string, any>
   original: Error
+}
+
+export type CheckResult = {
+  readonly asExpected?: boolean
+  readonly windowId?: number
+}
+
+type StepInfo = {
+  readonly name?: string
+  readonly isDifferent?: boolean
+  readonly hasBaselineImage?: boolean
+  readonly hasCurrentImage?: boolean
+  readonly appUrls?: AppUrls
+  readonly apiUrls?: ApiUrls
+  readonly renderId?: string[]
+}
+
+type ApiUrls = {
+  readonly baselineImage?: string
+  readonly currentImage?: string
+  readonly checkpointImage?: string
+  readonly checkpointImageThumbnail?: string
+  readonly diffImage?: string
+}
+
+type AppUrls = {
+  readonly step?: string
+  readonly stepEditor?: string
+}
+
+type SessionUrls = {
+  readonly batch?: string
+  readonly session?: string
+}
+
+export type TestResult = {
+  readonly id?: string
+  readonly name?: string
+  readonly secretToken?: string
+  readonly status?: TestResultsStatus
+  readonly appName?: string
+  readonly batchId?: string
+  readonly batchName?: string
+  readonly branchName?: string
+  readonly hostOS?: string
+  readonly hostApp?: string
+  readonly hostDisplaySize?: Size
+  readonly accessibilityStatus?: {
+    readonly level: AccessibilityLevel
+    readonly version: AccessibilityGuidelinesVersion
+    readonly status: AccessibilityStatus
+  }
+  readonly startedAt?: Date | string
+  readonly duration?: number
+  readonly isNew?: boolean
+  readonly isDifferent?: boolean
+  readonly isAborted?: boolean
+  readonly appUrls?: SessionUrls
+  readonly apiUrls?: SessionUrls
+  readonly stepsInfo?: StepInfo[]
+  readonly steps?: number
+  readonly matches?: number
+  readonly mismatches?: number
+  readonly missing?: number
+  readonly exactMatches?: number
+  readonly strictMatches?: number
+  readonly contentMatches?: number
+  readonly layoutMatches?: number
+  readonly noneMatches?: number
+  readonly url?: string
 }
