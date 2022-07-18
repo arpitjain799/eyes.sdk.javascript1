@@ -1,4 +1,4 @@
-import {CheckResult, ImageCropRect, ImageCropRegion, ImageRotation, Region, TextRegion} from './data'
+import {ImageCropRect, ImageCropRegion, ImageRotation, Region, TextRegion} from './data'
 import {DebugScreenshotHandler, Logger} from './debug'
 import * as AutomationCore from './core-automation'
 
@@ -18,7 +18,7 @@ export interface Eyes<TDriver, TElement, TSelector> extends AutomationCore.Eyes<
     target: AutomationCore.Target<TDriver>
     settings?: CheckSettings<TElement, TSelector> | CheckSettings<TElement, TSelector>[]
     config?: Config & {defaultCheckSettings: CheckSettings<TElement, TSelector>}
-  }): Promise<CheckResult[]>
+  }): Promise<AutomationCore.CheckResult[]>
   locate<TLocator extends string>(options: {
     target?: AutomationCore.Target<TDriver>
     settings: AutomationCore.LocateSettings<TLocator, TElement, TSelector>

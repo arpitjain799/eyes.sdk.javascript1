@@ -1,4 +1,4 @@
-import {TestResultSummary} from './data'
+import {Renderer} from './data'
 import {Logger} from './debug'
 import * as ClassicCore from './core-classic'
 import * as UFGCore from './core-ufg'
@@ -63,3 +63,24 @@ export type LocateTextSettings<TPattern extends string, TElement, TSelector> = C
 
 export type ExtractTextSettings<TElement, TSelector> = ClassicCore.ExtractTextSettings<TElement, TSelector> &
   UFGCore.ExtractTextSettings<TElement, TSelector>
+
+export type CheckResult = ClassicCore.CheckResult & UFGCore.CheckResult
+
+export type TestResult = ClassicCore.TestResult & UFGCore.TestResult
+
+export type TestResultContainer = {
+  readonly exception?: Error
+  readonly testResults?: TestResult
+  readonly browserInfo?: Renderer
+}
+
+export type TestResultSummary = {
+  results: TestResultContainer[]
+  passed: number
+  unresolved: number
+  failed: number
+  exceptions: number
+  mismatches: number
+  missing: number
+  matches: number
+}

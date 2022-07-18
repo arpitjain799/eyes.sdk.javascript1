@@ -1,4 +1,4 @@
-import {Region, TextRegion, CheckResult, StitchMode, LazyLoadOptions, Size} from './data'
+import {Region, TextRegion, StitchMode, LazyLoadOptions, Size} from './data'
 import {Selector} from './driver'
 import {Logger} from './debug'
 import * as BaseCore from './core-base'
@@ -26,7 +26,7 @@ export interface Eyes<TDriver, TElement, TSelector> extends BaseCore.Eyes {
     target?: Target<TDriver>
     settings?: CheckSettings<TElement, TSelector> | CheckSettings<TElement, TSelector>[]
     config?: BaseCore.Config & {defaultCheckSettings: CheckSettings<TElement, TSelector>}
-  }): Promise<CheckResult[]>
+  }): Promise<BaseCore.CheckResult[]>
   locate<TLocator extends string>(options: {
     target?: Target<TDriver>
     settings: LocateSettings<TLocator, TElement, TSelector>

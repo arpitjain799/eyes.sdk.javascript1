@@ -1,4 +1,4 @@
-import {AutProxy, CheckResult, Renderer} from './data'
+import {AutProxy, Renderer} from './data'
 import {Logger} from './debug'
 import * as AutomationCore from './core-automation'
 
@@ -18,7 +18,7 @@ export interface Eyes<TDriver, TElement, TSelector> extends AutomationCore.Eyes<
     target: AutomationCore.Target<TDriver>
     settings?: CheckSettings<TElement, TSelector> | CheckSettings<TElement, TSelector>[]
     config?: Config & {defaultCheckSettings: CheckSettings<TElement, TSelector>}
-  }): Promise<CheckResult[]>
+  }): Promise<AutomationCore.CheckResult[]>
 }
 
 export type UFGConfig = {

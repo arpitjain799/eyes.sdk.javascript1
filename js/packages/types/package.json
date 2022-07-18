@@ -32,6 +32,12 @@
     ".": {
       "types": "./types/index.d.ts"
     },
+    "./base": {
+      "types": "./types/core-base.d.ts"
+    },
+    "./types/*": {
+      "types": "./types/*.d.ts"
+    },
     "./package.json": "./package.json"
   },
   "types": "./types/index.d.ts",
