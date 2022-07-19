@@ -25,7 +25,7 @@ describe('core e2e', () => {
     const manager = await sdk.makeManager({type: 'vg', concurrency: 5})
     const eyes = await manager.openEyes({
       driver,
-      config: {appName: 'core e2e', testName: 'template and slot usage', saveNewTests: false},
+      config: {appName: 'core e2e', testName: 'data url html iframe', saveNewTests: false},
     })
     await driver.get(`${baseUrl}/frames/data-url-html-iframe.html`)
     await eyes.check()
