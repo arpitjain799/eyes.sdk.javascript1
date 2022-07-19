@@ -8,6 +8,26 @@
 
 
 
+
+## 2.9.9 - 2022/7/18
+
+### Features
+### Bug fixes
+- Avoided unexpected touch actions during `check` on Android apps
+
+## 2.9.8 - 2022/7/18
+
+### Features
+### Bug fixes
+- Support self-signed certificates when communicating with the driver
+
+## 2.9.7 - 2022/7/15
+
+### Features
+- Add the option to cancel `idleTimeout` when sending zero as the value and add the option to send `detached` to `makeServerProcess`
+### Bug fixes
+- Fixed various issues during taking screenshots in landscape orientation on some native devices
+
 ## 2.9.6 - 2022/7/7
 
 ### Features

@@ -9,6 +9,18 @@
 
 
 
+## 3.26.6 - 2022/7/15
+
+### Features
+- Internal architecture fixes
+### Bug fixes
+
+## 3.26.5 - 2022/7/12
+
+### Features
+### Bug fixes
+- Support string tag name in eyesCheck
+
 ## 3.26.4 - 2022/7/7
 
 ### Features

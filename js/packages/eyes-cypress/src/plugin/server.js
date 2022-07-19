@@ -34,6 +34,8 @@ function makeStartServer({logger}) {
     const {port: universalPort, close: closeUniversalServer} = await makeServerProcess({
       key: path.resolve(__dirname, '../pem/server.key'),
       cert: path.resolve(__dirname, '../pem/server.cert'),
+      detached: false,
+      idleTimeout: 0,
     });
 
     const managers = [];
@@ -55,7 +57,17 @@ function makeStartServer({logger}) {
       socketWithClient.on('message', message => {
         const msg = JSON.parse(message);
         logger.log('==> ', message.toString().slice(0, 1000));
-        if (msg.name === 'Test.printTestResults') {
+        if (msg.name === 'Core.makeSDK') {
+          const newMessage = Buffer.from(
+            JSON.stringify({
+              name: msg.name,
+              key: msg.key,
+              payload: Object.assign(msg.payload, {cwd: process.cwd()}),
+            }),
+            'utf-8',
+          );
+          socketWithUniversal.send(newMessage);
+        } else if (msg.name === 'Test.printTestResults') {
           try {
             const resultArr = [];
             for (const result of msg.payload.testResults) {

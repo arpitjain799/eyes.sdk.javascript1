@@ -1,6 +1,6 @@
 {
   "name": "@applitools/driver",
-  "version": "1.9.15",
+  "version": "1.9.17",
   "description": "Applitools universal framework wrapper",
   "keywords": [
     "applitools",
@@ -85,6 +85,7 @@
   },
   "devDependencies": {
     "@applitools/bongo": "^2.1.6",
+    "@applitools/scripts": "^1.1.0",
     "@types/mocha": "^9.1.1",
     "@types/node": "^17.0.31",
     "@typescript-eslint/eslint-plugin": "^5.22.0",

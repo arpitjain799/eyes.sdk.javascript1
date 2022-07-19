@@ -1,6 +1,6 @@
 {
   "name": "@applitools/screenshoter",
-  "version": "3.4.10",
+  "version": "3.4.11",
   "description": "Applitools universal screenshoter for web and native applications",
   "keywords": [
     "applitools",
@@ -59,7 +59,7 @@
     "docker:setup": "node ../scripts/scripts/generate-docker-compose-config.js && docker-compose up -d",
     "docker:teardown": "docker-compose down",
     "ios:setup": "node ./scripts/ios-simulator.js",
-    "appium:setup": "mkdir -p ./logs && appium --address 127.0.0.1 --port 4723 --base-path /wd/hub --log-level error:info --log ./logs/appium.log &",
+    "appium:setup": "mkdir -p ./logs && appium --address 127.0.0.1 --port 4723 --base-path /wd/hub --log-level error:info --log ./logs/appium.log --relaxed-security &",
     "deps": "bongo deps",
     "gh:publish": "gh workflow run publish-screenshoter.yml --ref $(git rev-parse --abbrev-ref HEAD)",
     "preversion": "bongo preversion",
@@ -80,7 +80,7 @@
   },
   "devDependencies": {
     "@applitools/bongo": "^2.1.6",
-    "@applitools/driver": "^1.9.15",
+    "@applitools/driver": "^1.9.17",
     "@applitools/scripts": "^1.1.0",
     "@applitools/spec-driver-webdriverio": "^1.2.17",
     "@applitools/test-utils": "^1.4.2",
