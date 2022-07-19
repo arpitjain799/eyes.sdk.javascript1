@@ -44,6 +44,7 @@ Apollo SDK:
     - Fix rendering issues with Salesforce Lightning design system
     - Fix issue that prevented self-signed certificates from working when connecting through a proxy server
     - Fixed bug where a failure in a single UFG environment fails all other environments in the same configuration
+    - Better support in DOM slot element
 "@applitools/eyes-protractor":
   feature:
     - 
@@ -51,11 +52,13 @@ Apollo SDK:
     - Fixed bug where a failure in a single UFG environment fails all other environments in the same configuration
     - Fixed various issues during taking screenshots in landscape orientation on some native devices
     - Avoided unexpected touch actions during `check` on Android apps
+    - Better support in DOM slot element
 "@applitools/eyes-puppeteer":
   feature:
     - 
   bug-fix:
     - Fixed bug where a failure in a single UFG environment fails all other environments in the same configuration
+    - Better support in DOM slot element
 "@applitools/eyes-testcafe":
   feature:
     - Add the ability for the SDK to lazy load the page prior to performing a check window
@@ -67,6 +70,7 @@ Apollo SDK:
     - Fix issue that prevented self-signed certificates from working when connecting through a proxy server
     - Allow configuration file to be loaded from ancestor directories
     - Fixed bug where a failure in a single UFG environment fails all other environments in the same configuration
+    - Better support in DOM slot element
 "@applitools/eyes-nightwatch":
   feature:
     - 
@@ -74,16 +78,18 @@ Apollo SDK:
     - Fixed bug where a failure in a single UFG environment fails all other environments in the same configuration
     - Fixed various issues during taking screenshots in landscape orientation on some native devices
     - Avoided unexpected touch actions during `check` on Android apps
+    - Better support in DOM slot element
 "@applitools/eyes-cypress":
   feature:
     - Add support for padded coded regions
   bug-fix:
     - Fix `npx eyes-setup` for Cypress version with a caret, support `e2e.ts` as support file
+    - Better support in DOM slot element
 "@applitools/eyes-storybook":
   feature:
     - 
   bug-fix:
-    - 
+    - Better support in DOM slot element 
 "@applitools/eyes-webdriverio5-service":
   feature:
     - Support UFG for native mobile
