@@ -1,7 +1,7 @@
+import {MaybeArray} from './types'
 import {
   Region,
   TextRegion,
-  Environment,
   Batch,
   CustomProperty,
   SessionType,
@@ -14,59 +14,73 @@ import {
   TestResultsStatus,
   AccessibilityStatus,
   Size,
+  Location,
 } from './data'
 
 import {Logger} from './debug'
 
-export type Target = {image: Buffer | string; region: Region}
+export type Target = {
+  image: Buffer | string
+  name?: string
+  dom?: string
+  location?: Location // location in the viewport
+  coverage?: {
+    size: Size // whole view size
+    location: Location // location in the whole view
+  }
+}
 
 export interface Core {
   openEyes(options: {
-    config?: Config
+    settings: OpenSettings
     logger?: Logger
     on?: (event: string, data?: Record<string, any>) => void
   }): Promise<Eyes>
-  closeBatches(options: {settings: CloseBatchesSettings; logger?: Logger}): Promise<void>
-  deleteTest(results: {settings: DeleteTestSettings; logger?: Logger}): Promise<void>
+  closeBatch(options: {settings: MaybeArray<CloseBatchSettings>; logger?: Logger}): Promise<void>
+  deleteTest(options: {settings: DeleteTestSettings; logger?: Logger}): Promise<void>
 }
 
 export interface Eyes {
-  check(options: {
-    target: Target
-    settings?: CheckSettings | CheckSettings[]
-    config?: Config & {defaultCheckSettings: CheckSettings}
-  }): Promise<CheckResult[]>
+  check(options: {target: Target; settings?: MaybeArray<CheckSettings>}): Promise<CheckResult[]>
+  checkAndClose(options: {target: Target; settings?: MaybeArray<CheckSettings & CloseSettings>}): Promise<TestResult[]>
   locate<TLocator extends string>(options: {
     target: Target
     settings: LocateSettings<TLocator>
-    config?: Config
   }): Promise<Record<TLocator, Region[]>>
   locateText<TPattern extends string>(options: {
     target: Target
     settings: LocateTextSettings<TPattern>
-    config?: Config
   }): Promise<Record<TPattern, TextRegion[]>>
-  extractText(options: {target: Target; regions: ExtractTextSettings[]; config?: Config}): Promise<string[]>
-  close(options?: {throwErr: boolean}): Promise<TestResult[]>
+  extractText(options: {target: Target; settings: MaybeArray<ExtractTextSettings>}): Promise<string[]>
+  close(options?: {throwErr?: boolean; settings?: CloseSettings}): Promise<TestResult[]>
   abort(): Promise<TestResult[]>
 }
 
-export interface Config {
+type Environment = {
+  os?: string
+  osInfo?: string
+  hostingApp?: string
+  hostingAppInfo?: string
+  deviceName?: string
+  viewportSize?: Size
+  userAgent?: string
+}
+
+export interface ServerSettings {
+  serverUrl: string
+  apiKey: string
+  proxy?: Proxy
   agentId?: string
-  isDisabled?: boolean
+}
 
-  serverUrl?: string
-  proxyUrl?: Proxy
-  apiKey?: string
-  connectionTimeout?: number
-  removeSession?: boolean
-
-  appName?: string
-  testName?: string
+export interface OpenSettings extends ServerSettings {
+  appName: string
+  testName: string
   displayName?: string
   sessionType?: SessionType
   properties?: CustomProperty[]
   batch?: Batch
+  dontCloseBatches?: boolean
   environmentName?: string
   environment?: Environment
   baselineEnvName?: string
@@ -76,27 +90,28 @@ export interface Config {
   compareWithParentBranch?: boolean
   ignoreGitMergeBase?: boolean
   ignoreBaseline?: boolean
-  saveFailedTests?: boolean
-  saveNewTests?: boolean
   saveDiffs?: boolean
-  dontCloseBatches?: boolean
   abortIdleTestTimeout?: number
+  connectionTimeout?: number
+  removeSession?: boolean
+  isDisabled?: boolean
 }
 
 type CodedRegion<TRegion = Region> = {region: TRegion; padding?: number | OffsetRect; regionId?: string}
 type FloatingRegion<TRegion = Region> = CodedRegion<TRegion> & {offset: OffsetRect}
 type AccessibilityRegion<TRegion = Region> = CodedRegion<TRegion> & {type: AccessibilityRegionType}
-
 export interface CheckSettings<TRegion = Region> {
   name?: string
   pageId?: string
+  renderId?: string
+  variationGroupId?: string
   ignoreRegions?: (TRegion | CodedRegion<TRegion>)[]
   layoutRegions?: (TRegion | CodedRegion<TRegion>)[]
   strictRegions?: (TRegion | CodedRegion<TRegion>)[]
   contentRegions?: (TRegion | CodedRegion<TRegion>)[]
   floatingRegions?: (TRegion | FloatingRegion<TRegion>)[]
   accessibilityRegions?: (TRegion | AccessibilityRegion<TRegion>)[]
-  accessibilitySettings?: {level?: AccessibilityLevel; guidelinesVersion?: AccessibilityGuidelinesVersion}
+  accessibilitySettings?: {level?: AccessibilityLevel; version?: AccessibilityGuidelinesVersion}
   matchLevel?: MatchLevel
   sendDom?: boolean
   useDom?: boolean
@@ -106,6 +121,7 @@ export interface CheckSettings<TRegion = Region> {
 }
 
 export interface LocateSettings<TLocator extends string> {
+  appName?: string
   locatorNames: TLocator[]
   firstOnly?: boolean
 }
@@ -123,31 +139,24 @@ export interface ExtractTextSettings {
   language?: string
 }
 
-export interface CloseBatchesSettings {
-  batchIds: string[]
-  serverUrl?: string
-  proxyUrl?: string
-  apiKey?: string
+export interface CloseSettings {
+  updateBaselineIfNew?: boolean
+  updateBaselineIfDifferent?: boolean
 }
 
-export interface DeleteTestSettings {
+export interface CloseBatchSettings extends ServerSettings {
+  batchId: string
+}
+
+export interface DeleteTestSettings extends ServerSettings {
   testId: string
   batchId: string
   secretToken: string
-  serverUrl?: string
-  proxyUrl?: string
-  apiKey?: string
 }
 
-export interface EyesError extends Error {
-  reason: string
-  info: Record<string, any>
-  original: Error
-}
-
-export type CheckResult = {
-  readonly asExpected?: boolean
-  readonly windowId?: number
+export interface CheckResult {
+  readonly asExpected: boolean
+  readonly windowId: number
 }
 
 type StepInfo = {
@@ -159,7 +168,6 @@ type StepInfo = {
   readonly apiUrls?: ApiUrls
   readonly renderId?: string[]
 }
-
 type ApiUrls = {
   readonly baselineImage?: string
   readonly currentImage?: string
@@ -167,18 +175,15 @@ type ApiUrls = {
   readonly checkpointImageThumbnail?: string
   readonly diffImage?: string
 }
-
 type AppUrls = {
   readonly step?: string
   readonly stepEditor?: string
 }
-
 type SessionUrls = {
   readonly batch?: string
   readonly session?: string
 }
-
-export type TestResult = {
+export interface TestResult {
   readonly id?: string
   readonly name?: string
   readonly secretToken?: string
@@ -213,4 +218,10 @@ export type TestResult = {
   readonly layoutMatches?: number
   readonly noneMatches?: number
   readonly url?: string
+}
+
+export interface EyesError extends Error {
+  reason: string
+  info: Record<string, any>
+  original: Error
 }

@@ -1,3 +1,4 @@
+import {MaybeArray} from './types'
 import {Region, TextRegion, StitchMode, LazyLoadOptions, Size} from './data'
 import {Selector} from './driver'
 import {Logger} from './debug'
@@ -15,7 +16,7 @@ export interface Core<TDriver, TElement, TSelector> extends BaseCore.Core {
   setViewportSize(options: {driver: TDriver; size: Size; logger?: Logger}): Promise<void>
   openEyes(options: {
     target?: TDriver
-    config?: BaseCore.Config
+    settings: BaseCore.OpenSettings
     logger?: Logger
     on?: (event: string, data?: Record<string, any>) => void
   }): Promise<Eyes<TDriver, TElement, TSelector>>
@@ -24,23 +25,23 @@ export interface Core<TDriver, TElement, TSelector> extends BaseCore.Core {
 export interface Eyes<TDriver, TElement, TSelector> extends BaseCore.Eyes {
   check(options: {
     target?: Target<TDriver>
-    settings?: CheckSettings<TElement, TSelector> | CheckSettings<TElement, TSelector>[]
-    config?: BaseCore.Config & {defaultCheckSettings: CheckSettings<TElement, TSelector>}
+    settings?: MaybeArray<CheckSettings<TElement, TSelector>>
   }): Promise<BaseCore.CheckResult[]>
+  checkAndClose(options: {
+    target?: Target<TDriver>
+    settings?: MaybeArray<CheckSettings<TElement, TSelector> & BaseCore.CloseSettings>
+  }): Promise<BaseCore.TestResult[]>
   locate<TLocator extends string>(options: {
     target?: Target<TDriver>
     settings: LocateSettings<TLocator, TElement, TSelector>
-    config?: BaseCore.Config
   }): Promise<Record<TLocator, Region[]>>
   locateText<TPattern extends string>(options: {
     target?: Target<TDriver>
     settings: LocateTextSettings<TPattern, TElement, TSelector>
-    config?: BaseCore.Config
   }): Promise<Record<TPattern, TextRegion[]>>
   extractText(options: {
     target?: Target<TDriver>
-    regions: ExtractTextSettings<TElement, TSelector>[]
-    config?: BaseCore.Config
+    settings: MaybeArray<ExtractTextSettings<TElement, TSelector>>
   }): Promise<string[]>
 }
 
@@ -51,8 +52,7 @@ type ContextReference<TElement, TSelector> = {
   frame: FrameReference<TElement, TSelector>
   scrollRootElement?: ElementReference<TElement, TSelector>
 }
-
-export type ScreenshotSettings<TElement, TSelector> = {
+export interface ScreenshotSettings<TElement, TSelector> {
   region?: RegionReference<TElement, TSelector>
   frames?: (ContextReference<TElement, TSelector> | FrameReference<TElement, TSelector>)[]
   fully?: boolean
@@ -60,7 +60,7 @@ export type ScreenshotSettings<TElement, TSelector> = {
   stitchMode?: StitchMode
   hideScrollbars?: boolean
   hideCaret?: boolean
-  stitchOverlap?: number
+  overlap?: {top?: number; bottom?: number}
   waitBeforeCapture?: number
   lazyLoad?: boolean | LazyLoadOptions
 }

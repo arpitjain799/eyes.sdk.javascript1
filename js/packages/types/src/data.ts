@@ -41,15 +41,6 @@ export type Batch = {
   properties?: CustomProperty[]
 }
 
-export type Environment = {
-  os?: string
-  osInfo?: string
-  hostingApp?: string
-  hostingAppInfo?: string
-  deviceName?: string
-  viewportSize?: Size
-}
-
 export type Location = {
   x: number
   y: number
