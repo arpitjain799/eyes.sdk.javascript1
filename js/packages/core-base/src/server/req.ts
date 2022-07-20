@@ -307,4 +307,6 @@ export async function req(input: string | URL | Request, options?: Options): Pro
 
 req.stop = stop
 
+export type Req = typeof req
+
 export default req

@@ -120,7 +120,6 @@ export interface OpenSettings extends ServerSettings {
 type CodedRegion<TRegion = Region> = {region: TRegion; padding?: number | OffsetRect; regionId?: string}
 type FloatingRegion<TRegion = Region> = CodedRegion<TRegion> & {offset?: OffsetRect}
 type AccessibilityRegion<TRegion = Region> = CodedRegion<TRegion> & {type?: AccessibilityRegionType}
-
 export interface ImageSettings<TRegion = Region> {
   region?: TRegion
   normalization?: {
@@ -333,18 +332,15 @@ type ApiUrls = {
   readonly checkpointImageThumbnail?: string
   readonly diffImage?: string
 }
-
 type AppUrls = {
   readonly step?: string
   readonly stepEditor?: string
 }
-
 type SessionUrls = {
   readonly batch?: string
   readonly session?: string
 }
-
-export type TestResult = {
+export interface TestResult {
   readonly id?: string
   readonly name?: string
   readonly secretToken?: string
@@ -379,4 +375,10 @@ export type TestResult = {
   readonly layoutMatches?: number
   readonly noneMatches?: number
   readonly url?: string
+}
+
+export interface EyesError extends Error {
+  reason: string
+  info: Record<string, any>
+  original: Error
 }

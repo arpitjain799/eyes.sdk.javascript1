@@ -29,6 +29,7 @@ export interface Core<TDriver, TElement, TSelector> extends AutomationCore.Core<
 
 export interface EyesManager<TDriver, TElement, TSelector, TType extends 'classic' | 'ufg'> {
   openEyes(options: {
+    type?: TType
     target?: TDriver
     settings?: OpenSettings<TType>
     config?: Config<TElement, TSelector, TType>

@@ -82,7 +82,8 @@ function handleLogs({logger: defaultLogger}: {logger?: Logger} = {}): Hooks {
         !response.ok ? `and body ${JSON.stringify(await response.clone().text())}` : '',
       )
     },
-    afterError({request, error, options}: {request: Request; error: Error; options: ReqEyesOptions}) {
+    afterError({request, error, options, options}: {request: Request; error: Error; options: ReqEyesOptions}) {
+      const {name} = options as ReqEyesOptions
       const logger = options.logger ?? defaultLogger
       const requestId = request.headers.get('x-applitools-eyes-client-request-id')
       logger?.error(
