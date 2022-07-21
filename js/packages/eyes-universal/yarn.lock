@@ -243,6 +243,7 @@
   resolved "https://registry.yarnpkg.com/@applitools/test-utils/-/test-utils-1.4.3.tgz#c61fba0f75103275d13ccca350682cd88968c94e"
   integrity sha512-XA8rqBoKeEoBSZfPLLo8GdmSF3ldj7h/gcqJS6s8u1F82GhKKwhc8BW08wGQoljcVAQWruV3PJGSBaDlCCIsOQ==
   dependencies:
+    chalk "4.1.1"
     node-fetch "2.6.1"
 
 "@applitools/types@1.5.6":
