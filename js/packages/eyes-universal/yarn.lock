@@ -251,7 +251,7 @@
     xml-js "1.6.11"
     yargs "16.0.3"
 
-"@applitools/snippets@2.4.5", "@applitools/snippets@^2.4.5":
+"@applitools/snippets@2.4.5":
   version "2.4.5"
   resolved "https://registry.yarnpkg.com/@applitools/snippets/-/snippets-2.4.5.tgz#4adcbea245b5c4d0b40413670fb709ffcf607ffa"
   integrity sha512-GoLN1wu8u5/qwdk1ozEElqmr4y7AoMQl0Ka0OzisGdx9/L7R0RzSWQCErjkf4LgKiWKK8j7lde3JT9yjxfritQ==
@@ -280,10 +280,10 @@
     morgan "1.10.0"
     yargs "17.0.1"
 
-"@applitools/test-utils@^1.4.2":
-  version "1.4.2"
-  resolved "https://registry.yarnpkg.com/@applitools/test-utils/-/test-utils-1.4.2.tgz#f73973086f7486ae07490f80fa0dd0ed76c8149c"
-  integrity sha512-eamBggzYrpOMK9g4s2gaVZ2kQuQucPJfs2ZQVBF/HHhQ/Ks2MA3u9NsPAgGPXVZ7YCpngVwYeBxwsDrOcK5DLA==
+"@applitools/test-utils@^1.4.3":
+  version "1.4.3"
+  resolved "https://registry.yarnpkg.com/@applitools/test-utils/-/test-utils-1.4.3.tgz#c61fba0f75103275d13ccca350682cd88968c94e"
+  integrity sha512-XA8rqBoKeEoBSZfPLLo8GdmSF3ldj7h/gcqJS6s8u1F82GhKKwhc8BW08wGQoljcVAQWruV3PJGSBaDlCCIsOQ==
   dependencies:
     node-fetch "2.6.1"
 
