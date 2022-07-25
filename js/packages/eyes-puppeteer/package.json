@@ -63,7 +63,7 @@
   "dependencies": {
     "@applitools/eyes-api": "1.7.4",
     "@applitools/eyes-sdk-core": "13.8.17",
-    "@applitools/spec-driver-puppeteer": "1.1.6",
+    "@applitools/spec-driver-puppeteer": "./applitools-spec-driver-puppeteer-v1.1.7.tgz",
     "@applitools/visual-grid-client": "15.13.11"
   },
   "devDependencies": {
