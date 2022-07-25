@@ -191,8 +191,11 @@ export async function visit(page: Driver, url: string): Promise<void> {
   await page.goto(url)
 }
 export async function takeScreenshot(page: Driver): Promise<string> {
-  const result = await page.screenshot({encoding: 'base64'})
-  return result as string
+  //const result = await page.screenshot({encoding: 'base64'})
+  //return result as string
+  const cdp = await page.target().createCDPSession()
+  const scr = await cdp.send('Page.captureScreenshot')
+  return scr.data
 }
 export async function click(frame: Context, element: Element | Selector): Promise<void> {
   if (isSelector(element)) element = await findElement(frame, element)
