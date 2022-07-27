@@ -1,6 +1,6 @@
 let ref = "328f1720466";
 module.exports = {
-    name: 'eyes_selenium_python',
+    name: process.env.PYTHON_PACKAGE || 'eyes_selenium_python',
     emitter: `https://raw.githubusercontent.com/applitools/sdk.coverage.tests/${ref}/python/emitter.js`,
     overrides: [
         `https://raw.githubusercontent.com/applitools/sdk.coverage.tests/${ref}/js/overrides.js`,
