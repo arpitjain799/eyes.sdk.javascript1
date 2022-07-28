@@ -32,8 +32,8 @@ env:
   AZURE_STORAGE_CONNECTION_STRING: ${{secrets.AZURE_STORAGE_CONNECTION_STRING}}
 
 jobs:
-  verify:
-    name: Verification
+  prepare:
+    name: Prepare
     runs-on: ubuntu-latest
     outputs:
       branch: ${{steps.version.outputs.branch}}
@@ -50,10 +50,6 @@ jobs:
       - name: Run pre-publish verifications
         shell: bash
         working-directory: ./js/packages/eyes-universal
-        run: |
-          yarn install
-          npx bongo release-pre-check --skip-deps --skip-commit --skip-verify-installed-versions
-          npx bongo verify-changelog
       - name: Version
         id: version
         uses: ./.github/actions/version
@@ -73,7 +69,7 @@ jobs:
             ./js/packages/eyes-universal/dist
             ./js/packages/eyes-universal/bin
   test:
-    needs: [verify]
+    needs: [prepare]
     strategy:
       matrix:
         include:
@@ -97,7 +93,7 @@ jobs:
       - name: Check-out repository
         uses: actions/checkout@v3
         with:
-          ref: ${{needs.verify.outputs.branch}}
+          ref: ${{needs.prepare.outputs.branch}}
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -107,7 +103,7 @@ jobs:
       - name: Download building artifacts
         uses: actions/download-artifact@v3
         with:
-          name: eyes-universal-bin-${{needs.verify.outputs.version}}
+          name: eyes-universal-bin-${{needs.prepare.outputs.version}}
           path: ./js/packages/eyes-universal
       - name: Run tests
         uses: ./.github/actions/tests
@@ -117,14 +113,14 @@ jobs:
           test-type: e2e
           shell: ${{matrix.shell}}
   publish:
-    needs: [verify, test]
+    needs: [prepare, test]
     name: Publish
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
         uses: actions/checkout@v3
         with:
-          ref: ${{needs.verify.outputs.branch}}
+          ref: ${{needs.prepare.outputs.branch}}
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -134,7 +130,7 @@ jobs:
       - name: Download building artifacts
         uses: actions/download-artifact@v3
         with:
-          name: eyes-universal-bin-${{needs.verify.outputs.version}}
+          name: eyes-universal-bin-${{needs.prepare.outputs.version}}
           path: ./js/packages/eyes-universal
       # - name: Publish to NPM
       #   id: publish
