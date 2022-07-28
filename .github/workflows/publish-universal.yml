@@ -47,9 +47,6 @@ jobs:
           node-version: lts/*
           registry-url: https://registry.npmjs.org/
           always-auth: true
-      - name: Run pre-publish verifications
-        shell: bash
-        working-directory: ./js/packages/eyes-universal
       - name: Version
         id: version
         uses: ./.github/actions/version
