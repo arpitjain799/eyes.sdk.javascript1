@@ -28,8 +28,8 @@
   "aliases": [
     "testcafe"
   ],
-  "main": "./dist/index-legacy.js",
-  "types": "./types/index-legacy.d.ts",
+  "main": "./dist/index.js",
+  "types": "./types/index.d.ts",
   "files": [
     "dist",
     "types"
