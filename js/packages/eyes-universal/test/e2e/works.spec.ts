@@ -18,7 +18,7 @@ describe('works', () => {
     const server = spawn(`./bin/eyes-universal-${platform}`, {
       detached: true,
       shell: process.platform === 'win32' ? 'C:\\Program Files\\Git\\bin\\bash.exe' : '/bin/sh',
-      stdio: ['ignore', 'pipe', 'ignore'],
+      stdio: ['ignore', 'pipe', 'inherit'],
     })
     return new Promise<void>((resolve, reject) => {
       server.on('error', reject)
