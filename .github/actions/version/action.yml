@@ -19,6 +19,9 @@ outputs:
   version:
     description: name of the tag pushed after publishing
     value: ${{steps.version.outputs.version}}
+  tag:
+    description: name of the tag pushed after publishing
+    value: ${{steps.version.outputs.tag}}
 
 runs:
   using: composite
@@ -42,7 +45,7 @@ runs:
         BRANCH="${PACKAGE_NAME}_$(date +%F_%H-%M)"
         git checkout -b $BRANCH
         git push -u origin $BRANCH
-        echo "::notice::Version branch - $BRANCH"
+        echo "::notice::Publish branch - $BRANCH"
         echo "::set-output name=branch::$BRANCH"
         echo "::endgroup::"
 
@@ -56,4 +59,7 @@ runs:
         NEW_VERSION="$(cat ./package.json | jq -r .version)"
         echo "::notice::Bump version $CURRENT_VERSION -> $NEW_VERSION"
         echo "::set-output name=version::$NEW_VERSION"
+        TAG="$(git describe --tags --abbrev=0)"
+        echo "::notice::Publish tag $TAG"
+        echo "::set-output name=tag::$TAG"
         echo "::endgroup::"
