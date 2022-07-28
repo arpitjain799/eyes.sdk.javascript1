@@ -28,8 +28,8 @@ runs:
       working-directory: ${{inputs.working-directory}}
       run: |
         echo "::group::Prepare package"
-        PACKAGE_NAME="$(cat ./package.json | jq .name)"
-        CURRENT_VERSION="$(cat ./package.json | jq .version)"
+        PACKAGE_NAME="$(cat ./package.json | jq -r .name)"
+        CURRENT_VERSION="$(cat ./package.json | jq -r .version)"
         echo "::endgroup::"
 
         echo "::group::Configure Git"
@@ -52,7 +52,7 @@ runs:
 
         echo "::group::Version $PACKAGE_NAME"
         yarn version "--${{inputs.version}}" --no-git-tag-version
-        NEW_VERSION="$(cat ./package.json | jq .version)"
+        NEW_VERSION="$(cat ./package.json | jq -r .version)"
         echo "::notice::Bump version $CURRENT_VERSION -> $NEW_VERSION"
         echo "::set-output name=version::$NEW_VERSION"
         echo "::endgroup::"

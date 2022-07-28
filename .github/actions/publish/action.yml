@@ -32,7 +32,7 @@ runs:
       working-directory: ${{inputs.working-directory}}
       run: |
         echo "::group::Prepare package"
-        PACKAGE_NAME="$(cat ./package.json | jq .name)"
+        PACKAGE_NAME="$(cat ./package.json | jq -r .name)"
         echo "::endgroup::"
 
         echo "::group::Configure Git"
