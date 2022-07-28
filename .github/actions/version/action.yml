@@ -23,7 +23,8 @@ outputs:
 runs:
   using: composite
   steps:
-    - id: version
+    - name: Version
+      id: version
       shell: bash
       working-directory: ${{inputs.working-directory}}
       run: |
@@ -51,7 +52,7 @@ runs:
         echo "::endgroup::"
 
         echo "::group::Version $PACKAGE_NAME"
-        yarn version "--${{inputs.version}}" --no-git-tag-version
+        yarn version "--${{inputs.version}}"
         NEW_VERSION="$(cat ./package.json | jq -r .version)"
         echo "::notice::Bump version $CURRENT_VERSION -> $NEW_VERSION"
         echo "::set-output name=version::$NEW_VERSION"

@@ -27,7 +27,8 @@ outputs:
 runs:
   using: composite
   steps:
-    - id: publish
+    - name: Publish
+      id: publish
       shell: bash
       working-directory: ${{inputs.working-directory}}
       run: |
@@ -40,13 +41,13 @@ runs:
         git config --local user.name "GitHub Action"
         echo "::endgroup::"
 
-        if [ "$(git rev-parse --abbrev-ref HEAD)" != "${{github.ref_name}}" ]
+        if [ "$(git rev-parse --abbrev-ref HEAD)" = "${{github.ref_name}}" ]
         then
           echo "::group::Creating temporary branch"
           BRANCH="${PACKAGE_NAME}_$(date +%F_%H-%M)"
           git checkout -b $BRANCH
           git push -u origin $BRANCH
-          echo "::notice::Version branch - $BRANCH"
+          echo "::notice::Publish branch - $BRANCH"
           echo "::set-output name=branch::$BRANCH"
           echo "::endgroup::"
         fi
