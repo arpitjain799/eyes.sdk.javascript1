@@ -18,7 +18,7 @@ outputs:
     value: ${{steps.version.outputs.branch}}
   version:
     description: name of the tag pushed after publishing
-    value: ${{steps.version.outputs.tag}}
+    value: ${{steps.version.outputs.version}}
 
 runs:
   using: composite
