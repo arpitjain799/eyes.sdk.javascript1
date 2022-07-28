@@ -17,44 +17,29 @@ Apollo SDK:
   feature:
     - 
   bug-fix:
-    - Fixed bug where a failure in a single UFG environment fails all other environments in the same configuration
-    - Fixed various issues during taking screenshots in landscape orientation on some native devices
-    - Avoided unexpected touch actions during `check` on Android apps
-    - Better support in DOM slot element
+    - 
 "@applitools/eyes-webdriverio":
   feature:
-    - 
+    - Added new android devices
   bug-fix:
     - Fixed various issues during taking screenshots in landscape orientation on some native devices
     - Avoided unexpected touch actions during `check` on Android apps
     - Better support in DOM slot element
+    - Fixed some issues with helper library usage
 "@applitools/eyes-playwright":
   feature:
-    - Added support for taking full screenshots of elements that are scroll by pages only
-    - Allowed `` values in custom properties
-    - Add special attribute for pseudo elements
-    - Add the ability for the SDK to lazy load the page prior to performing a check window
-    - Support padding for regions in the following region types - ignoreRegions, layoutRegions, strictRegions, contentRegions
-    - Support `addMobileDevice` in user API for NMG
-    - Add support for dynamic coded regions
+    - 
   bug-fix:
-    - Fixed broken links to enums implementation in the README.md
-    - |
-      Fixed `forceFullPageScreenshot` option behavior
-    - |
-      Fix calling `waitBeforeCapture` when failed to set required viewport size
-    - Fix rendering issues with Salesforce Lightning design system
-    - Fix issue that prevented self-signed certificates from working when connecting through a proxy server
-    - Fixed bug where a failure in a single UFG environment fails all other environments in the same configuration
-    - Better support in DOM slot element
+    - 
 "@applitools/eyes-protractor":
   feature:
-    - 
+    - Added new android devices
   bug-fix:
     - Fixed bug where a failure in a single UFG environment fails all other environments in the same configuration
     - Fixed various issues during taking screenshots in landscape orientation on some native devices
     - Avoided unexpected touch actions during `check` on Android apps
     - Better support in DOM slot element
+    - Fixed some issues with helper library usage
 "@applitools/eyes-puppeteer":
   feature:
     - 
@@ -74,17 +59,19 @@ Apollo SDK:
     - Better support in DOM slot element
 "@applitools/eyes-nightwatch":
   feature:
-    - 
+    - Added new android devices
   bug-fix:
     - Fixed bug where a failure in a single UFG environment fails all other environments in the same configuration
     - Fixed various issues during taking screenshots in landscape orientation on some native devices
     - Avoided unexpected touch actions during `check` on Android apps
     - Better support in DOM slot element
+    - Fixed some issues with helper library usage
 "@applitools/eyes-cypress":
   feature:
     - 
   bug-fix:
-    - 
+    - |
+      Fix `Maximum call stack size exceeded` error in `eyesCheck`
 "@applitools/eyes-storybook":
   feature:
     - 
@@ -126,6 +113,7 @@ Apollo SDK:
     - Fixed various issues during taking screenshots in landscape orientation on some native devices
     - Avoided unexpected touch actions during `check` on Android apps
     - Better support in DOM slot element
+    - Fixed some issues with helper library usage
 eyes-browser-extension:
   feature:
     - Added support for taking full screenshots of elements that are scroll by pages only
