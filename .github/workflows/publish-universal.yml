@@ -68,6 +68,7 @@ jobs:
   test:
     needs: [prepare]
     strategy:
+      fail-fast: false
       matrix:
         include:
           - name: alpine
@@ -102,10 +103,6 @@ jobs:
         with:
           name: eyes-universal-bin-${{needs.prepare.outputs.version}}
           path: ./js/packages/eyes-universal
-      - name: LS
-        shell: bash
-        working-directory: ./js/packages/eyes-universal
-        run: ls
       - name: Run tests
         uses: ./.github/actions/tests
         with:
