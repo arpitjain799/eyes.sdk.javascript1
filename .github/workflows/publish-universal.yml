@@ -36,7 +36,8 @@ jobs:
     name: Verification
     runs-on: ubuntu-latest
     outputs:
-      environments: ${{steps.prepare.outputs.environments}}
+      branch: ${{steps.version.outputs.branch}}
+      version: ${{steps.version.outputs.version}}
     steps:
       - name: Check-out repository
         uses: actions/checkout@v3
@@ -53,6 +54,24 @@ jobs:
           yarn install
           npx bongo release-pre-check --skip-deps --skip-commit --skip-verify-installed-versions
           npx bongo verify-changelog
+      - name: Version
+        id: version
+        uses: ./.github/actions/version
+        with:
+          working-directory: ./js/packages/eyes-universal
+          version: ${{inputs.version || github.event.inputs.version}}
+      - name: Build
+        shell: bash
+        working-directory: ./js/packages/eyes-universal
+        run: yarn build
+      - name: Upload building artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: eyes-universal-bin-${{steps.version.outputs.version}}
+          retention-days: 2
+          path:  |
+            ./js/packages/eyes-universal/dist
+            ./js/packages/eyes-universal/bin
   test:
     needs: [verify]
     strategy:
@@ -77,50 +96,65 @@ jobs:
     steps:
       - name: Check-out repository
         uses: actions/checkout@v3
+        with:
+          ref: ${{needs.verify.outputs.branch}}
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: lts/*
           registry-url: https://registry.npmjs.org/
           always-auth: true
+      - name: Download building artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: eyes-universal-bin-${{needs.verify.outputs.version}}
+          path: ./js/packages/eyes-universal
       - name: Run tests
         uses: ./.github/actions/tests
         with:
           working-directory: ./js/packages/eyes-universal
+          build-type: none
           test-type: e2e
           shell: ${{matrix.shell}}
   publish:
-    needs: [test]
+    needs: [verify, test]
     name: Publish
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
         uses: actions/checkout@v3
+        with:
+          ref: ${{needs.verify.outputs.branch}}
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: lts/*
           registry-url: https://registry.npmjs.org/
           always-auth: true
-      - name: Publish to NPM
-        id: publish
-        uses: ./.github/actions/publish
+      - name: Download building artifacts
+        uses: actions/download-artifact@v3
         with:
-          working-directory: ./js/packages/eyes-universal
-          version: ${{inputs.version || github.event.inputs.version}}
-      - name: Publish to GitHub
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{steps.publish.outputs.tag}}
-          name: ${{steps.publish.outputs.tag}}
-          files: |
-            ./js/packages/eyes-universal/bin/eyes-universal-alpine
-            ./js/packages/eyes-universal/bin/eyes-universal-linux
-            ./js/packages/eyes-universal/bin/eyes-universal-macos
-            ./js/packages/eyes-universal/bin/eyes-universal-win.exe
-            ./js/packages/eyes-universal/bin/eyes-universal.zip
-            ./js/packages/eyes-universal/bin/eyes-universal.tar.gz
-      - name: Send slack notification
+          name: eyes-universal-bin-${{needs.verify.outputs.version}}
+          path: ./js/packages/eyes-universal
+      # - name: Publish to NPM
+      #   id: publish
+      #   uses: ./.github/actions/publish
+      #   with:
+      #     working-directory: ./js/packages/eyes-universal
+      #     skip-build: true
+      # - name: Publish to GitHub
+      #   uses: softprops/action-gh-release@v1
+      #   with:
+      #     tag_name: ${{steps.publish.outputs.tag}}
+      #     name: ${{steps.publish.outputs.tag}}
+      #     files: |
+      #       ./js/packages/eyes-universal/bin/eyes-universal-alpine
+      #       ./js/packages/eyes-universal/bin/eyes-universal-linux
+      #       ./js/packages/eyes-universal/bin/eyes-universal-macos
+      #       ./js/packages/eyes-universal/bin/eyes-universal-win.exe
+      #       ./js/packages/eyes-universal/bin/eyes-universal.zip
+      #       ./js/packages/eyes-universal/bin/eyes-universal.tar.gz
+      # - name: Send slack notification
         uses: slackapi/slack-github-action@v1.16.0
         with:
           payload: "{\"blocks\":[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"@channel *Universal SDK* has been released under the tag <https://github.com/applitools/eyes.sdk.javascript1/releases/tag/${{steps.publish.outputs.tag}}|${{steps.publish.outputs.tag}}> 🎉 🎊 🥳\"}},{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"Binaries ZIP archive\"},\"accessory\":{\"type\":\"button\",\"text\":{\"type\":\"plain_text\",\"text\":\"Download\",\"emoji\":true},\"url\":\"https://github.com/applitools/eyes.sdk.javascript1/releases/download/${{steps.publish.outputs.tag}}/eyes-universal.zip\"}}]}"
