@@ -69,7 +69,6 @@ export interface Eyes<TDriver, TElement, TSelector, TType extends 'ufg' | 'class
     config?: Config<TElement, TSelector, TType>
   }): Promise<string[]>
   close(options?: {
-    throwErr: boolean
     settings?: CloseSettings<TType>
     config?: Config<TElement, TSelector, TType>
   }): Promise<TestResult<TType>[]>

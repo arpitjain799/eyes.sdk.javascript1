@@ -95,10 +95,7 @@ function handleUnexpectedResponse(): Hooks {
   return {
     async afterResponse({request, response, options}) {
       const {expected, name} = options as ReqEyesOptions
-
-      if (
-        expected && utils.types.isArray(expected) ? !expected.includes(response.status) : expected !== response.status
-      ) {
+      if (expected && (utils.types.isArray(expected) ? !expected.includes(response.status) : expected !== response.status)) {
         throw new Error(
           `Request "${name}" that was sent to the address "[${request.method}]${request.url}" failed due to unexpected status ${response.statusText}(${response.status})`,
         )
@@ -125,16 +122,20 @@ function handleLongRequests(req: Req): Hooks {
           response.headers.get('Location'),
           mergeOptions(options, {
             method: 'GET',
+            body: null,
+            expected: null,
             retry: {
               statuses: [200],
               timeout: [].concat(Array(5).fill(1000) /* 5x1s */, Array(5).fill(2000) /* 5x2s */, 5000 /* 5s */),
             },
             hooks: {
               beforeRetry({request, response}) {
-                if (response.status === 200) return new Request(response.headers.get('Location'), request)
+                if (response.status === 200 && response.headers.has('Location')) {
+                  return new Request(response.headers.get('Location'), request)
+                }
               },
             },
-          }),
+          } as ReqEyesOptions),
         )
 
         // getting result of the initial request
@@ -142,13 +143,14 @@ function handleLongRequests(req: Req): Hooks {
           pollResponse.headers.get('Location'),
           mergeOptions(options, {
             method: 'DELETE',
+            expected: null,
             hooks: {
               beforeRetry({response}) {
                 // if the long request is blocked due to concurrency the whole long request should start over
                 if (response.status === 503) return req.stop
               },
             },
-          }),
+          } as ReqEyesOptions),
         )
 
         return resultResponse.status === 503 ? req(request, options) : resultResponse

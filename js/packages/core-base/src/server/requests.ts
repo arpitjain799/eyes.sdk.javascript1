@@ -1,4 +1,4 @@
-import type {Region, TextRegion, Batch} from '@applitools/types'
+import type {Region, TextRegion, Size, Mutable} from '@applitools/types'
 import type {
   Target,
   Core,
@@ -15,11 +15,12 @@ import type {
   TestResult,
   OpenSettings,
 } from '@applitools/types/types/core-base'
-import {type Logger} from '@applitools/logger'
+import {makeLogger, type Logger} from '@applitools/logger'
 import {makeReqEyes, type ReqEyes} from './req-eyes'
+import {makeUpload, type Upload} from './upload'
 import * as utils from '@applitools/utils'
 
-interface AccountInfo {
+interface Account {
   renderUrl: string // serviceUrl
   renderToken: string // accessToken
   uploadUrl: string // resultsUrl
@@ -34,12 +35,15 @@ interface Test {
   sessionId: string
   resultsUrl: string
   isNew: boolean
+  account: Account
 }
 
 export interface CoreRequests extends Core {
   openEyes(options: {settings: OpenSettings}): Promise<EyesRequests>
-  getAccountInfo(options: {settings: ServerSettings}): Promise<AccountInfo>
-  getBatch(options: {settings: ServerSettings & {batchId: string}}): Promise<Batch>
+  getAccountInfo(options: {settings: ServerSettings}): Promise<Account>
+  getBatchBranches(options: {
+    settings: ServerSettings & {batchId: string}
+  }): Promise<{branchName: string; parentBranchName: string}>
   closeBatch(options: {settings: CloseBatchSettings}): Promise<void>
   deleteTest(options: {settings: DeleteTestSettings}): Promise<void>
 }
@@ -56,28 +60,44 @@ export interface EyesRequests extends Eyes {
     settings: LocateTextSettings<TPattern>
   }): Promise<Record<TPattern, TextRegion[]>>
   extractText(options: {target: Target; settings: ExtractTextSettings}): Promise<string[]>
-  close(options: {settings: CloseSettings}): Promise<TestResult[]>
+  close(options?: {settings?: Omit<CloseSettings, 'throwErr'>}): Promise<TestResult[]>
   abort(): Promise<TestResult[]>
 }
 
-export function makeCoreCommands({logger}: {logger?: Logger}): CoreRequests {
-  return {openEyes, getAccountInfo, getBatch, closeBatch, deleteTest}
+export function makeCoreRequests({agentId, logger}: {agentId: string; logger?: Logger}): CoreRequests {
+  logger ??= makeLogger()
+
+  const getAccountInfoWithCache = utils.general.cachify(getAccountInfo)
+  const getBatchBranchesWithCache = utils.general.cachify(getBatchBranches)
+
+  return {
+    getAccountInfo: getAccountInfoWithCache,
+    getBatchBranches: getBatchBranchesWithCache,
+    openEyes,
+    closeBatch,
+    deleteTest,
+  }
 
   async function openEyes({settings}: {settings: OpenSettings}): Promise<EyesRequests> {
+    settings.agentId = `${agentId} ${settings.agentId ? `[${settings.agentId}]` : ''}`.trim()
     const req = makeReqEyes({config: settings, logger})
     logger.log('Request "openEyes" called with settings', settings)
+
+    const accountPromise = getAccountInfoWithCache({settings})
+
     const response = await req('/api/sessions/running', {
       name: 'openEyes',
       method: 'POST',
       body: {
         startInfo: {
+          agentId: `${agentId} ${settings.agentId ? `[${settings.agentId}]` : ''}`.trim(),
           agentSessionId: utils.general.guid(),
-          agentId: settings.agentId,
+          agentRunId: settings.agentRunId,
           sessionType: settings.sessionType,
           appIdOrName: settings.appName,
           scenarioIdOrName: settings.testName,
           displayName: settings.displayName,
-          batchInfo: {
+          batchInfo: settings.batch && {
             id: settings.batch.id,
             name: settings.batch.name,
             batchSequenceName: settings.batch.sequenceName,
@@ -87,12 +107,12 @@ export function makeCoreCommands({logger}: {logger?: Logger}): CoreRequests {
           },
           baselineEnvName: settings.baselineEnvName,
           environmentName: settings.environmentName,
-          environment: {
+          environment: settings.environment && {
             os: settings.environment.os,
             osInfo: settings.environment.osInfo,
             hostingApp: settings.environment.hostingApp,
             hostingAppInfo: settings.environment.hostingAppInfo,
-            deviceName: settings.environment.deviceName,
+            deviceInfo: settings.environment.deviceName,
             displaySize: settings.environment.viewportSize,
             inferred: settings.environment.userAgent,
           },
@@ -100,32 +120,41 @@ export function makeCoreCommands({logger}: {logger?: Logger}): CoreRequests {
           parentBranchName: settings.parentBranchName,
           baselineBranchName: settings.baselineBranchName,
           compareWithParentBranch: settings.compareWithParentBranch,
+          parentBranchBaselineSavedBefore: settings.gitBranchingTimestamp,
           ignoreBaseline: settings.ignoreBaseline,
           saveDiffs: settings.saveDiffs,
           properties: settings.properties,
           timeout: settings.abortIdleTestTimeout,
-          // parentBranchBaselineSavedBefore,
-          // defaultMatchSettings: getDefaultMatchSettings(),
-          // agentRunId: this.agentRunId,
         },
       },
       expected: [200, 201],
     })
-    const test = await response.json().then(test => {
-      return {
-        testId: test.id,
-        batchId: test.batchId,
-        baselineId: test.baselineId,
-        sessionId: test.sessionId,
-        resultsUrl: test.url,
-        isNew: test.isNew ?? response.status === 201,
+    const test: Test = await response.json().then(async result => {
+      const test: any = {
+        testId: result.id,
+        batchId: result.batchId,
+        baselineId: result.baselineId,
+        sessionId: result.sessionId,
+        resultsUrl: result.url,
+        isNew: result.isNew ?? response.status === 201,
       }
+      if (result.renderingInfo) {
+        const {serviceUrl, accessToken, resultsUrl, ...rest} = result.renderingInfo
+        test.account = {renderUrl: serviceUrl, renderToken: accessToken, uploadUrl: resultsUrl, ...rest}
+      } else {
+        test.account = await accountPromise
+      }
+      return test
     })
     logger.log('Request "openEyes" finished successfully with body', test)
-    return makeEyesCommands({req, test, logger})
+
+    const upload = makeUpload({config: {uploadUrl: test.account.uploadUrl}, logger})
+
+    return makeEyesCommands({test, req, upload, logger})
   }
 
-  async function getAccountInfo({settings}: {settings: ServerSettings}): Promise<AccountInfo> {
+  async function getAccountInfo({settings}: {settings: ServerSettings}): Promise<Account> {
+    settings.agentId = `${agentId} ${settings.agentId ? `[${settings.agentId}]` : ''}`.trim()
     const req = makeReqEyes({config: settings, logger})
     logger.log('Request "getAccountInfo" called with settings', settings)
     const response = await req('/api/sessions/renderinfo', {
@@ -134,27 +163,35 @@ export function makeCoreCommands({logger}: {logger?: Logger}): CoreRequests {
       expected: 200,
     })
     const result = await response.json().then(result => {
-      const {serviceUrl, accessToken, resultUrl, ...rest} = result
-      return {renderUrl: serviceUrl, renderToken: accessToken, uploadUrl: resultUrl, ...rest}
+      const {serviceUrl, accessToken, resultsUrl, ...rest} = result
+      return {renderUrl: serviceUrl, renderToken: accessToken, uploadUrl: resultsUrl, ...rest}
     })
     logger.log('Request "getAccountInfo" finished successfully with body', result)
     return result
   }
 
-  async function getBatch({settings}: {settings: ServerSettings & {batchId: string}}): Promise<Batch> {
+  async function getBatchBranches({
+    settings,
+  }: {
+    settings: ServerSettings & {batchId: string}
+  }): Promise<{branchName: string; parentBranchName: string}> {
+    settings.agentId = `${agentId} ${settings.agentId ? `[${settings.agentId}]` : ''}`.trim()
     const req = makeReqEyes({config: settings, logger})
-    logger.log('Request "getBatch" called with settings', settings)
+    logger.log('Request "getBatchBranches" called with settings', settings)
     const response = await req(`/api/sessions/batches/${settings.batchId}/config/bypointerId`, {
-      name: 'getBatch',
+      name: 'getBatchBranches',
       method: 'GET',
       expected: 200,
     })
-    const result = await response.json()
-    logger.log('Request "getBatch" finished successfully with body', result)
+    const result = await response.json().then(result => {
+      return {branchName: result.scmSourceBranch, parentBranchName: result.scmTargetBranch}
+    })
+    logger.log('Request "getBatchBranches" finished successfully with body', result)
     return result
   }
 
   async function closeBatch({settings}: {settings: CloseBatchSettings}) {
+    settings.agentId = `${agentId} ${settings.agentId ? `[${settings.agentId}]` : ''}`.trim()
     const req = makeReqEyes({config: settings, logger})
     logger.log('Request "closeBatch" called with settings', settings)
     await req(`/api/sessions/batches/${settings.batchId}/close/bypointerId`, {
@@ -166,6 +203,7 @@ export function makeCoreCommands({logger}: {logger?: Logger}): CoreRequests {
   }
 
   async function deleteTest({settings}: {settings: DeleteTestSettings}) {
+    settings.agentId = `${agentId} ${settings.agentId ? `[${settings.agentId}]` : ''}`.trim()
     const req = makeReqEyes({config: settings, logger})
     logger.log('Request "deleteTest" called with settings', settings)
     await req(`/api/sessions/batches/${settings.batchId}/${settings.testId}`, {
@@ -180,7 +218,17 @@ export function makeCoreCommands({logger}: {logger?: Logger}): CoreRequests {
   }
 }
 
-export function makeEyesCommands({test, req, logger}: {test: Test; req: ReqEyes; logger?: Logger}): EyesRequests {
+export function makeEyesCommands({
+  test,
+  req,
+  upload,
+  logger,
+}: {
+  test: Test
+  req: ReqEyes
+  upload: Upload
+  logger?: Logger
+}): EyesRequests {
   let supportsCheckAndClose = true
 
   return {check, checkAndClose, locate, locateText, extractText, close, abort}
@@ -199,6 +247,10 @@ export function makeEyesCommands({test, req, logger}: {test: Test; req: ReqEyes;
     }
   }): Promise<CheckResult[]> {
     logger.log('Request "locate" called for target', target, 'with settings', settings)
+    ;[target.image, target.dom] = await Promise.all([
+      upload({name: 'image', resource: target.image}),
+      upload({name: 'dom', resource: target.dom, gzip: true}),
+    ])
     const response = await req(`/api/sessions/running/${encodeURIComponent(test.testId)}`, {
       name: 'check',
       method: 'POST',
@@ -208,23 +260,21 @@ export function makeEyesCommands({test, req, logger}: {test: Test; req: ReqEyes;
           screenshotUrl: target.image,
           domUrl: target.dom,
           imageLocation: target.location,
-          pageCoverageInfo: target.coverage
-            ? {
-                pageId: settings.pageId,
-                width: target.coverage.size.width,
-                height: target.coverage.size.height,
-                imagePositionInPage: target.coverage.location,
-              }
-            : undefined,
+          pageCoverageInfo: target.coverage && {
+            pageId: settings.pageId,
+            width: target.coverage.size.width,
+            height: target.coverage.size.height,
+            imagePositionInPage: target.coverage.location,
+          },
         },
         options: {
           imageMatchSettings: {
-            ignore: settings.ignoreRegions,
-            layout: settings.layoutRegions,
-            strict: settings.strictRegions,
-            content: settings.contentRegions,
-            floating: settings.floatingRegions,
-            accessibility: settings.accessibilityRegions,
+            ignore: transformRegions(settings.ignoreRegions),
+            layout: transformRegions(settings.layoutRegions),
+            strict: transformRegions(settings.strictRegions),
+            content: transformRegions(settings.contentRegions),
+            floating: transformRegions(settings.floatingRegions),
+            accessibility: transformRegions(settings.accessibilityRegions),
             accessibilitySettings: settings.accessibilitySettings,
             ignoreDisplacements: settings.ignoreDisplacements,
             ignoreCaret: settings.ignoreCaret,
@@ -235,7 +285,7 @@ export function makeEyesCommands({test, req, logger}: {test: Test; req: ReqEyes;
           name: settings.name,
           source: settings.source,
           renderId: settings.renderId,
-          variantId: settings.variantGroupId,
+          variantId: settings.variationGroupId,
           ignoreMismatch: settings.ignoreMismatch,
           ignoreMatch: settings.ignoreMatch,
           forceMismatch: settings.forceMismatch,
@@ -272,6 +322,10 @@ export function makeEyesCommands({test, req, logger}: {test: Test; req: ReqEyes;
       return close({settings})
     }
     logger.log('Request "checkAndClose" called for target', target, 'with settings', settings)
+    ;[target.image, target.dom] = await Promise.all([
+      upload({name: 'image', resource: target.image}),
+      upload({name: 'dom', resource: target.dom, gzip: true}),
+    ])
     const response = await req(`/api/sessions/running/${encodeURIComponent(test.testId)}/matchandend`, {
       name: 'checkAndClose',
       method: 'POST',
@@ -343,6 +397,7 @@ export function makeEyesCommands({test, req, logger}: {test: Test; req: ReqEyes;
     settings: LocateSettings<TLocator>
   }): Promise<Record<TLocator, Region[]>> {
     logger.log('Request "locate" called for target', target, 'with settings', settings)
+    target.image = await upload({name: 'image', resource: target.image})
     const response = await req('/api/locators/locate', {
       name: 'locate',
       method: 'POST',
@@ -367,6 +422,10 @@ export function makeEyesCommands({test, req, logger}: {test: Test; req: ReqEyes;
     settings: LocateTextSettings<TPattern>
   }): Promise<Record<TPattern, TextRegion[]>> {
     logger.log('Request "locateText" called for target', target, 'with settings', settings)
+    ;[target.image, target.dom] = await Promise.all([
+      upload({name: 'image', resource: target.image}),
+      upload({name: 'dom', resource: target.dom, gzip: true}),
+    ])
     const response = await req('/api/sessions/running/images/textregions', {
       name: 'locateText',
       body: {
@@ -387,8 +446,18 @@ export function makeEyesCommands({test, req, logger}: {test: Test; req: ReqEyes;
     return result
   }
 
-  async function extractText({target, settings}: {target: Target; settings: ExtractTextSettings}): Promise<string[]> {
+  async function extractText({
+    target,
+    settings,
+  }: {
+    target: Target
+    settings: ExtractTextSettings & {size: Size}
+  }): Promise<string[]> {
     logger.log('Request "extractText" called for target', target, 'with settings', settings)
+    ;[target.image, target.dom] = await Promise.all([
+      upload({name: 'image', resource: target.image}),
+      upload({name: 'dom', resource: target.dom, gzip: true}),
+    ])
     const response = await req('/api/sessions/running/images/text', {
       name: 'extractText',
       method: 'POST',
@@ -398,7 +467,7 @@ export function makeEyesCommands({test, req, logger}: {test: Test; req: ReqEyes;
           domUrl: target.dom,
           location: target.location,
         },
-        regions: settings.regions,
+        regions: [{x: 0, y: 0, ...settings.size}],
         minMatch: settings.minMatch,
         language: settings.language,
       },
@@ -409,18 +478,22 @@ export function makeEyesCommands({test, req, logger}: {test: Test; req: ReqEyes;
     return result
   }
 
-  async function close({settings}: {settings: CloseSettings}): Promise<TestResult[]> {
+  async function close({settings}: {settings?: Omit<CloseSettings, 'throwErr'>} = {}): Promise<TestResult[]> {
     logger.log(`Request "close" called for test ${test.testId} with settings`, settings)
     const response = await req(`/api/sessions/running/${encodeURIComponent(test.testId)}`, {
       name: 'close',
       method: 'DELETE',
       query: {
         aborted: false,
-        updateBaseline: test.isNew ? settings.updateBaselineIfNew : settings.updateBaselineIfDifferent,
+        updateBaseline: test.isNew ? settings?.updateBaselineIfNew : settings?.updateBaselineIfDifferent,
       },
       expected: 200,
     })
-    const result: TestResult = await response.json()
+    const result: Mutable<TestResult> = await response.json()
+    result.url = test.resultsUrl
+    result.isNew = test.isNew
+    // for backwards compatibility with outdated servers
+    result.status ??= result.missing === 0 && result.mismatches === 0 ? 'Passed' : 'Unresolved'
     logger.log('Request "close" finished successfully with body', result)
     return [result]
   }
@@ -439,4 +512,26 @@ export function makeEyesCommands({test, req, logger}: {test: Test; req: ReqEyes;
     logger.log('Request "abort" finished successfully with body', result)
     return [result]
   }
+}
+
+function transformRegions(
+  regions: CheckSettings[`${'ignore' | 'layout' | 'content' | 'strict' | 'floating' | 'accessibility'}Regions`][number][],
+) {
+  return regions?.map(region => {
+    const options = {} as any
+    if (utils.types.has(region, 'region')) {
+      options.regionId = region.regionId
+      if (utils.types.has(region, 'type')) {
+        options.type = region.type
+      }
+      if (utils.types.has(region, 'offset')) {
+        options.maxUpOffset = region.offset.top
+        options.maxDownOffset = region.offset.bottom
+        options.maxLeftOffset = region.offset.left
+        options.maxRightOffset = region.offset.right
+      }
+      region = utils.geometry.padding(region.region, region.padding)
+    }
+    return {left: region.x, top: region.y, width: region.width, height: region.height, ...options}
+  })
 }

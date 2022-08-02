@@ -74,6 +74,21 @@ export function toString(object: Record<PropertyKey, any>): string {
   return `${this.constructor.name} ${JSON.stringify(object, null, 2)}`
 }
 
+export function cachify<TFunc extends (...args: any[]) => any>(func: TFunc): TFunc & {clearCache(): void} {
+  const cache = new Map<string, ReturnType<TFunc>>()
+  const funcWithCache = ((...args) => {
+    const key = JSON.stringify(args, (_, t) => (typeof t === 'function' ? t.toString() : t))
+    let value = cache.get(key)
+    if (!value) {
+      value = func(...args)
+      cache.set(key, value)
+    }
+    return value
+  }) as TFunc & {clearCache(): void}
+  funcWithCache.clearCache = () => cache.clear()
+  return funcWithCache
+}
+
 export function pluralize(object: [] | number, config?: [manyCase: string, singleCase: string]): string {
   const count = types.isArray(object) ? object.length : object
   const isMany = count > 1

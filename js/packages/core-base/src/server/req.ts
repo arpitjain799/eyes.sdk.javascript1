@@ -133,11 +133,7 @@ export type Hooks = {
    * }
    * ```
    */
-  afterResponse?(options: {
-    request: Request
-    response: Response
-    options: Options
-  }): Response | void | Promise<Response | void>
+  afterResponse?(options: {request: Request; response: Response; options: Options}): Response | void | Promise<Response | void>
   /**
    * Hook that will be executed after request will throw an error
    * @example
@@ -155,20 +151,14 @@ export type Hooks = {
 /**
  * Helper function that will properly merge two {@link Options} objects
  */
-export function mergeOptions(baseOption: Options, options: Options): Options {
+export function mergeOptions<TOptions extends Options>(baseOption: TOptions, options: TOptions): TOptions {
   return {
     ...baseOption,
     ...options,
     query: {...baseOption.query, ...options?.query},
     headers: {...baseOption.headers, ...options?.headers},
-    retry: [
-      ...(baseOption.retry ? [].concat(baseOption.retry) : []),
-      ...(options?.retry ? [].concat(options.retry) : []),
-    ],
-    hooks: [
-      ...(baseOption.hooks ? [].concat(baseOption.hooks) : []),
-      ...(options?.hooks ? [].concat(options.hooks) : []),
-    ],
+    retry: [...(baseOption.retry ? [].concat(baseOption.retry) : []), ...(options?.retry ? [].concat(options.retry) : [])],
+    hooks: [...(baseOption.hooks ? [].concat(baseOption.hooks) : []), ...(options?.hooks ? [].concat(options.hooks) : [])],
   }
 }
 
@@ -227,9 +217,7 @@ export async function req(input: string | URL | Request, options?: Options): Pro
   let request = new Request(url, {
     method: options?.method ?? (input as Request).method,
     headers: {...options?.headers, ...Object.fromEntries((input as Request).headers?.entries() ?? [])},
-    body: utils.types.isPlainObject(options?.body)
-      ? JSON.stringify(options.body)
-      : options?.body ?? (input as Request).body,
+    body: utils.types.isPlainObject(options?.body) ? JSON.stringify(options.body) : options?.body ?? (input as Request).body,
     agent: url => {
       if (options?.proxy) {
         const proxyUrl = new URL(options.proxy.url)
@@ -254,15 +242,12 @@ export async function req(input: string | URL | Request, options?: Options): Pro
 
     // if the request has to be retried due to status code
     const retry = (options?.retry as Retry[])?.find(
-      retry =>
-        retry.statuses?.includes(response.status) && (!retry.limit || !retry.attempt || retry.attempt < retry.limit),
+      retry => retry.statuses?.includes(response.status) && (!retry.limit || !retry.attempt || retry.attempt < retry.limit),
     )
     if (retry) {
       retry.attempt ??= 0
       let delay = response.headers.has('Retry-After') ? Number(response.headers.get('Retry-After')) * 1000 : null
-      delay ??= utils.types.isArray(retry.timeout)
-        ? retry.timeout[Math.min(retry.attempt, retry.timeout.length)]
-        : retry.timeout
+      delay ??= utils.types.isArray(retry.timeout) ? retry.timeout[Math.min(retry.attempt, retry.timeout.length)] : retry.timeout
       await utils.general.sleep(delay)
       retry.attempt += 1
 

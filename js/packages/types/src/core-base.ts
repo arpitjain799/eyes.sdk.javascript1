@@ -37,7 +37,7 @@ export interface Core {
     on?: (event: string, data?: Record<string, any>) => void
   }): Promise<Eyes>
   closeBatch(options: {settings: MaybeArray<CloseBatchSettings>; logger?: Logger}): Promise<void>
-  deleteTest(options: {settings: DeleteTestSettings; logger?: Logger}): Promise<void>
+  deleteTest(options: {settings: MaybeArray<DeleteTestSettings>; logger?: Logger}): Promise<void>
 }
 
 export interface Eyes {
@@ -52,7 +52,7 @@ export interface Eyes {
     settings: LocateTextSettings<TPattern>
   }): Promise<Record<TPattern, TextRegion[]>>
   extractText(options: {target: Target; settings: MaybeArray<ExtractTextSettings>}): Promise<string[]>
-  close(options?: {throwErr?: boolean; settings?: CloseSettings}): Promise<TestResult[]>
+  close(options?: {settings?: CloseSettings}): Promise<TestResult[]>
   abort(): Promise<TestResult[]>
 }
 
@@ -77,6 +77,7 @@ export interface OpenSettings extends ServerSettings {
   appName: string
   testName: string
   displayName?: string
+  agentRunId?: string
   sessionType?: SessionType
   properties?: CustomProperty[]
   batch?: Batch
@@ -88,7 +89,8 @@ export interface OpenSettings extends ServerSettings {
   parentBranchName?: string
   baselineBranchName?: string
   compareWithParentBranch?: boolean
-  ignoreGitMergeBase?: boolean
+  gitBranchingTimestamp?: string
+  ignoreGitBranching?: boolean
   ignoreBaseline?: boolean
   saveDiffs?: boolean
   abortIdleTestTimeout?: number
@@ -140,6 +142,7 @@ export interface ExtractTextSettings {
 }
 
 export interface CloseSettings {
+  throwErr?: boolean
   updateBaselineIfNew?: boolean
   updateBaselineIfDifferent?: boolean
 }
