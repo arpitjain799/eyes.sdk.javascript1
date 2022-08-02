@@ -186,6 +186,7 @@ export interface ExtractTextSettings<TRegion = Region> extends ImageSettings<TRe
 }
 
 export interface CloseSettings {
+  throwErr?: boolean
   updateBaselineIfNew?: boolean
   updateBaselineIfDifferent?: boolean
   /** @internal */
