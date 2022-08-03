@@ -128,10 +128,7 @@ describe('req', () => {
   })
 
   it('executes hooks', async () => {
-    nock('https://eyesapi.applitools.com')
-      .get('/api/hello')
-      .matchHeader('before-request', 'true')
-      .reply(200, {hello: 'world'})
+    nock('https://eyesapi.applitools.com').get('/api/hello').matchHeader('before-request', 'true').reply(200, {hello: 'world'})
     const response = await req('https://eyesapi.applitools.com/api/hello', {
       hooks: {
         beforeRequest: ({request}) => request.headers.set('before-request', 'true'),

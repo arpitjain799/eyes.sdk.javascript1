@@ -18,6 +18,8 @@ type Options = {
 
 export function makeOpenEyes({requests, logger: defaultLogger, cwd = process.cwd()}: Options) {
   return async function ({settings, logger = defaultLogger}: {settings: OpenSettings; logger?: Logger}): Promise<Eyes> {
+    logger.log('Command "openEyes" is called with settings', settings)
+
     if (!settings.ignoreGitBranching) {
       if (!settings.gitBranchingTimestamp) {
         let branches = {branchName: settings.branchName, parentBranchName: settings.parentBranchName}

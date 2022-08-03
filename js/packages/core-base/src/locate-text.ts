@@ -16,6 +16,7 @@ export function makeLocateText({requests, logger}: Options) {
     target: Target
     settings?: LocateTextSettings<TPattern>
   }): Promise<Record<TPattern, TextRegion[]>> {
+    logger.log('Command "locateText" is called with settings', settings)
     const results = await requests.locateText({target, settings})
     return results
   }

@@ -13,6 +13,7 @@ type Options = {
 
 export function makeCore({agentId, logger, cwd = process.cwd()}: Options): Core {
   logger = logger?.extend({label: 'core-base'}) ?? makeLogger({label: 'core-base'})
+  logger.log(`Core is initialized in directory ${cwd} for agent ${agentId}`)
   const coreRequests = makeCoreRequests({agentId, logger})
 
   return {

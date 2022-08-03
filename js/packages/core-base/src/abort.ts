@@ -9,6 +9,7 @@ type Options = {
 
 export function makeAbort({requests, logger}: Options) {
   return async function (): Promise<TestResult[]> {
+    logger.log('Command "abort" is called')
     const results = await requests.abort()
     return results.flat()
   }

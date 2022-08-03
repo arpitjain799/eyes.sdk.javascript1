@@ -18,6 +18,7 @@ export function makeCheckAndClose({requests, logger}: Options) {
     target: Target
     settings?: MaybeArray<CheckSettings & CloseSettings>
   }): Promise<TestResult[]> {
+    logger.log('Command "checkAndClose" is called with settings', settings)
     settings = utils.types.isArray(settings) ? settings : [settings]
     const results = await Promise.all(settings.map(settings => requests.checkAndClose({target, settings})))
     settings.forEach((settings, index) => {

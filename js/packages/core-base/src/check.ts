@@ -11,6 +11,7 @@ type Options = {
 
 export function makeCheck({requests, logger}: Options) {
   return async function ({target, settings}: {target: Target; settings?: MaybeArray<CheckSettings>}): Promise<CheckResult[]> {
+    logger.log('Command "check" is called with settings', settings)
     settings = utils.types.isArray(settings) ? settings : [settings]
     const results = await Promise.all(settings.map(settings => requests.check({target, settings})))
     return results.flat()

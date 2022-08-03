@@ -10,6 +10,7 @@ type Options = {
 
 export function makeClose({requests, logger}: Options) {
   return async function ({settings}: {settings?: CloseSettings}): Promise<TestResult[]> {
+    logger.log('Command "close" is called with settings', settings)
     const results = await requests.close({settings})
     if (settings.throwErr) {
       results.forEach(result => {
