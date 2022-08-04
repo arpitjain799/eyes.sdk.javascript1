@@ -1,6 +1,6 @@
 'use strict';
-const {resolve} = require('path');
 const ora = require('ora');
+const findNpmModuleCommandPath = require('./findNpmModuleCommandPath');
 const StorybookConnector = require('./storybookConnector');
 
 async function startStorybookServer({
@@ -14,7 +14,13 @@ async function startStorybookServer({
   startStorybookServerTimeout,
 }) {
   const isWindows = process.platform.startsWith('win');
-  const storybookPath = resolve(packagePath, 'node_modules/.bin/start-storybook');
+  const npmModuleCommand = 'start-storybook';
+  const storybookPath = await findNpmModuleCommandPath(npmModuleCommand, packagePath);
+
+  if (storybookPath == null) {
+    console.error(`Command '${npmModuleCommand}' was not found`);
+    process.exit(1);
+  }
 
   const storybookConnector = new StorybookConnector({
     storybookPath,
