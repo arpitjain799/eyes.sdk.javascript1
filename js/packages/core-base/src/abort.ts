@@ -7,8 +7,8 @@ type Options = {
   logger: Logger
 }
 
-export function makeAbort({requests, logger}: Options) {
-  return async function (): Promise<TestResult[]> {
+export function makeAbort({requests, logger: defaultLogger}: Options) {
+  return async function ({logger = defaultLogger}: {logger?: Logger} = {}): Promise<TestResult[]> {
     logger.log('Command "abort" is called')
     const results = await requests.abort()
     return results.flat()

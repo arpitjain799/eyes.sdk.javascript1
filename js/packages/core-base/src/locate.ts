@@ -8,13 +8,15 @@ type Options = {
   logger: Logger
 }
 
-export function makeLocate({requests, logger}: Options) {
+export function makeLocate({requests, logger: defaultLogger}: Options) {
   return async function <TLocator extends string>({
     target,
     settings,
+    logger = defaultLogger,
   }: {
     target: Target
     settings?: LocateSettings<TLocator>
+    logger?: Logger
   }): Promise<Record<TLocator, Region[]>> {
     logger.log('Command "locate" is called with settings', settings)
     const results = await requests.locate({target, settings})

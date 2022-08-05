@@ -10,13 +10,15 @@ type Options = {
   logger: Logger
 }
 
-export function makeCheckAndClose({requests, logger}: Options) {
+export function makeCheckAndClose({requests, logger: defaultLogger}: Options) {
   return async function ({
     target,
     settings,
+    logger = defaultLogger,
   }: {
     target: Target
     settings?: MaybeArray<CheckSettings & CloseSettings>
+    logger?: Logger
   }): Promise<TestResult[]> {
     logger.log('Command "checkAndClose" is called with settings', settings)
     settings = utils.types.isArray(settings) ? settings : [settings]

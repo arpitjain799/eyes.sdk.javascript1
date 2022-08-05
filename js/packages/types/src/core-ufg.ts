@@ -7,7 +7,7 @@ export * from './core-automation'
 
 export interface Core<TDriver, TElement, TSelector> extends AutomationCore.Core<TDriver, TElement, TSelector> {
   openEyes(options: {
-    target?: TDriver
+    target?: AutomationCore.Target<TDriver>
     settings: OpenSettings
     logger?: Logger
     on?: (event: string, data?: Record<string, any>) => void
@@ -18,10 +18,12 @@ export interface Eyes<TDriver, TElement, TSelector> extends AutomationCore.Eyes<
   check(options: {
     target: AutomationCore.Target<TDriver>
     settings?: MaybeArray<CheckSettings<TElement, TSelector>>
+    logger?: Logger
   }): Promise<AutomationCore.CheckResult[]>
   checkAndClose(options: {
     target: AutomationCore.Target<TDriver>
     settings?: MaybeArray<CheckSettings<TElement, TSelector> & AutomationCore.CloseSettings>
+    logger?: Logger
   }): Promise<AutomationCore.TestResult[]>
 }
 

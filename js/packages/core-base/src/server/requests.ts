@@ -113,8 +113,8 @@ export function makeCoreRequests({agentId, logger}: {agentId: string; logger?: L
             hostingApp: settings.environment.hostingApp,
             hostingAppInfo: settings.environment.hostingAppInfo,
             deviceInfo: settings.environment.deviceName,
-            displaySize: settings.environment.viewportSize,
-            inferred: settings.environment.userAgent,
+            displaySize: utils.geometry.round(settings.environment.viewportSize),
+            inferred: settings.environment.userAgent && `useragent:${settings.environment.userAgent}`,
           },
           branchName: settings.branchName,
           parentBranchName: settings.parentBranchName,
@@ -259,22 +259,22 @@ export function makeEyesCommands({
           title: target.name,
           screenshotUrl: target.image,
           domUrl: target.dom,
-          imageLocation: target.location,
-          pageCoverageInfo: target.coverage && {
+          imageLocation: target.locationInViewport,
+          pageCoverageInfo: settings.pageId && {
             pageId: settings.pageId,
-            width: target.coverage.size.width,
-            height: target.coverage.size.height,
-            imagePositionInPage: target.coverage.location,
+            width: target.fullViewSize.width,
+            height: target.fullViewSize.height,
+            imagePositionInPage: target.locationInView,
           },
         },
         options: {
           imageMatchSettings: {
-            ignore: transformRegions(settings.ignoreRegions),
-            layout: transformRegions(settings.layoutRegions),
-            strict: transformRegions(settings.strictRegions),
-            content: transformRegions(settings.contentRegions),
-            floating: transformRegions(settings.floatingRegions),
-            accessibility: transformRegions(settings.accessibilityRegions),
+            ignore: transformRegions({regions: settings.ignoreRegions}),
+            layout: transformRegions({regions: settings.layoutRegions}),
+            strict: transformRegions({regions: settings.strictRegions}),
+            content: transformRegions({regions: settings.contentRegions}),
+            floating: transformRegions({regions: settings.floatingRegions}),
+            accessibility: transformRegions({regions: settings.accessibilityRegions}),
             accessibilitySettings: settings.accessibilitySettings,
             ignoreDisplacements: settings.ignoreDisplacements,
             ignoreCaret: settings.ignoreCaret,
@@ -304,17 +304,16 @@ export function makeEyesCommands({
     settings,
   }: {
     target: Target
-    settings: CheckSettings & {
-      source?: string
-      renderId?: string
-      variantGroupId?: string
-      ignoreMismatch?: boolean
-      ignoreMatch?: boolean
-      forceMismatch?: boolean
-      forceMatch?: boolean
-      updateBaseLineIfNew?: boolean
-      updateBaselineIfDifferent?: boolean
-    }
+    settings: CheckSettings &
+      Omit<CloseSettings, 'throwErr'> & {
+        source?: string
+        renderId?: string
+        variantGroupId?: string
+        ignoreMismatch?: boolean
+        ignoreMatch?: boolean
+        forceMismatch?: boolean
+        forceMatch?: boolean
+      }
   }): Promise<TestResult[]> {
     if (!supportsCheckAndClose) {
       logger.log('Request "checkAndClose" is notSupported by the server, using "check" and "close" requests instead')
@@ -334,24 +333,22 @@ export function makeEyesCommands({
           title: target.name,
           screenshotUrl: target.image,
           domUrl: target.dom,
-          imageLocation: target.location,
-          pageCoverageInfo: target.coverage
-            ? {
-                pageId: settings.pageId,
-                width: target.coverage.size.width,
-                height: target.coverage.size.height,
-                imagePositionInPage: target.coverage.location,
-              }
-            : undefined,
+          imageLocation: target.locationInViewport,
+          pageCoverageInfo: settings.pageId && {
+            pageId: settings.pageId,
+            width: target.fullViewSize.width,
+            height: target.fullViewSize.height,
+            imagePositionInPage: target.locationInView,
+          },
         },
         options: {
           imageMatchSettings: {
-            ignore: settings.ignoreRegions,
-            layout: settings.layoutRegions,
-            strict: settings.strictRegions,
-            content: settings.contentRegions,
-            floating: settings.floatingRegions,
-            accessibility: settings.accessibilityRegions,
+            ignore: transformRegions({regions: settings.ignoreRegions}),
+            layout: transformRegions({regions: settings.layoutRegions}),
+            strict: transformRegions({regions: settings.strictRegions}),
+            content: transformRegions({regions: settings.contentRegions}),
+            floating: transformRegions({regions: settings.floatingRegions}),
+            accessibility: transformRegions({regions: settings.accessibilityRegions}),
             accessibilitySettings: settings.accessibilitySettings,
             ignoreDisplacements: settings.ignoreDisplacements,
             ignoreCaret: settings.ignoreCaret,
@@ -369,13 +366,13 @@ export function makeEyesCommands({
           forceMatch: settings.forceMatch,
           removeSession: false,
           removeSessionIfMatching: settings.ignoreMismatch,
-          updateBaselineIfNew: settings.updateBaseLineIfNew,
+          updateBaselineIfNew: settings.updateBaselineIfNew,
           updateBaselineIfDifferent: settings.updateBaselineIfDifferent,
         },
       },
       hooks: {
-        beforeRetry({response}) {
-          if (response.status === 404) return req.stop
+        beforeRetry({response, stop}) {
+          if (response.status === 404) return stop
         },
       },
       expected: 200,
@@ -432,7 +429,7 @@ export function makeEyesCommands({
         appOutput: {
           screenshotUrl: target.image,
           domUrl: target.dom,
-          location: target.location,
+          location: target.locationInViewport,
         },
         patterns: settings.patterns,
         ignoreCase: settings.ignoreCase,
@@ -465,7 +462,7 @@ export function makeEyesCommands({
         appOutput: {
           screenshotUrl: target.image,
           domUrl: target.dom,
-          location: target.location,
+          location: target.locationInViewport,
         },
         regions: [{x: 0, y: 0, ...settings.size}],
         minMatch: settings.minMatch,
@@ -514,24 +511,50 @@ export function makeEyesCommands({
   }
 }
 
-function transformRegions(
-  regions: CheckSettings[`${'ignore' | 'layout' | 'content' | 'strict' | 'floating' | 'accessibility'}Regions`][number][],
-) {
-  return regions?.map(region => {
-    const options = {} as any
-    if (utils.types.has(region, 'region')) {
-      options.regionId = region.regionId
-      if (utils.types.has(region, 'type')) {
-        options.type = region.type
+function transformRegions({
+  regions,
+}: {
+  regions: CheckSettings[`${'ignore' | 'layout' | 'content' | 'strict' | 'floating' | 'accessibility'}Regions`][number][]
+}) {
+  return regions
+    ?.map(region => {
+      const options = {} as any
+      if (utils.types.has(region, 'region')) {
+        options.regionId = region.regionId
+        if (utils.types.has(region, 'type')) {
+          options.type = region.type
+        }
+        if (utils.types.has(region, 'offset')) {
+          options.maxUpOffset = region.offset.top
+          options.maxDownOffset = region.offset.bottom
+          options.maxLeftOffset = region.offset.left
+          options.maxRightOffset = region.offset.right
+        }
+        region = utils.geometry.round(utils.geometry.padding(region.region, region.padding))
       }
-      if (utils.types.has(region, 'offset')) {
-        options.maxUpOffset = region.offset.top
-        options.maxDownOffset = region.offset.bottom
-        options.maxLeftOffset = region.offset.left
-        options.maxRightOffset = region.offset.right
+      return {left: region.x, top: region.y, width: region.width, height: region.height, ...options}
+    })
+    .sort((region1, region2) => {
+      if (region1.top !== region2.top) return region1.top > region2.top ? 1 : -1
+      else if (region1.left !== region2.left) return region1.left > region2.left ? 1 : -1
+      else return 0
+    })
+    .reduce(transformDuplicatedRegionIds(), [])
+
+  function transformDuplicatedRegionIds() {
+    const stats = {} as Record<string, {firstIndex: number; count: number}>
+    return (regions, region, index) => {
+      if (!region.regionId) return regions.concat(region)
+      if (!stats[region.regionId]) {
+        stats[region.regionId] = {firstIndex: index, count: 1}
+        return regions.concat(region)
       }
-      region = utils.geometry.padding(region.region, region.padding)
+      const stat = stats[region.regionId]
+      if (stat.count === 1) {
+        regions[stat.firstIndex] = {...regions[stat.firstIndex], regionId: `${region.regionId} (${stat.count})`}
+      }
+      stat.count += 1
+      return regions.concat({...region, regionId: `${region.regionId} (${stat.count})`})
     }
-    return {left: region.x, top: region.y, width: region.width, height: region.height, ...options}
-  })
+  }
 }

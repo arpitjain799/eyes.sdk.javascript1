@@ -1,6 +1,5 @@
 import {Proxy} from '@applitools/types'
-import {Request} from 'node-fetch'
-import globalReq, {makeReq, mergeOptions, Req, Hooks, Options} from './req'
+import globalReq, {makeReq, mergeOptions, Req, Request, Hooks, Options} from '@applitools/req'
 import {Logger} from '@applitools/logger'
 import * as utils from '@applitools/utils'
 
@@ -145,9 +144,9 @@ function handleLongRequests(req: Req): Hooks {
             method: 'DELETE',
             expected: null,
             hooks: {
-              beforeRetry({response}) {
+              beforeRetry({response, stop}) {
                 // if the long request is blocked due to concurrency the whole long request should start over
-                if (response.status === 503) return req.stop
+                if (response.status === 503) return stop
               },
             },
           } as ReqEyesOptions),

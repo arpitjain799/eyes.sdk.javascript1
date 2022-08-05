@@ -35,6 +35,9 @@
     "./base": {
       "types": "./types/core-base.d.ts"
     },
+    "./classic": {
+      "types": "./types/core-classic.d.ts"
+    },
     "./types/*": {
       "types": "./types/*.d.ts"
     },

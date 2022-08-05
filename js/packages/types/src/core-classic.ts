@@ -7,7 +7,7 @@ export * from './core-automation'
 
 export interface Core<TDriver, TElement, TSelector> extends AutomationCore.Core<TDriver, TElement, TSelector> {
   openEyes(options: {
-    target?: TDriver
+    target?: AutomationCore.Target<TDriver>
     settings: AutomationCore.OpenSettings
     logger?: Logger
     on?: (event: string, data?: Record<string, any>) => void
@@ -18,26 +18,31 @@ export interface Eyes<TDriver, TElement, TSelector> extends AutomationCore.Eyes<
   check(options: {
     target: AutomationCore.Target<TDriver>
     settings?: MaybeArray<CheckSettings<TElement, TSelector>>
+    logger?: Logger
   }): Promise<AutomationCore.CheckResult[]>
   checkAndClose(options: {
     target: AutomationCore.Target<TDriver>
     settings?: MaybeArray<CheckSettings<TElement, TSelector> & AutomationCore.CloseSettings>
+    logger?: Logger
   }): Promise<AutomationCore.TestResult[]>
   locate<TLocator extends string>(options: {
     target?: AutomationCore.Target<TDriver>
     settings: LocateSettings<TLocator, TElement, TSelector>
+    logger?: Logger
   }): Promise<Record<TLocator, Region[]>>
   locateText<TPattern extends string>(options: {
     target?: AutomationCore.Target<TDriver>
     settings: LocateTextSettings<TPattern, TElement, TSelector>
+    logger?: Logger
   }): Promise<Record<TPattern, TextRegion[]>>
   extractText(options: {
     target?: AutomationCore.Target<TDriver>
     settings: MaybeArray<ExtractTextSettings<TElement, TSelector>>
+    logger?: Logger
   }): Promise<string[]>
 }
 
-type ClassicScreenshotSettings = {
+export type ScreenshotSettings<TElement, TSelector> = AutomationCore.ScreenshotSettings<TElement, TSelector> & {
   debugScreenshots?: DebugScreenshotHandler
   cut?: ImageCropRect | ImageCropRegion
   rotation?: ImageRotation
@@ -45,21 +50,21 @@ type ClassicScreenshotSettings = {
 }
 
 export type CheckSettings<TElement, TSelector> = AutomationCore.CheckSettings<TElement, TSelector> &
-  ClassicScreenshotSettings & {timeout?: number}
+  ScreenshotSettings<TElement, TSelector> & {timeout?: number}
 
 export type LocateSettings<TLocator extends string, TElement, TSelector> = AutomationCore.LocateSettings<
   TLocator,
   TElement,
   TSelector
 > &
-  ClassicScreenshotSettings
+  ScreenshotSettings<TElement, TSelector>
 
 export type LocateTextSettings<TPattern extends string, TElement, TSelector> = AutomationCore.LocateTextSettings<
   TPattern,
   TElement,
   TSelector
 > &
-  ClassicScreenshotSettings
+  ScreenshotSettings<TElement, TSelector>
 
 export type ExtractTextSettings<TElement, TSelector> = AutomationCore.ExtractTextSettings<TElement, TSelector> &
-  ClassicScreenshotSettings
+  ScreenshotSettings<TElement, TSelector>

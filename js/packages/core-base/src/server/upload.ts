@@ -1,6 +1,6 @@
 import {type Logger} from '@applitools/logger'
+import {req} from '@applitools/req'
 import {gzipSync} from 'zlib'
-import {req} from './req'
 import * as utils from '@applitools/utils'
 
 export type Upload = (options: {name: string; resource: Buffer | string; gzip?: boolean}) => Promise<string>

@@ -23,11 +23,9 @@ export type Target = {
   image: Buffer | string
   name?: string
   dom?: string
-  location?: Location // location in the viewport
-  coverage?: {
-    size: Size // whole view size
-    location: Location // location in the whole view
-  }
+  locationInViewport?: Location // location in the viewport
+  locationInView?: Location // location in view/page
+  fullViewSize?: Size // full size of the view/page
 }
 
 export interface Core {
@@ -41,19 +39,25 @@ export interface Core {
 }
 
 export interface Eyes {
-  check(options: {target: Target; settings?: MaybeArray<CheckSettings>}): Promise<CheckResult[]>
-  checkAndClose(options: {target: Target; settings?: MaybeArray<CheckSettings & CloseSettings>}): Promise<TestResult[]>
+  check(options: {target: Target; settings?: MaybeArray<CheckSettings>; logger?: Logger}): Promise<CheckResult[]>
+  checkAndClose(options: {
+    target: Target
+    settings?: MaybeArray<CheckSettings & CloseSettings>
+    logger?: Logger
+  }): Promise<TestResult[]>
   locate<TLocator extends string>(options: {
     target: Target
     settings: LocateSettings<TLocator>
+    logger?: Logger
   }): Promise<Record<TLocator, Region[]>>
   locateText<TPattern extends string>(options: {
     target: Target
     settings: LocateTextSettings<TPattern>
+    logger?: Logger
   }): Promise<Record<TPattern, TextRegion[]>>
-  extractText(options: {target: Target; settings: MaybeArray<ExtractTextSettings>}): Promise<string[]>
-  close(options?: {settings?: CloseSettings}): Promise<TestResult[]>
-  abort(): Promise<TestResult[]>
+  extractText(options: {target: Target; settings: MaybeArray<ExtractTextSettings>; logger?: Logger}): Promise<string[]>
+  close(options?: {settings?: CloseSettings; logger?: Logger}): Promise<TestResult[]>
+  abort(options?: {logger?: Logger}): Promise<TestResult[]>
 }
 
 type Environment = {

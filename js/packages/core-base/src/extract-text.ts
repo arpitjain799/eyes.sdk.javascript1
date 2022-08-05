@@ -9,8 +9,16 @@ type Options = {
   logger: Logger
 }
 
-export function makeExtractText({requests, logger}: Options) {
-  return async function ({target, settings}: {target: Target; settings?: MaybeArray<ExtractTextSettings>}): Promise<string[]> {
+export function makeExtractText({requests, logger: defaultLogger}: Options) {
+  return async function ({
+    target,
+    settings,
+    logger = defaultLogger,
+  }: {
+    target: Target
+    settings?: MaybeArray<ExtractTextSettings>
+    logger?: Logger
+  }): Promise<string[]> {
     logger.log('Command "extractText" is called with settings', settings)
     settings = utils.types.isArray(settings) ? settings : [settings]
     const results = await Promise.all(settings.map(settings => requests.extractText({target, settings})))

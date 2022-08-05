@@ -12,8 +12,8 @@ export interface Core<TDriver, TElement, TSelector> extends BaseCore.Core {
   isDriver(driver: any): driver is TDriver
   isElement(element: any): element is TElement
   isSelector(selector: any): selector is TSelector
-  getViewportSize(options: {driver: TDriver; logger?: Logger}): Promise<Size>
-  setViewportSize(options: {driver: TDriver; size: Size; logger?: Logger}): Promise<void>
+  getViewportSize(options: {target: TDriver; logger?: Logger}): Promise<Size>
+  setViewportSize(options: {target: TDriver; size: Size; logger?: Logger}): Promise<void>
   openEyes(options: {
     target?: TDriver
     settings: BaseCore.OpenSettings

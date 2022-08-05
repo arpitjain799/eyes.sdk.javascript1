@@ -8,13 +8,15 @@ type Options = {
   logger: Logger
 }
 
-export function makeLocateText({requests, logger}: Options) {
+export function makeLocateText({requests, logger: defaultLogger}: Options) {
   return async function <TPattern extends string>({
     target,
     settings,
+    logger = defaultLogger,
   }: {
     target: Target
     settings?: LocateTextSettings<TPattern>
+    logger?: Logger
   }): Promise<Record<TPattern, TextRegion[]>> {
     logger.log('Command "locateText" is called with settings', settings)
     const results = await requests.locateText({target, settings})

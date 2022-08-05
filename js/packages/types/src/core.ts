@@ -15,7 +15,7 @@ export interface Core<TDriver, TElement, TSelector>
     UFGCore.Core<TDriver, TElement, TSelector> {
   openEyes<TType extends 'ufg' | 'classic' = 'ufg' | 'classic'>(options: {
     type?: TType
-    target?: TDriver
+    target?: Target<TDriver, TType>
     settings?: OpenSettings<TType>
     config?: Config<TElement, TSelector, TType>
     logger?: Logger
@@ -25,6 +25,7 @@ export interface Core<TDriver, TElement, TSelector>
     type: TType
     concurrency: TType extends 'ufg' ? number : never
     legacy?: TType extends 'ufg' ? boolean : never
+    logger?: Logger
   }): Promise<EyesManager<TDriver, TElement, TSelector, TType>>
 }
 
@@ -37,7 +38,7 @@ export interface EyesManager<TDriver, TElement, TSelector, TType extends 'ufg' |
     logger?: Logger
     on?: (event: string, data?: Record<string, any>) => void
   }): Promise<Eyes<TDriver, TElement, TSelector, TType>>
-  closeManager: (options?: {throwErr: boolean}) => Promise<TestResultSummary>
+  closeManager: (options?: {throwErr: boolean; logger?: Logger}) => Promise<TestResultSummary>
 }
 
 export interface Eyes<TDriver, TElement, TSelector, TType extends 'ufg' | 'classic' = 'ufg' | 'classic'>
@@ -47,32 +48,38 @@ export interface Eyes<TDriver, TElement, TSelector, TType extends 'ufg' | 'class
     target?: Target<TDriver, TType>
     settings?: MaybeArray<CheckSettings<TElement, TSelector, TType>>
     config?: Config<TElement, TSelector, TType>
+    logger?: Logger
   }): Promise<CheckResult<TType>[]>
   checkAndClose(options: {
     target?: Target<TDriver, TType>
     settings?: MaybeArray<CheckSettings<TElement, TSelector, TType> & CloseSettings<TType>>
     config?: Config<TElement, TSelector, TType>
+    logger?: Logger
   }): Promise<TestResult<TType>[]>
   locate<TLocator extends string>(options: {
     target?: Target<TDriver, TType>
     settings: LocateSettings<TLocator, TElement, TSelector, TType>
     config?: Config<TElement, TSelector, TType>
+    logger?: Logger
   }): Promise<Record<TLocator, Region[]>>
   locateText<TPattern extends string>(options: {
     target?: Target<TDriver, TType>
     settings: LocateTextSettings<TPattern, TElement, TSelector, TType>
     config?: Config<TElement, TSelector, TType>
+    logger?: Logger
   }): Promise<Record<TPattern, TextRegion[]>>
   extractText(options: {
     target?: Target<TDriver>
     settings: MaybeArray<ExtractTextSettings<TElement, TSelector, TType>>
     config?: Config<TElement, TSelector, TType>
+    logger?: Logger
   }): Promise<string[]>
   close(options?: {
     settings?: CloseSettings<TType>
     config?: Config<TElement, TSelector, TType>
+    logger?: Logger
   }): Promise<TestResult<TType>[]>
-  abort(): Promise<TestResult<TType>[]>
+  abort(options?: {logger?: Logger}): Promise<TestResult<TType>[]>
 }
 
 export type Config<TElement, TSelector, TType extends 'classic' | 'ufg' = 'classic' | 'ufg'> = {
