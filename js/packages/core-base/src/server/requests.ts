@@ -233,19 +233,7 @@ export function makeEyesCommands({
 
   return {check, checkAndClose, locate, locateText, extractText, close, abort}
 
-  async function check({
-    target,
-    settings,
-  }: {
-    target: Target
-    settings: CheckSettings & {
-      source?: string
-      ignoreMismatch?: boolean
-      ignoreMatch?: boolean
-      forceMismatch?: boolean
-      forceMatch?: boolean
-    }
-  }): Promise<CheckResult[]> {
+  async function check({target, settings}: {target: Target; settings: CheckSettings}): Promise<CheckResult[]> {
     logger.log('Request "locate" called for target', target, 'with settings', settings)
     ;[target.image, target.dom] = await Promise.all([
       upload({name: 'image', resource: target.image}),
@@ -283,7 +271,7 @@ export function makeEyesCommands({
             useDom: settings.useDom,
           },
           name: settings.name,
-          source: settings.source,
+          source: target.source,
           renderId: settings.renderId,
           variantId: settings.variationGroupId,
           ignoreMismatch: settings.ignoreMismatch,
@@ -304,16 +292,7 @@ export function makeEyesCommands({
     settings,
   }: {
     target: Target
-    settings: CheckSettings &
-      Omit<CloseSettings, 'throwErr'> & {
-        source?: string
-        renderId?: string
-        variantGroupId?: string
-        ignoreMismatch?: boolean
-        ignoreMatch?: boolean
-        forceMismatch?: boolean
-        forceMatch?: boolean
-      }
+    settings: CheckSettings & Omit<CloseSettings, 'throwErr'>
   }): Promise<TestResult[]> {
     if (!supportsCheckAndClose) {
       logger.log('Request "checkAndClose" is notSupported by the server, using "check" and "close" requests instead')
@@ -357,9 +336,9 @@ export function makeEyesCommands({
             useDom: settings.useDom,
           },
           name: settings.name,
-          source: settings.source,
+          source: target.source,
           renderId: settings.renderId,
-          variantId: settings.variantGroupId,
+          variantId: settings.variationGroupId,
           ignoreMismatch: settings.ignoreMismatch,
           ignoreMatch: settings.ignoreMatch,
           forceMismatch: settings.forceMismatch,
@@ -464,7 +443,7 @@ export function makeEyesCommands({
           domUrl: target.dom,
           location: target.locationInViewport,
         },
-        regions: [{x: 0, y: 0, ...settings.size}],
+        regions: [{x: 0, y: 0, ...settings.size, expected: settings.hint}],
         minMatch: settings.minMatch,
         language: settings.language,
       },

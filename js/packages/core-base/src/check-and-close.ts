@@ -1,9 +1,7 @@
-import type {MaybeArray} from '@applitools/types'
 import type {Target, CheckSettings, CloseSettings, TestResult} from '@applitools/types/base'
 import {type Logger} from '@applitools/logger'
 import {type EyesRequests} from './server/requests'
 import {TestError} from './errors/test-error'
-import * as utils from '@applitools/utils'
 
 type Options = {
   requests: EyesRequests
@@ -17,19 +15,16 @@ export function makeCheckAndClose({requests, logger: defaultLogger}: Options) {
     logger = defaultLogger,
   }: {
     target: Target
-    settings?: MaybeArray<CheckSettings & CloseSettings>
+    settings?: CheckSettings & CloseSettings
     logger?: Logger
   }): Promise<TestResult[]> {
     logger.log('Command "checkAndClose" is called with settings', settings)
-    settings = utils.types.isArray(settings) ? settings : [settings]
-    const results = await Promise.all(settings.map(settings => requests.checkAndClose({target, settings})))
-    settings.forEach((settings, index) => {
-      if (settings.throwErr) {
-        results[index].forEach(result => {
-          if (result.status !== 'Passed') throw new TestError(result)
-        })
-      }
-    })
-    return results.flat()
+    const results = await requests.checkAndClose({target, settings})
+    if (settings.throwErr) {
+      results.forEach(result => {
+        if (result.status !== 'Passed') throw new TestError(result)
+      })
+    }
+    return results
   }
 }

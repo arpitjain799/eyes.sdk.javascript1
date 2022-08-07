@@ -22,7 +22,7 @@ export interface Eyes<TDriver, TElement, TSelector> extends AutomationCore.Eyes<
   }): Promise<AutomationCore.CheckResult[]>
   checkAndClose(options: {
     target: AutomationCore.Target<TDriver>
-    settings?: MaybeArray<CheckSettings<TElement, TSelector> & AutomationCore.CloseSettings>
+    settings?: CheckSettings<TElement, TSelector> & AutomationCore.CloseSettings
     logger?: Logger
   }): Promise<AutomationCore.TestResult[]>
   locate<TLocator extends string>(options: {

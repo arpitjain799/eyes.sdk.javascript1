@@ -2,8 +2,12 @@ import type {SpecDriver} from '@applitools/types'
 import type {Core as BaseCore} from '@applitools/types/base'
 import type {Eyes, Target, OpenSettings} from '@applitools/types/classic'
 import {type Logger} from '@applitools/logger'
-import {Driver} from '@applitools/driver'
+import {makeDriver} from '@applitools/driver'
 import {makeCheck} from './check'
+import {makeCheckAndClose} from './check-and-close'
+import {makeLocate} from './locate'
+import {makeLocateText} from './locate-text'
+import {makeExtractText} from './extract-text'
 import * as utils from '@applitools/utils'
 
 type Options<TDriver, TContext, TElement, TSelector> = {
@@ -27,7 +31,7 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
     logger?: Logger
     on?: any
   }): Promise<Eyes<TDriver, TElement, TSelector>> {
-    const driver = spec.isDriver(target) ? new Driver({spec, driver: target, logger}) : null
+    const driver = spec.isDriver(target) ? await makeDriver({spec, driver: target, logger}) : null
     logger.log(`Command "openEyes" is called with ${driver ? 'default driver and' : ''} settings`, settings)
 
     // TODO driver custom config
@@ -60,13 +64,12 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
     const eyes = await core.openEyes({settings, logger})
 
     return {
+      ...eyes,
       check: makeCheck({spec, eyes, target, logger}),
       checkAndClose: makeCheckAndClose({spec, eyes, target, logger}),
-      locate: null,
-      locateText: null,
-      extractText: null,
-      close: null,
-      abort: null,
+      locate: makeLocate({spec, eyes, target, logger}),
+      locateText: makeLocateText({spec, eyes, target, logger}),
+      extractText: makeExtractText({spec, eyes, target, logger}),
     }
   }
 }

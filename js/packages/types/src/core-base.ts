@@ -22,6 +22,7 @@ import {Logger} from './debug'
 export type Target = {
   image: Buffer | string
   name?: string
+  source?: string
   dom?: string
   locationInViewport?: Location // location in the viewport
   locationInView?: Location // location in view/page
@@ -42,7 +43,7 @@ export interface Eyes {
   check(options: {target: Target; settings?: MaybeArray<CheckSettings>; logger?: Logger}): Promise<CheckResult[]>
   checkAndClose(options: {
     target: Target
-    settings?: MaybeArray<CheckSettings & CloseSettings>
+    settings?: CheckSettings & CloseSettings
     logger?: Logger
   }): Promise<TestResult[]>
   locate<TLocator extends string>(options: {
@@ -124,10 +125,14 @@ export interface CheckSettings<TRegion = Region> {
   enablePatterns?: boolean
   ignoreCaret?: boolean
   ignoreDisplacements?: boolean
+  ignoreMismatch?: boolean
+  ignoreMatch?: boolean
+  forceMismatch?: boolean
+  forceMatch?: boolean
 }
 
 export interface LocateSettings<TLocator extends string> {
-  appName?: string
+  appName: string
   locatorNames: TLocator[]
   firstOnly?: boolean
 }
