@@ -6,6 +6,7 @@ import {makeDriver} from '@applitools/driver'
 import {takeScreenshot} from './utils/take-screenshot'
 import {takeDomCapture} from './utils/take-dom-capture'
 import {transformCheckSettings} from './utils/transform-check-settings'
+import {waitForLazyLoad} from '../utils/wait-for-lazy-load'
 import * as utils from '@applitools/utils'
 
 type Options<TDriver, TContext, TElement, TSelector> = {
@@ -37,6 +38,8 @@ export function makeCheck<TDriver, TContext, TElement, TSelector>({
     settings = utils.types.isArray(settings) ? settings : [settings]
     // TODO driver custom config
     const driver = await makeDriver({spec, driver: target, logger})
+    const {lazyLoad} = settings.find(settings => settings.lazyLoad) ?? {}
+    if (lazyLoad) await waitForLazyLoad({driver, settings: lazyLoad !== true ? lazyLoad : {}, logger})
     const results = await settings.reduce(async (prev, settings) => {
       const steps = await prev
       const finishAt = Date.now() + settings.timeout /* maxDuration */

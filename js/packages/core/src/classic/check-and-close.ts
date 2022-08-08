@@ -11,6 +11,7 @@ import {makeDriver} from '@applitools/driver'
 import {takeScreenshot} from './utils/take-screenshot'
 import {takeDomCapture} from './utils/take-dom-capture'
 import {transformCheckSettings} from './utils/transform-check-settings'
+import {waitForLazyLoad} from '../utils/wait-for-lazy-load'
 import * as utils from '@applitools/utils'
 
 type Options<TDriver, TContext, TElement, TSelector> = {
@@ -41,6 +42,7 @@ export function makeCheckAndClose<TDriver, TContext, TElement, TSelector>({
     }
     // TODO driver custom config
     const driver = await makeDriver({spec, driver: target, logger})
+    if (settings.lazyLoad) await waitForLazyLoad({driver, settings: settings.lazyLoad !== true ? settings.lazyLoad : {}, logger})
     const screenshot = await takeScreenshot({driver, settings, logger})
 
     const baseTarget: BaseTarget = {

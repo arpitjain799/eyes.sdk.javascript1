@@ -38,6 +38,9 @@
     "./classic": {
       "types": "./types/core-classic.d.ts"
     },
+    "./ufg": {
+      "types": "./types/core-ufg.d.ts"
+    },
     "./types/*": {
       "types": "./types/*.d.ts"
     },

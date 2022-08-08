@@ -204,7 +204,7 @@ export type IOSVersion = 'latest' | 'latest-1'
 export type IOSDeviceRenderer = {
   iosDeviceInfo: {
     deviceName: IOSDevice
-    iosVersion?: IOSVersion
+    version?: IOSVersion
     screenOrientation?: ScreenOrientation
   }
 }
