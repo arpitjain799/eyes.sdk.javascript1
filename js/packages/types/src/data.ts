@@ -251,9 +251,3 @@ export type Renderer =
   | ChromeEmulationDeviceRenderer
   | IOSDeviceRenderer
   | AndroidDeviceRenderer
-
-export type LazyLoadOptions = {
-  scrollLength?: number
-  waitingTime?: number
-  maxAmountToScroll?: number
-}

@@ -1,5 +1,5 @@
 import {MaybeArray} from './types'
-import {Region, TextRegion, StitchMode, LazyLoadOptions, Size} from './data'
+import {Region, TextRegion, StitchMode, Size} from './data'
 import {Selector} from './driver'
 import {Logger} from './debug'
 import * as BaseCore from './core-base'
@@ -52,8 +52,8 @@ type ContextReference<TElement, TSelector> = {
   frame: FrameReference<TElement, TSelector>
   scrollRootElement?: ElementReference<TElement, TSelector>
 }
-export interface ScreenshotSettings<TElement, TSelector> {
-  region?: RegionReference<TElement, TSelector>
+export interface ScreenshotSettings<TElement, TSelector>
+  extends BaseCore.ImageSettings<RegionReference<TElement, TSelector>> {
   frames?: (ContextReference<TElement, TSelector> | FrameReference<TElement, TSelector>)[]
   fully?: boolean
   scrollRootElement?: ElementReference<TElement, TSelector>
@@ -62,7 +62,7 @@ export interface ScreenshotSettings<TElement, TSelector> {
   hideCaret?: boolean
   overlap?: {top?: number; bottom?: number}
   waitBeforeCapture?: number
-  lazyLoad?: boolean | LazyLoadOptions
+  lazyLoad?: boolean | {scrollLength?: number; waitingTime?: number; maxAmountToScroll?: number}
 }
 
 export type CheckSettings<TElement, TSelector> = BaseCore.CheckSettings<RegionReference<TElement, TSelector>> &

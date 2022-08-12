@@ -5,6 +5,8 @@ import * as AutomationCore from './core-automation'
 
 export * from './core-automation'
 
+export type Target<TDriver> = AutomationCore.Target<TDriver> | Record<string, any> /* dom snapshot */
+
 export interface Core<TDriver, TElement, TSelector> extends AutomationCore.Core<TDriver, TElement, TSelector> {
   openEyes(options: {
     target?: AutomationCore.Target<TDriver>

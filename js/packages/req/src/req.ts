@@ -1,3 +1,4 @@
+import type {Proxy} from '@applitools/types'
 import {parse as urlToHttpOptions} from 'url' // should be replaced with `urlToHttpOptions` after supporting node >=16
 import {AbortController} from 'abort-controller'
 import {Agent as HttpsAgent} from 'https'
@@ -40,7 +41,7 @@ export type Options = {
    * Proxy settings for the request. Auth credentials specified in the object will override ones specified in url
    * @example {url: 'http://localhost:2107', username: 'kyrylo', password: 'pass'}
    */
-  proxy?: {url: string; username: string; password: string}
+  proxy?: Proxy
   /**
    * Connection timeout in ms
    * @example 7000
@@ -94,6 +95,18 @@ export type Retry = {
 }
 
 export type Hooks = {
+  /**
+   * Hook that will be executed after options are merged, it will not be executed if no merge takes place
+   * @example
+   * ```
+   * {
+   *   afterOptionsMerged({options}) {
+   *      options.timeout = 0
+   *   }
+   * }
+   * ```
+   */
+  afterOptionsMerged?(options: {options: Options}): Options | void
   /**
    * Hook that will be executed before sending the request, after all, modifications of the `Request` object are already passed
    * @example
@@ -158,7 +171,7 @@ export type Hooks = {
  * Helper function that will properly merge two {@link Options} objects
  */
 export function mergeOptions<TOptions extends Options>(baseOption: TOptions, options: TOptions): TOptions {
-  return {
+  const mergedOptions = {
     ...baseOption,
     ...options,
     query: {...baseOption.query, ...options?.query},
@@ -166,6 +179,8 @@ export function mergeOptions<TOptions extends Options>(baseOption: TOptions, opt
     retry: [...(baseOption.retry ? [].concat(baseOption.retry) : []), ...(options?.retry ? [].concat(options.retry) : [])],
     hooks: [...(baseOption.hooks ? [].concat(baseOption.hooks) : []), ...(options?.hooks ? [].concat(options.hooks) : [])],
   }
+
+  return mergedOptions.hooks.reduce((options, hooks) => hooks.afterOptionsMerged?.({options}) || options, mergedOptions)
 }
 
 /**

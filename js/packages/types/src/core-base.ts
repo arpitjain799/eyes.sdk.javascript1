@@ -15,6 +15,9 @@ import {
   AccessibilityStatus,
   Size,
   Location,
+  ImageCropRect,
+  ImageCropRegion,
+  ImageRotation,
 } from './data'
 
 import {Logger} from './debug'
@@ -37,6 +40,7 @@ export interface Core {
   }): Promise<Eyes>
   closeBatch(options: {settings: MaybeArray<CloseBatchSettings>; logger?: Logger}): Promise<void>
   deleteTest(options: {settings: MaybeArray<DeleteTestSettings>; logger?: Logger}): Promise<void>
+  getAccountInfo(options: {settings: ServerSettings; logger?: Logger}): Promise<AccountInfo>
 }
 
 export interface Eyes {
@@ -69,6 +73,7 @@ type Environment = {
   deviceName?: string
   viewportSize?: Size
   userAgent?: string
+  rawEnvironment?: Record<string, any>
 }
 
 export interface ServerSettings {
@@ -107,7 +112,18 @@ export interface OpenSettings extends ServerSettings {
 type CodedRegion<TRegion = Region> = {region: TRegion; padding?: number | OffsetRect; regionId?: string}
 type FloatingRegion<TRegion = Region> = CodedRegion<TRegion> & {offset: OffsetRect}
 type AccessibilityRegion<TRegion = Region> = CodedRegion<TRegion> & {type: AccessibilityRegionType}
-export interface CheckSettings<TRegion = Region> {
+
+export interface ImageSettings<TRegion = Region> {
+  region?: TRegion
+  normalization?: {
+    cut?: ImageCropRect | ImageCropRegion
+    rotation?: ImageRotation
+    scaleRatio?: number
+  }
+  debugImages?: {path: string; prefix?: string}
+}
+
+export interface CheckSettings<TRegion = Region> extends ImageSettings<TRegion> {
   name?: string
   pageId?: string
   renderId?: string
@@ -131,20 +147,20 @@ export interface CheckSettings<TRegion = Region> {
   forceMatch?: boolean
 }
 
-export interface LocateSettings<TLocator extends string> {
+export interface LocateSettings<TLocator extends string, TRegion = Region> extends ImageSettings<TRegion> {
   appName: string
   locatorNames: TLocator[]
   firstOnly?: boolean
 }
 
-export interface LocateTextSettings<TPattern extends string> {
+export interface LocateTextSettings<TPattern extends string, TRegion = Region> extends ImageSettings<TRegion> {
   patterns: TPattern[]
   ignoreCase?: boolean
   firstOnly?: boolean
   language?: string
 }
 
-export interface ExtractTextSettings {
+export interface ExtractTextSettings<TRegion = Region> extends ImageSettings<TRegion> {
   hint?: string
   minMatch?: number
   language?: string
@@ -164,6 +180,17 @@ export interface DeleteTestSettings extends ServerSettings {
   testId: string
   batchId: string
   secretToken: string
+}
+
+export interface AccountInfo {
+  ufg: {
+    serverUrl: string // serviceUrl
+    accessToken: string // accessToken
+  }
+  stitchingServiceUrl: string
+  uploadUrl: string // resultsUrl
+  maxImageHeight: number
+  maxImageArea: number
 }
 
 export interface CheckResult {

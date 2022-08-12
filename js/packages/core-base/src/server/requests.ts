@@ -11,22 +11,15 @@ import type {
   CloseSettings,
   DeleteTestSettings,
   CloseBatchSettings,
+  AccountInfo,
   CheckResult,
   TestResult,
   OpenSettings,
-} from '@applitools/types/types/core-base'
+} from '@applitools/types/base'
 import {makeLogger, type Logger} from '@applitools/logger'
 import {makeReqEyes, type ReqEyes} from './req-eyes'
 import {makeUpload, type Upload} from './upload'
 import * as utils from '@applitools/utils'
-
-interface Account {
-  renderUrl: string // serviceUrl
-  renderToken: string // accessToken
-  uploadUrl: string // resultsUrl
-  maxImageHeight: number
-  maxImageArea: number
-}
 
 interface Test {
   testId: string
@@ -35,37 +28,40 @@ interface Test {
   sessionId: string
   resultsUrl: string
   isNew: boolean
-  account: Account
+  account: AccountInfo
 }
 
 export interface CoreRequests extends Core {
-  openEyes(options: {settings: OpenSettings}): Promise<EyesRequests>
-  getAccountInfo(options: {settings: ServerSettings}): Promise<Account>
+  openEyes(options: {settings: OpenSettings; logger?: Logger}): Promise<EyesRequests>
+  getAccountInfo(options: {settings: ServerSettings; logger?: Logger}): Promise<AccountInfo>
   getBatchBranches(options: {
     settings: ServerSettings & {batchId: string}
+    logger?: Logger
   }): Promise<{branchName: string; parentBranchName: string}>
-  closeBatch(options: {settings: CloseBatchSettings}): Promise<void>
-  deleteTest(options: {settings: DeleteTestSettings}): Promise<void>
+  closeBatch(options: {settings: CloseBatchSettings; logger?: Logger}): Promise<void>
+  deleteTest(options: {settings: DeleteTestSettings; logger?: Logger}): Promise<void>
 }
 
 export interface EyesRequests extends Eyes {
-  check(options: {target: Target; settings?: CheckSettings}): Promise<CheckResult[]>
-  checkAndClose(options: {target: Target; settings?: CheckSettings}): Promise<TestResult[]>
+  check(options: {target: Target; settings?: CheckSettings; logger?: Logger}): Promise<CheckResult[]>
+  checkAndClose(options: {target: Target; settings?: CheckSettings; logger?: Logger}): Promise<TestResult[]>
   locate<TLocator extends string>(options: {
     target: Target
     settings: LocateSettings<TLocator>
+    logger?: Logger
   }): Promise<Record<TLocator, Region[]>>
   locateText<TPattern extends string>(options: {
     target: Target
     settings: LocateTextSettings<TPattern>
+    logger?: Logger
   }): Promise<Record<TPattern, TextRegion[]>>
-  extractText(options: {target: Target; settings: ExtractTextSettings}): Promise<string[]>
-  close(options?: {settings?: Omit<CloseSettings, 'throwErr'>}): Promise<TestResult[]>
-  abort(): Promise<TestResult[]>
+  extractText(options: {target: Target; settings: ExtractTextSettings; logger?: Logger}): Promise<string[]>
+  close(options?: {settings?: Omit<CloseSettings, 'throwErr'>; logger?: Logger}): Promise<TestResult[]>
+  abort(options?: {logger?: Logger}): Promise<TestResult[]>
 }
 
-export function makeCoreRequests({agentId, logger}: {agentId: string; logger?: Logger}): CoreRequests {
-  logger ??= makeLogger()
+export function makeCoreRequests({agentId, logger: defaultLogger}: {agentId: string; logger?: Logger}): CoreRequests {
+  defaultLogger ??= makeLogger()
 
   const getAccountInfoWithCache = utils.general.cachify(getAccountInfo)
   const getBatchBranchesWithCache = utils.general.cachify(getBatchBranches)
@@ -78,7 +74,7 @@ export function makeCoreRequests({agentId, logger}: {agentId: string; logger?: L
     deleteTest,
   }
 
-  async function openEyes({settings}: {settings: OpenSettings}): Promise<EyesRequests> {
+  async function openEyes({settings, logger = defaultLogger}: {settings: OpenSettings; logger?: Logger}): Promise<EyesRequests> {
     settings.agentId = `${agentId} ${settings.agentId ? `[${settings.agentId}]` : ''}`.trim()
     const req = makeReqEyes({config: settings, logger})
     logger.log('Request "openEyes" called with settings', settings)
@@ -107,15 +103,17 @@ export function makeCoreRequests({agentId, logger}: {agentId: string; logger?: L
           },
           baselineEnvName: settings.baselineEnvName,
           environmentName: settings.environmentName,
-          environment: settings.environment && {
-            os: settings.environment.os,
-            osInfo: settings.environment.osInfo,
-            hostingApp: settings.environment.hostingApp,
-            hostingAppInfo: settings.environment.hostingAppInfo,
-            deviceInfo: settings.environment.deviceName,
-            displaySize: utils.geometry.round(settings.environment.viewportSize),
-            inferred: settings.environment.userAgent && `useragent:${settings.environment.userAgent}`,
-          },
+          environment:
+            settings.environment &&
+            (settings.environment.rawEnvironment ?? {
+              os: settings.environment.os,
+              osInfo: settings.environment.osInfo,
+              hostingApp: settings.environment.hostingApp,
+              hostingAppInfo: settings.environment.hostingAppInfo,
+              deviceInfo: settings.environment.deviceName,
+              displaySize: utils.geometry.round(settings.environment.viewportSize),
+              inferred: settings.environment.userAgent && `useragent:${settings.environment.userAgent}`,
+            }),
           branchName: settings.branchName,
           parentBranchName: settings.parentBranchName,
           baselineBranchName: settings.baselineBranchName,
@@ -128,19 +126,21 @@ export function makeCoreRequests({agentId, logger}: {agentId: string; logger?: L
         },
       },
       expected: [200, 201],
+      logger,
     })
     const test: Test = await response.json().then(async result => {
-      const test: any = {
+      const test: Test = {
         testId: result.id,
         batchId: result.batchId,
         baselineId: result.baselineId,
         sessionId: result.sessionId,
         resultsUrl: result.url,
         isNew: result.isNew ?? response.status === 201,
+        account: null,
       }
       if (result.renderingInfo) {
         const {serviceUrl, accessToken, resultsUrl, ...rest} = result.renderingInfo
-        test.account = {renderUrl: serviceUrl, renderToken: accessToken, uploadUrl: resultsUrl, ...rest}
+        test.account = {ufg: {serverUrl: serviceUrl, accessToken}, uploadUrl: resultsUrl, ...rest}
       } else {
         test.account = await accountPromise
       }
@@ -153,7 +153,13 @@ export function makeCoreRequests({agentId, logger}: {agentId: string; logger?: L
     return makeEyesCommands({test, req, upload, logger})
   }
 
-  async function getAccountInfo({settings}: {settings: ServerSettings}): Promise<Account> {
+  async function getAccountInfo({
+    settings,
+    logger = defaultLogger,
+  }: {
+    settings: ServerSettings
+    logger?: Logger
+  }): Promise<AccountInfo> {
     settings.agentId = `${agentId} ${settings.agentId ? `[${settings.agentId}]` : ''}`.trim()
     const req = makeReqEyes({config: settings, logger})
     logger.log('Request "getAccountInfo" called with settings', settings)
@@ -161,10 +167,11 @@ export function makeCoreRequests({agentId, logger}: {agentId: string; logger?: L
       name: 'getAccountInfo',
       method: 'GET',
       expected: 200,
+      logger,
     })
     const result = await response.json().then(result => {
       const {serviceUrl, accessToken, resultsUrl, ...rest} = result
-      return {renderUrl: serviceUrl, renderToken: accessToken, uploadUrl: resultsUrl, ...rest}
+      return {ufg: {serverUrl: serviceUrl, accessToken}, uploadUrl: resultsUrl, ...rest}
     })
     logger.log('Request "getAccountInfo" finished successfully with body', result)
     return result
@@ -172,8 +179,10 @@ export function makeCoreRequests({agentId, logger}: {agentId: string; logger?: L
 
   async function getBatchBranches({
     settings,
+    logger = defaultLogger,
   }: {
     settings: ServerSettings & {batchId: string}
+    logger?: Logger
   }): Promise<{branchName: string; parentBranchName: string}> {
     settings.agentId = `${agentId} ${settings.agentId ? `[${settings.agentId}]` : ''}`.trim()
     const req = makeReqEyes({config: settings, logger})
@@ -182,6 +191,7 @@ export function makeCoreRequests({agentId, logger}: {agentId: string; logger?: L
       name: 'getBatchBranches',
       method: 'GET',
       expected: 200,
+      logger,
     })
     const result = await response.json().then(result => {
       return {branchName: result.scmSourceBranch, parentBranchName: result.scmTargetBranch}
@@ -190,7 +200,7 @@ export function makeCoreRequests({agentId, logger}: {agentId: string; logger?: L
     return result
   }
 
-  async function closeBatch({settings}: {settings: CloseBatchSettings}) {
+  async function closeBatch({settings, logger = defaultLogger}: {settings: CloseBatchSettings; logger?: Logger}) {
     settings.agentId = `${agentId} ${settings.agentId ? `[${settings.agentId}]` : ''}`.trim()
     const req = makeReqEyes({config: settings, logger})
     logger.log('Request "closeBatch" called with settings', settings)
@@ -198,11 +208,12 @@ export function makeCoreRequests({agentId, logger}: {agentId: string; logger?: L
       name: 'closeBatch',
       method: 'DELETE',
       expected: 200,
+      logger,
     })
     logger.log('Request "closeBatch" finished successfully')
   }
 
-  async function deleteTest({settings}: {settings: DeleteTestSettings}) {
+  async function deleteTest({settings, logger = defaultLogger}: {settings: DeleteTestSettings; logger?: Logger}) {
     settings.agentId = `${agentId} ${settings.agentId ? `[${settings.agentId}]` : ''}`.trim()
     const req = makeReqEyes({config: settings, logger})
     logger.log('Request "deleteTest" called with settings', settings)
@@ -213,6 +224,7 @@ export function makeCoreRequests({agentId, logger}: {agentId: string; logger?: L
         accessToken: settings.secretToken,
       },
       expected: 200,
+      logger,
     })
     logger.log('Request "deleteTest" finished successfully')
   }
@@ -222,7 +234,7 @@ export function makeEyesCommands({
   test,
   req,
   upload,
-  logger,
+  logger: defaultLogger,
 }: {
   test: Test
   req: ReqEyes
@@ -233,8 +245,16 @@ export function makeEyesCommands({
 
   return {check, checkAndClose, locate, locateText, extractText, close, abort}
 
-  async function check({target, settings}: {target: Target; settings: CheckSettings}): Promise<CheckResult[]> {
-    logger.log('Request "locate" called for target', target, 'with settings', settings)
+  async function check({
+    target,
+    settings,
+    logger = defaultLogger,
+  }: {
+    target: Target
+    settings: CheckSettings
+    logger?: Logger
+  }): Promise<CheckResult[]> {
+    logger.log('Request "check" called for target', target, 'with settings', settings)
     ;[target.image, target.dom] = await Promise.all([
       upload({name: 'image', resource: target.image}),
       upload({name: 'dom', resource: target.dom, gzip: true}),
@@ -242,45 +262,9 @@ export function makeEyesCommands({
     const response = await req(`/api/sessions/running/${encodeURIComponent(test.testId)}`, {
       name: 'check',
       method: 'POST',
-      body: {
-        appOutput: {
-          title: target.name,
-          screenshotUrl: target.image,
-          domUrl: target.dom,
-          imageLocation: target.locationInViewport,
-          pageCoverageInfo: settings.pageId && {
-            pageId: settings.pageId,
-            width: target.fullViewSize.width,
-            height: target.fullViewSize.height,
-            imagePositionInPage: target.locationInView,
-          },
-        },
-        options: {
-          imageMatchSettings: {
-            ignore: transformRegions({regions: settings.ignoreRegions}),
-            layout: transformRegions({regions: settings.layoutRegions}),
-            strict: transformRegions({regions: settings.strictRegions}),
-            content: transformRegions({regions: settings.contentRegions}),
-            floating: transformRegions({regions: settings.floatingRegions}),
-            accessibility: transformRegions({regions: settings.accessibilityRegions}),
-            accessibilitySettings: settings.accessibilitySettings,
-            ignoreDisplacements: settings.ignoreDisplacements,
-            ignoreCaret: settings.ignoreCaret,
-            enablePatterns: settings.enablePatterns,
-            matchLevel: settings.matchLevel,
-            useDom: settings.useDom,
-          },
-          name: settings.name,
-          source: target.source,
-          renderId: settings.renderId,
-          variantId: settings.variationGroupId,
-          ignoreMismatch: settings.ignoreMismatch,
-          ignoreMatch: settings.ignoreMatch,
-          forceMismatch: settings.forceMismatch,
-          forceMatch: settings.forceMatch,
-        },
-      },
+      body: transformCheckOptions({target, settings}),
       expected: 200,
+      logger,
     })
     const result: CheckResult = await response.json()
     logger.log('Request "check" finished successfully with body', result)
@@ -290,9 +274,11 @@ export function makeEyesCommands({
   async function checkAndClose({
     target,
     settings,
+    logger = defaultLogger,
   }: {
     target: Target
     settings: CheckSettings & Omit<CloseSettings, 'throwErr'>
+    logger?: Logger
   }): Promise<TestResult[]> {
     if (!supportsCheckAndClose) {
       logger.log('Request "checkAndClose" is notSupported by the server, using "check" and "close" requests instead')
@@ -304,45 +290,14 @@ export function makeEyesCommands({
       upload({name: 'image', resource: target.image}),
       upload({name: 'dom', resource: target.dom, gzip: true}),
     ])
+    const matchOptions = transformCheckOptions({target, settings})
     const response = await req(`/api/sessions/running/${encodeURIComponent(test.testId)}/matchandend`, {
       name: 'checkAndClose',
       method: 'POST',
       body: {
-        appOutput: {
-          title: target.name,
-          screenshotUrl: target.image,
-          domUrl: target.dom,
-          imageLocation: target.locationInViewport,
-          pageCoverageInfo: settings.pageId && {
-            pageId: settings.pageId,
-            width: target.fullViewSize.width,
-            height: target.fullViewSize.height,
-            imagePositionInPage: target.locationInView,
-          },
-        },
+        ...matchOptions,
         options: {
-          imageMatchSettings: {
-            ignore: transformRegions({regions: settings.ignoreRegions}),
-            layout: transformRegions({regions: settings.layoutRegions}),
-            strict: transformRegions({regions: settings.strictRegions}),
-            content: transformRegions({regions: settings.contentRegions}),
-            floating: transformRegions({regions: settings.floatingRegions}),
-            accessibility: transformRegions({regions: settings.accessibilityRegions}),
-            accessibilitySettings: settings.accessibilitySettings,
-            ignoreDisplacements: settings.ignoreDisplacements,
-            ignoreCaret: settings.ignoreCaret,
-            enablePatterns: settings.enablePatterns,
-            matchLevel: settings.matchLevel,
-            useDom: settings.useDom,
-          },
-          name: settings.name,
-          source: target.source,
-          renderId: settings.renderId,
-          variantId: settings.variationGroupId,
-          ignoreMismatch: settings.ignoreMismatch,
-          ignoreMatch: settings.ignoreMatch,
-          forceMismatch: settings.forceMismatch,
-          forceMatch: settings.forceMatch,
+          ...matchOptions.options,
           removeSession: false,
           removeSessionIfMatching: settings.ignoreMismatch,
           updateBaselineIfNew: settings.updateBaselineIfNew,
@@ -355,6 +310,7 @@ export function makeEyesCommands({
         },
       },
       expected: 200,
+      logger,
     })
     if (response.status === 404) {
       supportsCheckAndClose = false
@@ -368,9 +324,11 @@ export function makeEyesCommands({
   async function locate<TLocator extends string>({
     target,
     settings,
+    logger = defaultLogger,
   }: {
     target: Target
     settings: LocateSettings<TLocator>
+    logger?: Logger
   }): Promise<Record<TLocator, Region[]>> {
     logger.log('Request "locate" called for target', target, 'with settings', settings)
     target.image = await upload({name: 'image', resource: target.image})
@@ -384,6 +342,7 @@ export function makeEyesCommands({
         firstOnly: settings.firstOnly,
       },
       expected: 200,
+      logger,
     })
     const result = await response.json()
     logger.log('Request "locate" finished successfully with body', result)
@@ -393,9 +352,11 @@ export function makeEyesCommands({
   async function locateText<TPattern extends string>({
     target,
     settings,
+    logger = defaultLogger,
   }: {
     target: Target
     settings: LocateTextSettings<TPattern>
+    logger?: Logger
   }): Promise<Record<TPattern, TextRegion[]>> {
     logger.log('Request "locateText" called for target', target, 'with settings', settings)
     ;[target.image, target.dom] = await Promise.all([
@@ -416,6 +377,7 @@ export function makeEyesCommands({
         language: settings.language,
       },
       expected: 200,
+      logger,
     })
     const result = await response.json()
     logger.log('Request "locateText" finished successfully with body', result)
@@ -425,9 +387,11 @@ export function makeEyesCommands({
   async function extractText({
     target,
     settings,
+    logger = defaultLogger,
   }: {
     target: Target
     settings: ExtractTextSettings & {size: Size}
+    logger?: Logger
   }): Promise<string[]> {
     logger.log('Request "extractText" called for target', target, 'with settings', settings)
     ;[target.image, target.dom] = await Promise.all([
@@ -448,13 +412,17 @@ export function makeEyesCommands({
         language: settings.language,
       },
       expected: 200,
+      logger,
     })
     const result = await response.json()
     logger.log('Request "extractText" finished successfully with body', result)
     return result
   }
 
-  async function close({settings}: {settings?: Omit<CloseSettings, 'throwErr'>} = {}): Promise<TestResult[]> {
+  async function close({
+    settings,
+    logger = defaultLogger,
+  }: {settings?: Omit<CloseSettings, 'throwErr'>; logger?: Logger} = {}): Promise<TestResult[]> {
     logger.log(`Request "close" called for test ${test.testId} with settings`, settings)
     const response = await req(`/api/sessions/running/${encodeURIComponent(test.testId)}`, {
       name: 'close',
@@ -464,6 +432,7 @@ export function makeEyesCommands({
         updateBaseline: test.isNew ? settings?.updateBaselineIfNew : settings?.updateBaselineIfDifferent,
       },
       expected: 200,
+      logger,
     })
     const result: Mutable<TestResult> = await response.json()
     result.url = test.resultsUrl
@@ -474,7 +443,7 @@ export function makeEyesCommands({
     return [result]
   }
 
-  async function abort(): Promise<TestResult[]> {
+  async function abort({logger = defaultLogger}: {logger?: Logger} = {}): Promise<TestResult[]> {
     logger.log(`Request "abort" called for test ${test.testId}`)
     const response = await req(`/api/sessions/running/${encodeURIComponent(test.testId)}`, {
       name: 'abort',
@@ -483,10 +452,52 @@ export function makeEyesCommands({
         aborted: true,
       },
       expected: 200,
+      logger,
     })
     const result: TestResult = await response.json()
     logger.log('Request "abort" finished successfully with body', result)
     return [result]
+  }
+}
+
+function transformCheckOptions({target, settings}: {target: Target; settings: CheckSettings}) {
+  return {
+    appOutput: {
+      title: target.name,
+      screenshotUrl: target.image,
+      domUrl: target.dom,
+      imageLocation: target.locationInViewport,
+      pageCoverageInfo: settings.pageId && {
+        pageId: settings.pageId,
+        width: target.fullViewSize.width,
+        height: target.fullViewSize.height,
+        imagePositionInPage: target.locationInView,
+      },
+    },
+    options: {
+      imageMatchSettings: {
+        ignore: transformRegions({regions: settings.ignoreRegions}),
+        layout: transformRegions({regions: settings.layoutRegions}),
+        strict: transformRegions({regions: settings.strictRegions}),
+        content: transformRegions({regions: settings.contentRegions}),
+        floating: transformRegions({regions: settings.floatingRegions}),
+        accessibility: transformRegions({regions: settings.accessibilityRegions}),
+        accessibilitySettings: settings.accessibilitySettings,
+        ignoreDisplacements: settings.ignoreDisplacements,
+        ignoreCaret: settings.ignoreCaret,
+        enablePatterns: settings.enablePatterns,
+        matchLevel: settings.matchLevel,
+        useDom: settings.useDom,
+      },
+      name: settings.name,
+      source: target.source,
+      renderId: settings.renderId,
+      variantId: settings.variationGroupId,
+      ignoreMismatch: settings.ignoreMismatch,
+      ignoreMatch: settings.ignoreMatch,
+      forceMismatch: settings.forceMismatch,
+      forceMatch: settings.forceMatch,
+    },
   }
 }
 

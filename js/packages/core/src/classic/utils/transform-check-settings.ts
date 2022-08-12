@@ -20,6 +20,8 @@ export async function transformCheckSettings<TDriver, TContext, TElement, TSelec
 }): Promise<BaseCheckSettings> {
   return {
     ...settings,
+    region: undefined,
+    normalization: undefined,
     ignoreRegions: await transformRegions<'ignore'>({regions: settings.ignoreRegions}),
     layoutRegions: await transformRegions<'layout'>({regions: settings.layoutRegions}),
     contentRegions: await transformRegions<'content'>({regions: settings.contentRegions}),

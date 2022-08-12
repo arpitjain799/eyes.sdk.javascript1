@@ -1,5 +1,5 @@
 import {Proxy} from '@applitools/types'
-import globalReq, {makeReq, mergeOptions, Req, Request, Hooks, Options} from '@applitools/req'
+import globalReq, {makeReq, mergeOptions, Request, type Req, type Options, type Hooks, Response} from '@applitools/req'
 import {Logger} from '@applitools/logger'
 import * as utils from '@applitools/utils'
 
@@ -15,6 +15,7 @@ export type ReqEyesConfig = {
 export type ReqEyesOptions = Options & {
   name: string
   expected?: number | number[]
+  logger?: Logger
 }
 
 export type ReqEyes = Req & ((input: string | URL | Request, options?: ReqEyesOptions) => ReturnType<Req>)
@@ -26,8 +27,10 @@ export function makeReqEyes({config, logger}: {config: ReqEyesConfig; logger?: L
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
-      'x-applitools-eyes-client': config.agentId ?? '',
+      'x-applitools-eyes-client': config.agentId,
+      'User-Agent': config.agentId,
     },
+    proxy: config.proxy,
     timeout: config.connectionTimeout ?? 300000 /* 5min */,
     retry: [
       // retry on network issues
@@ -43,17 +46,17 @@ export function makeReqEyes({config, logger}: {config: ReqEyesConfig; logger?: L
         statuses: [503],
       },
     ],
-    hooks: [handleLongRequests(globalReq), handleLogs(logger), handleUnexpectedResponse()],
+    hooks: [handleLongRequests({req: globalReq}), handleLogs({logger}), handleUnexpectedResponse()],
   })
 }
 
-function handleLogs(logger?: Logger): Hooks {
+function handleLogs({logger: defaultLogger}: {logger?: Logger} = {}): Hooks {
   const guid = utils.general.guid()
   let counter = 0
 
   return {
-    beforeRequest({request, options}) {
-      const {name} = options as ReqEyesOptions
+    beforeRequest({request, options}: {request: Request; options: ReqEyesOptions}) {
+      const logger = options.logger ?? defaultLogger
       let requestId = request.headers.get('x-applitools-eyes-client-request-id')
       if (!requestId) {
         requestId = `${counter++}--${guid}`
@@ -61,7 +64,7 @@ function handleLogs(logger?: Logger): Hooks {
       }
 
       logger?.log(
-        `Request "${name}" [${requestId}] will be sent to the address "[${request.method}]${request.url}" with body`,
+        `Request "${options.name}" [${requestId}] will be sent to the address "[${request.method}]${request.url}" with body`,
         options.body,
       )
     },
@@ -71,19 +74,19 @@ function handleLogs(logger?: Logger): Hooks {
         request.headers.set('x-applitools-eyes-client-request-id', `${requestId}#${attempt + 1}`)
       }
     },
-    async afterResponse({request, response, options}) {
-      const {name} = options as ReqEyesOptions
+    async afterResponse({request, response, options}: {request: Request; response: Response; options: ReqEyesOptions}) {
+      const logger = options.logger ?? defaultLogger
       const requestId = request.headers.get('x-applitools-eyes-client-request-id')
       logger?.log(
-        `Request "${name}" [${requestId}] that was sent to the address "[${request.method}]${request.url}" respond with ${response.statusText}(${response.status})`,
+        `Request "${options.name}" [${requestId}] that was sent to the address "[${request.method}]${request.url}" respond with ${response.statusText}(${response.status})`,
         !response.ok ? `and body ${JSON.stringify(await response.text())}` : '',
       )
     },
-    afterError({request, error, options}) {
-      const {name} = options as ReqEyesOptions
+    afterError({request, error, options}: {request: Request; error: Error; options: ReqEyesOptions}) {
+      const logger = options.logger ?? defaultLogger
       const requestId = request.headers.get('x-applitools-eyes-client-request-id')
       logger?.error(
-        `Request "${name}" [${requestId}] that was sent to the address "[${request.method}]${request.url}" failed with error`,
+        `Request "${options.name}" [${requestId}] that was sent to the address "[${request.method}]${request.url}" failed with error`,
         error,
       )
     },
@@ -103,7 +106,7 @@ function handleUnexpectedResponse(): Hooks {
   }
 }
 
-function handleLongRequests(req: Req): Hooks {
+function handleLongRequests({req}: {req: Req}): Hooks {
   return {
     beforeRequest({request}) {
       request.headers.set('Eyes-Expect-Version', '2')

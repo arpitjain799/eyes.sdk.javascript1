@@ -1,9 +1,3 @@
-export type DebugScreenshotHandler = {
-  save: boolean
-  path?: string
-  prefix?: string
-}
-
 export type CustomLogHandler = {
   log(message: any): void
   warn?(message: any): void

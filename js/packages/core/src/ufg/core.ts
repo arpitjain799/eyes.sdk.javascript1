@@ -6,6 +6,7 @@ import {makeCore as makeBaseCore} from '@applitools/core-base'
 import {makeGetViewportSize} from '../automation/get-viewport-size'
 import {makeSetViewportSize} from '../automation/set-viewport-size'
 import {makeOpenEyes} from './open-eyes'
+import throat from 'throat'
 
 type Options<TDriver, TContext, TElement, TSelector> = {
   spec: SpecDriver<TDriver, TContext, TElement, TSelector>

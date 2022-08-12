@@ -2,6 +2,7 @@ import type {MaybeArray} from '@applitools/types'
 import type {Target, ExtractTextSettings} from '@applitools/types/base'
 import {type Logger} from '@applitools/logger'
 import {type EyesRequests} from './server/requests'
+import {transformImage} from './utils/transform-image'
 import * as utils from '@applitools/utils'
 
 type Options = {
@@ -21,7 +22,12 @@ export function makeExtractText({requests, logger: defaultLogger}: Options) {
   }): Promise<string[]> {
     logger.log('Command "extractText" is called with settings', settings)
     settings = utils.types.isArray(settings) ? settings : [settings]
-    const results = await Promise.all(settings.map(settings => requests.extractText({target, settings})))
+    const results = await Promise.all(
+      settings.map(async settings => {
+        target.image = await transformImage({image: target.image, settings})
+        return requests.extractText({target, settings})
+      }),
+    )
     return results.flat()
   }
 }
