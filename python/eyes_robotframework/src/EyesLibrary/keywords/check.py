@@ -14,7 +14,12 @@ from applitools.selenium import Target
 
 from ..base import LibraryComponent
 from ..keywords_list import register_check_keyword
-from ..utils import collect_check_settings_with_tag, is_webelement_guard, parse_region
+from ..utils import (
+    collect_check_settings_with_tag,
+    collect_check_settings_with_tag_and_target_path,
+    is_webelement_guard,
+    parse_region,
+)
 from .keyword_tags import CHECK_FLOW, CHECK_SETTINGS_SUPPORT, TARGET_SUPPORT
 
 if TYPE_CHECKING:
@@ -30,7 +35,7 @@ def keyword(name=None, tags=(), types=()):
     return original_keyword(name, tags, types)
 
 
-class CheckRegionKeywords(object):
+class CheckRegionKeywords(LibraryComponent):
     @keyword("Eyes Check Region By Coordinates", tags=(CHECK_FLOW,))
     def check_region_by_coordinates(
         self,
@@ -48,8 +53,9 @@ class CheckRegionKeywords(object):
         *Example:*
             |  Eyes Check Region By Coordinates   |  [40 50 200 448]  |
         """
+        self.set_current_check_settings(Target.region(parse_region(region)))
         check_settings = collect_check_settings_with_tag(
-            tag, Target.region(parse_region(region)), *check_settings_keywords
+            tag, self.current_check_settings, *check_settings_keywords
         )
         return self.current_eyes.check(check_settings, tag)
 
@@ -75,8 +81,9 @@ class CheckRegionKeywords(object):
             |  Eyes Check Region By Element  |  ${element}  |
         """
         is_webelement_guard(element)
+        self.set_current_check_settings(Target.region(element))
         check_settings = collect_check_settings_with_tag(
-            tag, Target.region(element), *check_settings_keywords
+            tag, self.current_check_settings, *check_settings_keywords
         )
         return self.current_eyes.check(check_settings)
 
@@ -101,15 +108,38 @@ class CheckRegionKeywords(object):
         *Example:*
             |  Eyes Check Region By Element  |  css:#selector  |
         """
+        self.set_current_check_settings(
+            Target.region(self.from_locator_to_supported_form(selector))
+        )
         check_settings = collect_check_settings_with_tag(
-            tag,
-            Target.region(self.from_locator_to_supported_form(selector)),
-            *check_settings_keywords
+            tag, self.current_check_settings, *check_settings_keywords
         )
         return self.current_eyes.check(check_settings, tag)
 
+    @keyword(
+        "Eyes Check Region By Target Path",
+        types=(str,),
+        tags=(CHECK_FLOW,),
+    )
+    def check_region_by_target_path(
+        self,
+        tag=None,  # type: Optional[Text]
+        *check_settings_keywords  # type: tuple[Any]
+    ):
+        # type: (...) -> MatchResult
+        """
+        Check specified region by selector
 
-class CheckFrameKeywords(object):
+        *Example:*
+            |  Eyes Check Region By Target Path  |  Shadow By Selector  |  css:#selector  | Region By Selector  |  css:#selector  |
+        """
+        check_settings = collect_check_settings_with_tag_and_target_path(
+            tag, self, *check_settings_keywords
+        )
+        return self.current_eyes.check(check_settings)
+
+
+class CheckFrameKeywords(LibraryComponent):
     @keyword(
         "Eyes Check Frame By Element",
         types={"element": (SeleniumWebElement, AppiumWebElement), "tag": str},
@@ -132,8 +162,9 @@ class CheckFrameKeywords(object):
             |  Eyes Check Frame By Element  |  ${element}  |
         """
         is_webelement_guard(element)
+        self.set_current_check_settings(Target.frame(element))
         check_settings = collect_check_settings_with_tag(
-            tag, Target.frame(element), *check_settings_keywords
+            tag, self.current_check_settings, *check_settings_keywords
         )
         return self.current_eyes.check(check_settings, tag)
 
@@ -155,8 +186,9 @@ class CheckFrameKeywords(object):
             |  Eyes Check Frame By Index  |  2  |
         """
         argument_guard.is_a(frame_index, int)
+        self.set_current_check_settings(Target.frame(frame_index))
         check_settings = collect_check_settings_with_tag(
-            tag, Target.frame(frame_index), *check_settings_keywords
+            tag, self.current_check_settings, *check_settings_keywords
         )
         return self.current_eyes.check(check_settings, tag)
 
@@ -178,9 +210,9 @@ class CheckFrameKeywords(object):
             |  Eyes Check Frame By Name  |  frameName  |
         """
         argument_guard.is_a(frame_name, basestring)
-        check_settings = Target.frame(frame_name)
+        self.set_current_check_settings(Target.frame(frame_name))
         check_settings = collect_check_settings_with_tag(
-            tag, check_settings, *check_settings_keywords
+            tag, self.current_check_settings, *check_settings_keywords
         )
         return self.current_eyes.check(check_settings, tag)
 
@@ -202,26 +234,28 @@ class CheckFrameKeywords(object):
             |  Eyes Check Frame By Selector  |  css:#selector   |
         """
         argument_guard.is_a(selector, basestring)
+        self.set_current_check_settings(
+            Target.frame(self.from_locator_to_supported_form(selector))
+        )
         check_settings = collect_check_settings_with_tag(
-            tag,
-            Target.frame(self.from_locator_to_supported_form(selector)),
-            *check_settings_keywords
+            tag, self.current_check_settings, *check_settings_keywords
         )
         return self.current_eyes.check(check_settings, tag)
 
 
-class CheckKeywords(LibraryComponent, CheckRegionKeywords, CheckFrameKeywords):
+class CheckKeywords(CheckRegionKeywords, CheckFrameKeywords):
     @keyword("Eyes Check Window", types=(str,), tags=(CHECK_FLOW,))
     def check_window(self, tag=None, *check_settings_keywords):
-        # type: (Optional[Text], tuple[Any]) -> MatchResult
+        # type: (Optional[Text], tuple[Any]) -> Optional[MatchResult]
         """
         Check current browser window
 
         *Example:*
             |  Eyes Check Window   |
         """
+        self.set_current_check_settings(Target.window())
         check_settings = collect_check_settings_with_tag(
-            tag, Target.window(), *check_settings_keywords
+            tag, self.current_check_settings, *check_settings_keywords
         )
         return self.current_eyes.check(check_settings)
 

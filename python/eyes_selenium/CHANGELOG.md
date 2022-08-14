@@ -1,3 +1,16 @@
+## [5.10.0] - 2022-08-03
+### Added
+- Add more devices supported by Native Mobile Grid [Trello 54](https://trello.com/c/SZAPDKSI)
+
+## [5.9.0] - 2022-07-21
+### Added
+- Log errors received from SDK server before re-raising them [Trello 2991](https://trello.com/c/PSEPcMyh)
+- Support adding `user_test_id` to eyes.open config step [Trello 2977](https://trello.com/c/lYJnhwCz)
+### Fixed
+- Cyclic import in applittols.core module [Trello 2985](https://trello.com/c/akCp8wcr)
+### Updated
+- Distribute code in form of universal wheel package [Trello 2962](https://trello.com/c/0HdBnfAK)
+
 ## [5.8.0] - 2022-07-06
 ### Added
 - Region Id support for coded regions [Trello 47](https://trello.com/c/pv51sCYA)

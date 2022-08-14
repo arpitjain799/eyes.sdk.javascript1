@@ -10,7 +10,7 @@ from applitools.common import (
     VisualGridOption,
 )
 from applitools.selenium.fluent import SeleniumCheckSettings
-from EyesLibrary import CheckSettingsKeywords
+from EyesLibrary import CheckSettingsKeywords, EyesLibrary
 
 WEB_ELEMENT = Mock(WebElement)
 
@@ -29,6 +29,7 @@ def get_cs_from_method(method_name, *args, **kwargs):
 
 
 def get_regions_from_(method_name, *args, **kwargs):
+    # type: (...)->[Region]
     """
         Return regions for invoked method from CheckSettings
 
@@ -42,6 +43,7 @@ def get_regions_from_(method_name, *args, **kwargs):
 @pytest.fixture
 def get_regions_from_cs_keyword(eyes_library_with_selenium):
     def internal_func(method_name, by_method_postfix, keyword_value):
+        # type: (...) -> [Region]
         cs_keyword = CheckSettingsKeywords(eyes_library_with_selenium)
         cs = getattr(
             cs_keyword, "{}_region_by_{}".format(method_name, by_method_postfix)
@@ -54,22 +56,8 @@ def get_regions_from_cs_keyword(eyes_library_with_selenium):
 
 @pytest.fixture()
 def check_settings_keyword(eyes_library_with_selenium):
+    # type: (EyesLibrary) -> CheckSettingsKeywords
     return CheckSettingsKeywords(eyes_library_with_selenium)
-
-
-@pytest.fixture()
-def web_element():
-    return Mock(WebElement)
-
-
-@pytest.fixture()
-def css_selector():
-    return "css:#some-id"
-
-
-@pytest.fixture()
-def by_selector():
-    return [By.CSS_SELECTOR, "#some-id"]
 
 
 @pytest.mark.parametrize(
@@ -118,33 +106,46 @@ def test_check_regions_by_selector(
     )
 
 
-def test_floating_region_by_coordinates(check_settings_keyword):
+def test_floating_region_by_coordinates_with_max_offset(check_settings_keyword):
     res = SeleniumCheckSettings().floating(34, Region(23, 44, 55, 66))
     assert res == check_settings_keyword.floating_region_with_max_offset_by_coordinates(
         34, "[23 44 55 66]"
     )
+
+
+def test_floating_region_by_coordinates(check_settings_keyword):
     res = SeleniumCheckSettings().floating(Region(23, 44, 55, 66), 20, 30, 40, 50)
     assert res == check_settings_keyword.floating_region_by_coordinates(
         "[23 44 55 66]", 20, 30, 40, 50
     )
 
 
-def test_floating_region_by_element(check_settings_keyword, web_element):
+def test_floating_region_by_element_with_max_offset(
+    check_settings_keyword, web_element
+):
     res = SeleniumCheckSettings().floating(34, web_element)
     assert res == check_settings_keyword.floating_region_with_max_offset_by_element(
         34, web_element
     )
+
+
+def test_floating_region_by_element(check_settings_keyword, web_element):
     res = SeleniumCheckSettings().floating(web_element, 20, 30, 40, 50)
     assert res == check_settings_keyword.floating_region_by_element(
         web_element, 20, 30, 40, 50
     )
 
 
-def test_floating_region_by_selector(check_settings_keyword, css_selector, by_selector):
+def test_floating_region_by_selector_with_max_offset(
+    check_settings_keyword, css_selector, by_selector
+):
     res = SeleniumCheckSettings().floating(34, by_selector)
     assert res == check_settings_keyword.floating_region_with_max_offset_by_selector(
         34, css_selector
     )
+
+
+def test_floating_region_by_selector(check_settings_keyword, css_selector, by_selector):
     res = SeleniumCheckSettings().floating(by_selector, 20, 30, 40, 50)
     assert res == check_settings_keyword.floating_region_by_selector(
         css_selector, 20, 30, 40, 50
@@ -257,3 +258,109 @@ def test_with_name(check_settings_keyword):
 def test_timeout(check_settings_keyword):
     res = SeleniumCheckSettings().timeout(53)
     assert res == check_settings_keyword.timeout(53)
+
+
+def test_ignore_by_css_selector(check_settings_keyword):
+    res = SeleniumCheckSettings().ignore([By.XPATH, "//x"])
+    assert res == check_settings_keyword.ignore_region_by_selector("xpath://x")
+
+
+def test_ignore_by_css_selector_with_padding_and_region_id(check_settings_keyword):
+    res = SeleniumCheckSettings().ignore("#sel", padding=5, region_id="rid")
+    assert res == check_settings_keyword.ignore_region_by_selector(
+        "css:#sel", padding="5", region_id="rid"
+    )
+
+
+def test_ignore_by_element(check_settings_keyword, web_element):
+    res = SeleniumCheckSettings().ignore(web_element)
+    assert res == check_settings_keyword.ignore_region_by_element(web_element)
+
+
+def test_ignore_by_element_with_padding_and_region_id(
+    check_settings_keyword, web_element
+):
+    res = SeleniumCheckSettings().ignore(web_element, padding={"top": 5}, region_id="i")
+    assert res == check_settings_keyword.ignore_region_by_element(
+        web_element, padding="top: 5", region_id="i"
+    )
+
+
+def test_layout_region_by_selector(check_settings_keyword):
+    res = SeleniumCheckSettings().layout("#sel")
+    assert res == check_settings_keyword.layout_region_by_selector("css:#sel")
+
+
+def test_layout_region_by_selector_with_padding_and_region_id(check_settings_keyword):
+    res = SeleniumCheckSettings().layout("#sel", padding={"top": -1}, region_id="r")
+    assert res == check_settings_keyword.layout_region_by_selector(
+        "css:#sel", padding="top:-1", region_id="r"
+    )
+
+
+def test_layout_region_by_element(check_settings_keyword, web_element):
+    res = SeleniumCheckSettings().layout(web_element)
+    assert res == check_settings_keyword.layout_region_by_element(web_element)
+
+
+def test_layout_region_by_elemen_with_padding_and_region_id(
+    check_settings_keyword, web_element
+):
+    res = SeleniumCheckSettings().layout(web_element, padding={"top": 1}, region_id="r")
+    assert res == check_settings_keyword.layout_region_by_element(
+        web_element, padding="top:1", region_id="r"
+    )
+
+
+def test_content_region_by_selector(check_settings_keyword):
+    res = SeleniumCheckSettings().content("#sel")
+    assert res == check_settings_keyword.content_region_by_selector("css:#sel")
+
+
+def test_content_region_by_selector_with_padding_and_region_id(check_settings_keyword):
+    res = SeleniumCheckSettings().content("#sel", padding={"top": -1}, region_id="r")
+    assert res == check_settings_keyword.content_region_by_selector(
+        "css:#sel", padding="top:-1", region_id="r"
+    )
+
+
+def test_content_region_by_element(check_settings_keyword, web_element):
+    res = SeleniumCheckSettings().content(web_element)
+    assert res == check_settings_keyword.content_region_by_element(web_element)
+
+
+def test_content_region_by_elemen_with_padding_and_region_id(
+    check_settings_keyword, web_element
+):
+    res = SeleniumCheckSettings().content(
+        web_element, padding={"top": 1}, region_id="r"
+    )
+    assert res == check_settings_keyword.content_region_by_element(
+        web_element, padding="top:1", region_id="r"
+    )
+
+
+def test_strict_region_by_selector(check_settings_keyword):
+    res = SeleniumCheckSettings().strict("#sel")
+    assert res == check_settings_keyword.strict_region_by_selector("css:#sel")
+
+
+def test_strict_region_by_selector_with_padding_and_region_id(check_settings_keyword):
+    res = SeleniumCheckSettings().strict("#sel", padding={"top": -1}, region_id="r")
+    assert res == check_settings_keyword.strict_region_by_selector(
+        "css:#sel", padding="top:-1", region_id="r"
+    )
+
+
+def test_strict_region_by_element(check_settings_keyword, web_element):
+    res = SeleniumCheckSettings().strict(web_element)
+    assert res == check_settings_keyword.strict_region_by_element(web_element)
+
+
+def test_strict_region_by_elemen_with_padding_and_region_id(
+    check_settings_keyword, web_element
+):
+    res = SeleniumCheckSettings().strict(web_element, padding={"top": 1}, region_id="r")
+    assert res == check_settings_keyword.strict_region_by_element(
+        web_element, padding="top:1", region_id="r"
+    )

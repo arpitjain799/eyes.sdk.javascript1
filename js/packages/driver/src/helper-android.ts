@@ -2,7 +2,6 @@ import type * as types from '@applitools/types'
 import {type Logger} from '@applitools/logger'
 import type {Driver} from './driver'
 import type {Element} from './element'
-import * as utils from '@applitools/utils'
 
 export class HelperAndroid<TDriver, TContext, TElement, TSelector> {
   static async make<TDriver, TContext, TElement, TSelector>(options: {
@@ -48,13 +47,25 @@ export class HelperAndroid<TDriver, TContext, TElement, TSelector> {
     this.name = this._legacy ? 'android-legacy' : 'android'
   }
 
-  async _getElementId(element: Element<TDriver, TContext, TElement, TSelector>): Promise<string> {
+  private async _getElementId(element: Element<TDriver, TContext, TElement, TSelector>): Promise<string> {
     const resourceId = await element.getAttribute('resource-id')
     if (!resourceId) return null
     return resourceId.split('/')[1]
   }
 
-  async getContentSize(element: Element<TDriver, TContext, TElement, TSelector>): Promise<types.Size> {
+  private async _command(command: string): Promise<string> {
+    await this._input.type(command)
+    await this._input.click()
+    let text = await this._input.getText()
+    if (this._action && text === command) {
+      await this._action.type('1').catch(() => null)
+      text = await this._input.getText()
+    }
+    await this._input.type('')
+    return text
+  }
+
+  async getContentRegion(element: Element<TDriver, TContext, TElement, TSelector>): Promise<types.Region> {
     let contentHeightString
     if (this._legacy) {
       await this._input.click()
@@ -62,19 +73,26 @@ export class HelperAndroid<TDriver, TContext, TElement, TSelector> {
     } else {
       const elementId = await this._getElementId(element)
       if (!elementId) return null
-      await this._input.type(`offset;${elementId};0;0;0`)
-      if (this._action) await this._action.type('1')
-      else await this._input.click()
-      contentHeightString = await this._input.getText()
-      await this._input.type('')
+      contentHeightString = await this._command(`offset;${elementId};0;0;0`)
     }
 
     const region = await this._spec.getElementRegion(this._input.driver.target, element.target)
     const contentHeight = Number(contentHeightString)
 
-    if (Number.isNaN(contentHeight)) return utils.geometry.size(region)
+    return !Number.isNaN(contentHeight) && contentHeight >= region.height
+      ? {x: region.x, y: region.y, width: region.width, height: contentHeight}
+      : null
+  }
 
-    return {width: region.width, height: contentHeight}
+  async getTouchPadding(): Promise<number> {
+    if (this._legacy) return null
+
+    const touchPaddingString = await this._command(`getTouchPadding;0;0;0;0`)
+
+    const touchPadding = Number(touchPaddingString)
+    if (!touchPadding || Number.isNaN(touchPadding)) return null
+
+    return touchPadding
   }
 
   async getRegion(element: Element<TDriver, TContext, TElement, TSelector>): Promise<types.Region> {
@@ -82,11 +100,8 @@ export class HelperAndroid<TDriver, TContext, TElement, TSelector> {
 
     const elementId = await this._getElementId(element)
     if (!elementId) return null
-    await this._input.type(`getRect;${elementId};0;0`)
-    if (this._action) await this._action.type('1')
-    else await this._input.click()
-    const regionString = await this._input.getText()
-    await this._input.type('')
+    const regionString = await this._command(`getRect;${elementId};0;0`)
+    if (!regionString) return null
     const [, x, y, height, width] = regionString.match(
       /\[(-?\d+(?:\.\d+)?);(-?\d+(?:\.\d+)?);(-?\d+(?:\.\d+)?);(-?\d+(?:\.\d+)?)\]/,
     )
@@ -101,10 +116,7 @@ export class HelperAndroid<TDriver, TContext, TElement, TSelector> {
 
     const elementId = await this._getElementId(element)
     if (!elementId) return null
-    await this._input.type(`moveToTop;${elementId};0;-1`)
-    if (this._action) await this._action.type('1')
-    else await this._input.click()
-    await this._input.type('')
+    await this._command(`moveToTop;${elementId};0;-1`)
   }
 
   async scrollBy(element: Element<TDriver, TContext, TElement, TSelector>, offset: types.Location): Promise<void> {
@@ -112,25 +124,6 @@ export class HelperAndroid<TDriver, TContext, TElement, TSelector> {
 
     const elementId = await this._getElementId(element)
     if (!elementId) return null
-    await this._input.type(`scroll;${elementId};${offset.y};0;0`)
-    if (this._action) await this._action.type('1')
-    else await this._input.click()
-    await this._input.type('')
-  }
-
-  async getTouchPadding(): Promise<number> {
-    if (this._legacy) return null
-
-    await this._input.type(`getTouchPadding;0;0;0;0`)
-    if (this._action) await this._action.type('1')
-    else await this._input.click()
-    const touchPaddingString = await this._input.getText()
-    await this._input.type('')
-
-    const touchPadding = Number(touchPaddingString)
-
-    if (Number.isNaN(touchPadding)) return null
-
-    return touchPadding
+    await this._command(`scroll;${elementId};${offset.y};0;0`)
   }
 }

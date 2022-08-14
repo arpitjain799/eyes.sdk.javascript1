@@ -7,11 +7,7 @@ const {socketCommands} = require('./socketCommands');
 const {eyesOpenMapValues} = require('./eyesOpenMapping');
 const {eyesCheckMapValues} = require('./eyesCheckMapping');
 const {TestResultsSummary} = require('@applitools/eyes-api');
-const refer = new Refer(value => {
-  if (!value || !value.constructor || !value.constructor.name) return false;
-  const name = value.constructor.name;
-  return name === 'HTMLDocument' || name === 'Window' || value.ownerDocument;
-});
+const refer = new Refer();
 const socket = new Socket();
 const throwErr = Cypress.config('failCypressOnDiff');
 socketCommands(socket, refer);
@@ -116,7 +112,6 @@ Cypress.Commands.add('eyesOpen', function(args = {}) {
         name: 'eyes.cypress',
         version: require('../../package.json').version,
         commands: Object.keys(spec).concat(['isSelector', 'isDriver', 'isElement']), // TODO fix spec.isSelector and spec.isDriver and spec.isElement in driver utils
-        cwd: process.cwd(),
       });
 
       manager =

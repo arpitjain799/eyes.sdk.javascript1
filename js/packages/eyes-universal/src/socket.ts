@@ -136,7 +136,17 @@ export function makeSocket(ws?: WebSocket, {logger}: {logger?: Logger} = {}): So
         const result = await fn(payload)
         emit({name, key}, {result})
       } catch (error) {
-        emit({name, key}, {error: {message: error.message, stack: error.stack, reason: error.reason}})
+        emit(
+          {name, key},
+          {
+            error: {
+              message: error.message,
+              stack: error.stack,
+              reason: error.reason ?? 'internal',
+              ...error.toJSON?.(),
+            },
+          },
+        )
       }
     })
   }

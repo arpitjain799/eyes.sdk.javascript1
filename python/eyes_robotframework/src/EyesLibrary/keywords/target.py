@@ -10,8 +10,12 @@ from applitools.selenium import Target
 from applitools.selenium.fluent import SeleniumCheckSettings
 
 from ..base import LibraryComponent
-from ..utils import collect_check_settings, parse_region
-from .keyword_tags import CHECK_SETTINGS_SUPPORT, TARGET_KEYWORD
+from ..utils import (
+    collect_check_settings,
+    collect_check_settings_with_target_path,
+    parse_region,
+)
+from .keyword_tags import CHECK_SETTINGS_SUPPORT, TARGET_KEYWORD, TARGET_PATH_SUPPORT
 
 if TYPE_CHECKING:
     from applitools.common.utils.custom_types import AnyWebElement
@@ -35,7 +39,10 @@ class TargetKeywords(LibraryComponent):
         *Example:*
             |  ${target}=    | Target Window     |
         """
-        return collect_check_settings(Target.window(), *check_settings_keywords)
+        self.set_current_check_settings(Target.window())
+        return collect_check_settings(
+            self.current_check_settings, *check_settings_keywords
+        )
 
     @keyword(
         "Target Region By Element",
@@ -52,7 +59,10 @@ class TargetKeywords(LibraryComponent):
         *Example:*
             |  ${target}=  |  Target Region By Element  |  ${element}  |
         """
-        return collect_check_settings(Target.region(element), *check_settings_keywords)
+        self.set_current_check_settings(Target.region(element))
+        return collect_check_settings(
+            self.current_check_settings, *check_settings_keywords
+        )
 
     @keyword(
         "Target Region By Coordinates", types=(str,), tags=(CHECK_SETTINGS_SUPPORT,)
@@ -68,8 +78,9 @@ class TargetKeywords(LibraryComponent):
         *Example:*
             |  ${target}=  |  Target Region By Coordinates  |  [10 30 40 50]  |
         """
+        self.set_current_check_settings(Target.region(parse_region(region)))
         return collect_check_settings(
-            Target.region(parse_region(region)), *check_settings_keywords
+            self.current_check_settings, *check_settings_keywords
         )
 
     @keyword("Target Region By Selector", types=(str,), tags=(CHECK_SETTINGS_SUPPORT,))
@@ -84,10 +95,32 @@ class TargetKeywords(LibraryComponent):
         *Example:*
             |  ${target}=  |  Target Frame By Selector  |  css:#selector  |
         """
-        return collect_check_settings(
-            Target.region(self.from_locator_to_supported_form(selector)),
-            *check_settings_keywords
+        self.set_current_check_settings(
+            Target.region(self.from_locator_to_supported_form(selector))
         )
+        return collect_check_settings(
+            self.current_check_settings, *check_settings_keywords
+        )
+
+    @keyword(
+        "Target Region By Target Path",
+        tags=(
+            TARGET_PATH_SUPPORT,
+            CHECK_SETTINGS_SUPPORT,
+        ),
+    )
+    def target_region_by_target_path(self, *check_settings_keywords):
+        # type: (tuple[Any]) -> SeleniumCheckSettings
+        """
+        Returns a CheckSettings object with selected Region and any number of Check Settings Keywords.
+
+            | =Arguments=   | =Description=                           |
+            | Target Path     | *Mandatory* - The selector to check. |
+
+        *Example:*
+            |  ${target}=  |  Target Region By Target Path  | Shadow By Selector  | css:#has-shadow-root |  Region By Selector | //selector |
+        """
+        return collect_check_settings_with_target_path(self, *check_settings_keywords)
 
     @keyword(
         "Target Frame By Element",
@@ -105,7 +138,10 @@ class TargetKeywords(LibraryComponent):
         *Example:*
             |  ${target}=  |  Target Frame By Element  |  ${element}  |
         """
-        return collect_check_settings(Target.frame(element), *check_settings_keywords)
+        self.set_current_check_settings(Target.frame(element))
+        return collect_check_settings(
+            self.current_check_settings, *check_settings_keywords
+        )
 
     @keyword(
         "Target Frame By Selector",
@@ -123,9 +159,11 @@ class TargetKeywords(LibraryComponent):
         *Example:*
             |  ${target}=  |  Target Frame By Selector  |  css:#selector  |
         """
+        self.set_current_check_settings(
+            Target.frame(self.from_locator_to_supported_form(selector))
+        )
         return collect_check_settings(
-            Target.frame(self.from_locator_to_supported_form(selector)),
-            *check_settings_keywords
+            self.current_check_settings, *check_settings_keywords
         )
 
     @keyword(
@@ -144,8 +182,9 @@ class TargetKeywords(LibraryComponent):
         *Example:*
             | ${target}=  |  Target Frame By Index  |  2  |
         """
+        self.set_current_check_settings(Target.frame(frame_index))
         return collect_check_settings(
-            Target.frame(frame_index), *check_settings_keywords
+            self.current_check_settings, *check_settings_keywords
         )
 
     @keyword(
@@ -164,6 +203,7 @@ class TargetKeywords(LibraryComponent):
         *Example:*
             |  ${target}=  |  Target Frame By Name  |  frameName  |
         """
+        self.set_current_check_settings(Target.frame(frame_name))
         return collect_check_settings(
-            Target.frame(frame_name), *check_settings_keywords
+            self.current_check_settings, *check_settings_keywords
         )

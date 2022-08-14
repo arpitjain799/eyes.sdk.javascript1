@@ -1,4 +1,4 @@
-# Eyes-Cypress
+ # Eyes-Cypress
 
 Applitools Eyes SDK for [Cypress](https://www.cypress.io/).
 
@@ -213,6 +213,7 @@ Applitools will take screenshots and perform the visual comparisons in the backg
         - [`layout`](#layout)
         - [`strict`](#strict)
         - [`content`](#content)
+        - [`padded coded regions`](#padded-coded-regions)
         - [`accessibility`](#accessibility)
         - [`region in shadow DOM`](#region-in-shadow-dom)
         - [`scriptHooks`](#scripthooks)
@@ -224,6 +225,8 @@ Applitools will take screenshots and perform the visual comparisons in the backg
         - [`enablePatterns`](#enablepatterns)
         - [`matchLevel`](#matchlevel)
         - [`visualGridOptions`](#visualgridoptions)
+        - [`coded regions-regionId`](#regionId)
+        - [`lazy loading`](#lazy-loading)
       - [Close](#close)
       - [GetAllTestResults](#getalltestresults)
       - [deleteTestResults](#deletetestresults)
@@ -492,6 +495,22 @@ cy.get('.some-div-to-float').then($el => {
   })
   ```
 
+##### `padded coded regions`
+
+```js
+cy.get('some-region').then(el => {
+  cy.eyesCheckWindow({
+    // will add pedding to a region by a css selector at the left and top of the region
+    layout: {region: 'layout-region', padding: {left:20, top: 10}} 
+     // will add padding of 20px to all JQuery elements at the top, button, right and left of the region
+    ignore: {element: el, padding: 20},
+    // will add padding for a DOM element on the top of the region
+    content: {element: el[0], padding: {top:10}}
+  })
+
+})
+```
+
 ##### `accessibility`
 
 (optional): A single or an array of regions to perform accessibility checks, For example:
@@ -634,6 +653,38 @@ cy.eyesCheckWindow({
   }
 })
 ```
+#### regionId
+
+The regionId can be automaticaly set from the region that is passed or can be explicitly sent using `regionId` property
+
+```js
+cy.get('.region.two:nth-child(2)').then(el => {
+      cy.eyesCheckWindow({
+        fully: false,
+        ignore: [
+          {type: 'css', selector: '.region.three:nth-child(3n)'},
+          {type: 'xpath', selector: '//div[@class="region one"][3]'},
+          {element: el, regionId: 'my-region-id'},
+        ],
+      });
+})
+```
+#### lazy loading
+
+It's possible to have the SDK scroll the entire page (or a specific length of the page) to make sure all lazyily loaded assets are on the page before performing a check.
+
+```js
+// lazy loads with sensible defaults
+cy.eyesCheckWindow(lazyload:{})
+
+// lazy loads with options specified
+cy.eyesCheckWindow({lazyLoad: {
+  maxAmountToScroll: 1000,   // total pixels of the page to be scrolled
+  scrollLength: 250,  // amount of pixels to use for each scroll attempt
+  waitingTime: 500,   // milliseconds to wait in-between each scroll attempt
+}})
+```
+
 
 #### Close
 

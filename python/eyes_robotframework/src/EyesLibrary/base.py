@@ -1,5 +1,6 @@
 from __future__ import absolute_import, unicode_literals
 
+import contextlib
 from typing import TYPE_CHECKING, Text
 
 from AppiumLibrary import AppiumLibrary
@@ -9,6 +10,8 @@ from SeleniumLibrary import SeleniumLibrary
 
 from applitools.common.utils import cached_property
 from applitools.selenium import ClassicRunner, VisualGridRunner
+from applitools.selenium.fluent import SeleniumCheckSettings
+from applitools.selenium.runner import log_session_results_and_raise_exception
 
 from .config_parser import SelectedRunner
 from .errors import EyesLibraryValueError
@@ -29,7 +32,6 @@ class ContextAware(object):
         """Base class exposing attributes from the common context.
 
         :param ctx: The library itself as a context object.
-        :type ctx: SeleniumLibrary.SeleniumLibrary
         """
         self.ctx = ctx
         self.log = robot_logger
@@ -135,7 +137,7 @@ class LibraryComponent(ContextAware):
         # type: () -> Eyes
         return self.ctx.current_eyes
 
-    def _create_eyes_runner_if_needed(self):
+    def create_eyes_runner_if_needed(self):
         # type: () -> None
         if self.ctx.eyes_runner is None:
             # TODO: probably need to add runner_options to Configuration class
@@ -148,6 +150,18 @@ class LibraryComponent(ContextAware):
                 selected_runner(runner_options) if runner_options else selected_runner()
             )
 
+    @contextlib.contextmanager
+    def eyes_runner_get_all_test_results(self):
+        # type: () -> list[dict]
+        test_results = self.ctx.eyes_runner.get_all_test_results(False)
+        yield test_results
+        for r in test_results:
+            if r.exception is not None:
+                print("--- Test error. \n\tServer exception {}".format(r.exception))
+            else:
+                log_session_results_and_raise_exception(False, r.test_results)
+        self.ctx.clean_eyes_runner()
+
     def fetch_driver(self):
         # type: () -> AnyWebDriver
         if isinstance(self.ctx.current_library, SeleniumLibrary):
@@ -158,3 +172,12 @@ class LibraryComponent(ContextAware):
             raise EyesLibraryValueError(
                 "Not supported library. Should be `SeleniumLibrary` or `AppiumLibrary`"
             )
+
+    @property
+    def current_check_settings(self):
+        # type: () -> SeleniumCheckSettings
+        return self.ctx.current_check_settings
+
+    def set_current_check_settings(self, check_settings):
+        # type: (SeleniumCheckSettings) -> None
+        self.ctx.set_current_check_settings(check_settings)

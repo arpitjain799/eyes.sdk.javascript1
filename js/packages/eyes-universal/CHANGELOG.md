@@ -8,6 +8,83 @@
 
 
 
+
+
+## 2.10.5 - 2022/8/12
+
+### Features
+- Added `--shutdown-mode` argument, which accepts `stdin` value to kill the process when its stdin stream ends. The default value is `lazy`, which preserves the current behavior
+- Prevented any writes to stdout after port is reported
+### Bug fixes
+- Fixed error object serialization
+
+## 2.10.4 - 2022/8/5
+
+### Features
+### Bug fixes
+- Suppress error of log file creation when another process already created the same file
+
+## 2.10.3 - 2022/8/1
+
+### Features
+### Bug fixes
+- update vgc version
+
+## 2.10.2 - 2022/7/28
+
+### Features
+- No changes
+### Bug fixes
+
+## 2.9.13 - 2022/7/27
+
+### Features
+### Bug fixes
+- Fixed some issues with helper library usage
+
+## 2.9.12 - 2022/7/21
+
+### Features
+### Bug fixes
+- Make adjustments to support regionId in cypress SDK
+
+## 2.9.11 - 2022/7/21
+
+### Features
+### Bug fixes
+- Support adding `userTestId` to eyes.open config
+
+## 2.9.10 - 2022/7/20
+
+### Features
+### Bug fixes
+- Better support in DOM slot element
+
+## 2.9.9 - 2022/7/18
+
+### Features
+### Bug fixes
+- Avoided unexpected touch actions during `check` on Android apps
+
+## 2.9.8 - 2022/7/18
+
+### Features
+### Bug fixes
+- Support self-signed certificates when communicating with the driver
+
+## 2.9.7 - 2022/7/15
+
+### Features
+- Add the option to cancel `idleTimeout` when sending zero as the value and add the option to send `detached` to `makeServerProcess`
+### Bug fixes
+- Fixed various issues during taking screenshots in landscape orientation on some native devices
+
+## 2.9.6 - 2022/7/7
+
+### Features
+### Bug fixes
+- Fixed bug where a failure in a single UFG environment fails all other environments in the same configuration
+
 ## 2.9.5 - 2022/7/5
 
 ### Features

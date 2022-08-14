@@ -5,7 +5,7 @@ const utils = require('@applitools/utils')
 const spec = require('@applitools/spec-driver-webdriverio')
 const {makeLogger} = require('@applitools/logger')
 const {Driver} = require('@applitools/driver')
-const makeImage = require('../../src/image')
+const {makeImage} = require('@applitools/image')
 const takeScreenshot = require('../../src/take-screenshot')
 
 exports.logger = makeLogger()
@@ -42,7 +42,11 @@ exports.test = async function test({type, tag, driver, ...options} = {}) {
     const actual = await screenshot.image.toObject()
 
     const expected = await makeImage(`./test/fixtures/${type}/${tag}.png`).toObject()
-    assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
+    assert.strictEqual(
+      pixelmatch(actual.data, expected.data, null, expected.width, expected.height),
+      0,
+      `Test filed! the image Pixel not match\n\tThe output failed test image is located in the ${process.cwd()}/logs folder`,
+    )
   } catch (err) {
     await screenshot.image.debug({
       path: './logs',
@@ -52,7 +56,16 @@ exports.test = async function test({type, tag, driver, ...options} = {}) {
   }
 }
 
-exports.makeDriver = async function makeDriver({type, app, orientation, logger, deviceName, platformVersion}) {
+exports.makeDriver = async function makeDriver({
+  type,
+  env,
+  app,
+  orientation,
+  logger,
+  deviceName,
+  platformVersion,
+  ...rest
+}) {
   const workerId = process.env.MOCHA_WORKER_ID ? Number(process.env.MOCHA_WORKER_ID) : 0
   console.log(`makeDriver called for worker #${process.env.MOCHA_WORKER_ID}`, workerId)
   const androidEmulatorIds = process.env.ANDROID_EMULATOR_UDID
@@ -86,9 +99,6 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger, 
         nativeWebScreenshot: true,
         skipUnlock: true,
         isHeadless: true,
-        // noReset: true,
-        // appPackage: 'au.com.aami.marketplace.qa',
-        // appActivity: 'au.com.suncorp.marketplace.presentation.startup.view.SplashActivity',
         browserName: app === 'chrome' ? app : '',
         app: app === 'chrome' ? undefined : apps[app || type] || app,
         deviceName: deviceName || 'Google Pixel 3a XL',
@@ -96,6 +106,7 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger, 
         platformVersion: platformVersion || '10.0',
         automationName: 'uiautomator2',
         orientation: orientation ? orientation.toUpperCase() : 'PORTRAIT',
+        ...rest,
       },
     },
     'android-sauce': {
@@ -150,6 +161,7 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger, 
         platformVersion: platformVersion || '14.5',
         automationName: 'XCUITest',
         orientation: orientation ? orientation.toUpperCase() : 'PORTRAIT',
+        ...rest,
       },
     },
     'ios-sauce': {
@@ -167,8 +179,27 @@ exports.makeDriver = async function makeDriver({type, app, orientation, logger, 
         deviceOrientation: orientation ? orientation.toUpperCase() : 'PORTRAIT',
       },
     },
+    'ios-bs': {
+      url: 'https://hub.browserstack.com/wd/hub',
+      capabilities: {
+        'bstack:options': {
+          // realMobile: 'true',
+          // appiumVersion: '1.20.2',
+          // local: 'true',
+          deviceOrientation: orientation ? orientation.toUpperCase() : 'PORTRAIT',
+          userName: process.env.BROWSERSTACK_USERNAME,
+          accessKey: process.env.BROWSERSTACK_ACCESS_KEY,
+        },
+        browserName: app === 'safari' ? app : '',
+        platformName: 'iOS',
+        'appium:app': apps[app || type] || (app !== 'safari' ? app : undefined),
+        'appium:deviceName': deviceName || 'iPhone 12',
+        'appium:platformVersion': platformVersion || '14.1',
+        // 'appium:autoAcceptAlerts': true,
+      },
+    },
   }
-  const env = envs[process.env.APPLITOOLS_TEST_REMOTE === 'sauce' ? `${type}-sauce` : type]
+  env = env || envs[process.env.APPLITOOLS_TEST_REMOTE === 'sauce' ? `${type}-sauce` : type]
   const url = new URL(env.url)
   const browser = await webdriverio.remote({
     protocol: url.protocol ? url.protocol.replace(/:$/, '') : undefined,

@@ -3,6 +3,7 @@ name: Test packages
 on:
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review]
+    branches-ignore: ['dependabot/**', 'draft/**', 'play/**']
   workflow_dispatch:
     inputs:
       packages:
@@ -10,7 +11,7 @@ on:
         type: string
         required: true
       test-type:
-        description: testing type (unit, it, e2e, coverage)
+        description: testing type (unit, it, e2e, coverage, sanity)
         type: string
         required: false
       build-type:
@@ -22,7 +23,7 @@ on:
         type: string
         required: false
       links:
-        description: linked package names
+        description: package names to link
         required: false
       grep:
         description: grep pattern
@@ -40,7 +41,7 @@ env:
 jobs:
   setup:
     name: Setup
-    if: ${{github.event_name == 'workflow_dispatch' || (github.actor != 'dependabot' && !github.event.pull_request.draft)}}
+    if: ${{github.event_name == 'workflow_dispatch' || (github.actor != 'dependabot[bot]' && !github.event.pull_request.draft)}}
     runs-on: ubuntu-latest
     outputs:
       packages: ${{steps.setup.outputs.packages}}
@@ -82,7 +83,7 @@ jobs:
         uses: ./.github/actions/tests
         with:
           working-directory: ${{matrix.path}}
-          test-type: ${{github.event_name == 'workflow_dispatch' && github.event.inputs.test-type || 'sanity'}}
+          test-type: ${{(github.event_name == 'pull_request' && 'sanity') || github.event.inputs.test-type}}
           build-type: ${{github.event.inputs.build-type}}
           setup-type: ${{github.event.inputs.setup-type}}
           links: ${{matrix.links || github.event.inputs.links}}

@@ -9,6 +9,42 @@
 
 
 
+
+## 3.27.1 - 2022/8/1
+
+### Features
+### Bug fixes
+- Fix `Maximum call stack size exceeded` error in `eyesCheck`
+
+## 3.27.0 - 2022/7/25
+
+### Features
+- Add support for padded coded regions
+- Add support for dynamic coded regions
+### Bug fixes
+- Fix `npx eyes-setup` for Cypress version with a caret, support `e2e.ts` as support file
+- Better support in DOM slot element
+
+## 3.26.6 - 2022/7/15
+
+### Features
+- Internal architecture fixes
+### Bug fixes
+
+## 3.26.5 - 2022/7/12
+
+### Features
+### Bug fixes
+- Support string tag name in eyesCheck
+
+## 3.26.4 - 2022/7/7
+
+### Features
+- Add support for cypress 10
+### Bug fixes
+- Fix use cases where we fail to serialize elements
+- Fixed bug where a failure in a single UFG environment fails all other environments in the same configuration
+
 ## 3.26.3 - 2022/6/17
 
 ### Features

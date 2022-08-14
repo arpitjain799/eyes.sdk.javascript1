@@ -92,6 +92,9 @@ describe('spec driver', async () => {
     it('getUrl()', async () => {
       await getUrl()
     })
+    it('takeScreenshot()', async () => {
+      await takeScreenshot()
+    })
     it('visit()', async () => {
       await visit()
     })
@@ -178,6 +181,9 @@ describe('spec driver', async () => {
     })
     it('getUrl()', async () => {
       await getUrl()
+    })
+    it('takeScreenshot()', async () => {
+      await takeScreenshot()
     })
     it('visit()', async () => {
       await visit()
@@ -302,7 +308,7 @@ describe('spec driver', async () => {
       value: 'world',
       domain: 'google.com',
       path: '/',
-      expiry: 4025208067,
+      expiry: Math.floor((Date.now() + 60000) / 1000),
       httpOnly: true,
       secure: true,
       sameSite: 'Lax',
@@ -319,6 +325,10 @@ describe('spec driver', async () => {
   async function getUrl() {
     const result = await spec.getUrl(page)
     assert.deepStrictEqual(result, url)
+  }
+  async function takeScreenshot() {
+    const result = await spec.takeScreenshot(page)
+    assert.ok(Buffer.isBuffer(result))
   }
   async function visit() {
     const blank = 'about:blank'

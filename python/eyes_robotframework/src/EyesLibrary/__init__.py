@@ -13,6 +13,7 @@ from applitools.common import BatchInfo
 from applitools.common.utils import argument_guard
 from applitools.selenium import ClassicRunner, Eyes, VisualGridRunner
 from applitools.selenium.eyes import EyesRunner
+from applitools.selenium.fluent import SeleniumCheckSettings
 
 from .__version__ import __version__
 from .config import RobotConfiguration
@@ -30,6 +31,7 @@ from .keywords import (
     ConfigurationKeywords,
     SessionKeywords,
     TargetKeywords,
+    TargetPathKeywords,
 )
 from .keywords.session import RunnerKeywords
 from .library_listener import LibraryListener
@@ -183,6 +185,7 @@ class EyesLibrary(DynamicCore):
         self._batch_registry = {}  # type: Dict[Text, BatchInfo]
         self._running_keyword = None
         self._configuration = None
+        self._current_check_settings = SeleniumCheckSettings()
 
         self._selected_runner = try_parse_runner(runner)
 
@@ -198,6 +201,9 @@ class EyesLibrary(DynamicCore):
             validate_config(self._configuration)
             self.ROBOT_LIBRARY_LISTENER = LibraryListener(self)
             self._locator_converter = LocatorConverter(self)
+
+            if self._configuration.propagate_eyes_test_results:
+                from . import robot_patcher
         else:
             # hide objects that uses dynamic loading for generation of documentation
             self.current_library = None
@@ -209,6 +215,7 @@ class EyesLibrary(DynamicCore):
             TargetKeywords(self),
             CheckSettingsKeywords(self),
             ConfigurationKeywords(self),
+            TargetPathKeywords(self),
         ]
 
         DynamicCore.__init__(self, keywords)
@@ -311,3 +318,10 @@ class EyesLibrary(DynamicCore):
     @property
     def configure(self):
         return self._configuration
+
+    @property
+    def current_check_settings(self):
+        return self._current_check_settings
+
+    def set_current_check_settings(self, check_settings):
+        self._current_check_settings = check_settings
