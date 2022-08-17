@@ -115,3 +115,7 @@ applitools-for-selenium-ide:
     - 
   bug-fix:
     - Better support in DOM slot element
+"@applitools/universal-client":
+  feature:
+    - create new nodejs client to eyes-universal
+    - create stress test script
