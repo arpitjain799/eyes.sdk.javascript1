@@ -1,5 +1,5 @@
 import * as _mocha from 'mocha' // to avoid VSCode errors, I couldn't know how to avoid it otherwise
-import {Eyes} from '@applitools/universal-client'
+import {Eyes, VisualGridRunner} from '@applitools/universal-client'
 import * as spec from '@applitools/spec-driver-selenium'
 import * as assert from 'assert'
 
@@ -10,8 +10,7 @@ describe('Universal selenium', () => {
     beforeEach(async () => {
       ;[driver, destroyDriver] = await spec.build({browser: 'chrome'})
       await driver.get('https://applitools.github.io/demo/TestPages/FramesTestPage/index.html')
-
-      eyes = new Eyes()
+      eyes = new Eyes(new VisualGridRunner({testConcurrency:1}))
     })
 
     afterEach(async () => {

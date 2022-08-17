@@ -5,11 +5,9 @@ import {UniversalClient} from '../shared/universal-client'
 import type {TransformFunc} from '../shared/universal-client'
 import {transformData} from '../shared/transform-data'
 import {transformer} from './transformer'
-import {spawnServer} from '../shared/spawn-server'
 
 class UniversalClientSelenium extends UniversalClient<Driver, Element, Selector> {
   _transform: TransformFunc = data => transformData({data, spec, transformer})
-  _spawnServer = spawnServer
 }
 
 const universalClient = new UniversalClientSelenium()

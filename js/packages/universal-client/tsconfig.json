@@ -16,5 +16,5 @@
   "ts-node": {
     "transpileOnly": true
   },
-  "exclude" : ["dist", "types", "test"],
+  "exclude" : ["dist", "types", "test", "stress-test"],
 }

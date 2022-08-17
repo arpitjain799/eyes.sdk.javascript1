@@ -1,41 +1,68 @@
-import type {ChildProcess} from 'child_process'
-import {fork} from 'child_process'
+import type {ChildProcess, SpawnOptionsWithStdioTuple, StdioPipe, StdioNull} from 'child_process'
+import {spawn} from 'child_process'
 import {Socket} from './socket'
 import type {Logger} from '@applitools/logger'
+import {Readable} from 'stream'
+type ReadableWithRef = Readable & {unref: () => void}
+type CliType = 'npm_local' | 'npx'
+export {CliType}
 
-export type SpawnedServer = {server: ChildProcess; socket: Socket}
+export interface SpawnedServer {
+  server: ChildProcess
+  socket: Socket
+}
 
-export async function spawnServer({logger}: {logger: Logger}): Promise<SpawnedServer> {
-  return new Promise((resolve, _reject) => {
-    const server = fork('./dist/cli.js', {
-      stdio: ['ignore', 'ignore', 'ignore', 'ipc'],
-    })
-
-    const socket = new Socket()
-
-    // specific to JS: we are able to listen to stdout for the first line, then we know the server is up, and we even can get its port in case it wasn't passed
-    server.once('message', ({name, payload}: {name: string; payload: any}) => {
-      if (name === 'port') {
-        const {port} = payload
-        logger.log('server is spawned at port', port)
-        server.channel?.unref()
-        socket.connect(`http://localhost:${port}/eyes`)
-        socket.emit('Core.makeSDK', {
-          name: 'eyes-universal-tests',
-          version: require('../../package.json').version,
-          protocol: 'webdriver',
-          cwd: process.cwd(),
-        })
-        resolve({server, socket})
+export default function startServer({logger, cliType}: {logger: Logger; cliType: CliType}): Promise<SpawnedServer> {
+  const eyesUniversalArgs: Array<string> = ['--shutdown-mode', 'stdin']
+  const spawnOptions: SpawnOptionsWithStdioTuple<StdioPipe, StdioPipe, StdioNull> = {
+    detached: true,
+    stdio: ['pipe', 'pipe', 'ignore'],
+  }
+  let server: ChildProcess
+  switch (cliType) {
+    case 'npx':
+      server = spawn(
+        'npx',
+        ['-p', '@applitools/eyes-universal', 'eyes-universal'].concat(eyesUniversalArgs),
+        spawnOptions,
+      )
+      break
+    default:
+      logger.log(`cliType: ${cliType} not define, using default: npm_local`)
+    case undefined:
+    case 'npm_local':
+      server = spawn('node', ['../eyes-universal/dist/cli.js'].concat(eyesUniversalArgs), spawnOptions)
+      break
+  }
+  const {spawnfile, spawnargs, pid} = server
+  logger.log(`cli detail's`, {spawnfile, spawnargs, pid})
+  const socket = new Socket()
+  server.unref()
+  socket.unref()
+  logger.log('wait for the server to response with port to connect')
+  return new Promise((resolve, reject) => {
+    server.stdout.once('data', data => {
+      ;(server.stdout as ReadableWithRef).unref()
+      let port
+      // TODO:
+      // i don't like it, i think we should find a better way to pass the port through the child process `stdin`
+      try {
+        port = data.toString().match(/\d+/)[0]
+      } catch (e) {
+        logger.error('could not parse the port input')
+        reject('could not parse the port input')
       }
-    })
+      logger.log('server is spawned at port', port)
+      socket.connect(`http://localhost:${port}/eyes`)
+      socket.emit('Core.makeSDK', {
+        name: 'eyes-universal-tests',
+        version: require('../../package.json').version,
+        protocol: 'webdriver',
+        cwd: process.cwd(),
+      })
 
-    // TODO without doing this, the parent process hangs and cannot exit.
-    // But it creates issues:
-    // (a) the server keeps running,
-    // (b) the Node.js mocha process just exits because it doesn't know about anything to wait on.
-    //     I solved it with an ugly hack of a large timeout that I set at the beginning and clear at the end. But it needs to be resolved somehow.
-    server.unref()
-    // socket.unref()
+      logger.log('resolving the server and the socket')
+      resolve({server: server, socket})
+    })
   })
 }

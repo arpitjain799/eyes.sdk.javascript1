@@ -1,8 +1,9 @@
 import type * as types from '@applitools/types'
 import type {Socket} from './socket'
-import {makeLogger} from '@applitools/logger'
 import type {Logger} from '@applitools/logger'
-import {SpawnedServer} from './spawn-server'
+import type {CliType} from './spawn-server'
+import {makeLogger} from '@applitools/logger'
+import spawnServer from './spawn-server'
 
 export type ClientSocket<TDriver, TContext, TElement, TSelector> = Socket &
   types.ClientSocket<TDriver, TContext, TElement, TSelector>
@@ -10,15 +11,17 @@ export type ClientSocket<TDriver, TContext, TElement, TSelector> = Socket &
 export type TransformFunc = (data: any) => Promise<any>
 
 export class UniversalClient<Driver, Element, Selector> implements types.Core<Driver, Element, Selector> {
-  protected _spawnServer: ({logger}: {logger: Logger}) => Promise<SpawnedServer>
   protected _transform: TransformFunc
+  // @TODO
+  // should document the useage of the environment variable
+  private _cliType: CliType = process.env.UNIVERSAL_CLIENT_CLI_TYPE as CliType
 
   private _socket: ClientSocket<Driver, Driver, Element, Selector>
-  private _logger: Logger = makeLogger({label: 'universal client'})
 
+  private _logger: Logger = makeLogger({label: 'universal client'})
   private async _getSocket() {
     if (!this._socket) {
-      const {socket} = await this._spawnServer({logger: this._logger})
+      const {socket} = await spawnServer({logger: this._logger, cliType: this._cliType})
       this._socket = socket
     }
     return this._socket

@@ -16,16 +16,6 @@ class FakeUniversalClient extends UniversalClient<Driver, Element, Selector> {
     this._responses = responses
   }
 
-  protected _spawnServer = async ({logger: _logger}) => {
-    const request = async (name, payload) => {
-      return this._responses[name](payload)
-    }
-    const socket: types.ClientSocket<Driver, Driver, Element, Selector> = {
-      request,
-    }
-    return {server: {} as ChildProcess, socket}
-  }
-
   protected _transform = async x => x
 }
 
