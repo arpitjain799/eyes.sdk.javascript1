@@ -4,8 +4,7 @@ import {Socket} from './socket'
 import type {Logger} from '@applitools/logger'
 import {Readable} from 'stream'
 type ReadableWithRef = Readable & {unref: () => void}
-type CliType = 'npm_local' | 'npx'
-export {CliType}
+export type CliType = 'npm_local' | 'npx'
 
 export interface SpawnedServer {
   server: ChildProcess
