@@ -68,6 +68,7 @@
   },
   "devDependencies": {
     "@applitools/bongo": "^2.1.6",
+    "@applitools/scripts": "^1.1.0",
     "@applitools/sdk-coverage-tests": "^2.3.19",
     "@applitools/test-server": "^1.1.4",
     "@applitools/test-utils": "^1.4.2",
