@@ -100,6 +100,7 @@ eyes-browser-extension:
     - Added support for taking full screenshots of elements that are scroll by pages only
     - Allowed `` values in custom properties
     - Add the ability for the SDK to lazy load the page prior to performing a check window
+    - Explain in the `demo.js` how to save the chrome log to file
   bug-fix:
     - |
       `extractText` now supports regions that don't use hints while using `x`/`y` coordinates

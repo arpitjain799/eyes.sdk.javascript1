@@ -15,11 +15,20 @@ function wait(ms) {
   const extensionPath = process.argv[2] ? process.argv[2] : path.resolve(__dirname, 'dist')
   console.log('loading Eyes browser extension from', extensionPath)
 
+  const userDataDirPath = path.resolve(__dirname, 'user-data-dir')
+  console.log(`sending log to ${userDataDirPath}/chrome_debug.log`)
+
   const driver = await new Builder()
     .withCapabilities({
       browserName: 'chrome',
       'goog:chromeOptions': {
-        args: [`--load-extension=${extensionPath}`, `--disable-extensions-except=${extensionPath}`],
+        args: [
+          `--load-extension=${extensionPath}`,
+          `--disable-extensions-except=${extensionPath}`,
+          `--user-data-dir=${userDataDirPath}`,
+          `--enable-logging`,
+          `--v=1`,
+        ],
       },
     })
     .build()
@@ -44,7 +53,7 @@ function wait(ms) {
 
     const testResults = await close()
 
-    console.log(formatTestResults(testResults))
+    testResults.forEach(test => console.log(formatTestResults(test)))
   } catch (ex) {
     console.log(ex)
   } finally {
