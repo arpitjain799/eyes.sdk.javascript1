@@ -84,7 +84,7 @@
   resolved "https://registry.yarnpkg.com/@applitools/eyes-sdk-core/-/eyes-sdk-core-13.8.18.tgz#becbc64313fdad05ef5b602d698ea0db7c902a0b"
   integrity sha512-9Ue5tYswrvTs+L+tuWZdyX6YGsbXlNz/hM3HhSQHJgtnXHIdm2nb/7QztUYCcNeVEVDzoMGrW7Sw0c/5QzGVDg==
   dependencies:
-    "@applitools/dom-capture" "11.1.1"
+    "@applitools/dom-capture" "11.1.2"
     "@applitools/dom-snapshot" "4.6.2"
     "@applitools/driver" "1.9.19"
     "@applitools/execution-grid-client" "1.1.23"
