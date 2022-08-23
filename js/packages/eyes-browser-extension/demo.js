@@ -42,6 +42,7 @@ function wait(ms) {
       apiKey: process.env.APPLITOOLS_API_KEY,
       matchTimeout: 0,
       viewportSize: {width: 800, height: 600},
+      logs: {type: 'console'},
     })
 
     await check({name: 'Login Window', fully: true})
