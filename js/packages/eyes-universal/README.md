@@ -549,3 +549,4 @@ On the client-side received from the server references (from commands [Core.make
 The API layer is the biggest part of the client implementation which should abstract the way end-user will use an sdk from the internal implementation. The main functional purpose of this layer should be to collect all of the configuration and inputs from a user and send them when actual action should be done. The biggest benefit of this architecture is that API (the biggest and the most chaotic part of the sdk) shouldn't be re-implemented again and again for each new framework.
 
 Reference implementation: [TS Eyes API](https://github.com/applitools/eyes.sdk.javascript1/tree/eyes-api/packages/eyes-api)
+
