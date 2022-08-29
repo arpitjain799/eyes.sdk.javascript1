@@ -11,7 +11,7 @@ type Options = {
 }
 
 export function makeExtractText({requests, logger: defaultLogger}: Options) {
-  return async function ({
+  return async function extractText({
     target,
     settings,
     logger = defaultLogger,

@@ -10,7 +10,7 @@ type Options = {
 }
 
 export function makeLocate({requests, logger: defaultLogger}: Options) {
-  return async function <TLocator extends string>({
+  return async function locate<TLocator extends string>({
     target,
     settings,
     logger = defaultLogger,

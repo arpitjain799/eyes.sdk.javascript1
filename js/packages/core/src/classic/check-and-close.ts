@@ -27,7 +27,7 @@ export function makeCheckAndClose<TDriver, TContext, TElement, TSelector>({
   target: defaultTarget,
   logger: defaultLogger,
 }: Options<TDriver, TContext, TElement, TSelector>) {
-  return async function ({
+  return async function checkAndClose({
     target = defaultTarget,
     settings,
     logger = defaultLogger,

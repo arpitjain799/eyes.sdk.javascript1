@@ -32,35 +32,36 @@ export type Target = {
   fullViewSize?: Size // full size of the view/page
 }
 
-export interface Core {
-  openEyes(options: {
-    settings: OpenSettings
-    logger?: Logger
-    on?: (event: string, data?: Record<string, any>) => void
-  }): Promise<Eyes>
+export interface Core<TEyes = Eyes> {
+  openEyes(options: {settings: OpenSettings; logger?: Logger}): Promise<TEyes>
+  getAccountInfo(options: {settings: ServerSettings; logger?: Logger}): Promise<AccountInfo>
   closeBatch(options: {settings: MaybeArray<CloseBatchSettings>; logger?: Logger}): Promise<void>
   deleteTest(options: {settings: MaybeArray<DeleteTestSettings>; logger?: Logger}): Promise<void>
-  getAccountInfo(options: {settings: ServerSettings; logger?: Logger}): Promise<AccountInfo>
 }
 
-export interface Eyes {
-  check(options: {target: Target; settings?: MaybeArray<CheckSettings>; logger?: Logger}): Promise<CheckResult[]>
+export interface Eyes<TTarget = Target> {
+  readonly test: TestInfo
+  check(options: {target: TTarget; settings?: CheckSettings; logger?: Logger}): Promise<CheckResult[]>
   checkAndClose(options: {
-    target: Target
+    target: TTarget
     settings?: CheckSettings & CloseSettings
     logger?: Logger
   }): Promise<TestResult[]>
-  locate<TLocator extends string>(options: {
-    target: Target
+  locate?<TLocator extends string>(options: {
+    target: TTarget
     settings: LocateSettings<TLocator>
     logger?: Logger
   }): Promise<Record<TLocator, Region[]>>
-  locateText<TPattern extends string>(options: {
-    target: Target
+  locateText?<TPattern extends string>(options: {
+    target: TTarget
     settings: LocateTextSettings<TPattern>
     logger?: Logger
   }): Promise<Record<TPattern, TextRegion[]>>
-  extractText(options: {target: Target; settings: MaybeArray<ExtractTextSettings>; logger?: Logger}): Promise<string[]>
+  extractText?(options: {
+    target: TTarget
+    settings: MaybeArray<ExtractTextSettings>
+    logger?: Logger
+  }): Promise<string[]>
   close(options?: {settings?: CloseSettings; logger?: Logger}): Promise<TestResult[]>
   abort(options?: {logger?: Logger}): Promise<TestResult[]>
 }
@@ -167,7 +168,6 @@ export interface ExtractTextSettings<TRegion = Region> extends ImageSettings<TRe
 }
 
 export interface CloseSettings {
-  throwErr?: boolean
   updateBaselineIfNew?: boolean
   updateBaselineIfDifferent?: boolean
 }
@@ -180,6 +180,17 @@ export interface DeleteTestSettings extends ServerSettings {
   testId: string
   batchId: string
   secretToken: string
+}
+
+export interface TestInfo {
+  testId: string
+  batchId: string
+  baselineId: string
+  sessionId: string
+  resultsUrl: string
+  isNew: boolean
+  server: ServerSettings
+  account: AccountInfo
 }
 
 export interface AccountInfo {

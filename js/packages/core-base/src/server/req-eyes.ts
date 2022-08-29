@@ -79,7 +79,7 @@ function handleLogs({logger: defaultLogger}: {logger?: Logger} = {}): Hooks {
       const requestId = request.headers.get('x-applitools-eyes-client-request-id')
       logger?.log(
         `Request "${options.name}" [${requestId}] that was sent to the address "[${request.method}]${request.url}" respond with ${response.statusText}(${response.status})`,
-        !response.ok ? `and body ${JSON.stringify(await response.text())}` : '',
+        !response.ok ? `and body ${JSON.stringify(await response.clone().text())}` : '',
       )
     },
     afterError({request, error, options}: {request: Request; error: Error; options: ReqEyesOptions}) {

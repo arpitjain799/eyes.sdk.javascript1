@@ -8,6 +8,8 @@ import * as utils from '@applitools/utils'
 
 const stop = Symbol('stop retry')
 
+export type Fetch = typeof globalFetch
+
 export type Options = {
   /**
    * Providing this value will allow usage of relative urls for input
@@ -41,7 +43,7 @@ export type Options = {
    * Proxy settings for the request. Auth credentials specified in the object will override ones specified in url
    * @example {url: 'http://localhost:2107', username: 'kyrylo', password: 'pass'}
    */
-  proxy?: Proxy
+  proxy?: Proxy | ((url: URL) => Proxy)
   /**
    * Connection timeout in ms
    * @example 7000
@@ -58,7 +60,7 @@ export type Options = {
    * @see Hooks
    */
   hooks?: Hooks | Hooks[]
-  fetch?: typeof globalFetch
+  fetch?: Fetch
 }
 
 export type Retry = {
@@ -204,20 +206,20 @@ export async function req(input: string | URL | Request, options?: Options): Pro
     ((options?.hooks as Hooks[]) ?? []).reduce(async (request, hooks) => {
       request = await request
       const result = (await hooks.beforeRequest?.({request, ...rest})) || null
-      return result?.clone() ?? request
+      return result ?? request
     }, request as Request | Promise<Request>)
   const beforeRetry = ({request, ...rest}: Parameters<Hooks['beforeRetry']>[0]) =>
     ((options?.hooks as Hooks[]) ?? []).reduce(async (request, hooks) => {
       request = await request
       if (request === stop) return request
       const result = (await hooks.beforeRetry?.({request, ...rest})) || null
-      return result === stop ? result : result?.clone() ?? request
+      return result === stop ? result : result ?? request
     }, request as Request | typeof stop | Promise<Request | typeof stop>)
   const afterResponse = ({response, ...rest}: Parameters<Hooks['afterResponse']>[0]) =>
     ((options?.hooks as Hooks[]) ?? [])?.reduce(async (response, hooks) => {
       response = await response
       const result = (await hooks.afterResponse?.({response, ...rest})) || null
-      return result?.clone() ?? response
+      return result ?? response
     }, response as Response | Promise<Response>)
   const afterError = ({error, ...rest}: Parameters<Hooks['afterError']>[0]) =>
     ((options?.hooks as Hooks[]) ?? [])?.reduce(async (error, hooks) => {
@@ -236,12 +238,16 @@ export async function req(input: string | URL | Request, options?: Options): Pro
   let request = new Request(url, {
     method: options?.method ?? (input as Request).method,
     headers: {...options?.headers, ...Object.fromEntries((input as Request).headers?.entries() ?? [])},
-    body: utils.types.isPlainObject(options?.body) ? JSON.stringify(options.body) : options?.body ?? (input as Request).body,
+    body:
+      utils.types.isPlainObject(options?.body) || utils.types.isArray(options?.body)
+        ? JSON.stringify(options.body)
+        : options?.body ?? (input as Request).body,
     agent: url => {
-      if (options?.proxy) {
-        const proxyUrl = new URL(options.proxy.url)
-        proxyUrl.username = options.proxy.username ?? proxyUrl.username
-        proxyUrl.password = options.proxy.password ?? proxyUrl.password
+      const proxy = utils.types.isFunction(options?.proxy) ? options.proxy(url) : options?.proxy
+      if (proxy) {
+        const proxyUrl = new URL(proxy.url)
+        proxyUrl.username = proxy.username ?? proxyUrl.username
+        proxyUrl.password = proxy.password ?? proxyUrl.password
         const agent = new ProxyAgent({...urlToHttpOptions(proxyUrl.href), rejectUnauthorized: false} as any)
         const originalCallback = agent.callback.bind(agent)
         agent.callback = (request, options, callback?: any) =>
@@ -254,7 +260,7 @@ export async function req(input: string | URL | Request, options?: Options): Pro
     signal: controller.signal,
   })
 
-  request = await beforeRequest({request: request.clone(), options})
+  request = await beforeRequest({request, options})
   const timer = options?.timeout > 0 ? setTimeout(() => controller.abort(), options.timeout) : null
   try {
     let response = await fetch(request)
@@ -262,8 +268,8 @@ export async function req(input: string | URL | Request, options?: Options): Pro
     // if the request has to be retried due to status code
     const retry = (options?.retry as Retry[])?.find(
       retry =>
-        (retry.statuses?.includes(response.status) && (!retry.limit || !retry.attempt || retry.attempt < retry.limit)) ||
-        retry.validate?.({response}),
+        (retry.statuses?.includes(response.status) || retry.validate?.({response})) &&
+        (!retry.limit || !retry.attempt || retry.attempt < retry.limit),
     )
     if (retry) {
       retry.attempt ??= 0
@@ -272,26 +278,20 @@ export async function req(input: string | URL | Request, options?: Options): Pro
       await utils.general.sleep(delay)
       retry.attempt += 1
 
-      const retryRequest = await beforeRetry({
-        request: request.clone(),
-        response: response.clone(),
-        attempt: retry.attempt,
-        stop,
-        options,
-      })
+      const retryRequest = await beforeRetry({request, response, attempt: retry.attempt, stop, options})
       if (retryRequest !== stop) {
         return req(retryRequest, options)
       }
     }
 
-    response = await afterResponse({request: request.clone(), response: response.clone(), options})
+    response = await afterResponse({request, response, options})
     return response
   } catch (error) {
     // if the request has to be retried due to network error
     const retry = (options?.retry as Retry[])?.find(
       retry =>
-        (retry.codes?.includes(error.code) && (!retry.limit || !retry.attempt || retry.attempt < retry.limit)) ||
-        retry.validate?.({error}),
+        (retry.codes?.includes(error.code) || retry.validate?.({error})) &&
+        (!retry.limit || !retry.attempt || retry.attempt < retry.limit),
     )
     if (retry) {
       retry.attempt ??= 0
@@ -301,7 +301,7 @@ export async function req(input: string | URL | Request, options?: Options): Pro
       await utils.general.sleep(delay)
       retry.attempt = retry.attempt + 1
 
-      const retryRequest = await beforeRetry({request: request.clone(), error, attempt: retry.attempt, stop, options})
+      const retryRequest = await beforeRetry({request, error, attempt: retry.attempt, stop, options})
       if (retryRequest !== stop) {
         return req(retryRequest, options)
       }

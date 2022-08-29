@@ -20,7 +20,7 @@ export function makeLocateText<TDriver, TContext, TElement, TSelector>({
   target: defaultTarget,
   logger: defaultLogger,
 }: Options<TDriver, TContext, TElement, TSelector>) {
-  return async function <TPattern extends string>({
+  return async function locateText<TPattern extends string>({
     target = defaultTarget,
     settings,
     logger = defaultLogger,

@@ -1,26 +1,29 @@
-import {MaybeArray} from './types'
 import {Logger} from './debug'
+import * as BaseCore from './core-base'
 import * as AutomationCore from './core-automation'
 
 export * from './core-automation'
 
-export interface Core<TDriver, TElement, TSelector> extends AutomationCore.Core<TDriver, TElement, TSelector> {
+export type Target<TDriver> = AutomationCore.Target<TDriver> | BaseCore.Target
+
+export interface Core<TDriver, TElement, TSelector>
+  extends AutomationCore.Core<TDriver, TElement, TSelector, Eyes<TDriver, TElement, TSelector>> {
   openEyes(options: {
-    target?: AutomationCore.Target<TDriver>
+    target?: TDriver
     settings: AutomationCore.OpenSettings
     logger?: Logger
-    on?: (event: string, data?: Record<string, any>) => void
   }): Promise<Eyes<TDriver, TElement, TSelector>>
 }
 
-export interface Eyes<TDriver, TElement, TSelector> extends AutomationCore.Eyes<TDriver, TElement, TSelector> {
+export interface Eyes<TDriver, TElement, TSelector, TTarget = Target<TDriver>>
+  extends AutomationCore.Eyes<TDriver, TElement, TSelector, TTarget> {
   check(options: {
-    target: AutomationCore.Target<TDriver>
-    settings?: MaybeArray<CheckSettings<TElement, TSelector>>
+    target: TTarget
+    settings?: CheckSettings<TElement, TSelector>
     logger?: Logger
   }): Promise<AutomationCore.CheckResult[]>
   checkAndClose(options: {
-    target: AutomationCore.Target<TDriver>
+    target: TTarget
     settings?: CheckSettings<TElement, TSelector> & AutomationCore.CloseSettings
     logger?: Logger
   }): Promise<AutomationCore.TestResult[]>

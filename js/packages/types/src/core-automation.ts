@@ -6,41 +6,34 @@ import * as BaseCore from './core-base'
 
 export * from './core-base'
 
-export type Target<TDriver> = BaseCore.Target | TDriver
+export type Target<TDriver> = TDriver
 
-export interface Core<TDriver, TElement, TSelector> extends BaseCore.Core {
+export interface Core<TDriver, TElement, TSelector, TEyes = Eyes<TDriver, TElement, TSelector>>
+  extends BaseCore.Core<TEyes> {
   isDriver(driver: any): driver is TDriver
   isElement(element: any): element is TElement
   isSelector(selector: any): selector is TSelector
   getViewportSize(options: {target: TDriver; logger?: Logger}): Promise<Size>
   setViewportSize(options: {target: TDriver; size: Size; logger?: Logger}): Promise<void>
-  openEyes(options: {
-    target?: TDriver
-    settings: BaseCore.OpenSettings
-    logger?: Logger
-    on?: (event: string, data?: Record<string, any>) => void
-  }): Promise<Eyes<TDriver, TElement, TSelector>>
+  openEyes(options: {target?: TDriver; settings: BaseCore.OpenSettings; logger?: Logger}): Promise<TEyes>
 }
 
-export interface Eyes<TDriver, TElement, TSelector> extends BaseCore.Eyes {
-  check(options: {
-    target?: Target<TDriver>
-    settings?: MaybeArray<CheckSettings<TElement, TSelector>>
-  }): Promise<BaseCore.CheckResult[]>
+export interface Eyes<TDriver, TElement, TSelector, TTarget = Target<TDriver>> extends BaseCore.Eyes<TTarget> {
+  check(options: {target?: TTarget; settings?: CheckSettings<TElement, TSelector>}): Promise<BaseCore.CheckResult[]>
   checkAndClose(options: {
-    target?: Target<TDriver>
-    settings?: MaybeArray<CheckSettings<TElement, TSelector> & BaseCore.CloseSettings>
+    target?: TTarget
+    settings?: CheckSettings<TElement, TSelector> & BaseCore.CloseSettings
   }): Promise<BaseCore.TestResult[]>
-  locate<TLocator extends string>(options: {
-    target?: Target<TDriver>
+  locate?<TLocator extends string>(options: {
+    target?: TTarget
     settings: LocateSettings<TLocator, TElement, TSelector>
   }): Promise<Record<TLocator, Region[]>>
-  locateText<TPattern extends string>(options: {
-    target?: Target<TDriver>
+  locateText?<TPattern extends string>(options: {
+    target?: TTarget
     settings: LocateTextSettings<TPattern, TElement, TSelector>
   }): Promise<Record<TPattern, TextRegion[]>>
-  extractText(options: {
-    target?: Target<TDriver>
+  extractText?(options: {
+    target?: TTarget
     settings: MaybeArray<ExtractTextSettings<TElement, TSelector>>
   }): Promise<string[]>
 }

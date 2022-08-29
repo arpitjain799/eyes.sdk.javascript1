@@ -20,7 +20,7 @@ export function makeExtractText<TDriver, TContext, TElement, TSelector>({
   target: defaultTarget,
   logger: defaultLogger,
 }: Options<TDriver, TContext, TElement, TSelector>) {
-  return async function ({
+  return async function extractText({
     target = defaultTarget,
     settings,
     logger = defaultLogger,

@@ -10,7 +10,7 @@ type Options = {
 }
 
 export function makeDeleteTest({requests, logger: defaultLogger}: Options) {
-  return async function ({
+  return async function deleteTest({
     settings,
     logger = defaultLogger,
   }: {

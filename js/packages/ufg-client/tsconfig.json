@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "declarationDir": "types",
+    "declaration": true,
+    "declarationMap": false,
+    "sourceMap": false,
+    "allowJs": true,
+
+    "module": "commonjs",
+    "moduleResolution": "Node16",
+    "target": "es2020",
+    "lib": ["es2020", "dom"],
+    "preserveConstEnums": true,
+    "downlevelIteration": true,
+    "esModuleInterop": true,
+    "stripInternal": false,
+    "removeComments": false,
+  },
+  "ts-node": {
+    "transpileOnly": true
+  },
+  "exclude" : ["dist", "types", "test"],
+}

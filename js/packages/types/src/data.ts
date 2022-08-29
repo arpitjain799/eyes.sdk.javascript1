@@ -21,10 +21,9 @@ export type Proxy = {
   isHttpOnly?: boolean
 }
 
-export type AutProxy = {
-  proxy: Proxy
+export type AutProxy = Proxy & {
+  mode?: 'Allow' | 'Block'
   domains?: string[]
-  AUTProxyMode?: 'Allow' | 'Block'
 }
 
 export type CustomProperty = {

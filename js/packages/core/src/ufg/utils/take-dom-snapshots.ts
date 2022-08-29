@@ -1,57 +1,56 @@
-import type {Renderer} from '@applitools/types'
+import type {Size, Renderer, ChromeEmulationDevice, IOSDevice, ScreenOrientation} from '@applitools/types'
+import type {DomSnapshot} from '@applitools/types/ufg'
 import {type Logger} from '@applitools/logger'
 import {type Driver} from '@applitools/driver'
 import {takeDomSnapshot, type DomSnapshotSettings} from './take-dom-snapshot'
-import {extractRendererInfo} from './extract-renderer-info'
 import chalk from 'chalk'
+import * as utils from '@applitools/utils'
 
-export type DomSnapshotsSettings = DomSnapshotSettings & {
-  breakpoints
-  renderers: Renderer[]
-  getViewportSize
-  getEmulatedDevicesSizes
-  getIosDevicesSizes
-}
+export * from './take-dom-snapshot'
+
+export type DomSnapshotsSettings = DomSnapshotSettings & {renderers: Renderer[]; layoutBreakpoints?: number[] | boolean}
 
 export async function takeDomSnapshots<TDriver extends Driver<unknown, unknown, unknown, unknown>>({
   driver,
   settings,
   hooks,
+  provides,
   logger,
 }: {
   driver: TDriver
   settings: DomSnapshotsSettings
   hooks: {beforeSnapshots?(): void | Promise<void>; beforeEachSnapshot?(): void | Promise<void>}
+  provides: {
+    getChromeEmulationDevices(): Promise<Record<ChromeEmulationDevice, Record<ScreenOrientation, Size>>>
+    getIOSDevices(): Promise<Record<IOSDevice, Record<ScreenOrientation, Size>>>
+  }
   logger: Logger
-}) {
-  const cookieJar = driver.features.allCookies ? await driver.getCookies().catch(() => []) : []
+}): Promise<DomSnapshot[]> {
   const currentContext = driver.currentContext
   await hooks?.beforeSnapshots?.()
 
-  if (!settings.breakpoints) {
+  if (!settings.layoutBreakpoints) {
     logger.log(`taking single dom snapshot`)
     await hooks?.beforeEachSnapshot?.()
-    const snapshot = await takeDomSnapshot({
-      context: currentContext,
-      settings,
-      hooks: {beforeEachContextSnapshot: !driver.features.allCookies ? collectCookies : undefined},
-      logger,
-    })
-    return {snapshots: Array(settings.renderers.length).fill(snapshot), cookies: cookieJar}
+    const snapshot = await takeDomSnapshot({context: currentContext, settings, logger})
+    return Array(settings.renderers.length).fill(snapshot)
   }
+
+  const isStrictBreakpoints = utils.types.isArray(settings.layoutBreakpoints)
 
   const requiredWidths = await settings.renderers.reduce(async (prev, renderer, index) => {
     const {name, width} = await extractRendererInfo({renderer})
     const requiredWidths = await prev
-    const requiredWidth = isStrictBreakpoints ? calculateBreakpoint({breakpoints: settings.breakpoints, value: width}) : width
+    const requiredWidth = isStrictBreakpoints
+      ? calculateBreakpoint({breakpoints: settings.layoutBreakpoints as number[], value: width})
+      : width
     let renderers = requiredWidths.get(requiredWidth)
     if (!renderers) requiredWidths.set(requiredWidth, (renderers = []))
     renderers.push({name, width, index})
     return requiredWidths
   }, Promise.resolve(new Map<number, {name: string; width: number; index: number}[]>()))
 
-  const isStrictBreakpoints = Array.isArray(settings.breakpoints)
-  const smallestBreakpoint = Math.min(...(isStrictBreakpoints ? settings.breakpoints : []))
+  const smallestBreakpoint = Math.min(...(isStrictBreakpoints ? (settings.layoutBreakpoints as number[]) : []))
 
   if (isStrictBreakpoints && requiredWidths.has(smallestBreakpoint - 1)) {
     const smallestBrowsers = requiredWidths
@@ -64,19 +63,14 @@ export async function takeDomSnapshots<TDriver extends Driver<unknown, unknown, 
     logger.console.log(message)
   }
 
-  logger.log(`taking multiple dom snapshots for breakpoints:`, settings.breakpoints)
+  logger.log(`taking multiple dom snapshots for breakpoints:`, settings.layoutBreakpoints)
   logger.log(`required widths: ${[...requiredWidths.keys()].join(', ')}`)
   const viewportSize = await driver.getViewportSize()
   const snapshots = Array(settings.renderers.length)
   if (requiredWidths.has(viewportSize.width)) {
     logger.log(`taking dom snapshot for existing width ${viewportSize.width}`)
     await hooks?.beforeEachSnapshot?.()
-    const snapshot = await takeDomSnapshot({
-      context: currentContext,
-      settings,
-      hooks: {beforeEachContextSnapshot: !driver.features.allCookies ? collectCookies : undefined},
-      logger,
-    })
+    const snapshot = await takeDomSnapshot({context: currentContext, settings, logger})
     requiredWidths.get(viewportSize.width).forEach(({index}) => (snapshots[index] = snapshot))
   }
   for (const [requiredWidth, browsersInfo] of requiredWidths.entries()) {
@@ -103,26 +97,36 @@ export async function takeDomSnapshots<TDriver extends Driver<unknown, unknown, 
       }
     }
     await hooks?.beforeEachSnapshot?.()
-    const snapshot = await takeDomSnapshot({
-      context: currentContext,
-      settings,
-      hooks: {beforeEachContextSnapshot: !driver.features.allCookies ? collectCookies : undefined},
-      logger,
-    })
+    const snapshot = await takeDomSnapshot({context: currentContext, settings, logger})
     browsersInfo.forEach(({index}) => (snapshots[index] = snapshot))
   }
 
   await driver.setViewportSize(viewportSize)
-  return {snapshots, cookies: cookieJar}
-
-  async function collectCookies({context}) {
-    cookieJar.push(...(await context.getCookies()))
-  }
+  return snapshots
 
   function calculateBreakpoint({breakpoints, value}: {breakpoints: number[]; value: number}): number {
     const nextBreakpointIndex = breakpoints.findIndex(breakpoint => breakpoint > value)
     if (nextBreakpointIndex === -1) return breakpoints[breakpoints.length - 1]
     else if (nextBreakpointIndex === 0) return breakpoints[0] - 1
     else return breakpoints[nextBreakpointIndex - 1]
+  }
+
+  async function extractRendererInfo({renderer}: {renderer: Renderer}) {
+    if (utils.types.has(renderer, ['width', 'height'])) {
+      const {name, width, height} = renderer
+      return {name, width, height}
+    } else {
+      let devices, info
+      if (utils.types.has(renderer, 'chromeEmulationInfo')) {
+        info = renderer.chromeEmulationInfo
+        devices = await provides.getChromeEmulationDevices()
+      } else if (utils.types.has(renderer, 'iosDeviceInfo')) {
+        info = renderer.iosDeviceInfo
+        devices = await provides.getIOSDevices()
+      }
+      const {deviceName, screenOrientation = 'portrait'} = info
+      const size = devices[deviceName][screenOrientation]
+      return {name: deviceName, screenOrientation, ...size}
+    }
   }
 }

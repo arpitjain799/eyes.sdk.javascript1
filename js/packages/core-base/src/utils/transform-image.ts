@@ -1,7 +1,9 @@
 import type {ImageSettings} from '@applitools/types/base'
 import {makeImage} from '@applitools/image'
+import * as utils from '@applitools/utils'
 
 export async function transformImage({image, settings}: {image: Buffer | string; settings: ImageSettings}) {
+  if (utils.types.isHttpUrl(image)) return image
   if (settings.normalization || settings.region) {
     const mutableImage = makeImage(image)
     await mutableImage.debug({...settings.debugImages, suffix: 'original'})

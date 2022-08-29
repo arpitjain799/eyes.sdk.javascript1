@@ -11,6 +11,7 @@ import type {
   CloseSettings,
   DeleteTestSettings,
   CloseBatchSettings,
+  TestInfo,
   AccountInfo,
   CheckResult,
   TestResult,
@@ -20,16 +21,6 @@ import {makeLogger, type Logger} from '@applitools/logger'
 import {makeReqEyes, type ReqEyes} from './req-eyes'
 import {makeUpload, type Upload} from './upload'
 import * as utils from '@applitools/utils'
-
-interface Test {
-  testId: string
-  batchId: string
-  baselineId: string
-  sessionId: string
-  resultsUrl: string
-  isNew: boolean
-  account: AccountInfo
-}
 
 export interface CoreRequests extends Core {
   openEyes(options: {settings: OpenSettings; logger?: Logger}): Promise<EyesRequests>
@@ -43,6 +34,7 @@ export interface CoreRequests extends Core {
 }
 
 export interface EyesRequests extends Eyes {
+  readonly test: TestInfo
   check(options: {target: Target; settings?: CheckSettings; logger?: Logger}): Promise<CheckResult[]>
   checkAndClose(options: {target: Target; settings?: CheckSettings; logger?: Logger}): Promise<TestResult[]>
   locate<TLocator extends string>(options: {
@@ -56,7 +48,7 @@ export interface EyesRequests extends Eyes {
     logger?: Logger
   }): Promise<Record<TPattern, TextRegion[]>>
   extractText(options: {target: Target; settings: ExtractTextSettings; logger?: Logger}): Promise<string[]>
-  close(options?: {settings?: Omit<CloseSettings, 'throwErr'>; logger?: Logger}): Promise<TestResult[]>
+  close(options?: {settings?: CloseSettings; logger?: Logger}): Promise<TestResult[]>
   abort(options?: {logger?: Logger}): Promise<TestResult[]>
 }
 
@@ -128,14 +120,15 @@ export function makeCoreRequests({agentId, logger: defaultLogger}: {agentId: str
       expected: [200, 201],
       logger,
     })
-    const test: Test = await response.json().then(async result => {
-      const test: Test = {
+    const test: TestInfo = await response.json().then(async result => {
+      const test: TestInfo = {
         testId: result.id,
         batchId: result.batchId,
         baselineId: result.baselineId,
         sessionId: result.sessionId,
         resultsUrl: result.url,
         isNew: result.isNew ?? response.status === 201,
+        server: {serverUrl: settings.serverUrl, apiKey: settings.apiKey, proxy: settings.proxy},
         account: null,
       }
       if (result.renderingInfo) {
@@ -236,14 +229,14 @@ export function makeEyesCommands({
   upload,
   logger: defaultLogger,
 }: {
-  test: Test
+  test: TestInfo
   req: ReqEyes
   upload: Upload
   logger?: Logger
 }): EyesRequests {
   let supportsCheckAndClose = true
 
-  return {check, checkAndClose, locate, locateText, extractText, close, abort}
+  return {test, check, checkAndClose, locate, locateText, extractText, close, abort}
 
   async function check({
     target,
@@ -277,7 +270,7 @@ export function makeEyesCommands({
     logger = defaultLogger,
   }: {
     target: Target
-    settings: CheckSettings & Omit<CloseSettings, 'throwErr'>
+    settings: CheckSettings & CloseSettings
     logger?: Logger
   }): Promise<TestResult[]> {
     if (!supportsCheckAndClose) {
@@ -419,10 +412,9 @@ export function makeEyesCommands({
     return result
   }
 
-  async function close({
-    settings,
-    logger = defaultLogger,
-  }: {settings?: Omit<CloseSettings, 'throwErr'>; logger?: Logger} = {}): Promise<TestResult[]> {
+  async function close({settings, logger = defaultLogger}: {settings?: CloseSettings; logger?: Logger} = {}): Promise<
+    TestResult[]
+  > {
     logger.log(`Request "close" called for test ${test.testId} with settings`, settings)
     const response = await req(`/api/sessions/running/${encodeURIComponent(test.testId)}`, {
       name: 'close',

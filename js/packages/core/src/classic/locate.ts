@@ -18,7 +18,7 @@ export function makeLocate<TDriver, TContext, TElement, TSelector>({
   target: defaultTarget,
   logger: defaultLogger,
 }: Options<TDriver, TContext, TElement, TSelector>) {
-  return async function <TLocator extends string>({
+  return async function locate<TLocator extends string>({
     target = defaultTarget,
     settings,
     logger = defaultLogger,

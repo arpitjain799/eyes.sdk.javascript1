@@ -74,7 +74,24 @@ export function toString(object: Record<PropertyKey, any>): string {
   return `${this.constructor.name} ${JSON.stringify(object, null, 2)}`
 }
 
-export function cachify<TFunc extends (...args: any[]) => any>(func: TFunc): TFunc & {clearCache(): void} {
+export function toUnAnchoredUri(url: string): string {
+  const [, result = url] = url.match(/(^[^#]*)/) ?? []
+  return result?.replace(/\?\s*$/, '?')
+}
+
+export function toUriEncoding(url: string): string {
+  return url.replace(/(\\[0-9a-fA-F]{1,6}\s?)/g, s => {
+    return String.fromCodePoint(Number.parseInt(s.substring(1).trim(), 16))
+  })
+}
+
+export function absolutizeUrl(url: string, baseUrl: string): string {
+  return new URL(url, baseUrl).href
+}
+
+export function cachify<TFunc extends (...args: any[]) => any>(
+  func: TFunc,
+): TFunc & {clearCache(): void; getCachedValues(): ReturnType<TFunc>[]} {
   const cache = new Map<string, ReturnType<TFunc>>()
   const funcWithCache = ((...args) => {
     const key = JSON.stringify(args, (_, t) => (typeof t === 'function' ? t.toString() : t))
@@ -84,9 +101,32 @@ export function cachify<TFunc extends (...args: any[]) => any>(func: TFunc): TFu
       cache.set(key, value)
     }
     return value
-  }) as TFunc & {clearCache(): void}
+  }) as TFunc & {clearCache(): void; getCachedValues(): ReturnType<TFunc>[]}
   funcWithCache.clearCache = () => cache.clear()
+  funcWithCache.getCachedValues = () => Array.from(cache.values())
   return funcWithCache
+}
+
+export function batchify<
+  TFunc extends (batch: [TInput, {resolve(result?: TResult): void; reject(reason?: any): void}][]) => Promise<void>,
+  TInput = Parameters<TFunc>[0][number][0],
+  TResult = Parameters<Parameters<TFunc>[0][number][1]['resolve']>[0],
+>(func: TFunc, {timeout}: {timeout: number}): (input: Parameters<TFunc>[0][number][0]) => Promise<TResult> {
+  let pendingInputs = new Map<TInput, {resolve(result?: TResult): void; reject(reason?: any): void}>()
+  let throttleTimer = false
+  return function (input: TInput): Promise<TResult> {
+    return new Promise(async (resolve, reject) => {
+      pendingInputs.set(input, {resolve, reject})
+      if (!throttleTimer) {
+        throttleTimer = true
+        setTimeout(() => {
+          func(Array.from(pendingInputs.entries()))
+          pendingInputs = new Map()
+          throttleTimer = false
+        }, timeout)
+      }
+    })
+  }
 }
 
 export function pluralize(object: [] | number, config?: [manyCase: string, singleCase: string]): string {

@@ -1,1 +1,1 @@
-export * from './classic/core'
+export * from './core'

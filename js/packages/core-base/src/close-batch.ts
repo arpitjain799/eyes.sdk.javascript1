@@ -10,7 +10,7 @@ type Options = {
 }
 
 export function makeCloseBatch({requests, logger: defaultLogger}: Options) {
-  return async function ({
+  return async function closeBatch({
     settings,
     logger = defaultLogger,
   }: {

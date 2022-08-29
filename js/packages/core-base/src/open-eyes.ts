@@ -17,7 +17,7 @@ type Options = {
 }
 
 export function makeOpenEyes({requests, logger: defaultLogger, cwd = process.cwd()}: Options) {
-  return async function ({settings, logger = defaultLogger}: {settings: OpenSettings; logger?: Logger}): Promise<Eyes> {
+  return async function openEyes({settings, logger = defaultLogger}: {settings: OpenSettings; logger?: Logger}): Promise<Eyes> {
     logger.log('Command "openEyes" is called with settings', settings)
 
     if (!settings.ignoreGitBranching) {
@@ -41,14 +41,29 @@ export function makeOpenEyes({requests, logger: defaultLogger, cwd = process.cwd
 
     const eyesRequests = await requests.openEyes({settings})
 
+    let isRunning = true
+    const close = makeClose({requests: eyesRequests, logger})
+    const closeOnlyOnce: typeof close = (...args) => {
+      if (!isRunning) return null
+      isRunning = false
+      return close(...args)
+    }
+    const abort = makeAbort({requests: eyesRequests, logger})
+    const abortOnlyOnce: typeof abort = (...args) => {
+      if (!isRunning) return null
+      isRunning = false
+      return abort(...args)
+    }
+
     return {
+      test: eyesRequests.test,
       check: makeCheck({requests: eyesRequests, logger}),
       checkAndClose: makeCheckAndClose({requests: eyesRequests, logger}),
       locate: makeLocate({requests: eyesRequests, logger}),
       locateText: makeLocateText({requests: eyesRequests, logger}),
       extractText: makeExtractText({requests: eyesRequests, logger}),
-      close: makeClose({requests: eyesRequests, logger}),
-      abort: makeAbort({requests: eyesRequests, logger}),
+      close: closeOnlyOnce,
+      abort: abortOnlyOnce,
     }
   }
 }
