@@ -58,6 +58,7 @@
     "@applitools/dom-capture": "11.1.1",
     "@applitools/dom-snapshot": "4.6.2",
     "@applitools/driver": "1.9.20",
+    "@applitools/jsdom": "^1.0.4",
     "@applitools/logger": "1.1.14",
     "@applitools/req": "1.0.1",
     "@applitools/screenshoter": "3.4.14",

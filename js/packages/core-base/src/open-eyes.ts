@@ -41,6 +41,20 @@ export function makeOpenEyes({requests, logger: defaultLogger, cwd = process.cwd
 
     const eyesRequests = await requests.openEyes({settings})
 
+    let isRunning = true
+    const close = makeClose({requests: eyesRequests, logger})
+    const closeOnlyOnce: typeof close = (...args) => {
+      if (!isRunning) return null
+      isRunning = false
+      return close(...args)
+    }
+    const abort = makeAbort({requests: eyesRequests, logger})
+    const abortOnlyOnce: typeof abort = (...args) => {
+      if (!isRunning) return null
+      isRunning = false
+      return abort(...args)
+    }
+
     return {
       test: eyesRequests.test,
       get running() {
@@ -57,8 +71,8 @@ export function makeOpenEyes({requests, logger: defaultLogger, cwd = process.cwd
       locate: makeLocate({requests: eyesRequests, logger}),
       locateText: makeLocateText({requests: eyesRequests, logger}),
       extractText: makeExtractText({requests: eyesRequests, logger}),
-      close: makeClose({requests: eyesRequests, logger}),
-      abort: makeAbort({requests: eyesRequests, logger}),
+      close: closeOnlyOnce,
+      abort: abortOnlyOnce,
     }
   }
 }

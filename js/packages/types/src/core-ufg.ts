@@ -32,7 +32,7 @@ export type Target<TDriver> =
 
 export interface Core<TDriver, TElement, TSelector> extends AutomationCore.Core<TDriver, TElement, TSelector> {
   openEyes(options: {
-    target?: AutomationCore.Target<TDriver>
+    target?: TDriver
     settings: OpenSettings
     logger?: Logger
   }): Promise<Eyes<TDriver, TElement, TSelector>>

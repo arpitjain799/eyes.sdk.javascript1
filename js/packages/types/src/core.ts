@@ -14,7 +14,7 @@ export type Target<TDriver, TType extends 'classic' | 'ufg'> = TType extends 'uf
 export interface Core<TDriver, TElement, TSelector> extends AutomationCore.Core<TDriver, TElement, TSelector> {
   openEyes<TType extends 'classic' | 'ufg' = 'classic'>(options: {
     type?: TType
-    target?: Target<TDriver, TType>
+    target?: TDriver
     settings?: OpenSettings<TType>
     config?: Config<TElement, TSelector, TType>
     logger?: Logger
@@ -29,7 +29,6 @@ export interface Core<TDriver, TElement, TSelector> extends AutomationCore.Core<
 
 export interface EyesManager<TDriver, TElement, TSelector, TType extends 'classic' | 'ufg'> {
   openEyes(options: {
-    type?: TType
     target?: TDriver
     settings?: OpenSettings<TType>
     config?: Config<TElement, TSelector, TType>
