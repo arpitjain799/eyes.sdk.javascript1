@@ -4,6 +4,7 @@ import * as Selenium from 'selenium-webdriver'
 import * as utils from '@applitools/utils'
 
 export type Driver = Selenium.WebDriver & {__applitoolsBrand?: never}
+export type DriverWithServerUrl = Driver & {__serverUrl: string}
 export type Element = Selenium.WebElement & {__applitoolsBrand?: never}
 export type Selector = (
   | Exclude<Selenium.Locator, Function>
@@ -332,7 +333,8 @@ const browserOptionsNames: Record<string, string> = {
   chrome: 'goog:chromeOptions',
   firefox: 'moz:firefoxOptions',
 }
-export async function build({selenium, ...env}: any): Promise<[Driver, () => Promise<void>]> {
+
+export async function build({selenium, ...env}: any): Promise<[DriverWithServerUrl | Driver, () => Promise<void>]> {
   const {Builder} = (selenium ?? require('selenium-webdriver')) as typeof Selenium
   const parseEnv = require('@applitools/test-utils/src/parse-env')
 
@@ -379,7 +381,9 @@ export async function build({selenium, ...env}: any): Promise<[Driver, () => Pro
       noProxy: proxy.bypass,
     })
   }
-  const driver = await builder.build()
+  const driver: Driver = await builder.build()
+  ;(driver as DriverWithServerUrl).__serverUrl = url
+  Object.defineProperty(driver, '__serverUrl', {get: () => url})
   return [driver, () => driver.quit()]
 }
 
