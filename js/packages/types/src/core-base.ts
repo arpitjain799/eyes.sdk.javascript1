@@ -88,7 +88,7 @@ export interface ServerSettings {
   apiKey: string
   proxy?: Proxy
   agentId?: string
-  isDisabled?: boolean
+}
 
 export interface OpenSettings extends ServerSettings {
   appName: string
