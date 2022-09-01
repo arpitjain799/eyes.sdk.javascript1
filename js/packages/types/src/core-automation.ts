@@ -1,7 +1,7 @@
-import {MaybeArray} from '../types'
-import {Region, TextRegion, StitchMode, Size} from '../data'
-import {Selector} from '../driver'
-import {Logger} from '../debug'
+import {MaybeArray} from './types'
+import {Region, TextRegion, StitchMode, Size} from './data'
+import {Selector} from './driver'
+import {Logger} from './debug'
 import * as BaseCore from './core-base'
 
 export * from './core-base'
