@@ -1,5 +1,5 @@
 import type {SpecDriver, TextRegion} from '@applitools/types'
-import type {Eyes as BaseEyes, Target as BaseTarget} from '@applitools/types/base'
+import type {Eyes as BaseEyes, Target as BaseTarget, LocateTextSettings as BaseLocateTextSettings} from '@applitools/types/base'
 import type {Target, LocateTextSettings} from '@applitools/types/classic'
 import {type Logger} from '@applitools/logger'
 import {makeDriver} from '@applitools/driver'
@@ -31,7 +31,7 @@ export function makeLocateText<TDriver, TContext, TElement, TSelector>({
   } = {}): Promise<Record<TPattern, TextRegion[]>> {
     logger.log('Command "check" is called with settings', settings)
     if (!spec.isDriver(target)) {
-      return eyes.locateText({target, settings, logger})
+      return eyes.locateText({target, settings: settings as BaseLocateTextSettings<TPattern>, logger})
     }
     // TODO driver custom config
     const driver = await makeDriver({spec, driver: target, logger})
@@ -44,7 +44,7 @@ export function makeLocateText<TDriver, TContext, TElement, TSelector>({
       if (settings.fully) await screenshot.scrollingElement.setAttribute('data-applitools-scroll', 'true')
       baseTarget.dom = await takeDomCapture({driver, logger}).catch(() => null)
     }
-    const results = await eyes.locateText({target: baseTarget, settings, logger})
+    const results = await eyes.locateText({target: baseTarget, settings: settings as BaseLocateTextSettings<TPattern>, logger})
     return results
   }
 }

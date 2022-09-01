@@ -23,7 +23,7 @@ export async function takeScreenshot<TDriver, TContext, TElement, TSelector>({
 }): Promise<Screenshot> {
   return legacyTakeScreenshot({
     driver,
-    frames: settings?.frames.map(frame => {
+    frames: settings.frames?.map(frame => {
       return utils.types.has(frame, 'frame')
         ? {reference: frame.frame, scrollingElement: frame.scrollRootElement}
         : {reference: frame}
@@ -36,7 +36,7 @@ export async function takeScreenshot<TDriver, TContext, TElement, TSelector>({
     overlap: settings.overlap,
     wait: settings.waitBeforeCapture,
     framed: driver.isNative,
-    stabilization: {
+    stabilization: settings.normalization && {
       crop: settings.normalization.cut,
       scale: settings.normalization.scaleRatio,
       rotation: settings.normalization.rotation,

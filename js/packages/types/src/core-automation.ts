@@ -23,18 +23,22 @@ export interface Eyes<TDriver, TElement, TSelector, TTarget = Target<TDriver>> e
   checkAndClose(options: {
     target?: TTarget
     settings?: CheckSettings<TElement, TSelector> & BaseCore.CloseSettings
+    logger?: Logger
   }): Promise<BaseCore.TestResult[]>
   locate?<TLocator extends string>(options: {
     target?: TTarget
     settings: LocateSettings<TLocator, TElement, TSelector>
+    logger?: Logger
   }): Promise<Record<TLocator, Region[]>>
   locateText?<TPattern extends string>(options: {
     target?: TTarget
     settings: LocateTextSettings<TPattern, TElement, TSelector>
+    logger?: Logger
   }): Promise<Record<TPattern, TextRegion[]>>
   extractText?(options: {
     target?: TTarget
     settings: MaybeArray<ExtractTextSettings<TElement, TSelector>>
+    logger?: Logger
   }): Promise<string[]>
 }
 
@@ -55,17 +59,26 @@ export interface ScreenshotSettings<TElement, TSelector>
   hideCaret?: boolean
   overlap?: {top?: number; bottom?: number}
   waitBeforeCapture?: number
+  waitBetweenStitches?: number
   lazyLoad?: boolean | {scrollLength?: number; waitingTime?: number; maxAmountToScroll?: number}
 }
 
 export type CheckSettings<TElement, TSelector> = BaseCore.CheckSettings<RegionReference<TElement, TSelector>> &
   ScreenshotSettings<TElement, TSelector>
 
-export type LocateSettings<TLocator extends string, TElement, TSelector> = BaseCore.LocateSettings<TLocator> &
+export type LocateSettings<TLocator extends string, TElement, TSelector> = BaseCore.LocateSettings<
+  TLocator,
+  RegionReference<TElement, TSelector>
+> &
   ScreenshotSettings<TElement, TSelector>
 
-export type LocateTextSettings<TPattern extends string, TElement, TSelector> = BaseCore.LocateTextSettings<TPattern> &
+export type LocateTextSettings<TPattern extends string, TElement, TSelector> = BaseCore.LocateTextSettings<
+  TPattern,
+  RegionReference<TElement, TSelector>
+> &
   ScreenshotSettings<TElement, TSelector>
 
-export type ExtractTextSettings<TElement, TSelector> = BaseCore.ExtractTextSettings &
+export type ExtractTextSettings<TElement, TSelector> = BaseCore.ExtractTextSettings<
+  RegionReference<TElement, TSelector>
+> &
   ScreenshotSettings<TElement, TSelector>

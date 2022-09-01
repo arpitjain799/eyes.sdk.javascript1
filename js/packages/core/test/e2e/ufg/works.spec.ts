@@ -1,4 +1,3 @@
-import puppeteer, {type Browser, type Page} from 'puppeteer'
 import {testServer} from '@applitools/test-server'
 import {getTestInfo} from '@applitools/test-utils'
 import {makeLogger} from '@applitools/logger'
@@ -9,19 +8,17 @@ import * as spec from '@applitools/spec-driver-puppeteer'
 import assert from 'assert'
 
 describe('works', () => {
-  let server, baseUrl, browser: Browser, page: Page
+  let page, destroyPage, server, baseUrl
 
   before(async () => {
+    ;[page, destroyPage] = await spec.build({browser: 'chrome'})
     server = await testServer()
     baseUrl = `http://localhost:${server.port}`
-
-    browser = await puppeteer.launch()
-    page = await browser.newPage()
   })
 
   after(async () => {
     await server.close()
-    await browser.close()
+    await destroyPage?.()
   })
 
   it('passes with correct page', async () => {

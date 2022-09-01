@@ -33,19 +33,25 @@ export function makeCore<TDriver, TContext, TElement, TSelector>({
   core ??= makeBaseCore({agentId, cwd, logger})
 
   const throttle = throat(concurrency)
-  const coreWithConcurrency: typeof core = {
+  const {openEyes} = core
+  core = {
     ...core,
-    openEyes: (...args) => {
-      return new Promise(resolve => {
+    openEyes: options => {
+      return new Promise((resolve, rejects) => {
         throttle(() => {
           return new Promise<void>(async done => {
-            const eyes = await core.openEyes(...args)
-            const eyesWithConcurrency: typeof eyes = {
-              ...eyes,
-              close: (...args) => eyes.close(...args).finally(done),
-              abort: (...args) => eyes.abort(...args).finally(done),
+            try {
+              const eyes = await openEyes(options)
+              const eyesWithConcurrency: typeof eyes = {
+                ...eyes,
+                close: options => eyes.close(options).finally(done),
+                abort: options => eyes.abort(options).finally(done),
+              }
+              resolve(eyesWithConcurrency)
+            } catch (error) {
+              rejects(error)
+              done()
             }
-            resolve(eyesWithConcurrency)
           })
         })
       })
@@ -59,6 +65,6 @@ export function makeCore<TDriver, TContext, TElement, TSelector>({
     isSelector: spec?.isSelector,
     getViewportSize: makeGetViewportSize({spec, logger}),
     setViewportSize: makeSetViewportSize({spec, logger}),
-    openEyes: makeOpenEyes({spec, client, core: coreWithConcurrency, logger}),
+    openEyes: makeOpenEyes({spec, client, core, logger}),
   }
 }

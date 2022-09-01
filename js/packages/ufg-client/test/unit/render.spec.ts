@@ -31,8 +31,8 @@ describe('render', () => {
     })
 
     const renderResults = await Promise.all([
-      render({renderRequest: createRenderRequest('page1')}),
-      render({renderRequest: createRenderRequest('page2')}),
+      render({request: createRenderRequest('page1')}),
+      render({request: createRenderRequest('page2')}),
     ])
     assert.deepStrictEqual(renderResults, [
       {renderId: '1', status: 'rendered'},
@@ -59,7 +59,7 @@ describe('render', () => {
       } as UFGRequests,
     })
 
-    const renderResults = await Promise.all([render({renderRequest: createRenderRequest('page1')})])
+    const renderResults = await Promise.all([render({request: createRenderRequest('page1')})])
     assert.strictEqual(checkRenderResultsCalls['1'], 3)
     assert.deepStrictEqual(renderResults, [{renderId: '1', status: 'rendered'}])
   })
@@ -82,8 +82,8 @@ describe('render', () => {
       batchingTimeout: 10,
     })
 
-    const render1Promise = render({renderRequest: createRenderRequest('page1')})
-    const render2Promise = render({renderRequest: createRenderRequest('page2')})
+    const render1Promise = render({request: createRenderRequest('page1')})
+    const render2Promise = render({request: createRenderRequest('page2')})
     await assert.rejects(render1Promise, error => error.message === 'fail')
     await assert.rejects(render2Promise, error => error.message === 'fail')
   })
@@ -105,10 +105,10 @@ describe('render', () => {
       batchingTimeout: 10,
     })
 
-    const render1Promise = render({renderRequest: createRenderRequest('page1')})
-    const render2Promise = render({renderRequest: createRenderRequest('page2')})
+    const render1Promise = render({request: createRenderRequest('page1')})
+    const render2Promise = render({request: createRenderRequest('page2')})
     await assert.doesNotReject(render1Promise)
-    await assert.rejects(render2Promise, error => error.message === 'Render with id "2" failed due to an error')
+    await assert.rejects(render2Promise, error => error.message.startsWith('Render with id "2" failed due to an error'))
   })
 
   it('throws if need-more-resources status is received', async () => {
@@ -122,7 +122,7 @@ describe('render', () => {
       } as UFGRequests,
     })
 
-    const renderPromise = render({renderRequest: createRenderRequest('page1')})
+    const renderPromise = render({request: createRenderRequest('page1')})
     await assert.rejects(renderPromise, error => error.message.startsWith('Got unexpected status'))
   })
 
@@ -147,21 +147,77 @@ describe('render', () => {
 
     const renders = [] as Promise<any>[]
     renders.push(
-      render({renderRequest: createRenderRequest('page1')}),
-      render({renderRequest: createRenderRequest('page2')}),
-      render({renderRequest: createRenderRequest('page3')}),
+      render({request: createRenderRequest('page1')}),
+      render({request: createRenderRequest('page2')}),
+      render({request: createRenderRequest('page3')}),
     )
     await utils.general.sleep(10)
-    renders.push(render({renderRequest: createRenderRequest('page4')}))
+    renders.push(render({request: createRenderRequest('page4')}))
     await utils.general.sleep(5)
-    renders.push(render({renderRequest: createRenderRequest('page5')}))
+    renders.push(render({request: createRenderRequest('page5')}))
     await utils.general.sleep(5)
-    renders.push(render({renderRequest: createRenderRequest('page6')}))
+    renders.push(render({request: createRenderRequest('page6')}))
     await Promise.all(renders)
 
     assert.strictEqual(renderCalls.length, 3)
     assert.strictEqual(renderCalls[0].length, 3)
     assert.strictEqual(renderCalls[1].length, 2)
     assert.strictEqual(renderCalls[2].length, 1)
+  })
+
+  it('runs with specified concurrency', async () => {
+    const counters = {started: [] as string[], finished: [] as string[]}
+    const render = makeRender({
+      requests: {
+        async startRenders({requests}) {
+          return requests.map(request => {
+            counters.started.push(request.target.snapshot.hash)
+            return {renderId: request.target.snapshot.hash} as any
+          })
+        },
+        async checkRenderResults({renders}) {
+          await utils.general.sleep(50)
+          return renders.map(render => {
+            counters.finished.push(render.renderId)
+            return {renderId: render.renderId, status: 'rendered'}
+          })
+        },
+      } as UFGRequests,
+      concurrency: 2,
+      batchingTimeout: 0,
+    })
+
+    const render1 = render({request: createRenderRequest('page1')})
+    const render2 = render({request: createRenderRequest('page2')})
+    const render3 = render({request: createRenderRequest('page3')})
+
+    assert.deepStrictEqual(counters, {started: [], finished: []})
+
+    await Promise.all([render1, render2])
+    assert.deepStrictEqual(counters, {started: ['page1', 'page2'], finished: ['page1', 'page2']})
+
+    const render4 = render({request: createRenderRequest('page4')})
+    const render5 = render({request: createRenderRequest('page5')})
+
+    await utils.general.sleep(0)
+    assert.deepStrictEqual(counters, {started: ['page1', 'page2', 'page3', 'page4'], finished: ['page1', 'page2']})
+
+    await Promise.all([render3, render4])
+    assert.deepStrictEqual(counters, {
+      started: ['page1', 'page2', 'page3', 'page4'],
+      finished: ['page1', 'page2', 'page3', 'page4'],
+    })
+
+    await utils.general.sleep(0)
+    assert.deepStrictEqual(counters, {
+      started: ['page1', 'page2', 'page3', 'page4', 'page5'],
+      finished: ['page1', 'page2', 'page3', 'page4'],
+    })
+
+    await render5
+    assert.deepStrictEqual(counters, {
+      started: ['page1', 'page2', 'page3', 'page4', 'page5'],
+      finished: ['page1', 'page2', 'page3', 'page4', 'page5'],
+    })
   })
 })

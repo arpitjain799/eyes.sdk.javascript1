@@ -35,9 +35,11 @@
   "scripts": {
     "lint": "eslint '**/*.ts'",
     "build": "tsc",
-    "test": "yarn test:unit",
+    "test": "mocha --no-timeouts -r ts-node/register --parallel --jobs 15 './test/**/*.spec.ts'",
     "test:sanity": "yarn test:unit",
-    "test:unit": "mocha --no-timeouts -r ts-node/register ./test/unit/*.spec.ts",
+    "test:e2e": "mocha --no-timeouts -r ts-node/register './test/e2e/*.spec.ts'",
+    "test:it": "mocha --no-timeouts -r ts-node/register './test/it/*.spec.ts'",
+    "test:unit": "mocha --no-timeouts -r ts-node/register './test/unit/*.spec.ts'",
     "deps": "bongo deps",
     "preversion": "bongo preversion",
     "version": "bongo version",

@@ -43,8 +43,8 @@ export async function takeVHSes<TDriver extends Driver<unknown, unknown, unknown
       // in case 'apiKeyInput' does not exist, it means it was already triggered on previous cycle
       // this condition is to avoid re-sending 'inputJson' multiple times
       const inputString = JSON.stringify({
-        apiKey: settings.apiKey,
         serverUrl: settings.serverUrl || undefined,
+        apiKey: settings.apiKey,
         proxy: settings.proxy ? transformProxy(settings.proxy) : undefined,
       })
       log('sending API key to UFG lib', inputString)

@@ -68,6 +68,7 @@ describe('take-dom-snapshot', () => {
       resourceUrls: 'resourceUrls',
       srcAttr: null,
       scriptVersion: 'mock value',
+      cookies: [],
     })
   })
 
@@ -107,6 +108,7 @@ describe('take-dom-snapshot', () => {
           srcAttr: null,
         },
       ],
+      cookies: [],
     })
   })
 
@@ -195,6 +197,7 @@ describe('take-dom-snapshot', () => {
           srcAttr: null,
         },
       ],
+      cookies: [],
     })
   })
 
@@ -284,6 +287,7 @@ describe('take-dom-snapshot', () => {
       resourceUrls: [],
       scriptVersion: 'mock value',
       srcAttr: null,
+      cookies: [],
     })
   })
 
@@ -364,6 +368,7 @@ describe('take-dom-snapshot', () => {
       resourceUrls: [],
       scriptVersion: 'mock value',
       srcAttr: null,
+      cookies: [],
     })
   })
 
@@ -507,6 +512,7 @@ describe('take-dom-snapshot', () => {
           frames: [],
         },
       ],
+      cookies: [],
     })
   })
 })

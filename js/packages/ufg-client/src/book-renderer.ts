@@ -15,7 +15,7 @@ export function makeBookRenderer({
 }): BookRenderer {
   const bookedRendererWithBatching = utils.general.batchify(bookRenderers, {timeout: batchingTimeout})
 
-  return function ({settings}: {settings: RenderSettings}) {
+  return function bookRenderer({settings}: {settings: RenderSettings}) {
     return bookedRendererWithBatching(settings)
   }
 

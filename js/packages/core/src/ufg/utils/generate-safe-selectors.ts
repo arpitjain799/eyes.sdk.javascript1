@@ -17,6 +17,7 @@ export async function generateSafeSelectors<TElement, TSelector>({
     elements: [] as Element<unknown, unknown, TElement, TSelector>[][],
     ids: [] as string[][],
   }
+
   for (const elementReference of elementReferences) {
     const elements = await context.elements(elementReference)
     mapping.elements.push(elements)

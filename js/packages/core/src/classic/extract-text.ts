@@ -1,5 +1,5 @@
 import type {MaybeArray, SpecDriver} from '@applitools/types'
-import type {Eyes as BaseEyes, Target as BaseTarget} from '@applitools/types/base'
+import type {Eyes as BaseEyes, Target as BaseTarget, ExtractTextSettings as BaseExtractTextSettings} from '@applitools/types/base'
 import type {Target, ExtractTextSettings} from '@applitools/types/classic'
 import {type Logger} from '@applitools/logger'
 import {makeDriver} from '@applitools/driver'
@@ -31,7 +31,7 @@ export function makeExtractText<TDriver, TContext, TElement, TSelector>({
   } = {}): Promise<string[]> {
     logger.log('Command "check" is called with settings', settings)
     if (!spec.isDriver(target)) {
-      return eyes.extractText({target, settings, logger})
+      return eyes.extractText({target, settings: settings as MaybeArray<BaseExtractTextSettings>, logger})
     }
     settings = utils.types.isArray(settings) ? settings : [settings]
     // TODO driver custom config
@@ -48,13 +48,16 @@ export function makeExtractText<TDriver, TContext, TElement, TSelector>({
       }
       const baseTarget: BaseTarget = {
         image: await screenshot.image.toPng(),
+        size: utils.geometry.size(screenshot.region),
         locationInViewport: utils.geometry.location(screenshot.region),
       }
       if (driver.isWeb) {
         if (settings.fully) await screenshot.scrollingElement.setAttribute('data-applitools-scroll', 'true')
         baseTarget.dom = await takeDomCapture({driver, logger}).catch(() => null)
       }
-      const results = await eyes.extractText({target: baseTarget, settings, logger})
+      delete settings.region
+      delete settings.normalization
+      const results = await eyes.extractText({target: baseTarget, settings: settings as BaseExtractTextSettings, logger})
       steps.push(results)
       return steps
     }, Promise.resolve([] as string[][]))

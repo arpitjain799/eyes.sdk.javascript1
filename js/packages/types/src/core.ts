@@ -18,10 +18,11 @@ export interface Core<TDriver, TElement, TSelector> extends AutomationCore.Core<
     settings?: OpenSettings<TType>
     config?: Config<TElement, TSelector, TType>
     logger?: Logger
-  }): Promise<TType extends 'ufg' ? UFGEyes<TDriver, TElement, TSelector> : ClassicEyes<TDriver, TElement, TSelector>>
+  }): Promise<Eyes<TDriver, TElement, TSelector, TType>>
   makeManager<TType extends 'classic' | 'ufg' = 'classic'>(options?: {
     type: TType
     concurrency: TType extends 'ufg' ? number : never
+    agentId?: string
     logger?: Logger
   }): Promise<EyesManager<TDriver, TElement, TSelector, TType>>
 }

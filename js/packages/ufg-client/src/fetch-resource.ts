@@ -39,7 +39,7 @@ export function makeFetchResource({
     fetch,
   })
 
-  return async function ({
+  return async function FetchResource({
     resource,
     settings = {},
   }: {

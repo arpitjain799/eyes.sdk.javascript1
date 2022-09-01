@@ -36,10 +36,10 @@
   "scripts": {
     "lint": "eslint '**/*.ts'",
     "build": "tsc",
-    "test": "yarn test:unit && yarn test:it",
+    "test": "mocha --no-timeouts -r ts-node/register --parallel --jobs 15 './test/**/*.spec.ts'",
     "test:sanity": "yarn test:unit && yarn test:it",
-    "test:unit": "mocha --no-timeouts -r ts-node/register ./test/unit/*.spec.ts",
-    "test:it": "mocha --no-timeouts -r ts-node/register ./test/it/*.spec.ts",
+    "test:it": "mocha --no-timeouts -r ts-node/register './test/it/**/*.spec.ts'",
+    "test:unit": "mocha --no-timeouts -r ts-node/register './test/unit/**/*.spec.ts'",
     "deps": "bongo deps",
     "preversion": "bongo preversion",
     "version": "bongo version",
@@ -56,6 +56,7 @@
     "@applitools/req": "1.0.1",
     "@applitools/types": "1.5.6",
     "@applitools/utils": "1.3.10",
+    "abort-controller": "^3.0.0",
     "postcss-value-parser": "^4.2.0",
     "throat": "6.0.1"
   },

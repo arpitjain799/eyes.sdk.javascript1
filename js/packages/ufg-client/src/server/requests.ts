@@ -321,9 +321,11 @@ function extractRenderEnvironment({settings}: {settings: RenderSettings}) {
       platform: {name: 'android', type: settings.type ?? 'native'},
       browser: settings.type === 'web' ? {name: 'chrome'} : undefined,
       renderInfo: {
-        name: settings.renderer.androidDeviceInfo.deviceName,
-        version: settings.renderer.androidDeviceInfo.version,
-        screenOrientation: settings.renderer.androidDeviceInfo.screenOrientation,
+        androidDeviceInfo: {
+          name: settings.renderer.androidDeviceInfo.deviceName,
+          version: settings.renderer.androidDeviceInfo.version,
+          screenOrientation: settings.renderer.androidDeviceInfo.screenOrientation,
+        },
       },
     }
   } else if (utils.types.has(settings.renderer, 'iosDeviceInfo')) {

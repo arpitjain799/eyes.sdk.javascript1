@@ -2,7 +2,7 @@ import {makeCore} from '../../../src/ufg/core'
 import * as utils from '@applitools/utils'
 import assert from 'assert'
 
-describe('eyes concurrency', () => {
+describe('concurrency', () => {
   it('waits for base eyes to open before start rendering', async () => {
     const counters = {baseOpenEyes: 0, baseCheck: 0, bookRenderer: 0, render: 0}
 

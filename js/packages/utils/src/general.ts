@@ -91,10 +91,11 @@ export function absolutizeUrl(url: string, baseUrl: string): string {
 
 export function cachify<TFunc extends (...args: any[]) => any>(
   func: TFunc,
+  getKey?: (args: Parameters<TFunc>) => any,
 ): TFunc & {clearCache(): void; getCachedValues(): ReturnType<TFunc>[]} {
   const cache = new Map<string, ReturnType<TFunc>>()
-  const funcWithCache = ((...args) => {
-    const key = JSON.stringify(args, (_, t) => (typeof t === 'function' ? t.toString() : t))
+  const funcWithCache = ((...args: Parameters<TFunc>) => {
+    const key = JSON.stringify(getKey?.(args) ?? args, (_, t) => (typeof t === 'function' ? t.toString() : t))
     let value = cache.get(key)
     if (!value) {
       value = func(...args)

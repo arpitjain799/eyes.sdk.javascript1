@@ -10,7 +10,7 @@ import {makeMakeManager} from './make-manager'
 
 type Options<TDriver, TContext, TElement, TSelector> = {
   spec: SpecDriver<TDriver, TContext, TElement, TSelector>
-  concurrency: number
+  concurrency?: number
   core?: BaseCore
   agentId?: string
   cwd?: string
@@ -27,7 +27,7 @@ export function makeCore<TDriver, TContext, TElement, TSelector>({
 }: Options<TDriver, TContext, TElement, TSelector>): Core<TDriver, TElement, TSelector> {
   logger = logger?.extend({label: 'core'}) ?? makeLogger({label: 'core'})
   logger.log(`Core is initialized ${core ? 'with' : 'without'} custom base core`)
-  core ??= makeBaseCore({agentId, cwd, logger})
+  const baseCore = core ?? makeBaseCore({agentId, cwd, logger})
 
   return {
     ...core,
@@ -36,7 +36,7 @@ export function makeCore<TDriver, TContext, TElement, TSelector>({
     isSelector: spec.isSelector,
     getViewportSize: makeGetViewportSize({spec, logger}),
     setViewportSize: makeSetViewportSize({spec, logger}),
-    openEyes: makeOpenEyes({spec, core, concurrency, logger}) as Core<TDriver, TElement, TSelector>['openEyes'],
-    makeManager: makeMakeManager({spec, core, concurrency, logger}),
+    openEyes: makeOpenEyes({spec, baseCore, concurrency, logger}),
+    makeManager: makeMakeManager({spec, concurrency, agentId, logger}),
   }
 }

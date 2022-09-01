@@ -2,21 +2,27 @@ import type {Renderer} from '@applitools/types'
 import type {Eyes as BaseEyes} from '@applitools/types/base'
 import type {TestResult} from '@applitools/types/ufg'
 import {type Logger} from '@applitools/logger'
+import {type AbortController} from 'abort-controller'
 
 type Options = {
-  checkPromises: Promise<{eyes: BaseEyes; renderer: Renderer}>[]
+  checks: Promise<{eyes: BaseEyes; renderer: Renderer}>[]
+  controller: AbortController
   logger: Logger
 }
 
-export function makeAbort({checkPromises, logger: defaultLogger}: Options) {
+export function makeAbort({checks, controller, logger: defaultLogger}: Options) {
   return async function ({
     logger = defaultLogger,
   }: {
     logger?: Logger
   } = {}): Promise<TestResult[]> {
-    const checkResults = await Promise.all(checkPromises)
-    const eyes = checkResults.reduce((eyes, result) => {
-      return eyes.set(result.eyes, result.renderer)
+    controller.abort()
+
+    const results = await Promise.allSettled(checks)
+
+    const eyes = results.reduce((eyes, result) => {
+      const value = result.status === 'fulfilled' ? result.value : result.reason
+      return eyes.set(value.eyes, value.renderer)
     }, new Map<BaseEyes, Renderer>())
 
     return Promise.all(

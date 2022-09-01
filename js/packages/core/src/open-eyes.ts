@@ -1,4 +1,6 @@
 import type {Eyes, Config, OpenSettings, SpecDriver} from '@applitools/types'
+import type {Core as ClassicCore} from '@applitools/types/classic'
+import type {Core as UFGCore} from '@applitools/types/ufg'
 import type {Core as BaseCore} from '@applitools/types/base'
 import {type Logger} from '@applitools/logger'
 import {makeCore as makeClassicCore} from './classic/core'
@@ -9,10 +11,12 @@ import {makeLocate} from './locate'
 import {makeLocateText} from './locate-text'
 import {makeExtractText} from './extract-text'
 import {makeClose} from './close'
+import * as utils from '@applitools/utils'
 
 type Options<TDriver, TContext, TElement, TSelector> = {
   spec: SpecDriver<TDriver, TContext, TElement, TSelector>
-  core: BaseCore
+  core?: ClassicCore<TDriver, TElement, TSelector> | UFGCore<TDriver, TElement, TSelector>
+  baseCore?: BaseCore
   concurrency?: number
   logger?: Logger
 }
@@ -20,6 +24,7 @@ type Options<TDriver, TContext, TElement, TSelector> = {
 export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
   spec,
   core,
+  baseCore,
   concurrency,
   logger: defaultLogger,
 }: Options<TDriver, TContext, TElement, TSelector>) {
@@ -37,8 +42,24 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
     logger?: Logger
   }): Promise<Eyes<TDriver, TElement, TSelector, TType>> {
     settings = {...config?.open, ...settings}
-    const specificCore = type === 'ufg' ? makeUFGCore({spec, core, concurrency, logger}) : makeClassicCore({spec, core, logger})
-    const eyes: Eyes<TDriver, TElement, TSelector, TType> = (await specificCore.openEyes({target, settings, logger})) as any
+    settings.apiKey ??= utils.general.getEnvValue('API_KEY')
+    settings.serverUrl ??= utils.general.getEnvValue('SERVER_URL') ?? 'https://eyesapi.applitools.com'
+    settings.branchName ??= utils.general.getEnvValue('BRANCH')
+    settings.parentBranchName = utils.general.getEnvValue('PARENT_BRANCH')
+    settings.baselineBranchName ??= utils.general.getEnvValue('BASELINE_BRANCH')
+    settings.ignoreBaseline ??= false
+    settings.compareWithParentBranch ??= false
+    settings.dontCloseBatches ??= utils.general.getEnvValue('DONT_CLOSE_BATCHES', 'boolean')
+    settings.batch ??= {}
+    settings.batch.id ??= utils.general.getEnvValue('BATCH_ID') ?? utils.general.guid()
+    settings.batch.name ??= utils.general.getEnvValue('BATCH_NAME')
+    settings.batch.sequenceName ??= utils.general.getEnvValue('BATCH_SEQUENCE')
+    settings.batch.notifyOnCompletion ??= utils.general.getEnvValue('BATCH_NOTIFY', 'boolean')
+    ;(settings as OpenSettings<'ufg'>).renderConcurrency ??= (config as Config<any, any, 'ufg'>)?.check?.renderers?.length
+
+    core ??=
+      type === 'ufg' ? makeUFGCore({spec, core: baseCore, concurrency, logger}) : makeClassicCore({spec, core: baseCore, logger})
+    const eyes = await core.openEyes({target, settings, logger})
     return {
       ...eyes,
       check: makeCheck<TDriver, TElement, TSelector, TType>({eyes, logger}),

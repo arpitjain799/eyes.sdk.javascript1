@@ -1,15 +1,17 @@
-import type {Region, Eyes, Target, Config, LocateSettings} from '@applitools/types'
+import type {Region, Target, Config, LocateSettings} from '@applitools/types'
+import type {Eyes as ClassicEyes} from '@applitools/types/classic'
+import type {Eyes as UFGEyes} from '@applitools/types/ufg'
 import {type Logger} from '@applitools/logger'
 
-type Options<TDriver, TElement, TSelector, TType extends 'classic' | 'ufg'> = {
-  eyes: Eyes<TDriver, TElement, TSelector, TType>
+type Options<TDriver, TElement, TSelector> = {
+  eyes: ClassicEyes<TDriver, TElement, TSelector> | UFGEyes<TDriver, TElement, TSelector>
   logger: Logger
 }
 
-export function makeLocate<TDriver, TElement, TSelector, TType extends 'classic' | 'ufg' = 'classic'>({
+export function makeLocate<TDriver, TElement, TSelector, TType extends 'classic' | 'ufg'>({
   eyes,
   logger: defaultLogger,
-}: Options<TDriver, TElement, TSelector, TType>) {
+}: Options<TDriver, TElement, TSelector>) {
   return async function locate<TLocator extends string>({
     target,
     settings,
@@ -22,7 +24,9 @@ export function makeLocate<TDriver, TElement, TSelector, TType extends 'classic'
     logger?: Logger
   }): Promise<Record<TLocator, Region[]>> {
     settings = {...config?.screenshot, ...settings}
-    const results = await eyes.locate({target, settings, logger})
+    settings.appName ??= config?.open?.appName
+
+    const results = await eyes.locate({target: target as any, settings, logger})
     return results
   }
 }

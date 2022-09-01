@@ -22,7 +22,7 @@ export function makeUploadResource({
   const uploadResourceWithConcurrency = throat(concurrency, requests.uploadResource)
   const uploadResourceWithBatching = utils.general.batchify(uploadResources, {timeout: batchingTimeout})
 
-  return async function ({resource}: {resource: ContentfulResource}): Promise<void> {
+  return async function uploadResource({resource}: {resource: ContentfulResource}): Promise<void> {
     const hash = resource.hash.hash
     if (uploadedResources.has(hash)) {
       return Promise.resolve()

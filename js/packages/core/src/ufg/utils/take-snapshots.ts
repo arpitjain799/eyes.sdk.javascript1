@@ -27,6 +27,6 @@ export async function takeSnapshots<TDriver extends Driver<unknown, unknown, unk
   if (driver.isWeb) {
     return takeDomSnapshots({driver, settings, hooks, provides, logger})
   } else {
-    return takeVHSes({driver: this._driver, settings, hooks, logger})
+    return takeVHSes({driver, settings, hooks, logger})
   }
 }

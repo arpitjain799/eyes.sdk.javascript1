@@ -17,24 +17,35 @@ export function toBaseCheckSettings<TElement, TSelector>({
     }, [] as (TElement | Selector<TSelector>)[])
   })
 
-  const regionElementReference = !isRegion(settings.region) ? settings.region : null
+  const elementReferenceToTarget = !isRegion(settings.region) ? settings.region : undefined
 
-  return {elementReferencesToCalculate, regionElementReference, getBaseCheckSettings}
+  return {elementReferencesToCalculate, elementReferenceToTarget, getBaseCheckSettings}
 
   function getBaseCheckSettings({
     calculatedRegions,
+    preserveTransformation,
   }: {
     calculatedRegions: {selector: Selector; regions: Region[]}[]
+    preserveTransformation?: boolean
   }): BaseCheckSettings {
     const transformedSettings = {...settings}
+
+    if (!preserveTransformation) {
+      delete transformedSettings.region
+      delete transformedSettings.normalization
+    } else if (elementReferenceToTarget) {
+      delete transformedSettings.region
+    }
+
     regionTypes.forEach(regionType => {
-      transformedSettings[`${regionType}Regions`] = transformedSettings[`${regionType}Regions`]?.flatMap(reference => {
+      if (!transformedSettings[`${regionType}Regions`]) return
+      transformedSettings[`${regionType}Regions`] = transformedSettings[`${regionType}Regions`].flatMap(reference => {
         const {region, ...options} = utils.types.has(reference, 'region') ? reference : {region: reference}
         if (isRegion(region)) return reference
         const {selector, regions} = calculatedRegions.shift()
         return regions.map(region => ({
           region,
-          regionId: utils.types.isString(selector) ? selector : selector.selector,
+          regionId: utils.types.isString(selector) ? selector : selector?.selector,
           ...options,
         }))
       })

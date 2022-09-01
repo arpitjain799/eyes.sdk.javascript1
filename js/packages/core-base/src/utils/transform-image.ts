@@ -16,5 +16,7 @@ export async function transformImage({image, settings}: {image: Buffer | string;
       await mutableImage.debug({...settings.debugImages, suffix: 'region'})
     }
     return await mutableImage.toPng()
+  } else {
+    return image
   }
 }

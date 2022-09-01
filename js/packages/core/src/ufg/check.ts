@@ -1,6 +1,7 @@
-import type {Proxy, SpecDriver, Selector, Region} from '@applitools/types'
+import type {SpecDriver, Selector, Region} from '@applitools/types'
 import type {Eyes as BaseEyes} from '@applitools/types/base'
-import type {Target, CheckSettings, CheckResult, DomSnapshot, AndroidVHS, IOSVHS} from '@applitools/types/ufg'
+import type {Target, ServerSettings, CheckSettings, CheckResult, DomSnapshot, AndroidVHS, IOSVHS} from '@applitools/types/ufg'
+import {type AbortSignal} from 'abort-controller'
 import {type Logger} from '@applitools/logger'
 import {type UFGClient, type RenderRequest} from '@applitools/ufg-client'
 import {makeDriver} from '@applitools/driver'
@@ -13,8 +14,9 @@ import * as utils from '@applitools/utils'
 type Options<TDriver, TContext, TElement, TSelector> = {
   getEyes: (options: {rawEnvironment: any}) => Promise<BaseEyes>
   client: UFGClient
+  server: ServerSettings
   spec?: SpecDriver<TDriver, TContext, TElement, TSelector>
-  proxy?: Proxy
+  signal?: AbortSignal
   target?: Target<TDriver>
   logger?: Logger
 }
@@ -23,7 +25,8 @@ export function makeCheck<TDriver, TContext, TElement, TSelector>({
   spec,
   getEyes,
   client,
-  proxy,
+  server,
+  signal,
   target: defaultTarget,
   logger: defaultLogger,
 }: Options<TDriver, TContext, TElement, TSelector>) {
@@ -38,12 +41,17 @@ export function makeCheck<TDriver, TContext, TElement, TSelector>({
   }): Promise<(CheckResult & {promise: Promise<CheckResult & {eyes: BaseEyes}>})[]> {
     logger.log('Command "check" is called with settings', settings)
 
-    const {elementReferencesToCalculate, regionElementReference, getBaseCheckSettings} = toBaseCheckSettings({settings})
+    if (signal.aborted) {
+      logger.warn('Command "check" was called after test was already aborted')
+      throw new Error('Command "check" was called after test was already aborted')
+    }
+
+    const {elementReferencesToCalculate, elementReferenceToTarget, getBaseCheckSettings} = toBaseCheckSettings({settings})
 
     let snapshots: DomSnapshot[] | AndroidVHS[] | IOSVHS[],
       snapshotUrl: string,
       snapshotTitle: string,
-      regionSelector: {originalSelector: Selector; safeSelector: Selector},
+      regionToTarget: Selector | Region,
       selectorsToCalculate: {originalSelector: Selector; safeSelector: Selector}[]
     if (spec?.isDriver(target)) {
       // TODO driver custom config
@@ -53,22 +61,29 @@ export function makeCheck<TDriver, TContext, TElement, TSelector>({
         settings.renderers = [{name: 'chrome', ...viewportSize}]
       }
 
-      const {selectors, cleanupGeneratedSelectors} = await generateSafeSelectors({
-        context: driver.currentContext,
-        elementReferences: regionElementReference
-          ? [regionElementReference, ...elementReferencesToCalculate]
-          : elementReferencesToCalculate,
-      })
-      if (regionElementReference) {
-        ;[regionSelector, ...selectorsToCalculate] = selectors
-      } else {
-        selectorsToCalculate = selectors
+      let cleanupGeneratedSelectors
+      if (driver.isWeb) {
+        const generated = await generateSafeSelectors({
+          context: driver.currentContext,
+          elementReferences: [...(elementReferenceToTarget ? [elementReferenceToTarget] : []), ...elementReferencesToCalculate],
+        })
+        cleanupGeneratedSelectors = generated.cleanupGeneratedSelectors
+        if (elementReferenceToTarget) {
+          regionToTarget = generated.selectors[0]?.safeSelector
+          if (!regionToTarget) throw new Error('Target element not found')
+          selectorsToCalculate = generated.selectors.slice(1)
+        } else {
+          selectorsToCalculate = generated.selectors
+        }
       }
 
       snapshots = await takeSnapshots({
         driver,
         settings: {
-          ...(settings as any), // TODO fix types
+          ...server,
+          disableBrowserFetching: settings.disableBrowserFetching,
+          layoutBreakpoints: settings.layoutBreakpoints,
+          renderers: settings.renderers,
           skipResources: client.getCachedResourceUrls(),
         },
         hooks: {
@@ -90,29 +105,35 @@ export function makeCheck<TDriver, TContext, TElement, TSelector>({
       snapshotUrl = await driver.getUrl()
       snapshotTitle = await driver.getTitle()
 
-      await cleanupGeneratedSelectors()
+      await cleanupGeneratedSelectors?.()
     } else {
       snapshots = !utils.types.isArray(target) ? Array(settings.renderers.length).fill(target) : target
       snapshotUrl = utils.types.has(snapshots[0], 'url') ? snapshots[0].url : undefined
-      selectorsToCalculate = elementReferencesToCalculate.map(selector => ({
-        originalSelector: selector as Selector,
-        safeSelector: selector as Selector,
-      }))
     }
+    regionToTarget ??= (elementReferenceToTarget as Selector) ?? (settings.region as Region)
+    selectorsToCalculate ??= elementReferencesToCalculate.map(selector => ({
+      originalSelector: selector as Selector,
+      safeSelector: selector as Selector,
+    }))
 
     const promises = settings.renderers.map(async (renderer, index) => {
       try {
+        if (signal.aborted) {
+          logger.warn('Command "check" was aborted before rendering')
+          throw new Error('Command "check" was aborted before rendering')
+        }
+
         const {cookies, ...snapshot} = snapshots[index] as typeof snapshots[number] & {cookies: any[]}
         const renderTargetPromise = client.createRenderTarget({
           snapshot,
-          settings: {renderer, referer: snapshotUrl, cookies, proxy, autProxy: settings.autProxy},
+          settings: {renderer, referer: snapshotUrl, cookies, proxy: server.proxy, autProxy: settings.autProxy},
         })
 
-        const renderRequest: RenderRequest = {
+        const request: RenderRequest = {
           target: null,
           settings: {
             ...settings,
-            region: regionSelector?.safeSelector ?? (settings.region as Region),
+            region: regionToTarget,
             type: utils.types.has(snapshot, 'cdt') ? 'web' : 'native',
             renderer,
             selectorsToCalculate: selectorsToCalculate.map(({safeSelector}) => safeSelector),
@@ -120,14 +141,30 @@ export function makeCheck<TDriver, TContext, TElement, TSelector>({
           },
         }
 
-        const {rendererId, rawEnvironment} = await client.bookRenderer({settings: renderRequest.settings})
+        const {rendererId, rawEnvironment} = await client.bookRenderer({settings: request.settings})
         const eyes = await getEyes({rawEnvironment})
 
         try {
-          renderRequest.settings.rendererId = rendererId
-          renderRequest.target = await renderTargetPromise
+          if (signal.aborted) {
+            logger.warn('Command "check" was aborted before rendering')
+            throw new Error('Command "check" was aborted before rendering')
+          } else if (eyes.aborted) {
+            logger.warn(`Renderer with id ${rendererId} was aborted during one of the previous steps`)
+            throw new Error(`Renderer with id "${rendererId}" was aborted during one of the previous steps`)
+          }
 
-          const {renderId, selectorRegions, ...baseTarget} = await client.render({renderRequest})
+          request.settings.rendererId = rendererId
+          request.target = await renderTargetPromise
+
+          if (signal.aborted) {
+            logger.warn('Command "check" was aborted before rendering')
+            throw new Error('Command "check" was aborted before rendering')
+          } else if (eyes.aborted) {
+            logger.warn(`Renderer with id ${rendererId} was aborted during one of the previous steps`)
+            throw new Error(`Renderer with id "${rendererId}" was aborted during one of the previous steps`)
+          }
+
+          const {renderId, selectorRegions, ...baseTarget} = await client.render({request, signal})
           const baseSettings = getBaseCheckSettings({
             calculatedRegions: selectorsToCalculate.map(({originalSelector}, index) => ({
               selector: originalSelector,
@@ -138,10 +175,25 @@ export function makeCheck<TDriver, TContext, TElement, TSelector>({
           baseTarget.source = snapshotUrl
           baseTarget.name = snapshotTitle
 
+          if (signal.aborted) {
+            logger.warn('Command "check" was aborted after rendering')
+            throw new Error('Command "check" was aborted after rendering')
+          } else if (eyes.aborted) {
+            logger.warn(`Renderer with id ${rendererId} was aborted during one of the previous steps`)
+            throw new Error(`Renderer with id "${rendererId}" was aborted during one of the previous steps`)
+          }
+
           const [result] = await eyes.check({target: baseTarget, settings: baseSettings, logger})
+
+          if (eyes.aborted) {
+            logger.warn(`Renderer with id ${rendererId} was aborted during one of the previous steps`)
+            throw new Error(`Renderer with id "${rendererId}" was aborted during one of the previous steps`)
+          }
+
           return {...result, eyes, renderer}
         } catch (error) {
           error.eyes = eyes
+          await eyes.abort()
           throw error
         }
       } catch (error) {

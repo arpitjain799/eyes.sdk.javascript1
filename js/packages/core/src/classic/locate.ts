@@ -1,5 +1,5 @@
 import type {SpecDriver, Region} from '@applitools/types'
-import type {Eyes as BaseEyes} from '@applitools/types/base'
+import type {Eyes as BaseEyes, LocateSettings as BaseLocateSettings} from '@applitools/types/base'
 import type {Target, LocateSettings} from '@applitools/types/classic'
 import {type Logger} from '@applitools/logger'
 import {makeDriver} from '@applitools/driver'
@@ -29,7 +29,7 @@ export function makeLocate<TDriver, TContext, TElement, TSelector>({
   } = {}): Promise<Record<TLocator, Region[]>> {
     logger.log('Command "check" is called with settings', settings)
     if (!spec.isDriver(target)) {
-      return eyes.locate({target, settings, logger})
+      return eyes.locate({target, settings: settings as BaseLocateSettings<TLocator>, logger})
     }
     // TODO driver custom config
     const driver = await makeDriver({spec, driver: target, logger})
@@ -37,7 +37,7 @@ export function makeLocate<TDriver, TContext, TElement, TSelector>({
     const baseTarget = {
       image: await screenshot.image.toPng(),
     }
-    const results = await eyes.locate({target: baseTarget, settings, logger})
+    const results = await eyes.locate({target: baseTarget, settings: settings as BaseLocateSettings<TLocator>, logger})
     return results
   }
 }

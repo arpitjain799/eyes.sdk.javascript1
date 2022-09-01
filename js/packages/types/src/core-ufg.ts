@@ -50,6 +50,9 @@ export interface Eyes<TDriver, TElement, TSelector, TTarget = Target<TDriver>>
     settings?: CheckSettings<TElement, TSelector> & AutomationCore.CloseSettings
     logger?: Logger
   }): Promise<TestResult[]>
+  locate?: never
+  locateText?: never
+  extractText?: never
   close(options?: {settings?: AutomationCore.CloseSettings; logger?: Logger}): Promise<TestResult[]>
   abort(options?: {logger?: Logger}): Promise<TestResult[]>
 }

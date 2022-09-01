@@ -38,6 +38,7 @@ export function makeCheck<TDriver, TContext, TElement, TSelector>({
     // TODO driver custom config
     const driver = await makeDriver({spec, driver: target, logger})
     if (settings.lazyLoad) await waitForLazyLoad({driver, settings: settings.lazyLoad !== true ? settings.lazyLoad : {}, logger})
+    const shouldRunOnce = eyes.test.isNew
     const finishAt = Date.now() + settings.maxDuration
     let baseTarget: BaseTarget
     let baseSettings: BaseCheckSettings
@@ -62,9 +63,9 @@ export function makeCheck<TDriver, TContext, TElement, TSelector>({
       }
       baseSettings = await transformCheckSettings({driver, screenshot, settings, logger})
       await screenshot.restoreState()
-      results = await eyes.check({target: baseTarget, settings: {...baseSettings, ignoreMismatch: true}, logger})
-    } while (!results.some(result => result.asExpected) && Date.now() < finishAt)
-    if (!results.some(result => result.asExpected)) {
+      results = await eyes.check({target: baseTarget, settings: {...baseSettings, ignoreMismatch: !shouldRunOnce}, logger})
+    } while (!shouldRunOnce && !results.some(result => result.asExpected) && Date.now() < finishAt)
+    if (!shouldRunOnce && !results.some(result => result.asExpected)) {
       results = await eyes.check({target: baseTarget, settings: baseSettings, logger})
     }
     return results

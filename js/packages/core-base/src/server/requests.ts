@@ -1,4 +1,4 @@
-import type {Region, TextRegion, Size, Mutable} from '@applitools/types'
+import type {Region, TextRegion, Mutable} from '@applitools/types'
 import type {
   Target,
   Core,
@@ -123,7 +123,7 @@ export function makeCoreRequests({agentId, logger: defaultLogger}: {agentId: str
     const test: TestInfo = await response.json().then(async result => {
       const test: TestInfo = {
         testId: result.id,
-        batchId: result.batchId,
+        batchId: settings.batch?.id ?? result.batchId,
         baselineId: result.baselineId,
         sessionId: result.sessionId,
         resultsUrl: result.url,
@@ -143,7 +143,7 @@ export function makeCoreRequests({agentId, logger: defaultLogger}: {agentId: str
 
     const upload = makeUpload({config: {uploadUrl: test.account.uploadUrl}, logger})
 
-    return makeEyesCommands({test, req, upload, logger})
+    return makeEyesRequests({test, req, upload, logger})
   }
 
   async function getAccountInfo({
@@ -223,7 +223,7 @@ export function makeCoreRequests({agentId, logger: defaultLogger}: {agentId: str
   }
 }
 
-export function makeEyesCommands({
+export function makeEyesRequests({
   test,
   req,
   upload,
@@ -235,8 +235,28 @@ export function makeEyesCommands({
   logger?: Logger
 }): EyesRequests {
   let supportsCheckAndClose = true
+  let aborted = false
+  let closed = false
 
-  return {test, check, checkAndClose, locate, locateText, extractText, close, abort}
+  return {
+    test,
+    get running() {
+      return !closed && !aborted
+    },
+    get closed() {
+      return closed
+    },
+    get aborted() {
+      return aborted
+    },
+    check,
+    checkAndClose,
+    locate,
+    locateText,
+    extractText,
+    close,
+    abort,
+  }
 
   async function check({
     target,
@@ -383,7 +403,7 @@ export function makeEyesCommands({
     logger = defaultLogger,
   }: {
     target: Target
-    settings: ExtractTextSettings & {size: Size}
+    settings: ExtractTextSettings
     logger?: Logger
   }): Promise<string[]> {
     logger.log('Request "extractText" called for target', target, 'with settings', settings)
@@ -398,9 +418,9 @@ export function makeEyesCommands({
         appOutput: {
           screenshotUrl: target.image,
           domUrl: target.dom,
-          location: target.locationInViewport,
+          location: utils.geometry.round(target.locationInViewport),
         },
-        regions: [{x: 0, y: 0, ...settings.size, expected: settings.hint}],
+        regions: [{left: 0, top: 0, ...target.size, expected: settings.hint}],
         minMatch: settings.minMatch,
         language: settings.language,
       },
@@ -412,10 +432,19 @@ export function makeEyesCommands({
     return result
   }
 
-  async function close({settings, logger = defaultLogger}: {settings?: CloseSettings; logger?: Logger} = {}): Promise<
-    TestResult[]
-  > {
+  async function close({
+    settings,
+    logger = defaultLogger,
+  }: {
+    settings?: CloseSettings
+    logger?: Logger
+  } = {}): Promise<TestResult[]> {
     logger.log(`Request "close" called for test ${test.testId} with settings`, settings)
+    if (aborted || closed) {
+      logger.log(`Request "close" called for test ${test.testId} that was already stopped`)
+      return null
+    }
+    closed = true
     const response = await req(`/api/sessions/running/${encodeURIComponent(test.testId)}`, {
       name: 'close',
       method: 'DELETE',
@@ -437,6 +466,11 @@ export function makeEyesCommands({
 
   async function abort({logger = defaultLogger}: {logger?: Logger} = {}): Promise<TestResult[]> {
     logger.log(`Request "abort" called for test ${test.testId}`)
+    if (aborted || closed) {
+      logger.log(`Request "abort" called for test ${test.testId} that was already stopped`)
+      return null
+    }
+    aborted = true
     const response = await req(`/api/sessions/running/${encodeURIComponent(test.testId)}`, {
       name: 'abort',
       method: 'DELETE',
@@ -496,7 +530,7 @@ function transformCheckOptions({target, settings}: {target: Target; settings: Ch
 function transformRegions({
   regions,
 }: {
-  regions: CheckSettings[`${'ignore' | 'layout' | 'content' | 'strict' | 'floating' | 'accessibility'}Regions`][number][]
+  regions: CheckSettings<Region>[`${'ignore' | 'layout' | 'content' | 'strict' | 'floating' | 'accessibility'}Regions`][number][]
 }) {
   return regions
     ?.map(region => {
@@ -507,10 +541,11 @@ function transformRegions({
           options.type = region.type
         }
         if (utils.types.has(region, 'offset')) {
-          options.maxUpOffset = region.offset.top
-          options.maxDownOffset = region.offset.bottom
-          options.maxLeftOffset = region.offset.left
-          options.maxRightOffset = region.offset.right
+          const offset = region.offset as any
+          options.maxUpOffset = offset.top
+          options.maxDownOffset = offset.bottom
+          options.maxLeftOffset = offset.left
+          options.maxRightOffset = offset.right
         }
         region = utils.geometry.round(utils.geometry.padding(region.region, region.padding))
       }

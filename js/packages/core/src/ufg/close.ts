@@ -4,11 +4,11 @@ import type {CloseSettings, TestResult} from '@applitools/types/ufg'
 import {type Logger} from '@applitools/logger'
 
 type Options = {
-  checkPromises: Promise<{eyes: BaseEyes; renderer: Renderer}>[]
+  checks: Promise<{eyes: BaseEyes; renderer: Renderer}>[]
   logger: Logger
 }
 
-export function makeClose({checkPromises, logger: defaultLogger}: Options) {
+export function makeClose({checks, logger: defaultLogger}: Options) {
   return async function ({
     settings,
     logger = defaultLogger,
@@ -16,10 +16,10 @@ export function makeClose({checkPromises, logger: defaultLogger}: Options) {
     settings?: CloseSettings
     logger?: Logger
   } = {}): Promise<TestResult[]> {
-    const checkResults = await Promise.allSettled(checkPromises)
+    const results = await Promise.allSettled(checks)
 
     let error
-    const eyes = checkResults.reduce((eyes, result) => {
+    const eyes = results.reduce((eyes, result) => {
       let value
       if (result.status === 'fulfilled') {
         value = result.value
@@ -34,7 +34,7 @@ export function makeClose({checkPromises, logger: defaultLogger}: Options) {
     if (error) {
       await Promise.all(
         Array.from(eyes.entries(), async ([eyes, renderer]) => {
-          if (!eyes) return
+          if (!eyes || eyes.aborted) return
           const [result] = await eyes.abort({logger})
           return {...result, renderer}
         }),

@@ -18,12 +18,12 @@ export interface Core<TDriver, TElement, TSelector>
 export interface Eyes<TDriver, TElement, TSelector, TTarget = Target<TDriver>>
   extends AutomationCore.Eyes<TDriver, TElement, TSelector, TTarget> {
   check(options: {
-    target: TTarget
+    target?: TTarget
     settings?: CheckSettings<TElement, TSelector>
     logger?: Logger
   }): Promise<AutomationCore.CheckResult[]>
   checkAndClose(options: {
-    target: TTarget
+    target?: TTarget
     settings?: CheckSettings<TElement, TSelector> & AutomationCore.CloseSettings
     logger?: Logger
   }): Promise<AutomationCore.TestResult[]>

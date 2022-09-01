@@ -1,15 +1,17 @@
-import type {MaybeArray, Eyes, Target, Config, ExtractTextSettings} from '@applitools/types'
+import type {MaybeArray, Target, Config, ExtractTextSettings} from '@applitools/types'
+import type {Eyes as ClassicEyes} from '@applitools/types/classic'
+import type {Eyes as UFGEyes} from '@applitools/types/ufg'
 import {type Logger} from '@applitools/logger'
 
-type Options<TDriver, TElement, TSelector, TType extends 'classic' | 'ufg'> = {
-  eyes: Eyes<TDriver, TElement, TSelector, TType>
+type Options<TDriver, TElement, TSelector> = {
+  eyes: ClassicEyes<TDriver, TElement, TSelector> | UFGEyes<TDriver, TElement, TSelector>
   logger: Logger
 }
 
-export function makeExtractText<TDriver, TElement, TSelector, TType extends 'classic' | 'ufg' = 'classic' | 'ufg'>({
+export function makeExtractText<TDriver, TElement, TSelector, TType extends 'classic' | 'ufg'>({
   eyes,
   logger: defaultLogger,
-}: Options<TDriver, TElement, TSelector, TType>) {
+}: Options<TDriver, TElement, TSelector>) {
   return async function extractText({
     target,
     settings,

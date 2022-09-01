@@ -1,5 +1,6 @@
 import {type UFGClient} from '@applitools/ufg-client'
 import * as utils from '@applitools/utils'
+import EventEmitter from 'events'
 
 const selectors = {
   sel1: {region: {x: 1, y: 2, width: 3, height: 4}},
@@ -14,39 +15,65 @@ const selectors = {
   sel10: {region: {x: 605, y: 605, width: 605, height: 605}},
 }
 
-export function makeFakeClient(): UFGClient {
+export function makeFakeClient({hooks}: any = {}): UFGClient & EventEmitter {
+  const emitter = new EventEmitter()
   return <any>{
-    async createRenderTarget({snapshot}) {
-      return snapshot
-    },
-    async bookRenderer({settings}) {
-      const renderer = settings.renderer as any
-      const deviceName = renderer.chromeEmulationInfo ?? renderer.iosDeviceInfo ?? renderer.androidDeviceInfo
-      const browserName = renderer.name
-      return {
-        rendererId: 'renderer-uid',
-        rawEnvironment: {
-          os: 'os',
-          osInfo: 'os',
-          hostingApp: browserName,
-          hostingAppInfo: browserName,
-          deviceInfo: deviceName ?? 'Desktop',
-          inferred: `useragent:${browserName}`,
-          displaySize: deviceName ? {width: 400, height: 655} : {width: renderer.width, height: renderer.height},
-        },
+    on: emitter.on.bind(emitter),
+    once: emitter.once.bind(emitter),
+    off: emitter.off.bind(emitter),
+    async createRenderTarget(options) {
+      emitter.emit('beforeCreateRenderTarget', options)
+      try {
+        await utils.general.sleep(10)
+        await hooks?.createRenderTarget?.(options)
+        const {snapshot} = options
+        return snapshot
+      } finally {
+        emitter.emit('afterCreateRenderTarget', options)
       }
     },
-    async render({renderRequest}) {
-      const {target, settings} = renderRequest
-
-      return {
-        renderId: 'render-id',
-        status: 'rendered',
-        image: target as any as string,
-        selectorRegions: settings.selectorsToCalculate.map(() => [{x: 0, y: 0, width: 100, height: 100}]),
-        locationInViewport: settings.region
-          ? utils.geometry.location(selectors[settings.region]?.region ?? settings.region)
-          : {x: 0, y: 0},
+    async bookRenderer(options) {
+      emitter.emit('beforeBookRenderer', options)
+      try {
+        await utils.general.sleep(10)
+        await hooks?.bookRenderer?.(options)
+        const {settings} = options
+        const renderer = settings.renderer as any
+        const deviceName = renderer.chromeEmulationInfo ?? renderer.iosDeviceInfo ?? renderer.androidDeviceInfo
+        const browserName = renderer.name
+        return {
+          rendererId: 'renderer-uid',
+          rawEnvironment: {
+            os: 'os',
+            osInfo: 'os',
+            hostingApp: browserName,
+            hostingAppInfo: browserName,
+            deviceInfo: deviceName ?? 'Desktop',
+            inferred: `useragent:${browserName}`,
+            displaySize: deviceName ? {width: 400, height: 655} : {width: renderer.width, height: renderer.height},
+          },
+        }
+      } finally {
+        emitter.emit('afterBookRenderer', options)
+      }
+    },
+    async render(options) {
+      emitter.emit('beforeRender', options)
+      try {
+        await utils.general.sleep(0)
+        await hooks?.render?.(options)
+        const {target, settings} = options.request
+        return {
+          renderId: 'render-id',
+          status: 'rendered',
+          image: target as any as string,
+          selectorRegions: settings.selectorsToCalculate.map(() => [{x: 0, y: 0, width: 100, height: 100}]),
+          locationInViewport: settings.region
+            ? utils.geometry.location(selectors[settings.region]?.region ?? settings.region)
+            : {x: 0, y: 0},
+        }
+      } finally {
+        emitter.emit('afterRender', options)
       }
     },
   }

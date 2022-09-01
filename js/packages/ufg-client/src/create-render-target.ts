@@ -15,7 +15,7 @@ export type RenderTarget = {
 export type CreateRenderTarget = (options: {snapshot: any; settings?: FetchResourceSettings}) => Promise<RenderTarget>
 
 export function makeCreateRenderTarget({processResources}: {processResources: ProcessResources}): CreateRenderTarget {
-  return async function ({snapshot, settings}: {snapshot: any; settings?: FetchResourceSettings}) {
+  return async function createRenderTarget({snapshot, settings}: {snapshot: any; settings?: FetchResourceSettings}) {
     const isWeb = !!snapshot.cdt
     const processedSnapshotResources = await processSnapshotResources({snapshot, settings})
 

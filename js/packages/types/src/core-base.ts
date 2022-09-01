@@ -24,6 +24,7 @@ import {Logger} from './debug'
 
 export type Target = {
   image: Buffer | string
+  size?: Size
   name?: string
   source?: string
   dom?: string
@@ -41,6 +42,9 @@ export interface Core<TEyes = Eyes> {
 
 export interface Eyes<TTarget = Target> {
   readonly test: TestInfo
+  readonly running: boolean
+  readonly aborted: boolean
+  readonly closed: boolean
   check(options: {target: TTarget; settings?: CheckSettings; logger?: Logger}): Promise<CheckResult[]>
   checkAndClose(options: {
     target: TTarget
@@ -111,8 +115,8 @@ export interface OpenSettings extends ServerSettings {
 }
 
 type CodedRegion<TRegion = Region> = {region: TRegion; padding?: number | OffsetRect; regionId?: string}
-type FloatingRegion<TRegion = Region> = CodedRegion<TRegion> & {offset: OffsetRect}
-type AccessibilityRegion<TRegion = Region> = CodedRegion<TRegion> & {type: AccessibilityRegionType}
+type FloatingRegion<TRegion = Region> = CodedRegion<TRegion> & {offset?: OffsetRect}
+type AccessibilityRegion<TRegion = Region> = CodedRegion<TRegion> & {type?: AccessibilityRegionType}
 
 export interface ImageSettings<TRegion = Region> {
   region?: TRegion

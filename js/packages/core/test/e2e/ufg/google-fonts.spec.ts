@@ -1,23 +1,20 @@
 import {makeCore} from '../../../src/ufg/core'
 import {testServer} from '@applitools/test-server'
 import * as spec from '@applitools/spec-driver-puppeteer'
-import puppeteer from 'puppeteer'
 import assert from 'assert'
 
 describe('google fonts', () => {
-  let server, baseUrl, browser, page
+  let page, destroyPage, server, baseUrl
 
   before(async () => {
+    ;[page, destroyPage] = await spec.build({browser: 'chrome'})
     server = await testServer()
     baseUrl = `http://localhost:${server.port}`
-
-    browser = await puppeteer.launch()
-    page = await browser.newPage()
   })
 
   after(async () => {
     await server.close()
-    await browser.close()
+    await destroyPage?.()
   })
 
   it('renders google font on ie correctly', async () => {

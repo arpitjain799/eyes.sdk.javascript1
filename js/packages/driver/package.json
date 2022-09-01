@@ -40,9 +40,18 @@
       "types": "./types/debug/index.d.ts",
       "default": "./dist/debug/index.js"
     },
-    "./dist/*": "./dist/*.js",
-    "./dist/fake": "./dist/fake/index.js",
-    "./dist/debug": "./dist/debug/index.js",
+    "./dist/*": {
+      "types": "./types/*.d.ts",
+      "default": "./dist/*.js"
+    },
+    "./dist/fake": {
+      "types": "./types/fake/index.d.ts",
+      "default": "./dist/fake/index.js"
+    },
+    "./dist/debug": {
+      "types": "./types/debug/index.d.ts",
+      "default": "./dist/debug/index.js"
+    },
     "./package.json": "./package.json"
   },
   "main": "./dist/index.js",

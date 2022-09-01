@@ -402,7 +402,7 @@ describe('processResources', () => {
     assert.deepStrictEqual(resources.mapping, {[url]: makeResource({id: url, errorStatusCode: 504}).hash})
     assert.strictEqual(
       output,
-      'error fetching resource at http://localhost:1234/err/bla.css, setting errorStatusCode to 504. err=FetchError: request to http://localhost:1234/err/bla.css failed, reason: connect ECONNREFUSED 127.0.0.1:1234',
+      'error fetching resource at http://localhost:1234/err/bla.css, setting errorStatusCode to 504. err=FetchError: request to http://localhost:1234/err/bla.css failed, reason: connect ECONNREFUSED ::1:1234',
     )
   })
 

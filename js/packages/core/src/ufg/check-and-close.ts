@@ -1,6 +1,6 @@
 import type {Proxy, SpecDriver, Selector, Region} from '@applitools/types'
 import type {Eyes as BaseEyes} from '@applitools/types/base'
-import type {Target, CheckSettings, CheckResult, DomSnapshot, AndroidVHS, IOSVHS} from '@applitools/types/ufg'
+import type {Target, ServerSettings, CheckSettings, CheckResult, DomSnapshot, AndroidVHS, IOSVHS} from '@applitools/types/ufg'
 import {type Logger} from '@applitools/logger'
 import {type UFGClient, type RenderRequest} from '@applitools/ufg-client'
 import {makeDriver} from '@applitools/driver'
@@ -11,10 +11,10 @@ import {generateSafeSelectors} from './utils/generate-safe-selectors'
 import * as utils from '@applitools/utils'
 
 type Options<TDriver, TContext, TElement, TSelector> = {
-  spec: SpecDriver<TDriver, TContext, TElement, TSelector>
   getEyes: (options: {rawEnvironment: any}) => Promise<BaseEyes>
   client: UFGClient
-  proxy?: Proxy
+  server: ServerSettings
+  spec?: SpecDriver<TDriver, TContext, TElement, TSelector>
   target?: Target<TDriver>
   logger?: Logger
 }
@@ -23,7 +23,7 @@ export function makeCheckAndClose<TDriver, TContext, TElement, TSelector>({
   spec,
   getEyes,
   client,
-  proxy,
+  server,
   target: defaultTarget,
   logger: defaultLogger,
 }: Options<TDriver, TContext, TElement, TSelector>) {

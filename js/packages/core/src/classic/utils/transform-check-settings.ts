@@ -31,7 +31,7 @@ export async function transformCheckSettings<TDriver, TContext, TElement, TSelec
   }
 
   async function transformRegions<TRegionType extends RegionType>({
-    regions,
+    regions = [],
   }: {
     regions: CheckSettings<TElement, TSelector>[`${TRegionType}Regions`][number][]
   }): Promise<BaseCheckSettings[`${TRegionType}Regions`][number][]> {
@@ -53,7 +53,7 @@ export async function transformCheckSettings<TDriver, TContext, TElement, TSelec
           const elementRegionIScaled = utils.geometry.scale(elementRegionInTarget, driver.viewportScale)
           transformedRegions.push({
             region: elementRegionIScaled,
-            regionId: utils.types.isString(element.commonSelector) ? element.commonSelector : element.commonSelector.selector,
+            regionId: utils.types.isString(element.commonSelector) ? element.commonSelector : element.commonSelector?.selector,
             ...options,
           })
         }
