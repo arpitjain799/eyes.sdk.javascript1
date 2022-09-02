@@ -21,7 +21,7 @@ export function makeCloseManager<TDriver, TElement, TSelector, TType extends 'cl
   return async function closeManager({
     settings,
     logger = defaultLogger,
-  }: {settings?: {throwErr: boolean}; logger?: Logger} = {}): Promise<TestResultSummary<TType>> {
+  }: {settings?: {throwErr?: boolean}; logger?: Logger} = {}): Promise<TestResultSummary<TType>> {
     const containers: TestResultContainer<TType>[][] = await Promise.all(
       storage.map(async ({eyes, promise}) => {
         try {

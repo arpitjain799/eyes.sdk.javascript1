@@ -111,7 +111,6 @@ export interface OpenSettings extends ServerSettings {
   abortIdleTestTimeout?: number
   connectionTimeout?: number
   removeSession?: boolean
-  isDisabled?: boolean
 }
 
 type CodedRegion<TRegion = Region> = {region: TRegion; padding?: number | OffsetRect; regionId?: string}
