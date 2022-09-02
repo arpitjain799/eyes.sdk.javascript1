@@ -28,7 +28,7 @@
     "email": "team@applitools.com"
   },
   "aliases": [
-    "core"
+    "core-legacy"
   ],
   "exports": {
     ".": {

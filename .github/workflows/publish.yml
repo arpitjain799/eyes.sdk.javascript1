@@ -73,7 +73,7 @@ jobs:
           workflow: publish-utils.yml
           inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).utils.version}}"}'
   logger:
-    needs: [ setup, utils ]
+    needs: [ setup, logger, utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).logger && !failure() && !cancelled()}}
     name: logger
     runs-on: ubuntu-latest
@@ -86,7 +86,7 @@ jobs:
           workflow: publish-logger.yml
           inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).logger.version}}"}'
   req:
-    needs: [ setup, utils ]
+    needs: [ setup, types, utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).req && !failure() && !cancelled()}}
     name: req
     runs-on: ubuntu-latest
@@ -176,18 +176,33 @@ jobs:
           inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).test-server.version}}"}'
 
   # CORE
+  core-base:
+    needs: [ setup, logger, req, types, utils, test-utils ]
+    if: ${{fromJSON(needs.setup.outputs.packages).core-base && !failure() && !cancelled()}}
+    name: core-base
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v3
+      - name: Run remote workflow
+        uses: ./.github/actions/run
+        with:
+          workflow: publish-core-base.yml
+          inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).core-base.version}}"}'
   core:
     needs:
       [
         setup,
-        nml-client,
+        core-base,
         driver,
-        eg-client,
         logger,
+        req,
         screenshoter,
         snippets,
         types,
+        ufg-client,
         utils,
+        spec-puppeteer,
         spec-selenium,
         test-server,
         test-utils
@@ -203,8 +218,43 @@ jobs:
         with:
           workflow: publish-core.yml
           inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).core.version}}"}'
+  core-legacy:
+    needs:
+      [
+        setup,
+        driver,
+        eg-client,
+        logger,
+        screenshoter,
+        snippets,
+        types,
+        utils,
+        spec-selenium,
+        test-server,
+        test-utils
+      ]
+    if: ${{fromJSON(needs.setup.outputs.packages).core-legacy && !failure() && !cancelled()}}
+    name: core-legacy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v3
+      - name: Run remote workflow
+        uses: ./.github/actions/run
+        with:
+          workflow: publish-core-legacy.yml
+          inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).core-legacy.version}}"}'
   ufg-client:
-    needs: [ setup, core, logger, test-server, test-utils, utils ]
+    needs:
+      [
+        setup,
+        logger,
+        req,
+        types,
+        utils,
+        test-server,
+        test-utils
+      ]
     if: ${{fromJSON(needs.setup.outputs.packages).ufg-client && !failure() && !cancelled()}}
     name: ufg-client
     runs-on: ubuntu-latest
@@ -216,6 +266,27 @@ jobs:
         with:
           workflow: publish-ufg-client.yml
           inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).ufg-client.version}}"}'
+  vg-client-legacy:
+    needs:
+      [
+        setup,
+        core-legacy,
+        logger,
+        test-server,
+        test-utils,
+        utils
+      ]
+    if: ${{fromJSON(needs.setup.outputs.packages).vg-client-legacy && !failure() && !cancelled()}}
+    name: vg-client-legacy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v3
+      - name: Run remote workflow
+        uses: ./.github/actions/run
+        with:
+          workflow: publish-vg-client-legacy.yml
+          inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).vg-client-legacy.version}}"}'
   eg-client:
     needs: [ setup, logger, utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).eg-client && !failure() && !cancelled()}}
@@ -246,11 +317,10 @@ jobs:
     needs:
       [
         setup,
-        eg-client,
         core,
+        eg-client,
         logger,
         utils,
-        ufg-client,
         test-server,
         test-utils,
         types
@@ -340,9 +410,9 @@ jobs:
       [
         setup,
         api,
-        core,
+        core-legacy,
         spec-playwright,
-        ufg-client,
+        vg-client-legacy,
         test-utils
       ]
     if: ${{fromJSON(needs.setup.outputs.packages).playwright && !failure() && !cancelled()}}
@@ -361,9 +431,9 @@ jobs:
       [
         setup,
         api,
-        core,
+        core-legacy,
         spec-puppeteer,
-        ufg-client,
+        vg-client-legacy,
         test-utils
       ]
     if: ${{fromJSON(needs.setup.outputs.packages).puppeteer && !failure() && !cancelled()}}
@@ -382,9 +452,9 @@ jobs:
       [
         setup,
         api,
-        core,
+        core-legacy,
         spec-webdriverio,
-        ufg-client,
+        vg-client-legacy,
         test-utils
       ]
     if: ${{fromJSON(needs.setup.outputs.packages).webdriverio && !failure() && !cancelled()}}
@@ -416,9 +486,9 @@ jobs:
       [
         setup,
         api,
-        core,
+        core-legacy,
         spec-selenium,
-        ufg-client,
+        vg-client-legacy,
         test-utils
       ]
     if: ${{fromJSON(needs.setup.outputs.packages).selenium && !failure() && !cancelled()}}
@@ -437,10 +507,10 @@ jobs:
       [
         setup,
         api,
-        core,
+        core-legacy,
         types,
         utils,
-        ufg-client,
+        vg-client-legacy,
         test-utils
       ]
     if: ${{fromJSON(needs.setup.outputs.packages).protractor && !failure() && !cancelled()}}
@@ -459,10 +529,10 @@ jobs:
       [
         setup,
         api,
-        core,
+        core-legacy,
         types,
         utils,
-        ufg-client,
+        vg-client-legacy,
         test-utils
       ]
     if: ${{fromJSON(needs.setup.outputs.packages).nightwatch && !failure() && !cancelled()}}
@@ -481,9 +551,9 @@ jobs:
       [
         setup,
         api,
-        core,
+        core-legacy,
         utils,
-        ufg-client,
+        vg-client-legacy,
         test-server,
         test-utils
       ]
@@ -505,7 +575,7 @@ jobs:
         api,
         universal,
         logger,
-        ufg-client,
+        vg-client-legacy,
         test-server,
         test-utils,
         types,
@@ -526,9 +596,9 @@ jobs:
     needs:
       [
         setup,
-        core,
+        core-legacy,
         utils,
-        ufg-client,
+        vg-client-legacy,
         spec-playwright,
         test-utils
       ]
@@ -548,12 +618,12 @@ jobs:
       [
         setup,
         driver,
-        core,
+        core-legacy,
         logger,
         spec-puppeteer,
         test-server,
         utils,
-        ufg-client
+        vg-client-legacy
       ]
     if: ${{fromJSON(needs.setup.outputs.packages).storybook && !failure() && !cancelled()}}
     name: storybook
