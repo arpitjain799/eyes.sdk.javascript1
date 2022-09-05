@@ -1,7 +1,7 @@
 import {Region, Selector} from '@applitools/types'
 import {CheckSettings as BaseCheckSettings} from '@applitools/types/base'
 import {CheckSettings as ClassicCheckSettings} from '@applitools/types/classic'
-import {CheckSettings as UFGCheckSettings} from '@applitools/types/classic'
+import {CheckSettings as UFGCheckSettings} from '@applitools/types/ufg'
 import * as utils from '@applitools/utils'
 
 export function toBaseCheckSettings<TElement, TSelector>({
