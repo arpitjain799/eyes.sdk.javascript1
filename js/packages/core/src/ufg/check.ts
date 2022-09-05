@@ -1,6 +1,6 @@
 import type {SpecDriver, Selector, Region} from '@applitools/types'
 import type {Eyes as BaseEyes} from '@applitools/types/base'
-import type {Target, ServerSettings, CheckSettings, CheckResult, DomSnapshot, AndroidVHS, IOSVHS} from '@applitools/types/ufg'
+import type {Target, TestInfo, CheckSettings, CheckResult, DomSnapshot, AndroidVHS, IOSVHS} from '@applitools/types/ufg'
 import {type AbortSignal} from 'abort-controller'
 import {type Logger} from '@applitools/logger'
 import {type UFGClient, type RenderRequest} from '@applitools/ufg-client'
@@ -14,7 +14,7 @@ import * as utils from '@applitools/utils'
 type Options<TDriver, TContext, TElement, TSelector> = {
   getEyes: (options: {rawEnvironment: any}) => Promise<BaseEyes>
   client: UFGClient
-  server: ServerSettings
+  test: TestInfo
   spec?: SpecDriver<TDriver, TContext, TElement, TSelector>
   signal?: AbortSignal
   target?: Target<TDriver>
@@ -25,7 +25,7 @@ export function makeCheck<TDriver, TContext, TElement, TSelector>({
   spec,
   getEyes,
   client,
-  server,
+  test,
   signal,
   target: defaultTarget,
   logger: defaultLogger,
@@ -80,7 +80,7 @@ export function makeCheck<TDriver, TContext, TElement, TSelector>({
       snapshots = await takeSnapshots({
         driver,
         settings: {
-          ...server,
+          ...test.server,
           disableBrowserFetching: settings.disableBrowserFetching,
           layoutBreakpoints: settings.layoutBreakpoints,
           renderers: settings.renderers,
@@ -126,7 +126,7 @@ export function makeCheck<TDriver, TContext, TElement, TSelector>({
         const {cookies, ...snapshot} = snapshots[index] as typeof snapshots[number] & {cookies: any[]}
         const renderTargetPromise = client.createRenderTarget({
           snapshot,
-          settings: {renderer, referer: snapshotUrl, cookies, proxy: server.proxy, autProxy: settings.autProxy},
+          settings: {renderer, referer: snapshotUrl, cookies, proxy: test.server.proxy, autProxy: settings.autProxy},
         })
 
         const request: RenderRequest = {
@@ -197,6 +197,7 @@ export function makeCheck<TDriver, TContext, TElement, TSelector>({
           throw error
         }
       } catch (error) {
+        error.userTestId = test.userTestId
         error.renderer = renderer
         throw error
       }
@@ -205,6 +206,7 @@ export function makeCheck<TDriver, TContext, TElement, TSelector>({
     return settings.renderers.map((renderer, index) => ({
       asExpected: true,
       windowId: null,
+      userTestId: test.userTestId,
       renderer,
       promise: promises[index],
     }))

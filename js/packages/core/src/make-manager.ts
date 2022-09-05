@@ -36,6 +36,7 @@ export function makeMakeManager<TDriver, TContext, TElement, TSelector>({
     logger?: Logger
   } = {}): Promise<EyesManager<TDriver, TElement, TSelector, TType>> {
     baseCore ??= makeBaseCore({agentId, cwd, logger})
+
     const core =
       type === 'ufg' ? makeUFGCore({spec, core: baseCore, concurrency, logger}) : makeClassicCore({spec, core: baseCore, logger})
 

@@ -1,4 +1,4 @@
-import type {Region, TextRegion, Mutable} from '@applitools/types'
+import type {Region, TextRegion, Mutable, MaybeArray} from '@applitools/types'
 import type {
   Target,
   Core,
@@ -9,8 +9,9 @@ import type {
   LocateTextSettings,
   ExtractTextSettings,
   CloseSettings,
-  DeleteTestSettings,
   CloseBatchSettings,
+  DeleteTestSettings,
+  LogEventSettings,
   TestInfo,
   AccountInfo,
   CheckResult,
@@ -31,6 +32,7 @@ export interface CoreRequests extends Core {
   }): Promise<{branchName: string; parentBranchName: string}>
   closeBatch(options: {settings: CloseBatchSettings; logger?: Logger}): Promise<void>
   deleteTest(options: {settings: DeleteTestSettings; logger?: Logger}): Promise<void>
+  logEvent(options: {settings: MaybeArray<LogEventSettings>; logger?: Logger})
 }
 
 export interface EyesRequests extends Eyes {
@@ -64,6 +66,7 @@ export function makeCoreRequests({agentId, logger: defaultLogger}: {agentId: str
     openEyes,
     closeBatch,
     deleteTest,
+    logEvent,
   }
 
   async function openEyes({settings, logger = defaultLogger}: {settings: OpenSettings; logger?: Logger}): Promise<EyesRequests> {
@@ -80,7 +83,7 @@ export function makeCoreRequests({agentId, logger: defaultLogger}: {agentId: str
         startInfo: {
           agentId: `${agentId} ${settings.agentId ? `[${settings.agentId}]` : ''}`.trim(),
           agentSessionId: utils.general.guid(),
-          agentRunId: settings.agentRunId,
+          agentRunId: settings.userTestId,
           sessionType: settings.sessionType,
           appIdOrName: settings.appName,
           scenarioIdOrName: settings.testName,
@@ -123,6 +126,7 @@ export function makeCoreRequests({agentId, logger: defaultLogger}: {agentId: str
     const test: TestInfo = await response.json().then(async result => {
       const test: TestInfo = {
         testId: result.id,
+        userTestId: settings.userTestId,
         batchId: settings.batch?.id ?? result.batchId,
         baselineId: result.baselineId,
         sessionId: result.sessionId,
@@ -221,6 +225,30 @@ export function makeCoreRequests({agentId, logger: defaultLogger}: {agentId: str
     })
     logger.log('Request "deleteTest" finished successfully')
   }
+
+  async function logEvent({settings, logger = defaultLogger}: {settings: MaybeArray<LogEventSettings>; logger?: Logger}) {
+    settings = utils.types.isArray(settings) ? settings : [settings]
+    const [config] = settings
+    config.agentId = `${agentId} ${config.agentId ? `[${config.agentId}]` : ''}`.trim()
+    const req = makeReqEyes({config, logger})
+    logger.log('Request "logEvent" called with settings', settings)
+    await req(`/api/sessions/log`, {
+      name: 'logEvent',
+      method: 'POST',
+      body: {
+        events: settings.map(settings => {
+          return {
+            event: settings.event,
+            level: settings.level ?? 'Info',
+            timestamp: settings.timestamp ?? new Date().toISOString(),
+          }
+        }),
+      },
+      expected: 200,
+      logger,
+    })
+    logger.log('Request "logEvent" finished successfully')
+  }
 }
 
 export function makeEyesRequests({
@@ -279,7 +307,8 @@ export function makeEyesRequests({
       expected: 200,
       logger,
     })
-    const result: CheckResult = await response.json()
+    const result: Mutable<CheckResult> = await response.json()
+    result.userTestId = test.userTestId
     logger.log('Request "check" finished successfully with body', result)
     return [result]
   }
@@ -329,7 +358,8 @@ export function makeEyesRequests({
       supportsCheckAndClose = false
       return checkAndClose({target, settings})
     }
-    const result: TestResult = await response.json()
+    const result: Mutable<TestResult> = await response.json()
+    result.userTestId = test.userTestId
     logger.log('Request "checkAndClose" finished successfully with body', result)
     return [result]
   }
@@ -456,6 +486,7 @@ export function makeEyesRequests({
       logger,
     })
     const result: Mutable<TestResult> = await response.json()
+    result.userTestId = test.userTestId
     result.url = test.resultsUrl
     result.isNew = test.isNew
     // for backwards compatibility with outdated servers
@@ -480,7 +511,8 @@ export function makeEyesRequests({
       expected: 200,
       logger,
     })
-    const result: TestResult = await response.json()
+    const result: Mutable<TestResult> = await response.json()
+    result.userTestId = test.userTestId
     logger.log('Request "abort" finished successfully with body', result)
     return [result]
   }
@@ -518,7 +550,7 @@ function transformCheckOptions({target, settings}: {target: Target; settings: Ch
       name: settings.name,
       source: target.source,
       renderId: settings.renderId,
-      variantId: settings.variationGroupId,
+      variantId: settings.userCommandId,
       ignoreMismatch: settings.ignoreMismatch,
       ignoreMatch: settings.ignoreMatch,
       forceMismatch: settings.forceMismatch,

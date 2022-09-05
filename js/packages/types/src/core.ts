@@ -160,6 +160,7 @@ export interface TestResultContainer<TType extends 'classic' | 'ufg'> {
   readonly error?: Error
   readonly result?: TestResult<TType>
   readonly renderer?: TType extends 'ufg' ? Renderer : never
+  readonly userTestId?: string
 }
 
 export interface TestResultSummary<TType extends 'classic' | 'ufg'> {

@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    // "rootDir": "src",
     "outDir": "dist",
     "declarationDir": "types",
     "declaration": true,
@@ -9,7 +8,7 @@
     "allowJs": true,
 
     "module": "commonjs",
-    "moduleResolution": "Node16",
+    "moduleResolution": "node16",
     "target": "es2020",
     "lib": ["es2020", "dom"],
     "preserveConstEnums": true,

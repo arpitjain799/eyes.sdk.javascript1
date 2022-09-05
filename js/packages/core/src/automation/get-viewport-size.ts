@@ -11,7 +11,7 @@ export function makeGetViewportSize<TDriver, TContext, TElement, TSelector>({
   spec,
   logger: defaultLogger,
 }: Options<TDriver, TContext, TElement, TSelector>) {
-  return async function ({target, logger = defaultLogger}: {target: TDriver; logger?: Logger}) {
+  return async function getViewportSize({target, logger = defaultLogger}: {target: TDriver; logger?: Logger}) {
     logger.log('Command "getViewportSize" is called')
     const driver = await new Driver<TDriver, TContext, TElement, TSelector>({spec, driver: target, logger}).init()
     return driver.getViewportSize()

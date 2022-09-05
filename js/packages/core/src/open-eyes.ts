@@ -57,6 +57,23 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
     settings.batch.notifyOnCompletion ??= utils.general.getEnvValue('BATCH_NOTIFY', 'boolean')
     ;(settings as OpenSettings<'ufg'>).renderConcurrency ??= (config as Config<any, any, 'ufg'>)?.check?.renderers?.length
 
+    baseCore.logEvent({
+      settings: {
+        serverUrl: settings.serverUrl,
+        apiKey: settings.apiKey,
+        proxy: settings.proxy,
+        agentId: settings.agentId,
+        level: 'Notice',
+        event: {
+          type: 'runnerStarted',
+          testConcurrency: concurrency,
+          concurrentRendersPerTest: (settings as OpenSettings<'ufg'>).renderConcurrency,
+          node: {version: process.version, platform: process.platform, arch: process.arch},
+        },
+      },
+      logger,
+    })
+
     core ??=
       type === 'ufg' ? makeUFGCore({spec, core: baseCore, concurrency, logger}) : makeClassicCore({spec, core: baseCore, logger})
     const eyes = await core.openEyes({target, settings, logger})

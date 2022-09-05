@@ -21,5 +21,6 @@ export function makeCore({agentId = 'core-base', cwd = process.cwd(), logger}: O
     closeBatch: makeCloseBatch({requests: coreRequests, logger}),
     deleteTest: makeDeleteTest({requests: coreRequests, logger}),
     getAccountInfo: coreRequests.getAccountInfo,
+    logEvent: coreRequests.logEvent,
   }
 }

@@ -30,11 +30,12 @@ export function makeCloseManager<TDriver, TElement, TSelector, TType extends 'cl
             return {
               result,
               error: result.status !== 'Passed' ? new TestError(result) : undefined,
+              userTestId: result.userTestId,
               renderer: (result as any).renderer,
             }
           })
         } catch (error) {
-          return [{error}]
+          return [{error, userTestId: error.userTestId, renderer: error.renderer}]
         }
       }),
     )

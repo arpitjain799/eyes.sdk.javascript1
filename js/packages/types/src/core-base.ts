@@ -38,6 +38,8 @@ export interface Core<TEyes = Eyes> {
   getAccountInfo(options: {settings: ServerSettings; logger?: Logger}): Promise<AccountInfo>
   closeBatch(options: {settings: MaybeArray<CloseBatchSettings>; logger?: Logger}): Promise<void>
   deleteTest(options: {settings: MaybeArray<DeleteTestSettings>; logger?: Logger}): Promise<void>
+  /** @internal */
+  logEvent(options: {settings: MaybeArray<LogEventSettings>; logger?: Logger}): Promise<void>
 }
 
 export interface Eyes<TTarget = Target> {
@@ -67,7 +69,7 @@ export interface Eyes<TTarget = Target> {
     logger?: Logger
   }): Promise<string[]>
   close(options?: {settings?: CloseSettings; logger?: Logger}): Promise<TestResult[]>
-  abort(options?: {logger?: Logger}): Promise<TestResult[]>
+  abort(options?: {settings?: AbortSettings; logger?: Logger}): Promise<TestResult[]>
 }
 
 type Environment = {
@@ -92,7 +94,8 @@ export interface OpenSettings extends ServerSettings {
   appName: string
   testName: string
   displayName?: string
-  agentRunId?: string
+  /** @internal */
+  userTestId?: string
   sessionType?: SessionType
   properties?: CustomProperty[]
   batch?: Batch
@@ -104,6 +107,7 @@ export interface OpenSettings extends ServerSettings {
   parentBranchName?: string
   baselineBranchName?: string
   compareWithParentBranch?: boolean
+  /** @internal */
   gitBranchingTimestamp?: string
   ignoreGitBranching?: boolean
   ignoreBaseline?: boolean
@@ -129,9 +133,6 @@ export interface ImageSettings<TRegion = Region> {
 
 export interface CheckSettings<TRegion = Region> extends ImageSettings<TRegion> {
   name?: string
-  pageId?: string
-  renderId?: string
-  variationGroupId?: string
   ignoreRegions?: (TRegion | CodedRegion<TRegion>)[]
   layoutRegions?: (TRegion | CodedRegion<TRegion>)[]
   strictRegions?: (TRegion | CodedRegion<TRegion>)[]
@@ -145,9 +146,18 @@ export interface CheckSettings<TRegion = Region> extends ImageSettings<TRegion> 
   enablePatterns?: boolean
   ignoreCaret?: boolean
   ignoreDisplacements?: boolean
+  pageId?: string
+  /** @internal */
+  renderId?: string
+  /** @internal */
+  userCommandId?: string
+  /** @internal */
   ignoreMismatch?: boolean
+  /** @internal */
   ignoreMatch?: boolean
+  /** @internal */
   forceMismatch?: boolean
+  /** @internal */
   forceMatch?: boolean
 }
 
@@ -155,6 +165,8 @@ export interface LocateSettings<TLocator extends string, TRegion = Region> exten
   appName: string
   locatorNames: TLocator[]
   firstOnly?: boolean
+  /** @internal */
+  userCommandId?: string
 }
 
 export interface LocateTextSettings<TPattern extends string, TRegion = Region> extends ImageSettings<TRegion> {
@@ -162,17 +174,28 @@ export interface LocateTextSettings<TPattern extends string, TRegion = Region> e
   ignoreCase?: boolean
   firstOnly?: boolean
   language?: string
+  /** @internal */
+  userCommandId?: string
 }
 
 export interface ExtractTextSettings<TRegion = Region> extends ImageSettings<TRegion> {
   hint?: string
   minMatch?: number
   language?: string
+  /** @internal */
+  userCommandId?: string
 }
 
 export interface CloseSettings {
   updateBaselineIfNew?: boolean
   updateBaselineIfDifferent?: boolean
+  /** @internal */
+  userCommandId?: string
+}
+
+export interface AbortSettings {
+  /** @internal */
+  userCommandId?: string
 }
 
 export interface CloseBatchSettings extends ServerSettings {
@@ -185,8 +208,15 @@ export interface DeleteTestSettings extends ServerSettings {
   secretToken: string
 }
 
+export interface LogEventSettings extends ServerSettings {
+  event: {type: string} & Record<string, any>
+  level?: 'Info' | 'Notice' | 'Warn' | 'Error'
+  timestamp?: string
+}
+
 export interface TestInfo {
   testId: string
+  userTestId: string
   batchId: string
   baselineId: string
   sessionId: string
@@ -210,6 +240,7 @@ export interface AccountInfo {
 export interface CheckResult {
   readonly asExpected: boolean
   readonly windowId: number
+  readonly userTestId: string
 }
 
 type StepInfo = {
@@ -238,6 +269,7 @@ type SessionUrls = {
 }
 export interface TestResult {
   readonly id?: string
+  readonly userTestId?: string
   readonly name?: string
   readonly secretToken?: string
   readonly status?: TestResultsStatus

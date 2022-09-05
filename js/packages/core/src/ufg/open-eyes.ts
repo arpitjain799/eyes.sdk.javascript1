@@ -1,6 +1,6 @@
 import type {SpecDriver} from '@applitools/types'
 import type {Core as BaseCore} from '@applitools/types/base'
-import type {Eyes, Target, OpenSettings} from '@applitools/types/ufg'
+import type {Eyes, Target, OpenSettings, TestInfo} from '@applitools/types/ufg'
 import {type Logger} from '@applitools/logger'
 import {AbortController} from 'abort-controller'
 import {makeUFGClient, type UFGClient} from '@applitools/ufg-client'
@@ -35,8 +35,13 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
   }): Promise<Eyes<TDriver, TElement, TSelector>> {
     logger.log(`Command "openEyes" is called with ${spec?.isDriver(target) ? 'default driver and' : ''} settings`, settings)
 
-    const server = {serverUrl: settings.serverUrl, apiKey: settings.apiKey, proxy: settings.proxy}
     const account = await core.getAccountInfo({settings, logger})
+    const test = {
+      userTestId: settings.userTestId,
+      batchId: settings.batch?.id,
+      server: {serverUrl: settings.serverUrl, apiKey: settings.apiKey, proxy: settings.proxy},
+      account,
+    } as TestInfo
     client ??= makeUFGClient({config: {...account.ufg, ...account}, concurrency: settings.renderConcurrency ?? 5, logger})
 
     const controller = new AbortController()
@@ -67,7 +72,7 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
       getEyes: getEyesWithLockAndCache,
       client,
       signal: controller.signal,
-      server,
+      test,
       target,
       logger,
     })
@@ -96,16 +101,7 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
     }
 
     return {
-      test: {
-        testId: null,
-        sessionId: null,
-        baselineId: null,
-        batchId: settings.batch?.id,
-        isNew: null,
-        resultsUrl: null,
-        server,
-        account,
-      },
+      test,
       get running() {
         return !closed && !aborted
       },
@@ -120,7 +116,7 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
         spec,
         getEyes: getEyesWithLockAndCache,
         client,
-        server,
+        test,
         target,
         logger,
       }),
