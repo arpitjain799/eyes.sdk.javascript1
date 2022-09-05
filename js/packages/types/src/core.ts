@@ -50,13 +50,11 @@ export interface ClassicEyes<TDriver, TElement, TSelector, TTarget = Target<TDri
     settings?: CheckSettings<TElement, TSelector, 'classic'> & CloseSettings<'classic'>
     config?: Config<TElement, TSelector, 'classic'>
     logger?: Logger
-    logger?: Logger
   }): Promise<TestResult<'classic'>[]>
   locate<TLocator extends string>(options: {
     target?: TTarget
     settings: LocateSettings<TLocator, TElement, TSelector, 'classic'>
     config?: Config<TElement, TSelector, 'classic'>
-    logger?: Logger
     logger?: Logger
   }): Promise<Record<TLocator, Region[]>>
   locateText<TPattern extends string>(options: {
@@ -64,13 +62,11 @@ export interface ClassicEyes<TDriver, TElement, TSelector, TTarget = Target<TDri
     settings: LocateTextSettings<TPattern, TElement, TSelector, 'classic'>
     config?: Config<TElement, TSelector, 'classic'>
     logger?: Logger
-    logger?: Logger
   }): Promise<Record<TPattern, TextRegion[]>>
   extractText(options: {
     target?: TTarget
     settings: MaybeArray<ExtractTextSettings<TElement, TSelector, 'classic'>>
     config?: Config<TElement, TSelector, 'classic'>
-    logger?: Logger
     logger?: Logger
   }): Promise<string[]>
   close(options?: {

@@ -26,7 +26,6 @@ export interface Eyes<TDriver, TElement, TSelector, TTarget = Target<TDriver>>
     target?: TTarget
     settings?: CheckSettings<TElement, TSelector> & AutomationCore.CloseSettings
     logger?: Logger
-    logger?: Logger
   }): Promise<AutomationCore.TestResult[]>
 }
 
