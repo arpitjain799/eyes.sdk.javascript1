@@ -35,7 +35,6 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
   }): Promise<Eyes<TDriver, TElement, TSelector>> {
     logger.log(`Command "openEyes" is called with ${spec?.isDriver(target) ? 'default driver and' : ''} settings`, settings)
 
-    const server = {serverUrl: settings.serverUrl, apiKey: settings.apiKey, proxy: settings.proxy}
     const account = await core.getAccountInfo({settings, logger})
     const test = {
       userTestId: settings.userTestId,
