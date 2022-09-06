@@ -2,14 +2,14 @@ import type {Size, Region, Cookie, DriverInfo} from '@applitools/types'
 import * as utils from '@applitools/utils'
 import {By} from './legacy'
 
-export type Driver = WebdriverIO.Client<void> & {__applitoolsBrand?: never}
+export type Driver = WebdriverIO.Client<void>
 export type Element = (
   | WebdriverIO.Element
   | {ELEMENT: string}
   | {'element-6066-11e4-a52e-4f735466cecf': string}
   | WebdriverIO.RawResult<WebdriverIO.Element | {ELEMENT: string} | {'element-6066-11e4-a52e-4f735466cecf': string}>
-) & {__applitoolsBrand?: never}
-export type Selector = (string | By) & {__applitoolsBrand?: never}
+)
+export type Selector = (string | By)
 
 type ShadowRoot = {'shadow-6066-11e4-a52e-4f735466cecf': string}
 type CommonSelector = string | {selector: Selector | string; type?: string}

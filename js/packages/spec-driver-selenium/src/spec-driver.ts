@@ -3,13 +3,13 @@ import type {Size, Region, Cookie, DriverInfo, WaitOptions, ScreenOrientation} f
 import * as Selenium from 'selenium-webdriver'
 import * as utils from '@applitools/utils'
 
-export type Driver = Selenium.WebDriver & {__applitoolsBrand?: never}
-export type Element = Selenium.WebElement & {__applitoolsBrand?: never}
+export type Driver = Selenium.WebDriver
+export type Element = Selenium.WebElement
 export type Selector = (
   | Exclude<Selenium.Locator, Function>
   | ((webdriver: Selenium.WebDriver) => Promise<any>)
   | {using: string; value: string}
-) & {__applitoolsBrand?: never}
+)
 
 type ShadowRoot = {'shadow-6066-11e4-a52e-4f735466cecf': string}
 type CommonSelector<TSelector = never> = string | {selector: TSelector | string; type?: string}

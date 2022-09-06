@@ -1,13 +1,13 @@
 import type {Size, Region, Cookie} from '@applitools/types'
 import * as utils from '@applitools/utils'
 
-export type Driver = Applitools.WebdriverIO.Browser & {__applitoolsBrand?: never}
+export type Driver = Applitools.WebdriverIO.Browser
 export type Element = (
   | Applitools.WebdriverIO.Element
   | {ELEMENT: string}
   | {'element-6066-11e4-a52e-4f735466cecf': string}
-) & {__applitoolsBrand?: never}
-export type Selector = (Applitools.WebdriverIO.Selector | {using: string; value: string}) & {__applitoolsBrand?: never}
+)
+export type Selector = (Applitools.WebdriverIO.Selector | {using: string; value: string})
 
 type ShadowRoot = {'shadow-6066-11e4-a52e-4f735466cecf': string}
 type CommonSelector<TSelector = never> = string | {selector: TSelector | string; type?: string}

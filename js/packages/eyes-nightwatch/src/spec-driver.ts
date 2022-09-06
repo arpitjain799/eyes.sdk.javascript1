@@ -2,13 +2,13 @@ import type {Size, Cookie, DriverInfo} from '@applitools/types'
 import type * as Nightwatch from 'nightwatch'
 import * as utils from '@applitools/utils'
 
-export type Driver = Nightwatch.NightwatchAPI & {__applitoolsBrand?: never}
+export type Driver = Nightwatch.NightwatchAPI
 export type Element = (
   | {ELEMENT: string}
   | {'element-6066-11e4-a52e-4f735466cecf': string}
   | Nightwatch.NightwatchTypedCallbackResult<{ELEMENT: string} | {'element-6066-11e4-a52e-4f735466cecf': string}>
-) & {__applitoolsBrand?: never}
-export type Selector = {locateStrategy: Nightwatch.LocateStrategy; selector: string} & {__applitoolsBrand?: never}
+)
+export type Selector = {locateStrategy: Nightwatch.LocateStrategy; selector: string}
 
 type ShadowRoot = {'shadow-6066-11e4-a52e-4f735466cecf': string}
 type CommonSelector<TSelector = never> = string | {selector: TSelector | string; type?: string}

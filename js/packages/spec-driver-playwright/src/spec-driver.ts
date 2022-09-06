@@ -5,10 +5,10 @@ import * as os from 'os'
 import * as path from 'path'
 import * as utils from '@applitools/utils'
 
-export type Driver = Playwright.Page & {__applitoolsBrand?: never}
-export type Context = Playwright.Frame & {__applitoolsBrand?: never}
-export type Element = Playwright.ElementHandle & {__applitoolsBrand?: never}
-export type Selector = (string | Playwright.Locator) & {__applitoolsBrand?: never}
+export type Driver = Playwright.Page
+export type Context = Playwright.Frame
+export type Element = Playwright.ElementHandle
+export type Selector = (string | Playwright.Locator)
 
 type CommonSelector<TSelector = never> = string | {selector: TSelector | string; type?: string}
 

@@ -1,7 +1,7 @@
 type EyesSelector = {selector: string; type?: string}
-export type Selector = (string | EyesSelector) & {__applitoolsBrand?: never};
-export type Context = Document & {__applitoolsBrand?: never};
-export type Element = HTMLElement & {__applitoolsBrand?: never};
+export type Selector = (string | EyesSelector)
+export type Context = Document
+export type Element = HTMLElement
 
 export function executeScript(context: Context, script: string, arg: any): any {     
 
