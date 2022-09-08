@@ -4,7 +4,9 @@ import * as AutomationCore from './core-automation'
 
 export * from './core-automation'
 
-export type Target<TDriver> = AutomationCore.Target<TDriver> | BaseCore.Target
+export type Screenshot = BaseCore.Target
+
+export type Target<TDriver> = AutomationCore.Target<TDriver> | Screenshot
 
 export interface Core<TDriver, TElement, TSelector>
   extends AutomationCore.Core<TDriver, TElement, TSelector, Eyes<TDriver, TElement, TSelector>> {

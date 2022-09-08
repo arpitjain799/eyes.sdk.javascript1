@@ -9,7 +9,6 @@ import * as utils from '@applitools/utils'
 export type DomSnapshotSettings = Partial<PollScriptSettings> & {
   disableBrowserFetching?: boolean
   skipResources?: string[]
-
   chunkByteLength?: number
   showLogs?: boolean
 }

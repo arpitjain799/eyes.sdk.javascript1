@@ -196,6 +196,7 @@ jobs:
         core-base,
         driver,
         logger,
+        nml-client,
         req,
         screenshoter,
         snippets,
@@ -225,6 +226,7 @@ jobs:
         driver,
         eg-client,
         logger,
+        nml-client,
         screenshoter,
         snippets,
         types,
@@ -301,7 +303,16 @@ jobs:
           workflow: publish-eg-client.yml
           inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).eg-client.version}}"}'
   nml-client:
-    needs: [ setup, req, utils, spec-selenium, test-utils ]
+    needs:
+      [
+        setup,
+        logger,
+        req,
+        types,
+        utils,
+        spec-selenium,
+        test-utils
+      ]
     if: ${{fromJSON(needs.setup.outputs.packages).nml-client && !failure() && !cancelled()}}
     name: nml-client
     runs-on: ubuntu-latest

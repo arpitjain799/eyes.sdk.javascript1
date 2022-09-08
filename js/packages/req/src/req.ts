@@ -96,7 +96,7 @@ export type Retry = {
   attempt?: number
 }
 
-export type Hooks = {
+export type Hooks<TOptions extends Options = Options> = {
   /**
    * Hook that will be executed after options are merged, it will not be executed if no merge takes place
    * @example
@@ -108,7 +108,7 @@ export type Hooks = {
    * }
    * ```
    */
-  afterOptionsMerged?(options: {options: Options}): Options | void
+  afterOptionsMerged?(options: {options: TOptions}): TOptions | void
   /**
    * Hook that will be executed before sending the request, after all, modifications of the `Request` object are already passed
    * @example
@@ -120,7 +120,7 @@ export type Hooks = {
    * }
    * ```
    */
-  beforeRequest?(options: {request: Request; options: Options}): Request | void | Promise<Request | void>
+  beforeRequest?(options: {request: Request; options: TOptions}): Request | void | Promise<Request | void>
   /**
    * Hook that will be executed before retrying the request. If this hook will return {@link req.stop}
    * it will prevent request from retrying and execution of other hooks
@@ -141,7 +141,7 @@ export type Hooks = {
     stop: typeof stop
     response?: Response
     error?: Error
-    options: Options
+    options: TOptions
   }): Request | typeof stop | void | Promise<Request | void | typeof stop>
   /**
    * Hook that will be executed after getting the final response of the request (after all of the retries)
@@ -154,7 +154,7 @@ export type Hooks = {
    * }
    * ```
    */
-  afterResponse?(options: {request: Request; response: Response; options: Options}): Response | void | Promise<Response | void>
+  afterResponse?(options: {request: Request; response: Response; options: TOptions}): Response | void | Promise<Response | void>
   /**
    * Hook that will be executed after request will throw an error
    * @example
@@ -166,8 +166,10 @@ export type Hooks = {
    * }
    * ```
    */
-  afterError?(options: {request: Request; error: Error; options: Options}): Error | void | Promise<Error | void>
+  afterError?(options: {request: Request; error: Error; options: TOptions}): Error | void | Promise<Error | void>
 }
+
+export type Req<TOptions extends Options = Options> = (input: string | URL | Request, options?: TOptions) => Promise<Response>
 
 /**
  * Helper function that will properly merge two {@link Options} objects
@@ -189,7 +191,7 @@ export function mergeOptions<TOptions extends Options>(baseOption: TOptions, opt
  * Helper function that will create {@link req} function with predefined options
  * @example const req = makeReq({baseUrl: 'http://localhost:2107'})
  */
-export function makeReq(baseOption?: Options): typeof req {
+export function makeReq<TOptions extends Options = Options>(baseOption?: Partial<TOptions>): Req<TOptions> {
   return (location, options) => req(location, mergeOptions(baseOption, options))
 }
 
@@ -313,7 +315,5 @@ export async function req(input: string | URL | Request, options?: Options): Pro
     clearTimeout(timer)
   }
 }
-
-export type Req = typeof req
 
 export default req

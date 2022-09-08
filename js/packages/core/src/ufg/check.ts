@@ -81,6 +81,7 @@ export function makeCheck<TDriver, TContext, TElement, TSelector>({
         driver,
         settings: {
           ...test.server,
+          waitBeforeCapture: settings.waitBeforeCapture,
           disableBrowserFetching: settings.disableBrowserFetching,
           layoutBreakpoints: settings.layoutBreakpoints,
           renderers: settings.renderers,
@@ -91,9 +92,6 @@ export function makeCheck<TDriver, TContext, TElement, TSelector>({
             if (driver.isWeb && settings.lazyLoad) {
               await waitForLazyLoad({driver, settings: settings.lazyLoad !== true ? settings.lazyLoad : {}, logger})
             }
-          },
-          async beforeEachSnapshot() {
-            await utils.general.sleep(settings.waitBeforeCapture)
           },
         },
         provides: {

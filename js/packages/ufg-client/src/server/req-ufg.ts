@@ -1,6 +1,6 @@
-import {Proxy} from '@applitools/types'
-import {makeReq, type Request, type Response, type Req, type Options, type Hooks} from '@applitools/req'
-import {Logger} from '@applitools/logger'
+import type {Proxy} from '@applitools/types'
+import {type Logger} from '@applitools/logger'
+import {makeReq, type Req, type Options, type Hooks} from '@applitools/req'
 import * as utils from '@applitools/utils'
 
 export type ReqUFGConfig = {
@@ -17,10 +17,10 @@ export type ReqUFGOptions = Options & {
   logger?: Logger
 }
 
-export type ReqUFG = Req & ((input: string | URL | Request, options?: ReqUFGOptions) => ReturnType<Req>)
+export type ReqUFG = Req<ReqUFGOptions>
 
-export function makeReqUFG({config, logger}: {config: ReqUFGConfig; logger: Logger}): ReqUFG {
-  return makeReq({
+export function makeReqUFG({config, logger}: {config: ReqUFGConfig; logger: Logger}) {
+  return makeReq<ReqUFGOptions>({
     baseUrl: config.serverUrl,
     headers: {
       Accept: 'application/json',
@@ -40,12 +40,12 @@ export function makeReqUFG({config, logger}: {config: ReqUFGConfig; logger: Logg
   })
 }
 
-function handleLogs({logger: defaultLogger}: {logger?: Logger} = {}): Hooks {
+function handleLogs({logger: defaultLogger}: {logger?: Logger} = {}): Hooks<ReqUFGOptions> {
   const guid = utils.general.guid()
   let counter = 0
 
   return {
-    beforeRequest({request, options}: {request: Request; options: ReqUFGOptions}) {
+    beforeRequest({request, options}) {
       const logger = options.logger ?? defaultLogger
       let requestId = request.headers.get('x-applitools-eyes-client-request-id')
       if (!requestId) {
@@ -64,7 +64,7 @@ function handleLogs({logger: defaultLogger}: {logger?: Logger} = {}): Hooks {
         request.headers.set('x-applitools-eyes-client-request-id', `${requestId}#${attempt + 1}`)
       }
     },
-    async afterResponse({request, response, options}: {request: Request; response: Response; options: ReqUFGOptions}) {
+    async afterResponse({request, response, options}) {
       const logger = options.logger ?? defaultLogger
       const requestId = request.headers.get('x-applitools-eyes-client-request-id')
       logger?.log(
@@ -72,7 +72,7 @@ function handleLogs({logger: defaultLogger}: {logger?: Logger} = {}): Hooks {
         !response.ok ? `and body ${JSON.stringify(await response.clone().text())}` : '',
       )
     },
-    afterError({request, error, options}: {request: Request; error: Error; options: ReqUFGOptions}) {
+    afterError({request, error, options}) {
       const logger = options.logger ?? defaultLogger
       const requestId = request.headers.get('x-applitools-eyes-client-request-id')
       logger?.error(
@@ -83,10 +83,10 @@ function handleLogs({logger: defaultLogger}: {logger?: Logger} = {}): Hooks {
   }
 }
 
-function handleUnexpectedResponse(): Hooks {
+function handleUnexpectedResponse(): Hooks<ReqUFGOptions> {
   return {
     async afterResponse({request, response, options}) {
-      const {expected, name} = options as ReqUFGOptions
+      const {expected, name} = options
       if (expected && (utils.types.isArray(expected) ? !expected.includes(response.status) : expected !== response.status)) {
         throw new Error(
           `Request "${name}" that was sent to the address "[${request.method}]${request.url}" failed due to unexpected status ${response.statusText}(${response.status})`,

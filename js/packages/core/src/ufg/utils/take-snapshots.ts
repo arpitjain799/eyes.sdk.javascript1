@@ -4,6 +4,8 @@ import {type Logger} from '@applitools/logger'
 import {type Driver} from '@applitools/driver'
 import {takeDomSnapshots, type DomSnapshotsSettings} from './take-dom-snapshots'
 import {takeVHSes, type VHSesSettings} from './take-vhses'
+import {takeSnapshots as takeSnapshotsWithNml} from '@applitools/nml-client'
+import {extractBrokerUrl} from '../../utils/extract-broker-url'
 
 export * from './take-dom-snapshots'
 export * from './take-vhses'
@@ -27,6 +29,11 @@ export async function takeSnapshots<TDriver extends Driver<unknown, unknown, unk
   if (driver.isWeb) {
     return takeDomSnapshots({driver, settings, hooks, provides, logger})
   } else {
-    return takeVHSes({driver, settings, hooks, logger})
+    const brokerUrl = await extractBrokerUrl(driver)
+    if (brokerUrl) {
+      return takeSnapshotsWithNml({url: brokerUrl, settings, logger})
+    } else {
+      return takeVHSes({driver, settings, hooks, logger})
+    }
   }
 }

@@ -4,7 +4,7 @@ import {type Logger} from '@applitools/logger'
 import {type Driver} from '@applitools/driver'
 import * as utils from '@applitools/utils'
 
-export type VHSesSettings = ServerSettings & {renderers: Renderer[]}
+export type VHSesSettings = ServerSettings & {renderers: Renderer[]; waitBeforeCapture?: number}
 
 export async function takeVHSes<TDriver extends Driver<unknown, unknown, unknown, unknown>>({
   driver,

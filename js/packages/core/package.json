@@ -59,6 +59,7 @@
     "@applitools/dom-snapshot": "4.6.2",
     "@applitools/driver": "1.9.20",
     "@applitools/logger": "1.1.14",
+    "@applitools/nml-client": "^1.0.3",
     "@applitools/req": "link:../req",
     "@applitools/screenshoter": "3.4.14",
     "@applitools/snippets": "2.4.5",

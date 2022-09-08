@@ -21,9 +21,12 @@ export type AndroidVHS = {
 }
 export type IOSVHS = {
   platformName: 'ios'
-  resourceContents: Record<string, {type: string; value: Buffer}>
   vhsCompatibilityParams: Record<string, any>
-}
+} & (
+  | {resourceContents: Record<string, {type: string; value: Buffer}>}
+  | {vhsHash: {hashFormat: string; hash: string; contentType: string}}
+)
+
 export type Target<TDriver> =
   | AutomationCore.Target<TDriver>
   | MaybeArray<DomSnapshot>

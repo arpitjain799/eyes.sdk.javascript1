@@ -8,7 +8,11 @@ import * as utils from '@applitools/utils'
 
 export * from './take-dom-snapshot'
 
-export type DomSnapshotsSettings = DomSnapshotSettings & {renderers: Renderer[]; layoutBreakpoints?: number[] | boolean}
+export type DomSnapshotsSettings = DomSnapshotSettings & {
+  renderers: Renderer[]
+  waitBeforeCapture?: number
+  layoutBreakpoints?: number[] | boolean
+}
 
 export async function takeDomSnapshots<TDriver extends Driver<unknown, unknown, unknown, unknown>>({
   driver,
@@ -32,6 +36,7 @@ export async function takeDomSnapshots<TDriver extends Driver<unknown, unknown, 
   if (!settings.layoutBreakpoints) {
     logger.log(`taking single dom snapshot`)
     await hooks?.beforeEachSnapshot?.()
+    await utils.general.sleep(settings.waitBeforeCapture)
     const snapshot = await takeDomSnapshot({context: currentContext, settings, logger})
     return Array(settings.renderers.length).fill(snapshot)
   }
@@ -70,6 +75,7 @@ export async function takeDomSnapshots<TDriver extends Driver<unknown, unknown, 
   if (requiredWidths.has(viewportSize.width)) {
     logger.log(`taking dom snapshot for existing width ${viewportSize.width}`)
     await hooks?.beforeEachSnapshot?.()
+    await utils.general.sleep(settings.waitBeforeCapture)
     const snapshot = await takeDomSnapshot({context: currentContext, settings, logger})
     requiredWidths.get(viewportSize.width).forEach(({index}) => (snapshots[index] = snapshot))
   }
@@ -97,6 +103,7 @@ export async function takeDomSnapshots<TDriver extends Driver<unknown, unknown, 
       }
     }
     await hooks?.beforeEachSnapshot?.()
+    await utils.general.sleep(settings.waitBeforeCapture)
     const snapshot = await takeDomSnapshot({context: currentContext, settings, logger})
     browsersInfo.forEach(({index}) => (snapshots[index] = snapshot))
   }
