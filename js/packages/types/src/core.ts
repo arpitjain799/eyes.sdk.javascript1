@@ -15,7 +15,7 @@ export interface Core<TDriver, TElement, TSelector> extends AutomationCore.Core<
   openEyes<TType extends 'classic' | 'ufg' = 'classic'>(options: {
     type?: TType
     target?: TDriver
-    settings?: OpenSettings<TType>
+    settings?: Partial<OpenSettings<TType>>
     config?: Config<TElement, TSelector, TType>
     logger?: Logger
   }): Promise<Eyes<TDriver, TElement, TSelector, TType>>
@@ -30,7 +30,7 @@ export interface Core<TDriver, TElement, TSelector> extends AutomationCore.Core<
 export interface EyesManager<TDriver, TElement, TSelector, TType extends 'classic' | 'ufg'> {
   openEyes(options: {
     target?: TDriver
-    settings?: OpenSettings<TType>
+    settings?: Partial<OpenSettings<TType>>
     config?: Config<TElement, TSelector, TType>
     logger?: Logger
   }): Promise<Eyes<TDriver, TElement, TSelector, TType>>
@@ -41,36 +41,36 @@ export interface ClassicEyes<TDriver, TElement, TSelector, TTarget = Target<TDri
   extends ClassicCore.Eyes<TDriver, TElement, TSelector, TTarget> {
   check(options: {
     target?: TTarget
-    settings?: CheckSettings<TElement, TSelector, 'classic'>
+    settings?: Partial<CheckSettings<TElement, TSelector, 'classic'>>
     config?: Config<TElement, TSelector, 'classic'>
     logger?: Logger
   }): Promise<CheckResult<'classic'>[]>
   checkAndClose(options: {
     target?: TTarget
-    settings?: CheckSettings<TElement, TSelector, 'classic'> & CloseSettings<'classic'>
+    settings?: Partial<CheckSettings<TElement, TSelector, 'classic'> & CloseSettings<'classic'>>
     config?: Config<TElement, TSelector, 'classic'>
     logger?: Logger
   }): Promise<TestResult<'classic'>[]>
   locate<TLocator extends string>(options: {
     target?: TTarget
-    settings: LocateSettings<TLocator, TElement, TSelector, 'classic'>
+    settings: Partial<LocateSettings<TLocator, TElement, TSelector, 'classic'>>
     config?: Config<TElement, TSelector, 'classic'>
     logger?: Logger
   }): Promise<Record<TLocator, Region[]>>
   locateText<TPattern extends string>(options: {
     target?: TTarget
-    settings: LocateTextSettings<TPattern, TElement, TSelector, 'classic'>
+    settings: Partial<LocateTextSettings<TPattern, TElement, TSelector, 'classic'>>
     config?: Config<TElement, TSelector, 'classic'>
     logger?: Logger
   }): Promise<Record<TPattern, TextRegion[]>>
   extractText(options: {
     target?: TTarget
-    settings: MaybeArray<ExtractTextSettings<TElement, TSelector, 'classic'>>
+    settings: MaybeArray<Partial<ExtractTextSettings<TElement, TSelector, 'classic'>>>
     config?: Config<TElement, TSelector, 'classic'>
     logger?: Logger
   }): Promise<string[]>
   close(options?: {
-    settings?: CloseSettings<'classic'>
+    settings?: Partial<CloseSettings<'classic'>>
     config?: Config<TElement, TSelector, 'classic'>
     logger?: Logger
   }): Promise<TestResult<'classic'>[]>
@@ -80,18 +80,18 @@ export interface UFGEyes<TDriver, TElement, TSelector, TTarget = Target<TDriver,
   extends UFGCore.Eyes<TDriver, TElement, TSelector, TTarget> {
   check(options: {
     target?: TTarget
-    settings?: CheckSettings<TElement, TSelector, 'ufg'>
+    settings?: Partial<CheckSettings<TElement, TSelector, 'ufg'>>
     config?: Config<TElement, TSelector, 'ufg'>
     logger?: Logger
   }): Promise<CheckResult<'ufg'>[]>
   checkAndClose(options: {
     target?: TTarget
-    settings?: CheckSettings<TElement, TSelector, 'ufg'> & CloseSettings<'ufg'>
+    settings?: Partial<CheckSettings<TElement, TSelector, 'ufg'> & CloseSettings<'ufg'>>
     config?: Config<TElement, TSelector, 'ufg'>
     logger?: Logger
   }): Promise<TestResult<'ufg'>[]>
   close(options?: {
-    settings?: CloseSettings<'ufg'>
+    settings?: Partial<CloseSettings<'ufg'>>
     config?: Config<TElement, TSelector, 'ufg'>
     logger?: Logger
   }): Promise<TestResult<'ufg'>[]>
@@ -108,10 +108,12 @@ export type Eyes<
   : ClassicEyes<TDriver, TElement, TSelector, TTarget>
 
 export type Config<TElement, TSelector, TType extends 'classic' | 'ufg'> = {
-  open: OpenSettings<TType>
-  screenshot: ClassicCore.ScreenshotSettings<TElement, TSelector>
-  check: Omit<CheckSettings<TElement, TSelector, TType>, keyof ClassicCore.ScreenshotSettings<TElement, TSelector>>
-  close: CloseSettings<TType>
+  open: Partial<OpenSettings<TType>>
+  screenshot: Partial<ClassicCore.ScreenshotSettings<TElement, TSelector>>
+  check: Partial<
+    Omit<CheckSettings<TElement, TSelector, TType>, keyof ClassicCore.ScreenshotSettings<TElement, TSelector>>
+  >
+  close: Partial<CloseSettings<TType>>
 }
 
 export type OpenSettings<TType extends 'classic' | 'ufg'> = TType extends 'ufg'

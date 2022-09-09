@@ -42,6 +42,7 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
     logger?: Logger
   }): Promise<Eyes<TDriver, TElement, TSelector, TType>> {
     settings = {...config?.open, ...settings}
+    settings.userTestId = `${settings.testName}--${utils.general.guid()}`
     settings.apiKey ??= utils.general.getEnvValue('API_KEY')
     settings.serverUrl ??= utils.general.getEnvValue('SERVER_URL') ?? 'https://eyesapi.applitools.com'
     settings.branchName ??= utils.general.getEnvValue('BRANCH')

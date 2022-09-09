@@ -18,25 +18,26 @@ type ContextReference<TElement, TSelector> = {
   scrollRootElement?: ElementReference<TElement, TSelector>
 }
 
-type FloatingRegionReference<TElement, TSelector> = {
-  region: RegionReference<TElement, TSelector>
-  maxUpOffset?: number
-  maxDownOffset?: number
-  maxLeftOffset?: number
-  maxRightOffset?: number
-  regionId?: string
-}
-
-type AccessibilityRegionReference<TElement, TSelector> = {
-  region: RegionReference<TElement, TSelector>
-  type?: AccessibilityRegionType
-  regionId?: string
-}
-
 type CodedRegionReference<TElement, TSelector> = {
   region: RegionReference<TElement, TSelector>
   padding?: number | types.OffsetRect
   regionId?: string
+}
+
+type FloatingRegionReference<TElement, TSelector> = CodedRegionReference<TElement, TSelector> & {
+  offset?: {top?: number; bottom?: number; left?: number; right?: number}
+}
+
+/** @deprecated */
+type LegacyFloatingRegionReference<TElement, TSelector> = CodedRegionReference<TElement, TSelector> & {
+  maxUpOffset?: number
+  maxDownOffset?: number
+  maxLeftOffset?: number
+  maxRightOffset?: number
+}
+
+type AccessibilityRegionReference<TElement, TSelector> = CodedRegionReference<TElement, TSelector> & {
+  type?: AccessibilityRegionType
 }
 
 type CheckSettingsSpec<TElement = unknown, TSelector = unknown> = {
@@ -60,7 +61,11 @@ export type CheckSettings<TElement, TSelector> = {
   layoutRegions?: (RegionReference<TElement, TSelector> | CodedRegionReference<TElement, TSelector>)[]
   strictRegions?: (RegionReference<TElement, TSelector> | CodedRegionReference<TElement, TSelector>)[]
   contentRegions?: (RegionReference<TElement, TSelector> | CodedRegionReference<TElement, TSelector>)[]
-  floatingRegions?: (FloatingRegionReference<TElement, TSelector> | RegionReference<TElement, TSelector>)[]
+  floatingRegions?: (
+    | FloatingRegionReference<TElement, TSelector>
+    | LegacyFloatingRegionReference<TElement, TSelector>
+    | RegionReference<TElement, TSelector>
+  )[]
   accessibilityRegions?: (AccessibilityRegionReference<TElement, TSelector> | RegionReference<TElement, TSelector>)[]
   disableBrowserFetching?: boolean
   layoutBreakpoints?: boolean | number[]
@@ -132,8 +137,9 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
     )
   }
 
-  constructor(settings?: CheckSettings<TElement, TSelector>) {
+  constructor(settings?: CheckSettings<TElement, TSelector> | CheckSettingsFluent<TElement, TSelector>) {
     if (!settings) return this
+    if (utils.types.instanceOf(settings, CheckSettingsFluent)) return settings
     if (settings.name) this.name(settings.name)
     if (settings.region) this.region(settings.region)
     if (settings.frames) {
@@ -340,6 +346,7 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
   }
 
   floatingRegion(region: FloatingRegionReference<TElement, TSelector>): this
+  floatingRegion(region: LegacyFloatingRegionReference<TElement, TSelector>): this
   floatingRegion(
     region: RegionReference<TElement, TSelector> | LegacyRegion,
     maxUpOffset?: number,
@@ -348,7 +355,11 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
     maxRightOffset?: number,
   ): this
   floatingRegion(
-    region: FloatingRegionReference<TElement, TSelector> | RegionReference<TElement, TSelector> | LegacyRegion,
+    region:
+      | FloatingRegionReference<TElement, TSelector>
+      | LegacyFloatingRegionReference<TElement, TSelector>
+      | RegionReference<TElement, TSelector>
+      | LegacyRegion,
     maxUpOffset?: number,
     maxDownOffset?: number,
     maxLeftOffset?: number,
@@ -357,16 +368,28 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
     if (utils.types.has(region, ['left', 'top', 'width', 'height'])) {
       region = {x: region.left, y: region.top, width: region.width, height: region.height}
     }
-    const floatingRegion = utils.types.has(region, 'region')
-      ? region
-      : {region, maxUpOffset, maxDownOffset, maxLeftOffset, maxRightOffset}
+
+    let floatingRegion: FloatingRegionReference<TElement, TSelector>
+    if (utils.types.has(region, 'region')) {
+      const {maxUpOffset, maxDownOffset, maxLeftOffset, maxRightOffset, ...rest} = region as any
+      floatingRegion = {
+        offset: {top: maxUpOffset, bottom: maxDownOffset, left: maxLeftOffset, right: maxRightOffset},
+        ...rest,
+      }
+    } else {
+      floatingRegion = {
+        region,
+        offset: {top: maxUpOffset, bottom: maxDownOffset, left: maxLeftOffset, right: maxRightOffset},
+      }
+    }
+
     utils.guard.custom(floatingRegion.region, value => this._isRegionReference(value), {
       name: 'region',
     })
-    utils.guard.isNumber(floatingRegion.maxUpOffset, {name: 'maxUpOffset'})
-    utils.guard.isNumber(floatingRegion.maxDownOffset, {name: 'maxDownOffset'})
-    utils.guard.isNumber(floatingRegion.maxLeftOffset, {name: 'maxLeftOffset'})
-    utils.guard.isNumber(floatingRegion.maxRightOffset, {name: 'maxRightOffset'})
+    utils.guard.isNumber(floatingRegion.offset.top, {name: 'maxUpOffset'})
+    utils.guard.isNumber(floatingRegion.offset.bottom, {name: 'maxDownOffset'})
+    utils.guard.isNumber(floatingRegion.offset.left, {name: 'maxLeftOffset'})
+    utils.guard.isNumber(floatingRegion.offset.right, {name: 'maxRightOffset'})
     if (!this._settings.floatingRegions) this._settings.floatingRegions = []
     this._settings.floatingRegions.push(floatingRegion)
     return this
@@ -591,13 +614,21 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
     return this.beforeRenderScreenshotHook(script)
   }
 
-  visualGridOption(key: string, value: any) {
+  ufgOption(key: string, value: any) {
     this._settings.visualGridOptions = {...this._settings.visualGridOptions, [key]: value}
     return this
   }
-  visualGridOptions(options: {[key: string]: any}) {
+  ufgOptions(options: {[key: string]: any}) {
     this._settings.visualGridOptions = options
     return this
+  }
+  /** @deprecated */
+  visualGridOption(key: string, value: any) {
+    return this.ufgOption(key, value)
+  }
+  /** @deprecated */
+  visualGridOptions(options: {[key: string]: any}) {
+    return this.ufgOptions(options)
   }
 
   renderId(renderId: string): this {
@@ -641,8 +672,35 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
   }
 
   /** @internal */
-  toJSON(): CheckSettings<TElement, TSelector> {
-    return utils.general.toJSON(this._settings)
+  toJSON(): types.CheckSettings<TElement, TSelector, 'classic' | 'ufg'> {
+    return {
+      name: this._settings.name,
+      region: this._settings.region,
+      frames: this._settings.frames,
+      scrollRootElement: this._settings.scrollRootElement,
+      fully: this._settings.fully,
+      matchLevel: this._settings.matchLevel,
+      useDom: this._settings.useDom,
+      sendDom: this._settings.sendDom,
+      enablePatterns: this._settings.enablePatterns,
+      ignoreDisplacements: this._settings.ignoreDisplacements,
+      ignoreCaret: this._settings.ignoreCaret,
+      ignoreRegions: this._settings.ignoreRegions,
+      layoutRegions: this._settings.layoutRegions,
+      strictRegions: this._settings.strictRegions,
+      contentRegions: this._settings.contentRegions,
+      floatingRegions: this._settings.floatingRegions,
+      accessibilityRegions: this._settings.accessibilityRegions,
+      disableBrowserFetching: this._settings.disableBrowserFetching,
+      layoutBreakpoints: this._settings.layoutBreakpoints,
+      ufgOptions: this._settings.visualGridOptions,
+      hooks: this._settings.hooks,
+      pageId: this._settings.pageId,
+      lazyLoad: this._settings.lazyLoad,
+      waitBeforeCapture: this._settings.waitBeforeCapture,
+      maxDuration: this._settings.timeout,
+      userCommandId: this._settings.variationGroupId,
+    }
   }
 
   /** @internal */

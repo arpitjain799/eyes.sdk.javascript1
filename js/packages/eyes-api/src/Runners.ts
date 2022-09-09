@@ -17,11 +17,11 @@ type EyesRunnerSpec<TDriver = unknown, TElement = unknown, TSelector = unknown> 
 export abstract class EyesRunner {
   protected _spec: EyesRunnerSpec<unknown, unknown, unknown>
 
-  private _manager: types.EyesManager<unknown, unknown, unknown>
+  private _manager: types.EyesManager<unknown, unknown, unknown, 'classic' | 'ufg'>
   private _eyes: Eyes<unknown, unknown, unknown>[] = []
 
   /** @internal */
-  abstract get config(): types.EyesManagerConfig
+  abstract get config(): any
 
   /** @internal */
   attach<TDriver, TElement, TSelector>(
@@ -35,9 +35,9 @@ export abstract class EyesRunner {
   /** @internal */
   async openEyes<TDriver, TElement, TSelector>(options: {
     driver: TDriver
-    config?: types.EyesConfig<TElement, TSelector>
+    config?: types.Config<TElement, TSelector, 'classic' | 'ufg'>
     on?: (name: string, data?: Record<string, any>) => void
-  }): Promise<types.Eyes<TDriver, TElement, TSelector>> {
+  }): Promise<types.Eyes<TDriver, TElement, TSelector, 'classic' | 'ufg'>> {
     if (!this._manager) this._manager = await this._spec.makeManager(this.config)
 
     return await this._manager.openEyes(options)
@@ -54,7 +54,7 @@ export abstract class EyesRunner {
         proxy: eyes.configuration.proxy,
       })
     try {
-      const summary = await this._manager.closeManager({throwErr})
+      const summary = await this._manager.closeManager({settings: {throwErr}})
       return new TestResultsSummaryData({summary, deleteTest})
     } catch (err) {
       if (!err.info?.testResult) throw err
@@ -93,11 +93,10 @@ export class VisualGridRunner extends EyesRunner {
   }
 
   /** @internal */
-  get config(): types.EyesManagerConfig<'vg'> {
+  get config() {
     return {
-      type: 'vg',
+      type: 'ufg',
       concurrency: this._testConcurrency || this._legacyConcurrency,
-      legacy: Boolean(this._legacyConcurrency),
     }
   }
 
@@ -118,7 +117,7 @@ export class VisualGridRunner extends EyesRunner {
 
 export class ClassicRunner extends EyesRunner {
   /** @internal */
-  get config(): types.EyesManagerConfig<'classic'> {
+  get config() {
     return {type: 'classic'}
   }
 }

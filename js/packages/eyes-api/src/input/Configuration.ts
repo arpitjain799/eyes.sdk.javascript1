@@ -145,7 +145,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
 
   constructor(config?: Configuration<TElement, TSelector>) {
     if (!config) return this
-    if (config instanceof ConfigurationData) config = config.toJSON()
+    if (config instanceof ConfigurationData) config = config.toObject()
 
     for (const [key, value] of Object.entries(config)) {
       ;(this as any)[key] = value
@@ -1151,8 +1151,91 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   /** @internal */
-  toJSON(): Configuration<TElement, TSelector> {
-    return utils.general.toJSON(this._config)
+  toJSON(): types.Config<TElement, TSelector, 'classic'> & types.Config<TElement, TSelector, 'ufg'> {
+    return {
+      open: {
+        serverUrl: this.serverUrl,
+        apiKey: this.apiKey,
+        agentId: this.agentId,
+        proxy: this.proxy,
+        connectionTimeout: this.connectionTimeout,
+        removeSession: this.removeSession,
+        appName: this.appName,
+        testName: this.testName,
+        displayName: this.displayName,
+        sessionType: this.sessionType,
+        properties: this.properties,
+        batch: this.batch,
+        baselineEnvName: this.baselineEnvName,
+        environmentName: this.environmentName,
+        environment: {
+          hostingApp: this.hostApp,
+          hostingAppInfo: this.hostAppInfo,
+          os: this.hostOS,
+          osInfo: this.hostOSInfo,
+          deviceName: this.deviceInfo,
+          viewportSize: this.viewportSize,
+        },
+        branchName: this.branchName,
+        parentBranchName: this.parentBranchName,
+        baselineBranchName: this.baselineBranchName,
+        compareWithParentBranch: this.compareWithParentBranch,
+        ignoreBaseline: this.ignoreBaseline,
+        ignoreGitBranching: this.ignoreGitMergeBase,
+        saveDiffs: this.saveDiffs,
+        dontCloseBatches: this.dontCloseBatches,
+      },
+      screenshot: {
+        fully: this.forceFullPageScreenshot,
+        scrollRootElement: this.scrollRootElement,
+        stitchMode: this.stitchMode,
+        hideScrollbars: this.hideScrollbars,
+        hideCaret: this.hideCaret,
+        overlap: !utils.types.isNull(this.stitchOverlap) ? {bottom: this.stitchOverlap} : undefined,
+        waitBetweenStitches: this.waitBeforeScreenshots,
+        waitBeforeCapture: this.waitBeforeCapture,
+        normalization: {
+          cut: this.cut,
+          rotation: this.rotation,
+          scaleRatio: this.scaleRatio,
+        },
+        debugImages:
+          this.debugScreenshots?.save && utils.types.has(this.debugScreenshots, 'path')
+            ? this.debugScreenshots
+            : undefined,
+      },
+      check: {
+        renderers: this.browsersInfo.map(browserInfo => {
+          if (utils.types.has(browserInfo, 'iosDeviceInfo')) {
+            const {iosVersion, ...iosDeviceInfo} = browserInfo.iosDeviceInfo
+            return {iosDeviceInfo: {...iosDeviceInfo, version: iosVersion}}
+          }
+          return browserInfo
+        }),
+        ufgOptions: this.visualGridOptions,
+        layoutBreakpoints: this.layoutBreakpoints,
+        disableBrowserFetching: this.disableBrowserFetching,
+        autProxy: this.autProxy,
+        sendDom: this.sendDom,
+        maxDuration: this.matchTimeout,
+        matchLevel: this.defaultMatchSettings?.matchLevel,
+        ignoreCaret: this.defaultMatchSettings?.ignoreCaret,
+        ignoreDisplacements: this.defaultMatchSettings?.ignoreDisplacements,
+        enablePatterns: this.defaultMatchSettings?.enablePatterns,
+        accessibilitySettings: this.defaultMatchSettings?.accessibilitySettings,
+        useDom: this.defaultMatchSettings?.useDom,
+        ignoreRegions: this.defaultMatchSettings?.ignoreRegions,
+        contentRegions: this.defaultMatchSettings?.contentRegions,
+        layoutRegions: this.defaultMatchSettings?.layoutRegions,
+        strictRegions: this.defaultMatchSettings?.strictRegions,
+        floatingRegions: this.defaultMatchSettings?.floatingRegions,
+        accessibilityRegions: this.defaultMatchSettings?.accessibilityRegions,
+      },
+      close: {
+        updateBaselineIfDifferent: this.saveFailedTests,
+        updateBaselineIfNew: this.saveNewTests,
+      },
+    }
   }
 
   /** @internal */

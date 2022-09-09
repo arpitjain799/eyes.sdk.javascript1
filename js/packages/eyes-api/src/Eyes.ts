@@ -40,12 +40,12 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   private _config: ConfigurationData<TElement, TSelector>
   private _runner: EyesRunner
   private _driver: TDriver
-  private _eyes: types.Eyes<TDriver, TElement, TSelector>
+  private _eyes: types.Eyes<TDriver, TElement, TSelector, 'ufg' | 'classic'>
   private _events: Map<string, Set<(...args: any[]) => any>> = new Map()
   private _handlers: SessionEventHandlers = new SessionEventHandlers()
 
   static async setViewportSize(driver: unknown, size: RectangleSize) {
-    await this._spec.setViewportSize({driver, size})
+    await this._spec.setViewportSize({target: driver, size})
   }
 
   constructor(runner?: EyesRunner, config?: Configuration<TElement, TSelector>)
@@ -175,22 +175,17 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
 
     if (this._config.isDisabled) return driver
 
-    const config: types.EyesConfig<TElement, TSelector> = this._config.toJSON()
+    const config: types.Config<TElement, TSelector, 'ufg' | 'classic'> = this._config.toJSON()
     if (utils.types.instanceOf(configOrAppName, ConfigurationData)) {
       Object.assign(config, configOrAppName.toJSON())
     } else if (utils.types.isObject(configOrAppName)) {
       Object.assign(config, configOrAppName)
     } else if (utils.types.isString(configOrAppName)) {
-      config.appName = configOrAppName
+      config.open.appName = configOrAppName
     }
-    if (utils.types.isString(testName)) config.testName = testName
-    if (utils.types.has(viewportSize, ['width', 'height'])) config.viewportSize = viewportSize
-    if (utils.types.isEnumValue(sessionType, SessionTypeEnum)) config.sessionType = sessionType
-
-    // TODO remove when major version of sdk should be released
-    config.keepPlatformNameAsIs = true
-    // TODO remove when major version of sdk should be released
-    if (config.proxy) config.proxy.isHttpOnly ??= false
+    if (utils.types.isString(testName)) config.open.testName = testName
+    if (utils.types.has(viewportSize, ['width', 'height'])) config.open.environment.viewportSize = viewportSize
+    if (utils.types.isEnumValue(sessionType, SessionTypeEnum)) config.open.sessionType = sessionType
 
     this._eyes = await this._runner.openEyes({
       driver,
@@ -257,25 +252,19 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     if (this._config.isDisabled) return null
     if (!this.isOpen) throw new EyesError('Eyes not open')
 
-    let settings: CheckSettings<TElement, TSelector>
+    let settings: types.CheckSettings<TElement, TSelector, 'classic' | 'ufg'>
     if (utils.types.isString(checkSettingsOrName)) {
       utils.guard.notNull(checkSettings, {name: 'checkSettings'})
-      settings = utils.types.instanceOf(checkSettings, CheckSettingsFluent)
-        ? checkSettings.name(checkSettingsOrName).toJSON()
-        : {...checkSettings, name: checkSettingsOrName}
+      settings = new CheckSettingsFluent(checkSettings).name(checkSettingsOrName).toJSON()
     } else {
-      settings = utils.types.instanceOf(checkSettingsOrName, CheckSettingsFluent)
-        ? checkSettingsOrName.toJSON()
-        : {...checkSettingsOrName}
+      settings = new CheckSettingsFluent(checkSettingsOrName).toJSON()
     }
 
     const config = this._config.toJSON()
     // TODO remove when major version of sdk should be released
-    if (config.proxy) config.proxy.isHttpOnly ??= false
-    // TODO remove when major version of sdk should be released
-    config.forceFullPageScreenshot ??= false
+    config.screenshot.fully = false
 
-    const result = await this._eyes.check({settings, config})
+    const [result] = await this._eyes.check({settings, config})
 
     return new MatchResultData(result)
   }
@@ -287,8 +276,6 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     if (!this.isOpen) throw new EyesError('Eyes not open')
 
     const config = this._config.toJSON()
-    // TODO remove when major version of sdk should be released
-    if (config.proxy) config.proxy.isHttpOnly ??= false
 
     return this._eyes.locate({settings, config})
   }
@@ -300,21 +287,19 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     if (!this.isOpen) throw new EyesError('Eyes not open')
 
     const config = this._config.toJSON()
-    // TODO remove when major version of sdk should be released
-    if (config.proxy) config.proxy.isHttpOnly ??= false
 
-    return this._eyes.extractTextRegions({settings, config})
+    return this._eyes.locateText({settings, config})
   }
 
-  async extractText(regions: OCRRegion<TElement, TSelector>[]): Promise<string[]> {
+  async extractText(settings: OCRRegion<TElement, TSelector>[]): Promise<string[]> {
     if (this._config.isDisabled) return null
     if (!this.isOpen) throw new EyesError('Eyes not open')
 
-    const config = this._config.toJSON()
-    // TODO remove when major version of sdk should be released
-    if (config.proxy) config.proxy.isHttpOnly ??= false
+    settings = settings.map(settings => ({...settings, region: settings.target}))
 
-    return this._eyes.extractText({regions, config})
+    const config = this._config.toJSON()
+
+    return this._eyes.extractText({settings, config})
   }
 
   async close(throwErr = true): Promise<TestResultsData> {
@@ -328,7 +313,9 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
         proxy: this._config.proxy,
       })
     try {
-      const [result] = await this._eyes.close({throwErr})
+      const config = this._config.toJSON()
+
+      const [result] = await this._eyes.close({settings: {throwErr}, config})
       return new TestResultsData(result, deleteTest)
     } catch (err) {
       if (!err.info?.testResult) throw err
@@ -380,7 +367,7 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
 
   async getViewportSize(): Promise<RectangleSizeData> {
     return (
-      this._config.getViewportSize() || new RectangleSizeData(await this._spec.getViewportSize({driver: this._driver}))
+      this._config.getViewportSize() || new RectangleSizeData(await this._spec.getViewportSize({target: this._driver}))
     )
   }
   async setViewportSize(size: RectangleSize): Promise<void> {
@@ -390,10 +377,10 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
       this._config.setViewportSize(size)
     } else {
       try {
-        await this._spec.setViewportSize({driver: this._driver, size})
+        await this._spec.setViewportSize({target: this._driver, size})
         this._config.setViewportSize(size)
       } catch (err) {
-        this._config.setViewportSize(await this._spec.getViewportSize({driver: this._driver}))
+        this._config.setViewportSize(await this._spec.getViewportSize({target: this._driver}))
         throw new TestFailedError('Failed to set the viewport size')
       }
     }
