@@ -46,19 +46,22 @@ export abstract class EyesRunner {
   async getAllTestResults(throwErr = true): Promise<TestResultsSummaryData> {
     if (!this._manager) return new TestResultsSummaryData()
     const [eyes] = this._eyes
-    const deleteTest = (options: any) =>
+    const deleteTest: typeof this._spec.deleteTest = options =>
       this._spec.deleteTest({
         ...options,
-        serverUrl: eyes.configuration.serverUrl,
-        apiKey: eyes.configuration.apiKey,
-        proxy: eyes.configuration.proxy,
+        settings: {
+          ...options.settings,
+          serverUrl: eyes.configuration.serverUrl,
+          apiKey: eyes.configuration.apiKey,
+          proxy: eyes.configuration.proxy,
+        },
       })
     try {
       const summary = await this._manager.closeManager({settings: {throwErr}})
       return new TestResultsSummaryData({summary, deleteTest})
     } catch (err) {
-      if (!err.info?.testResult) throw err
-      const testResult = new TestResultsData(err.info.testResult, deleteTest)
+      if (!err.info?.result) throw err
+      const testResult = new TestResultsData({result: err.info.result, deleteTest})
       if (err.reason === 'test failed') {
         throw new TestFailedError(err.message, testResult)
       } else if (err.reason === 'test different') {

@@ -316,10 +316,10 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
       const config = this._config.toJSON()
 
       const [result] = await this._eyes.close({settings: {throwErr}, config})
-      return new TestResultsData(result, deleteTest)
+      return new TestResultsData({result, deleteTest})
     } catch (err) {
       if (!err.info?.testResult) throw err
-      const testResult = new TestResultsData(err.info.testResult, deleteTest)
+      const testResult = new TestResultsData({result: err.info.result, deleteTest})
       if (err.reason === 'test failed') {
         throw new TestFailedError(err.message, testResult)
       } else if (err.reason === 'test different') {
@@ -341,16 +341,19 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     return this._eyes
       .abort()
       .then(([result]) => {
-        return new TestResultsData(result, settings =>
-          this._spec.deleteTest({
-            settings: {
-              ...settings,
-              serverUrl: this._config.serverUrl,
-              apiKey: this._config.apiKey,
-              proxy: this._config.proxy,
-            },
-          }),
-        )
+        return new TestResultsData({
+          result,
+          deleteTest: options =>
+            this._spec.deleteTest({
+              ...options,
+              settings: {
+                ...options.settings,
+                serverUrl: this._config.serverUrl,
+                apiKey: this._config.apiKey,
+                proxy: this._config.proxy,
+              },
+            }),
+        })
       })
       .finally(() => (this._eyes = null))
   }
