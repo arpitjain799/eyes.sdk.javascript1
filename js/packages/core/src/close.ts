@@ -18,10 +18,10 @@ export function makeClose<TDriver, TElement, TSelector, TType extends 'classic' 
     config,
     logger = defaultLogger,
   }: {
-    settings: CloseSettings<TType>
+    settings?: CloseSettings<TType>
     config?: Config<TElement, TSelector, TType>
     logger?: Logger
-  }): Promise<TestResult<TType>[]> {
+  } = {}): Promise<TestResult<TType>[]> {
     settings = {...config?.close, ...settings}
     settings.updateBaselineIfNew ??= true
 

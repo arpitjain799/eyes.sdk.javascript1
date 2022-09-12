@@ -34,7 +34,7 @@ export abstract class EyesRunner {
 
   /** @internal */
   async openEyes<TDriver, TElement, TSelector>(options: {
-    driver: TDriver
+    target: TDriver
     config?: types.Config<TElement, TSelector, 'classic' | 'ufg'>
     on?: (name: string, data?: Record<string, any>) => void
   }): Promise<types.Eyes<TDriver, TElement, TSelector, 'classic' | 'ufg'>> {

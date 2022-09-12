@@ -1205,7 +1205,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
             : undefined,
       },
       check: {
-        renderers: this.browsersInfo.map(browserInfo => {
+        renderers: this.browsersInfo?.map(browserInfo => {
           if (utils.types.has(browserInfo, 'iosDeviceInfo')) {
             const {iosVersion, ...iosDeviceInfo} = browserInfo.iosDeviceInfo
             return {iosDeviceInfo: {...iosDeviceInfo, version: iosVersion}}

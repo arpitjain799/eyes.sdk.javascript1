@@ -188,7 +188,7 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     if (utils.types.isEnumValue(sessionType, SessionTypeEnum)) config.open.sessionType = sessionType
 
     this._eyes = await this._runner.openEyes({
-      driver,
+      target: this._driver,
       config,
       on: (name: string, data?: Record<string, any>) => {
         const globalHandlers = this._events.get('*')

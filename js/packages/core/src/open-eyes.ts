@@ -37,7 +37,7 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
   }: {
     type?: TType
     target?: TDriver
-    settings?: OpenSettings<TType>
+    settings?: Partial<OpenSettings<TType>>
     config?: Config<TElement, TSelector, TType>
     logger?: Logger
   }): Promise<Eyes<TDriver, TElement, TSelector, TType>> {
@@ -58,7 +58,10 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
     settings.batch.notifyOnCompletion ??= utils.general.getEnvValue('BATCH_NOTIFY', 'boolean')
     ;(settings as OpenSettings<'ufg'>).renderConcurrency ??= (config as Config<any, any, 'ufg'>)?.check?.renderers?.length
 
-    baseCore.logEvent({
+    core ??=
+      type === 'ufg' ? makeUFGCore({spec, core: baseCore, concurrency, logger}) : makeClassicCore({spec, core: baseCore, logger})
+
+    core.logEvent({
       settings: {
         serverUrl: settings.serverUrl,
         apiKey: settings.apiKey,
@@ -75,9 +78,7 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
       logger,
     })
 
-    core ??=
-      type === 'ufg' ? makeUFGCore({spec, core: baseCore, concurrency, logger}) : makeClassicCore({spec, core: baseCore, logger})
-    const eyes = await core.openEyes({target, settings, logger})
+    const eyes = await core.openEyes({target, settings: settings as OpenSettings<TType>, logger})
     return {
       ...eyes,
       check: makeCheck<TDriver, TElement, TSelector, TType>({eyes, logger}),

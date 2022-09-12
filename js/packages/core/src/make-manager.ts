@@ -50,7 +50,7 @@ export function makeMakeManager<TDriver, TContext, TElement, TSelector>({
     return {
       openEyes: async options => {
         const eyes = await openEyes(options)
-        const item = {eyes, shouldCloseBatch: !options.settings.dontCloseBatches} as typeof storage[number]
+        const item = {eyes, shouldCloseBatch: !options.settings?.dontCloseBatches} as typeof storage[number]
         storage.push(item)
         return {
           ...eyes,
