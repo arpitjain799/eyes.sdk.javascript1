@@ -32,6 +32,9 @@ export function makeCheck<TDriver, TElement, TSelector, TType extends 'classic' 
     settings.hideScrollbars ??= true
     settings.hideCaret ??= true
     settings.overlap ??= {top: 10, bottom: 50}
+    settings.matchLevel ??= 'Strict'
+    settings.ignoreCaret ??= true
+    settings.useDom ?? false
     ;(settings as CheckSettings<TElement, TSelector, 'classic'>).maxDuration ??= 2000
 
     const results = await eyes.check({target: target as any, settings, logger})
