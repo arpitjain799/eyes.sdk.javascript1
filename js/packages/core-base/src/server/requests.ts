@@ -18,6 +18,7 @@ import type {
   TestResult,
   OpenSettings,
 } from '@applitools/types/base'
+import {type Fetch} from '@applitools/req'
 import {makeLogger, type Logger} from '@applitools/logger'
 import {makeReqEyes, type ReqEyes} from './req-eyes'
 import {makeUpload, type Upload} from './upload'
@@ -54,7 +55,15 @@ export interface EyesRequests extends Eyes {
   abort(options?: {logger?: Logger}): Promise<TestResult[]>
 }
 
-export function makeCoreRequests({agentId, logger: defaultLogger}: {agentId: string; logger?: Logger}): CoreRequests {
+export function makeCoreRequests({
+  agentId: defaultAgentId,
+  fetch,
+  logger: defaultLogger,
+}: {
+  agentId: string
+  fetch?: Fetch
+  logger?: Logger
+}): CoreRequests {
   defaultLogger ??= makeLogger()
 
   const getAccountInfoWithCache = utils.general.cachify(getAccountInfo)
@@ -70,8 +79,8 @@ export function makeCoreRequests({agentId, logger: defaultLogger}: {agentId: str
   }
 
   async function openEyes({settings, logger = defaultLogger}: {settings: OpenSettings; logger?: Logger}): Promise<EyesRequests> {
-    settings.agentId = `${agentId} ${settings.agentId ? `[${settings.agentId}]` : ''}`.trim()
-    const req = makeReqEyes({config: settings, logger})
+    const agentId = `${defaultAgentId} ${settings.agentId ? `[${settings.agentId}]` : ''}`.trim()
+    const req = makeReqEyes({config: {...settings, agentId}, fetch, logger})
     logger.log('Request "openEyes" called with settings', settings)
 
     const accountPromise = getAccountInfoWithCache({settings})
@@ -81,8 +90,8 @@ export function makeCoreRequests({agentId, logger: defaultLogger}: {agentId: str
       method: 'POST',
       body: {
         startInfo: {
-          agentId: `${agentId} ${settings.agentId ? `[${settings.agentId}]` : ''}`.trim(),
-          agentSessionId: utils.general.guid(),
+          agentId,
+          agentSessionId: settings.userTestId,
           agentRunId: settings.userTestId,
           sessionType: settings.sessionType,
           appIdOrName: settings.appName,
@@ -147,7 +156,7 @@ export function makeCoreRequests({agentId, logger: defaultLogger}: {agentId: str
 
     const upload = makeUpload({config: {uploadUrl: test.account.uploadUrl}, logger})
 
-    return makeEyesRequests({test, req, upload, logger})
+    return makeEyesRequests({test: {...test, appName: settings.appName}, req, upload, logger})
   }
 
   async function getAccountInfo({
@@ -157,8 +166,8 @@ export function makeCoreRequests({agentId, logger: defaultLogger}: {agentId: str
     settings: ServerSettings
     logger?: Logger
   }): Promise<AccountInfo> {
-    settings.agentId = `${agentId} ${settings.agentId ? `[${settings.agentId}]` : ''}`.trim()
-    const req = makeReqEyes({config: settings, logger})
+    const agentId = `${defaultAgentId} ${settings.agentId ? `[${settings.agentId}]` : ''}`.trim()
+    const req = makeReqEyes({config: {...settings, agentId}, fetch, logger})
     logger.log('Request "getAccountInfo" called with settings', settings)
     const response = await req('/api/sessions/renderinfo', {
       name: 'getAccountInfo',
@@ -181,8 +190,8 @@ export function makeCoreRequests({agentId, logger: defaultLogger}: {agentId: str
     settings: ServerSettings & {batchId: string}
     logger?: Logger
   }): Promise<{branchName: string; parentBranchName: string}> {
-    settings.agentId = `${agentId} ${settings.agentId ? `[${settings.agentId}]` : ''}`.trim()
-    const req = makeReqEyes({config: settings, logger})
+    const agentId = `${defaultAgentId} ${settings.agentId ? `[${settings.agentId}]` : ''}`.trim()
+    const req = makeReqEyes({config: {...settings, agentId}, fetch, logger})
     logger.log('Request "getBatchBranches" called with settings', settings)
     const response = await req(`/api/sessions/batches/${settings.batchId}/config/bypointerId`, {
       name: 'getBatchBranches',
@@ -198,8 +207,8 @@ export function makeCoreRequests({agentId, logger: defaultLogger}: {agentId: str
   }
 
   async function closeBatch({settings, logger = defaultLogger}: {settings: CloseBatchSettings; logger?: Logger}) {
-    settings.agentId = `${agentId} ${settings.agentId ? `[${settings.agentId}]` : ''}`.trim()
-    const req = makeReqEyes({config: settings, logger})
+    const agentId = `${defaultAgentId} ${settings.agentId ? `[${settings.agentId}]` : ''}`.trim()
+    const req = makeReqEyes({config: {...settings, agentId}, fetch, logger})
     logger.log('Request "closeBatch" called with settings', settings)
     await req(`/api/sessions/batches/${settings.batchId}/close/bypointerId`, {
       name: 'closeBatch',
@@ -211,8 +220,8 @@ export function makeCoreRequests({agentId, logger: defaultLogger}: {agentId: str
   }
 
   async function deleteTest({settings, logger = defaultLogger}: {settings: DeleteTestSettings; logger?: Logger}) {
-    settings.agentId = `${agentId} ${settings.agentId ? `[${settings.agentId}]` : ''}`.trim()
-    const req = makeReqEyes({config: settings, logger})
+    const agentId = `${defaultAgentId} ${settings.agentId ? `[${settings.agentId}]` : ''}`.trim()
+    const req = makeReqEyes({config: {...settings, agentId}, fetch, logger})
     logger.log('Request "deleteTest" called with settings', settings)
     await req(`/api/sessions/batches/${settings.batchId}/${settings.testId}`, {
       name: 'deleteTest',
@@ -229,8 +238,8 @@ export function makeCoreRequests({agentId, logger: defaultLogger}: {agentId: str
   async function logEvent({settings, logger = defaultLogger}: {settings: MaybeArray<LogEventSettings>; logger?: Logger}) {
     settings = utils.types.isArray(settings) ? settings : [settings]
     const [config] = settings
-    config.agentId = `${agentId} ${config.agentId ? `[${config.agentId}]` : ''}`.trim()
-    const req = makeReqEyes({config, logger})
+    const agentId = `${defaultAgentId} ${config.agentId ? `[${config.agentId}]` : ''}`.trim()
+    const req = makeReqEyes({config: {...config, agentId}, fetch, logger})
     logger.log('Request "logEvent" called with settings', settings)
     await req(`/api/sessions/log`, {
       name: 'logEvent',
@@ -257,7 +266,7 @@ export function makeEyesRequests({
   upload,
   logger: defaultLogger,
 }: {
-  test: TestInfo
+  test: TestInfo & {appName: string}
   req: ReqEyes
   upload: Upload
   logger?: Logger
@@ -380,7 +389,7 @@ export function makeEyesRequests({
       method: 'POST',
       body: {
         imageUrl: target.image,
-        appName: settings.appName,
+        appName: test.appName,
         locatorNames: settings.locatorNames,
         firstOnly: settings.firstOnly,
       },
@@ -408,11 +417,12 @@ export function makeEyesRequests({
     ])
     const response = await req('/api/sessions/running/images/textregions', {
       name: 'locateText',
+      method: 'POST',
       body: {
         appOutput: {
           screenshotUrl: target.image,
           domUrl: target.dom,
-          location: target.locationInViewport,
+          location: utils.geometry.round(target.locationInViewport),
         },
         patterns: settings.patterns,
         ignoreCase: settings.ignoreCase,
@@ -524,12 +534,11 @@ function transformCheckOptions({target, settings}: {target: Target; settings: Ch
       title: target.name,
       screenshotUrl: target.image,
       domUrl: target.dom,
-      imageLocation: target.locationInViewport,
+      location: utils.geometry.round(target.locationInViewport),
       pageCoverageInfo: settings.pageId && {
         pageId: settings.pageId,
-        width: target.fullViewSize.width,
-        height: target.fullViewSize.height,
-        imagePositionInPage: target.locationInView,
+        imagePositionInPage: utils.geometry.round(target.locationInView),
+        ...utils.geometry.round(target.fullViewSize),
       },
     },
     options: {

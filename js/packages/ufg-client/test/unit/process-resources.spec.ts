@@ -144,8 +144,7 @@ describe('processResources', () => {
         if (
           request.url === url &&
           request.headers.get('Referer') === 'some-referer' &&
-          request.headers.get('User-Agent') ===
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36'
+          request.headers.get('User-Agent') === 'SomeUserAgent'
         ) {
           return new Response(Buffer.from('content'), {
             status: 200,
@@ -158,7 +157,7 @@ describe('processResources', () => {
 
     const resources = await processResources({
       resources: {[url]: makeResource({url})},
-      settings: {referer: 'some-referer', renderer: {name: 'chrome', width: 100, height: 100}},
+      settings: {referer: 'some-referer', userAgent: 'SomeUserAgent'},
     })
 
     assert.deepStrictEqual(resources.mapping, {
@@ -701,8 +700,7 @@ describe('processResources', () => {
       renderer: {name: 'ie', width: 100, height: 100},
     })
     const standardResource = makeResource({url: 'http://bla/some-resource', renderer: {name: 'ie', width: 100, height: 100}})
-    const defaultUserAgent =
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36'
+    const defaultUserAgent = 'DefaultUserAgent'
 
     const resources = await processResources({
       resources: {
@@ -711,6 +709,7 @@ describe('processResources', () => {
       },
       settings: {
         renderer: {name: 'chrome', width: 100, height: 100},
+        userAgent: defaultUserAgent,
       },
     })
 

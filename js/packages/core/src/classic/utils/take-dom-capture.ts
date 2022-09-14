@@ -33,7 +33,7 @@ export async function takeDomCapture<TDriver extends Driver<unknown, unknown, un
   }
 
   const url = await driver.getUrl()
-  const dom = await captureContextDom(context)
+  const dom = await captureContextDom(driver.mainContext)
 
   // TODO save debug DOM like we have for debug screenshots
   return dom

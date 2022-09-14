@@ -55,7 +55,7 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
       if (!settings.environment.os && driver.isNative && driver.platformName) {
         settings.environment.os = driver.platformName
         if (driver.platformVersion) {
-          settings.environment.os += ` ${this._driver.platformVersion}`
+          settings.environment.os += ` ${driver.platformVersion}`
         }
       }
     }
@@ -64,6 +64,15 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
 
     return {
       ...eyes,
+      get running() {
+        return eyes.running
+      },
+      get closed() {
+        return eyes.closed
+      },
+      get aborted() {
+        return eyes.aborted
+      },
       check: makeCheck({spec, eyes, target, logger}),
       checkAndClose: makeCheckAndClose({spec, eyes, target, logger}),
       locate: makeLocate({spec, eyes, target, logger}),

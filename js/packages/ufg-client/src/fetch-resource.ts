@@ -1,4 +1,4 @@
-import type {AutProxy, Proxy, Cookie, Renderer} from '@applitools/types'
+import type {AutProxy, Proxy, Cookie} from '@applitools/types'
 import type {Logger} from '@applitools/types'
 import {makeReq, Request, Response, AbortController, type Fetch, type Hooks, type AbortSignal} from '@applitools/req'
 import {makeResource, type UrlResource, type ContentfulResource, FailedResource} from './resource'
@@ -6,11 +6,11 @@ import {createCookieHeader} from './utils/create-cookie-header'
 import {createUserAgentHeader} from './utils/create-user-agent-header'
 
 export type FetchResourceSettings = {
-  renderer?: Renderer
   referer?: string
   proxy?: Proxy
   autProxy?: AutProxy
   cookies?: Cookie[]
+  userAgent?: string
 }
 
 export type FetchResource = (options: {
@@ -39,7 +39,7 @@ export function makeFetchResource({
     fetch,
   })
 
-  return async function FetchResource({
+  return async function fetchResource({
     resource,
     settings = {},
   }: {
@@ -53,7 +53,7 @@ export function makeFetchResource({
       headers: {
         Referer: settings.referer,
         Cookie: createCookieHeader({url: resource.url, cookies: settings.cookies}),
-        'User-Agent': createUserAgentHeader({renderer: resource.renderer ?? settings.renderer}),
+        'User-Agent': createUserAgentHeader({renderer: resource.renderer}) ?? settings.userAgent,
       },
       proxy: resourceUrl => {
         const {proxy, autProxy} = settings

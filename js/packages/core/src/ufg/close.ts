@@ -34,7 +34,6 @@ export function makeClose({checks, logger: defaultLogger}: Options) {
     if (error) {
       await Promise.all(
         Array.from(eyes.entries(), async ([eyes, renderer]) => {
-          if (!eyes || eyes.aborted) return
           const [result] = await eyes.abort({logger})
           return {...result, renderer}
         }),

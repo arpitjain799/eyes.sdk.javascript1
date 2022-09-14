@@ -130,6 +130,13 @@ export function batchify<
   }
 }
 
+export function wrap<TFunc extends (...args: any[]) => any>(
+  func: TFunc,
+  wrapper: (func: TFunc, ...args: Parameters<TFunc>) => ReturnType<TFunc>,
+): TFunc {
+  return ((...args: Parameters<TFunc>) => wrapper(func, ...args)) as TFunc
+}
+
 export function pluralize(object: [] | number, config?: [manyCase: string, singleCase: string]): string {
   const count = types.isArray(object) ? object.length : object
   const isMany = count > 1

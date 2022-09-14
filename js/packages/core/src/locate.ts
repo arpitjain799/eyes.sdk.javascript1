@@ -24,7 +24,6 @@ export function makeLocate<TDriver, TElement, TSelector, TType extends 'classic'
     logger?: Logger
   }): Promise<Record<TLocator, Region[]>> {
     settings = {...config?.screenshot, ...settings}
-    settings.appName ??= config?.open?.appName
 
     const results = await eyes.locate({target: target as any, settings, logger})
     return results

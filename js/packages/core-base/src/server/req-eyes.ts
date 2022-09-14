@@ -1,5 +1,5 @@
 import {Proxy} from '@applitools/types'
-import globalReq, {makeReq, mergeOptions, Request, type Req, type Options, type Hooks} from '@applitools/req'
+import globalReq, {makeReq, mergeOptions, Request, type Req, type Options, type Hooks, type Fetch} from '@applitools/req'
 import {Logger} from '@applitools/logger'
 import * as utils from '@applitools/utils'
 
@@ -13,14 +13,14 @@ export type ReqEyesConfig = {
 }
 
 export type ReqEyesOptions = Options & {
-  name: string
+  name?: string
   expected?: number | number[]
   logger?: Logger
 }
 
 export type ReqEyes = Req<ReqEyesOptions>
 
-export function makeReqEyes({config, logger}: {config: ReqEyesConfig; logger?: Logger}) {
+export function makeReqEyes({config, fetch, logger}: {config: ReqEyesConfig; fetch?: Fetch; logger?: Logger}) {
   return makeReq<ReqEyesOptions>({
     baseUrl: config.serverUrl,
     query: {apiKey: config.apiKey, removeSession: config.removeSession},
@@ -47,6 +47,7 @@ export function makeReqEyes({config, logger}: {config: ReqEyesConfig; logger?: L
       },
     ],
     hooks: [handleLongRequests({req: globalReq}), handleLogs({logger}), handleUnexpectedResponse()],
+    fetch,
   })
 }
 

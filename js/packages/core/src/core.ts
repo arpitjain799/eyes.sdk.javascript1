@@ -30,7 +30,7 @@ export function makeCore<TDriver, TContext, TElement, TSelector>({
   const baseCore = core ?? makeBaseCore({agentId, cwd, logger})
 
   return {
-    ...core,
+    ...baseCore,
     isDriver: spec.isDriver,
     isElement: spec.isElement,
     isSelector: spec.isSelector,

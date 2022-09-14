@@ -56,10 +56,10 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   ) {
     if (utils.types.instanceOf(runnerOrConfig, EyesRunner)) {
       this._runner = runnerOrConfig
-      this._config = new ConfigurationData(config)
+      this._config = new ConfigurationData(config, this._spec)
     } else {
       this._runner = new ClassicRunner()
-      this._config = new ConfigurationData(runnerOrConfig ?? config)
+      this._config = new ConfigurationData(runnerOrConfig ?? config, this._spec)
     }
 
     this._runner.attach(this, this._spec)
@@ -92,13 +92,13 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     return this._config
   }
   set configuration(config: Configuration<TElement, TSelector>) {
-    this._config = new ConfigurationData(config)
+    this._config = new ConfigurationData(config, this._spec)
   }
   getConfiguration(): ConfigurationData<TElement, TSelector> {
     return this._config
   }
   setConfiguration(config: Configuration<TElement, TSelector>) {
-    this._config = new ConfigurationData(config)
+    this._config = new ConfigurationData(config, this._spec)
   }
 
   get isOpen(): boolean {
@@ -179,7 +179,7 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     if (utils.types.instanceOf(configOrAppName, ConfigurationData)) {
       Object.assign(config, configOrAppName.toJSON())
     } else if (utils.types.isObject(configOrAppName)) {
-      Object.assign(config, configOrAppName)
+      Object.assign(config, new ConfigurationData(configOrAppName, this._spec).toJSON())
     } else if (utils.types.isString(configOrAppName)) {
       config.open.appName = configOrAppName
     }
@@ -255,14 +255,14 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     let settings: types.CheckSettings<TElement, TSelector, 'classic' | 'ufg'>
     if (utils.types.isString(checkSettingsOrName)) {
       utils.guard.notNull(checkSettings, {name: 'checkSettings'})
-      settings = new CheckSettingsFluent(checkSettings).name(checkSettingsOrName).toJSON()
+      settings = new CheckSettingsFluent(checkSettings, this._spec).name(checkSettingsOrName).toJSON()
     } else {
-      settings = new CheckSettingsFluent(checkSettingsOrName).toJSON()
+      settings = new CheckSettingsFluent(checkSettingsOrName, this._spec).toJSON()
     }
 
     const config = this._config.toJSON()
     // TODO remove when major version of sdk should be released
-    config.screenshot.fully = false
+    config.screenshot.fully ??= false
 
     const [result] = await this._eyes.check({settings, config})
 
@@ -295,7 +295,13 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     if (this._config.isDisabled) return null
     if (!this.isOpen) throw new EyesError('Eyes not open')
 
-    settings = settings.map(settings => ({...settings, region: settings.target}))
+    settings = settings.map(settings => ({
+      ...settings,
+      region:
+        utils.types.isPlainObject(settings.target) && utils.types.has(settings.target, ['left', 'top'])
+          ? {...settings.target, x: settings.target.left, y: settings.target.top}
+          : settings.target,
+    }))
 
     const config = this._config.toJSON()
 

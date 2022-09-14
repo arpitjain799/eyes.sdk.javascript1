@@ -1,5 +1,4 @@
-import {type ProcessResources, type ResourceMapping} from './process-resources'
-import {type FetchResourceSettings} from './fetch-resource'
+import {type ProcessResources, type ProcessResourcesSettings, type ResourceMapping} from './process-resources'
 import {makeResource, type HashedResource} from './resource'
 import {makeResourceDom} from './resource-dom'
 import {makeResourceVhs} from './resource-vhs'
@@ -12,10 +11,10 @@ export type RenderTarget = {
   vhsCompatibilityParams?: Record<string, any>
 }
 
-export type CreateRenderTarget = (options: {snapshot: any; settings?: FetchResourceSettings}) => Promise<RenderTarget>
+export type CreateRenderTarget = (options: {snapshot: any; settings?: ProcessResourcesSettings}) => Promise<RenderTarget>
 
 export function makeCreateRenderTarget({processResources}: {processResources: ProcessResources}): CreateRenderTarget {
-  return async function createRenderTarget({snapshot, settings}: {snapshot: any; settings?: FetchResourceSettings}) {
+  return async function createRenderTarget({snapshot, settings}: {snapshot: any; settings?: ProcessResourcesSettings}) {
     const isWeb = !!snapshot.cdt
     const processedSnapshotResources = await processSnapshotResources({snapshot, settings})
 
@@ -40,7 +39,7 @@ export function makeCreateRenderTarget({processResources}: {processResources: Pr
     settings,
   }: {
     snapshot: any
-    settings?: FetchResourceSettings
+    settings?: ProcessResourcesSettings
   }): Promise<{mapping: ResourceMapping; promise: Promise<ResourceMapping>}> {
     const [snapshotResources, ...frameResources] = await Promise.all([
       processResources({
@@ -49,7 +48,11 @@ export function makeCreateRenderTarget({processResources}: {processResources: Pr
             return Object.assign(resources, {[url]: makeResource({url, renderer: settings?.renderer})})
           }, {}),
           ...Object.entries(snapshot.resourceContents ?? {}).reduce((resources, [url, resource]: [string, any]) => {
-            return Object.assign(resources, {[url]: makeResource({value: resource.value, contentType: resource.type})})
+            return Object.assign(resources, {
+              [url]: resource.errorStatusCode
+                ? makeResource({id: url, errorStatusCode: resource.errorStatusCode})
+                : makeResource({url, value: resource.value, contentType: resource.type, dependencies: resource.dependencies}),
+            })
           }, {}),
         },
         settings: {referer: snapshot.url, ...settings},

@@ -1,3 +1,4 @@
+import type {Renderer} from '@applitools/types'
 import {
   makeResource,
   type UrlResource,
@@ -6,7 +7,7 @@ import {
   type KnownResource,
   type FailedResource,
 } from './resource'
-import type {Logger} from '@applitools/types'
+import {type Logger} from '@applitools/logger'
 import {type FetchResource, type FetchResourceSettings} from './fetch-resource'
 import {type UploadResource} from './upload-resource'
 import {extractCssDependencyUrls} from './utils/extract-css-dependency-urls'
@@ -15,8 +16,10 @@ import * as utils from '@applitools/utils'
 
 export type ProcessResources = (options: {
   resources: Record<string, FailedResource | ContentfulResource | UrlResource>
-  settings?: FetchResourceSettings
+  settings?: ProcessResourcesSettings
 }) => Promise<{mapping: ResourceMapping; promise: Promise<ResourceMapping>}>
+
+export type ProcessResourcesSettings = FetchResourceSettings & {renderer?: Renderer}
 
 export type ResourceMapping = Record<string, HashedResource | {errorStatusCode: number}>
 
@@ -36,7 +39,7 @@ export function makeProcessResources({
     settings,
   }: {
     resources: Record<string, ContentfulResource | UrlResource | FailedResource>
-    settings?: FetchResourceSettings
+    settings?: ProcessResourcesSettings
   }): Promise<{mapping: ResourceMapping; promise: Promise<ResourceMapping>}> {
     const processedResources = await Object.entries(resources).reduce(async (processedResourcesPromise, [url, resource]) => {
       if (utils.types.has(resource, 'value') || utils.types.has(resource, 'errorStatusCode')) {
@@ -69,7 +72,7 @@ export function makeProcessResources({
     settings,
   }: {
     resource: UrlResource
-    settings: FetchResourceSettings
+    settings: ProcessResourcesSettings
   }): Promise<KnownResource> {
     const cachedResource = cache.get(resource.id)
     if (cachedResource) {
@@ -99,7 +102,7 @@ export function makeProcessResources({
     settings,
   }: {
     resource: UrlResource
-    settings: FetchResourceSettings
+    settings: ProcessResourcesSettings
   }): Promise<Record<string, KnownResource>> {
     const processedResourcesWithDependencies = {} as Record<string, KnownResource>
 

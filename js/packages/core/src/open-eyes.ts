@@ -46,7 +46,7 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
     settings.apiKey ??= utils.general.getEnvValue('API_KEY')
     settings.serverUrl ??= utils.general.getEnvValue('SERVER_URL') ?? 'https://eyesapi.applitools.com'
     settings.branchName ??= utils.general.getEnvValue('BRANCH')
-    settings.parentBranchName = utils.general.getEnvValue('PARENT_BRANCH')
+    settings.parentBranchName ??= utils.general.getEnvValue('PARENT_BRANCH')
     settings.baselineBranchName ??= utils.general.getEnvValue('BASELINE_BRANCH')
     settings.ignoreBaseline ??= false
     settings.compareWithParentBranch ??= false
@@ -81,6 +81,15 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
     const eyes = await core.openEyes({target, settings: settings as OpenSettings<TType>, logger})
     return {
       ...eyes,
+      get running() {
+        return eyes.running
+      },
+      get closed() {
+        return eyes.closed
+      },
+      get aborted() {
+        return eyes.aborted
+      },
       check: makeCheck<TDriver, TElement, TSelector, TType>({eyes, logger}),
       checkAndClose: makeCheckAndClose<TDriver, TElement, TSelector, TType>({eyes, logger}),
       locate: makeLocate<TDriver, TElement, TSelector, TType>({eyes, logger}),

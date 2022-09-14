@@ -112,7 +112,9 @@ export async function takeDomSnapshots<TDriver extends Driver<unknown, unknown, 
   return snapshots
 
   function calculateBreakpoint({breakpoints, value}: {breakpoints: number[]; value: number}): number {
-    const nextBreakpointIndex = breakpoints.findIndex(breakpoint => breakpoint > value)
+    const nextBreakpointIndex = breakpoints
+      .sort((item1, item2) => (item1 > item2 ? 1 : -1))
+      .findIndex(breakpoint => breakpoint > value)
     if (nextBreakpointIndex === -1) return breakpoints[breakpoints.length - 1]
     else if (nextBreakpointIndex === 0) return breakpoints[0] - 1
     else return breakpoints[nextBreakpointIndex - 1]

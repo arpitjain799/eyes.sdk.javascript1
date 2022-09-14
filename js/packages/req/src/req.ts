@@ -191,7 +191,7 @@ export function mergeOptions<TOptions extends Options>(baseOption: TOptions, opt
  * Helper function that will create {@link req} function with predefined options
  * @example const req = makeReq({baseUrl: 'http://localhost:2107'})
  */
-export function makeReq<TOptions extends Options = Options>(baseOption?: Partial<TOptions>): Req<TOptions> {
+export function makeReq<TOptions extends Options = Options>(baseOption?: Partial<Options>): Req<TOptions> {
   return (location, options) => req(location, mergeOptions(baseOption, options))
 }
 

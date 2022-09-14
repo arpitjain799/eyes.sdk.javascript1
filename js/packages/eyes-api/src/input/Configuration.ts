@@ -126,26 +126,33 @@ export type Configuration<TElement = unknown, TSelector = unknown> = GeneralConf
 export class ConfigurationData<TElement = unknown, TSelector = unknown>
   implements Required<Configuration<TElement, TSelector>>
 {
-  protected static readonly _spec: ConfigurationSpec
-  protected get _spec(): ConfigurationSpec<TElement, TSelector> {
-    return (this.constructor as typeof ConfigurationData)._spec as ConfigurationSpec<TElement, TSelector>
-  }
+  protected static readonly _spec: ConfigurationSpec<any, any>
+
+  private _spec: ConfigurationSpec<TElement, TSelector>
 
   private _config: Configuration<TElement, TSelector> = {}
 
-  private _isSelector(selector: any): selector is types.Selector<TSelector> {
+  private _isElementReference(value: any): value is TElement | types.Selector<TSelector> {
+    const spec = this._spec ?? ((this.constructor as typeof ConfigurationData)._spec as typeof this._spec)
+    return spec.isElement(value) || this._isSelectorReference(value)
+  }
+
+  private _isSelectorReference(selector: any): selector is types.Selector<TSelector> {
+    const spec = this._spec ?? ((this.constructor as typeof ConfigurationData)._spec as typeof this._spec)
     return (
-      this._spec.isSelector(selector) ||
+      spec.isSelector(selector) ||
       utils.types.isString(selector) ||
       (utils.types.isPlainObject(selector) &&
         utils.types.has(selector, 'selector') &&
-        (utils.types.isString(selector.selector) || this._spec.isSelector(selector.selector)))
+        (utils.types.isString(selector.selector) || spec.isSelector(selector.selector)))
     )
   }
 
-  constructor(config?: Configuration<TElement, TSelector>) {
+  constructor(config?: Configuration<TElement, TSelector>, spec?: ConfigurationSpec<TElement, TSelector>) {
     if (!config) return this
     if (config instanceof ConfigurationData) config = config.toObject()
+
+    this._spec = spec
 
     for (const [key, value] of Object.entries(config)) {
       ;(this as any)[key] = value
@@ -931,7 +938,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
     return this._config.scrollRootElement
   }
   set scrollRootElement(scrollRootElement: TElement | types.Selector<TSelector>) {
-    utils.guard.custom(scrollRootElement, value => this._spec.isElement(value) || this._isSelector(value), {
+    utils.guard.custom(scrollRootElement, value => this._isElementReference(value), {
       name: 'scrollRootElement',
       message: 'must be element or selector',
       strict: false,
@@ -1152,7 +1159,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
 
   /** @internal */
   toJSON(): types.Config<TElement, TSelector, 'classic'> & types.Config<TElement, TSelector, 'ufg'> {
-    return {
+    const config: types.Config<TElement, TSelector, 'classic'> & types.Config<TElement, TSelector, 'ufg'> = {
       open: {
         serverUrl: this.serverUrl,
         apiKey: this.apiKey,
@@ -1222,7 +1229,10 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
         ignoreCaret: this.defaultMatchSettings?.ignoreCaret,
         ignoreDisplacements: this.defaultMatchSettings?.ignoreDisplacements,
         enablePatterns: this.defaultMatchSettings?.enablePatterns,
-        accessibilitySettings: this.defaultMatchSettings?.accessibilitySettings,
+        accessibilitySettings: this.defaultMatchSettings?.accessibilitySettings && {
+          level: this.defaultMatchSettings.accessibilitySettings.level,
+          version: this.defaultMatchSettings.accessibilitySettings.guidelinesVersion,
+        },
         useDom: this.defaultMatchSettings?.useDom,
         ignoreRegions: this.defaultMatchSettings?.ignoreRegions,
         contentRegions: this.defaultMatchSettings?.contentRegions,
@@ -1236,6 +1246,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
         updateBaselineIfNew: this.saveNewTests,
       },
     }
+    return JSON.parse(JSON.stringify(config))
   }
 
   /** @internal */

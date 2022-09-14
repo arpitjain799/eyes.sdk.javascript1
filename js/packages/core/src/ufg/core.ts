@@ -7,6 +7,7 @@ import {makeCore as makeBaseCore} from '@applitools/core-base'
 import {makeGetViewportSize} from '../automation/get-viewport-size'
 import {makeSetViewportSize} from '../automation/set-viewport-size'
 import {makeOpenEyes} from './open-eyes'
+import * as utils from '@applitools/utils'
 import throat from 'throat'
 
 type Options<TDriver, TContext, TElement, TSelector> = {
@@ -33,30 +34,31 @@ export function makeCore<TDriver, TContext, TElement, TSelector>({
   core ??= makeBaseCore({agentId, cwd, logger})
 
   const throttle = throat(concurrency)
-  const {openEyes} = core
-  core = {
-    ...core,
-    openEyes: options => {
-      return new Promise((resolve, rejects) => {
-        throttle(() => {
-          return new Promise<void>(async done => {
-            try {
-              const eyes = await openEyes(options)
-              const eyesWithConcurrency: typeof eyes = {
-                ...eyes,
-                close: options => eyes.close(options).finally(done),
-                abort: options => eyes.abort(options).finally(done),
-              }
-              resolve(eyesWithConcurrency)
-            } catch (error) {
-              rejects(error)
-              done()
-            }
-          })
+  // openEyes with concurrency
+  core.openEyes = utils.general.wrap(core.openEyes, (openEyes, options) => {
+    return new Promise((resolve, rejects) => {
+      throttle(() => {
+        return new Promise<void>(async done => {
+          try {
+            const eyes = await openEyes(options)
+            // release concurrency slot when closed
+            eyes.close = utils.general.wrap(eyes.close, (close, options) => {
+              return close(options).finally(done)
+            })
+            // release concurrency slot when aborted
+            eyes.abort = utils.general.wrap(eyes.abort, (abort, options) => {
+              return abort(options).finally(done)
+            })
+            resolve(eyes)
+          } catch (error) {
+            rejects(error)
+            // release concurrency slot when error thrown
+            done()
+          }
         })
       })
-    },
-  }
+    })
+  })
 
   return {
     ...core,

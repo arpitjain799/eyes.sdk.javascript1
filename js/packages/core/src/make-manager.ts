@@ -60,7 +60,7 @@ export function makeMakeManager<TDriver, TContext, TElement, TSelector>({
             return promise
           },
           abort: options => {
-            const promise = eyes.close(options)
+            const promise = eyes.abort(options)
             item.promise ??= promise
             return promise
           },

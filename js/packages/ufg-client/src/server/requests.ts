@@ -217,7 +217,13 @@ export function makeUFGRequests({config, logger: defaultLogger}: {config: UFGReq
         locationInViewport: result.imagePositionInActiveFrame,
         locationInView: result.imagePositionInActiveFrame,
         fullViewSize: result.fullPageSize,
-        selectorRegions: result.selectorRegions,
+        selectorRegions: result.selectorRegions?.map(regions => {
+          return regions?.map(region => ({
+            ...region,
+            x: Math.max(0, region.x - result.imagePositionInActiveFrame.x),
+            y: Math.max(0, region.y - result.imagePositionInActiveFrame.y),
+          }))
+        }),
       }))
     })
     logger.log('Request "checkRenderResults" finished successfully with body', results)
@@ -366,7 +372,7 @@ function transformSelector({selector}: {selector: Selector}) {
         currentSelector = undefined
       }
     }
-    pathSelector.unshift(stepSelector)
+    pathSelector.push(stepSelector)
   }
   return pathSelector
 }

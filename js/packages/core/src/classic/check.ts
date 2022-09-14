@@ -37,6 +37,7 @@ export function makeCheck<TDriver, TContext, TElement, TSelector>({
     }
     // TODO driver custom config
     const driver = await makeDriver({spec, driver: target, logger})
+    await driver.currentContext.setScrollingElement(settings.scrollRootElement)
     if (settings.lazyLoad) await waitForLazyLoad({driver, settings: settings.lazyLoad !== true ? settings.lazyLoad : {}, logger})
     const shouldRunOnce = eyes.test.isNew
     const finishAt = Date.now() + settings.maxDuration

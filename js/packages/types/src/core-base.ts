@@ -161,7 +161,6 @@ export interface CheckSettings<TRegion = Region> extends ImageSettings<TRegion> 
 }
 
 export interface LocateSettings<TLocator extends string, TRegion = Region> extends ImageSettings<TRegion> {
-  appName: string
   locatorNames: TLocator[]
   firstOnly?: boolean
   /** @internal */

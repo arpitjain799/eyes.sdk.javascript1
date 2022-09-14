@@ -108,10 +108,9 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
     return new this().shadow(selector)
   }
 
-  protected static readonly _spec: CheckSettingsSpec
-  protected get _spec(): CheckSettingsSpec<TElement, TSelector> {
-    return (this.constructor as typeof CheckSettingsFluent)._spec as CheckSettingsSpec<TElement, TSelector>
-  }
+  protected static readonly _spec: CheckSettingsSpec<any, any>
+
+  private _spec: CheckSettingsSpec<TElement, TSelector>
 
   private _settings: CheckSettings<TElement, TSelector> = {}
 
@@ -124,24 +123,33 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
   }
 
   private _isElementReference(value: any): value is ElementReference<TSelector, TElement> {
-    return this._spec.isElement(value) || this._isSelectorReference(value)
+    const spec = this._spec ?? ((this.constructor as typeof CheckSettingsFluent)._spec as typeof this._spec)
+    return spec.isElement(value) || this._isSelectorReference(value)
   }
 
   private _isSelectorReference(selector: any): selector is SelectorReference<TSelector> {
+    const spec = this._spec ?? ((this.constructor as typeof CheckSettingsFluent)._spec as typeof this._spec)
     return (
-      this._spec.isSelector(selector) ||
+      spec.isSelector(selector) ||
       utils.types.isString(selector) ||
       (utils.types.isPlainObject(selector) &&
         utils.types.has(selector, 'selector') &&
-        (utils.types.isString(selector.selector) || this._spec.isSelector(selector.selector)))
+        (utils.types.isString(selector.selector) || spec.isSelector(selector.selector)))
     )
   }
 
-  constructor(settings?: CheckSettings<TElement, TSelector> | CheckSettingsFluent<TElement, TSelector>) {
+  constructor(
+    settings?: CheckSettings<TElement, TSelector> | CheckSettingsFluent<TElement, TSelector>,
+    spec?: CheckSettingsSpec<TElement, TSelector>,
+  ) {
     if (!settings) return this
     if (utils.types.instanceOf(settings, CheckSettingsFluent)) return settings
+
+    this._spec = spec
+
     if (settings.name) this.name(settings.name)
     if (settings.region) this.region(settings.region)
+    if (settings.scrollRootElement) this.scrollRootElement(settings.scrollRootElement)
     if (settings.frames) {
       settings.frames.forEach(reference => {
         if (utils.types.isNull(reference)) return
@@ -152,7 +160,6 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
         }
       })
     }
-    if (settings.scrollRootElement) this.scrollRootElement(settings.scrollRootElement)
     if (!utils.types.isNull(settings.fully)) this.fully(settings.fully)
     if (settings.matchLevel) this.matchLevel(settings.matchLevel as MatchLevelEnum)
     if (!utils.types.isNull(settings.useDom)) this.useDom(settings.useDom)
@@ -196,6 +203,7 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
     if (settings.variationGroupId) this.variationGroupId(settings.variationGroupId)
     if (!utils.types.isNull(settings.timeout)) this.timeout(settings.timeout)
     if (!utils.types.isNull(settings.waitBeforeCapture)) this.waitBeforeCapture(settings.waitBeforeCapture)
+    if (!utils.types.isNull(settings.lazyLoad)) this.lazyLoad(settings.lazyLoad)
   }
 
   /** @undocumented */
@@ -661,7 +669,7 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
     return this
   }
 
-  lazyLoad(options: LazyLoadOptions): this {
+  lazyLoad(options?: LazyLoadOptions | boolean): this {
     this._settings.lazyLoad = options ?? true
     return this
   }
@@ -673,7 +681,7 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
 
   /** @internal */
   toJSON(): types.CheckSettings<TElement, TSelector, 'classic' | 'ufg'> {
-    return {
+    const settings: types.CheckSettings<TElement, TSelector, 'classic' | 'ufg'> = {
       name: this._settings.name,
       region: this._settings.region,
       frames: this._settings.frames,
@@ -701,6 +709,7 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
       maxDuration: this._settings.timeout,
       userCommandId: this._settings.variationGroupId,
     }
+    return JSON.parse(JSON.stringify(settings))
   }
 
   /** @internal */

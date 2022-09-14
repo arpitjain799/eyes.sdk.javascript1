@@ -2,6 +2,7 @@ import type {MaybeArray, Target, Config, ExtractTextSettings} from '@applitools/
 import type {Eyes as ClassicEyes} from '@applitools/types/classic'
 import type {Eyes as UFGEyes} from '@applitools/types/ufg'
 import {type Logger} from '@applitools/logger'
+import * as utils from '@applitools/utils'
 
 type Options<TDriver, TElement, TSelector> = {
   eyes: ClassicEyes<TDriver, TElement, TSelector> | UFGEyes<TDriver, TElement, TSelector>
@@ -23,7 +24,9 @@ export function makeExtractText<TDriver, TElement, TSelector, TType extends 'cla
     config?: Config<TElement, TSelector, TType>
     logger?: Logger
   }): Promise<string[]> {
-    settings = {...config?.screenshot, ...settings}
+    settings = utils.types.isArray(settings)
+      ? settings.map(settings => ({...config?.screenshot, ...settings}))
+      : {...config?.screenshot, ...settings}
     const results = await eyes.extractText({target: target as any, settings, logger})
     return results
   }
