@@ -706,7 +706,7 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
       pageId: this._settings.pageId,
       lazyLoad: this._settings.lazyLoad,
       waitBeforeCapture: this._settings.waitBeforeCapture,
-      maxDuration: this._settings.timeout,
+      retryTimeout: this._settings.timeout,
       userCommandId: this._settings.variationGroupId,
     }
     return JSON.parse(JSON.stringify(settings))

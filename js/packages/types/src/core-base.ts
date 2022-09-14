@@ -35,6 +35,11 @@ export type Target = {
 
 export interface Core<TEyes = Eyes> {
   openEyes(options: {settings: OpenSettings; logger?: Logger}): Promise<TEyes>
+  locate<TLocator extends string>(options: {
+    target: Target
+    settings: LocateSettings<TLocator>
+    logger?: Logger
+  }): Promise<Record<TLocator, Region[]>>
   getAccountInfo(options: {settings: ServerSettings; logger?: Logger}): Promise<AccountInfo>
   closeBatch(options: {settings: MaybeArray<CloseBatchSettings>; logger?: Logger}): Promise<void>
   deleteTest(options: {settings: MaybeArray<DeleteTestSettings>; logger?: Logger}): Promise<void>
@@ -53,11 +58,6 @@ export interface Eyes<TTarget = Target> {
     settings?: CheckSettings & CloseSettings
     logger?: Logger
   }): Promise<TestResult[]>
-  locate?<TLocator extends string>(options: {
-    target: TTarget
-    settings: LocateSettings<TLocator>
-    logger?: Logger
-  }): Promise<Record<TLocator, Region[]>>
   locateText?<TPattern extends string>(options: {
     target: TTarget
     settings: LocateTextSettings<TPattern>
@@ -90,6 +90,26 @@ export interface ServerSettings {
   agentId?: string
 }
 
+export interface ImageSettings<TRegion = Region> {
+  region?: TRegion
+  normalization?: {
+    cut?: ImageCropRect | ImageCropRegion
+    rotation?: ImageRotation
+    scaleRatio?: number
+  }
+  debugImages?: {path: string; prefix?: string}
+}
+
+export interface LocateSettings<TLocator extends string, TRegion = Region>
+  extends ServerSettings,
+    ImageSettings<TRegion> {
+  appName: string
+  locatorNames: TLocator[]
+  firstOnly?: boolean
+  /** @internal */
+  userLocateId?: string
+}
+
 export interface OpenSettings extends ServerSettings {
   appName: string
   testName: string
@@ -99,9 +119,9 @@ export interface OpenSettings extends ServerSettings {
   sessionType?: SessionType
   properties?: CustomProperty[]
   batch?: Batch
-  dontCloseBatches?: boolean
-  environmentName?: string
+  keepBatchOpen?: boolean
   environment?: Environment
+  environmentName?: string
   baselineEnvName?: string
   branchName?: string
   parentBranchName?: string
@@ -120,16 +140,6 @@ export interface OpenSettings extends ServerSettings {
 type CodedRegion<TRegion = Region> = {region: TRegion; padding?: number | OffsetRect; regionId?: string}
 type FloatingRegion<TRegion = Region> = CodedRegion<TRegion> & {offset?: OffsetRect}
 type AccessibilityRegion<TRegion = Region> = CodedRegion<TRegion> & {type?: AccessibilityRegionType}
-export interface ImageSettings<TRegion = Region> {
-  region?: TRegion
-  normalization?: {
-    cut?: ImageCropRect | ImageCropRegion
-    rotation?: ImageRotation
-    scaleRatio?: number
-  }
-  debugImages?: {path: string; prefix?: string}
-}
-
 export interface CheckSettings<TRegion = Region> extends ImageSettings<TRegion> {
   name?: string
   ignoreRegions?: (TRegion | CodedRegion<TRegion>)[]
@@ -158,13 +168,6 @@ export interface CheckSettings<TRegion = Region> extends ImageSettings<TRegion> 
   forceMismatch?: boolean
   /** @internal */
   forceMatch?: boolean
-}
-
-export interface LocateSettings<TLocator extends string, TRegion = Region> extends ImageSettings<TRegion> {
-  locatorNames: TLocator[]
-  firstOnly?: boolean
-  /** @internal */
-  userCommandId?: string
 }
 
 export interface LocateTextSettings<TPattern extends string, TRegion = Region> extends ImageSettings<TRegion> {
@@ -218,8 +221,10 @@ export interface TestInfo {
   batchId: string
   baselineId: string
   sessionId: string
+  appId: string
   resultsUrl: string
   isNew: boolean
+  keepBatchOpen: boolean
   server: ServerSettings
   account: AccountInfo
 }

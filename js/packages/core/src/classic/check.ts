@@ -12,8 +12,8 @@ import * as utils from '@applitools/utils'
 type Options<TDriver, TContext, TElement, TSelector> = {
   spec: SpecDriver<TDriver, TContext, TElement, TSelector>
   eyes: BaseEyes
-  target: Target<TDriver>
-  logger: Logger
+  target?: Target<TDriver>
+  logger?: Logger
 }
 
 export function makeCheck<TDriver, TContext, TElement, TSelector>({
@@ -40,7 +40,7 @@ export function makeCheck<TDriver, TContext, TElement, TSelector>({
     await driver.currentContext.setScrollingElement(settings.scrollRootElement)
     if (settings.lazyLoad) await waitForLazyLoad({driver, settings: settings.lazyLoad !== true ? settings.lazyLoad : {}, logger})
     const shouldRunOnce = eyes.test.isNew
-    const finishAt = Date.now() + settings.maxDuration
+    const finishAt = Date.now() + settings.retryTimeout
     let baseTarget: BaseTarget
     let baseSettings: BaseCheckSettings
     let results: CheckResult[]

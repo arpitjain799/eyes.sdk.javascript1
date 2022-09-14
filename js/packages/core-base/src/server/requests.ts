@@ -26,6 +26,11 @@ import * as utils from '@applitools/utils'
 
 export interface CoreRequests extends Core {
   openEyes(options: {settings: OpenSettings; logger?: Logger}): Promise<EyesRequests>
+  locate<TLocator extends string>(options: {
+    target: Target
+    settings: LocateSettings<TLocator>
+    logger?: Logger
+  }): Promise<Record<TLocator, Region[]>>
   getAccountInfo(options: {settings: ServerSettings; logger?: Logger}): Promise<AccountInfo>
   getBatchBranches(options: {
     settings: ServerSettings & {batchId: string}
@@ -40,11 +45,6 @@ export interface EyesRequests extends Eyes {
   readonly test: TestInfo
   check(options: {target: Target; settings?: CheckSettings; logger?: Logger}): Promise<CheckResult[]>
   checkAndClose(options: {target: Target; settings?: CheckSettings; logger?: Logger}): Promise<TestResult[]>
-  locate<TLocator extends string>(options: {
-    target: Target
-    settings: LocateSettings<TLocator>
-    logger?: Logger
-  }): Promise<Record<TLocator, Region[]>>
   locateText<TPattern extends string>(options: {
     target: Target
     settings: LocateTextSettings<TPattern>
@@ -73,6 +73,7 @@ export function makeCoreRequests({
     getAccountInfo: getAccountInfoWithCache,
     getBatchBranches: getBatchBranchesWithCache,
     openEyes,
+    locate,
     closeBatch,
     deleteTest,
     logEvent,
@@ -97,6 +98,7 @@ export function makeCoreRequests({
           appIdOrName: settings.appName,
           scenarioIdOrName: settings.testName,
           displayName: settings.displayName,
+          properties: settings.properties,
           batchInfo: settings.batch && {
             id: settings.batch.id,
             name: settings.batch.name,
@@ -105,8 +107,6 @@ export function makeCoreRequests({
             notifyOnCompletion: settings.batch.notifyOnCompletion,
             properties: settings.batch.properties,
           },
-          baselineEnvName: settings.baselineEnvName,
-          environmentName: settings.environmentName,
           environment:
             settings.environment &&
             (settings.environment.rawEnvironment ?? {
@@ -118,6 +118,8 @@ export function makeCoreRequests({
               displaySize: utils.geometry.round(settings.environment.viewportSize),
               inferred: settings.environment.userAgent && `useragent:${settings.environment.userAgent}`,
             }),
+          environmentName: settings.environmentName,
+          baselineEnvName: settings.baselineEnvName,
           branchName: settings.branchName,
           parentBranchName: settings.parentBranchName,
           baselineBranchName: settings.baselineBranchName,
@@ -125,7 +127,6 @@ export function makeCoreRequests({
           parentBranchBaselineSavedBefore: settings.gitBranchingTimestamp,
           ignoreBaseline: settings.ignoreBaseline,
           saveDiffs: settings.saveDiffs,
-          properties: settings.properties,
           timeout: settings.abortIdleTestTimeout,
         },
       },
@@ -140,7 +141,9 @@ export function makeCoreRequests({
         baselineId: result.baselineId,
         sessionId: result.sessionId,
         resultsUrl: result.url,
+        appId: settings.appName,
         isNew: result.isNew ?? response.status === 201,
+        keepBatchOpen: settings.keepBatchOpen,
         server: {serverUrl: settings.serverUrl, apiKey: settings.apiKey, proxy: settings.proxy},
         account: null,
       }
@@ -156,7 +159,41 @@ export function makeCoreRequests({
 
     const upload = makeUpload({config: {uploadUrl: test.account.uploadUrl}, logger})
 
-    return makeEyesRequests({test: {...test, appName: settings.appName}, req, upload, logger})
+    return makeEyesRequests({test, req, upload, logger})
+  }
+
+  async function locate<TLocator extends string>({
+    target,
+    settings,
+    logger = defaultLogger,
+  }: {
+    target: Target
+    settings: LocateSettings<TLocator>
+    logger?: Logger
+  }): Promise<Record<TLocator, Region[]>> {
+    const agentId = `${defaultAgentId} ${settings.agentId ? `[${settings.agentId}]` : ''}`.trim()
+    const req = makeReqEyes({config: {...settings, agentId}, fetch, logger})
+    logger.log('Request "locate" called for target', target, 'with settings', settings)
+
+    const account = await getAccountInfoWithCache({settings})
+    const upload = makeUpload({config: {uploadUrl: account.uploadUrl}, logger})
+
+    target.image = await upload({name: 'image', resource: target.image})
+    const response = await req('/api/locators/locate', {
+      name: 'locate',
+      method: 'POST',
+      body: {
+        imageUrl: target.image,
+        appName: settings.appName,
+        locatorNames: settings.locatorNames,
+        firstOnly: settings.firstOnly,
+      },
+      expected: 200,
+      logger,
+    })
+    const result = await response.json()
+    logger.log('Request "locate" finished successfully with body', result)
+    return result
   }
 
   async function getAccountInfo({
@@ -266,7 +303,7 @@ export function makeEyesRequests({
   upload,
   logger: defaultLogger,
 }: {
-  test: TestInfo & {appName: string}
+  test: TestInfo
   req: ReqEyes
   upload: Upload
   logger?: Logger
@@ -288,7 +325,6 @@ export function makeEyesRequests({
     },
     check,
     checkAndClose,
-    locate,
     locateText,
     extractText,
     close,
@@ -371,34 +407,6 @@ export function makeEyesRequests({
     result.userTestId = test.userTestId
     logger.log('Request "checkAndClose" finished successfully with body', result)
     return [result]
-  }
-
-  async function locate<TLocator extends string>({
-    target,
-    settings,
-    logger = defaultLogger,
-  }: {
-    target: Target
-    settings: LocateSettings<TLocator>
-    logger?: Logger
-  }): Promise<Record<TLocator, Region[]>> {
-    logger.log('Request "locate" called for target', target, 'with settings', settings)
-    target.image = await upload({name: 'image', resource: target.image})
-    const response = await req('/api/locators/locate', {
-      name: 'locate',
-      method: 'POST',
-      body: {
-        imageUrl: target.image,
-        appName: test.appName,
-        locatorNames: settings.locatorNames,
-        firstOnly: settings.firstOnly,
-      },
-      expected: 200,
-      logger,
-    })
-    const result = await response.json()
-    logger.log('Request "locate" finished successfully with body', result)
-    return result
   }
 
   async function locateText<TPattern extends string>({

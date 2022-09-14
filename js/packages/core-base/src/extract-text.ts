@@ -25,7 +25,7 @@ export function makeExtractText({requests, logger: defaultLogger}: Options) {
     const results = await Promise.all(
       settings.map(async settings => {
         target.image = await transformImage({image: target.image, settings})
-        return requests.extractText({target, settings})
+        return requests.extractText({target, settings, logger})
       }),
     )
     return results.flat()

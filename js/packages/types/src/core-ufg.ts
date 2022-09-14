@@ -33,7 +33,9 @@ export type Target<TDriver> =
   | MaybeArray<AndroidVHS>
   | MaybeArray<IOSVHS>
 
-export interface Core<TDriver, TElement, TSelector> extends AutomationCore.Core<TDriver, TElement, TSelector> {
+export interface Core<TDriver, TElement, TSelector>
+  extends AutomationCore.Core<TDriver, TElement, TSelector, Eyes<TDriver, TElement, TSelector>> {
+  readonly type: 'ufg'
   openEyes(options: {
     target?: TDriver
     settings: OpenSettings
@@ -53,7 +55,6 @@ export interface Eyes<TDriver, TElement, TSelector, TTarget = Target<TDriver>>
     settings?: CheckSettings<TElement, TSelector> & AutomationCore.CloseSettings
     logger?: Logger
   }): Promise<TestResult[]>
-  locate?: never
   locateText?: never
   extractText?: never
   close(options?: {settings?: AutomationCore.CloseSettings; logger?: Logger}): Promise<TestResult[]>

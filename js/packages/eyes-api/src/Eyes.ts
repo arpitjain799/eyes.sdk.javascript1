@@ -277,7 +277,7 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
 
     const config = this._config.toJSON()
 
-    return this._eyes.locate({settings, config})
+    return this._spec.locate({settings, config})
   }
 
   async extractTextRegions<TPattern extends string>(

@@ -19,6 +19,12 @@ export interface Core<TDriver, TElement, TSelector> extends AutomationCore.Core<
     config?: Config<TElement, TSelector, TType>
     logger?: Logger
   }): Promise<Eyes<TDriver, TElement, TSelector, TType>>
+  locate<TLocator extends string>(options: {
+    target?: TDriver | AutomationCore.Screenshot
+    settings?: Partial<LocateSettings<TLocator, TElement, TSelector>>
+    config?: Config<TElement, TSelector, 'classic'>
+    logger?: Logger
+  }): Promise<Record<TLocator, Region[]>>
   makeManager<TType extends 'classic' | 'ufg' = 'classic'>(options?: {
     type: TType
     concurrency: TType extends 'ufg' ? number : never
@@ -51,12 +57,6 @@ export interface ClassicEyes<TDriver, TElement, TSelector, TTarget = Target<TDri
     config?: Config<TElement, TSelector, 'classic'>
     logger?: Logger
   }): Promise<TestResult<'classic'>[]>
-  locate<TLocator extends string>(options: {
-    target?: TTarget
-    settings: Partial<LocateSettings<TLocator, TElement, TSelector, 'classic'>>
-    config?: Config<TElement, TSelector, 'classic'>
-    logger?: Logger
-  }): Promise<Record<TLocator, Region[]>>
   locateText<TPattern extends string>(options: {
     target?: TTarget
     settings: Partial<LocateTextSettings<TPattern, TElement, TSelector, 'classic'>>
@@ -116,6 +116,12 @@ export type Config<TElement, TSelector, TType extends 'classic' | 'ufg'> = {
   close: Partial<CloseSettings<TType>>
 }
 
+export type LocateSettings<TLocator extends string, TElement, TSelector> = AutomationCore.LocateSettings<
+  TLocator,
+  TElement,
+  TSelector
+>
+
 export type OpenSettings<TType extends 'classic' | 'ufg'> = TType extends 'ufg'
   ? UFGCore.OpenSettings
   : ClassicCore.OpenSettings
@@ -123,15 +129,6 @@ export type OpenSettings<TType extends 'classic' | 'ufg'> = TType extends 'ufg'
 export type CheckSettings<TElement, TSelector, TType extends 'classic' | 'ufg'> = TType extends 'ufg'
   ? UFGCore.CheckSettings<TElement, TSelector>
   : ClassicCore.CheckSettings<TElement, TSelector>
-
-export type LocateSettings<
-  TLocator extends string,
-  TElement,
-  TSelector,
-  TType extends 'classic' | 'ufg',
-> = TType extends 'ufg'
-  ? UFGCore.LocateSettings<TLocator, TElement, TSelector>
-  : ClassicCore.LocateSettings<TLocator, TElement, TSelector>
 
 export type LocateTextSettings<
   TPattern extends string,

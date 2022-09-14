@@ -4,7 +4,6 @@ import {type CoreRequests} from './server/requests'
 import {extractBranchingTimestamp} from './utils/extract-branching-timestamp'
 import {makeCheck} from './check'
 import {makeCheckAndClose} from './check-and-close'
-import {makeLocate} from './locate'
 import {makeLocateText} from './locate-text'
 import {makeExtractText} from './extract-text'
 import {makeClose} from './close'
@@ -39,7 +38,7 @@ export function makeOpenEyes({requests, logger: defaultLogger, cwd = process.cwd
       settings.gitBranchingTimestamp = undefined
     }
 
-    const eyesRequests = await requests.openEyes({settings})
+    const eyesRequests = await requests.openEyes({settings, logger})
 
     return {
       test: eyesRequests.test,
@@ -54,7 +53,6 @@ export function makeOpenEyes({requests, logger: defaultLogger, cwd = process.cwd
       },
       check: makeCheck({requests: eyesRequests, logger}),
       checkAndClose: makeCheckAndClose({requests: eyesRequests, logger}),
-      locate: makeLocate({requests: eyesRequests, logger}),
       locateText: makeLocateText({requests: eyesRequests, logger}),
       extractText: makeExtractText({requests: eyesRequests, logger}),
       close: makeClose({requests: eyesRequests, logger}),

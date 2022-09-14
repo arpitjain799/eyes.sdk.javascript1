@@ -21,7 +21,7 @@ export function makeLocateText({requests, logger: defaultLogger}: Options) {
   }): Promise<Record<TPattern, TextRegion[]>> {
     logger.log('Command "locateText" is called with settings', settings)
     target.image = await transformImage({image: target.image, settings})
-    const results = await requests.locateText({target, settings})
+    const results = await requests.locateText({target, settings, logger})
     return results
   }
 }

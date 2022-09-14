@@ -19,7 +19,7 @@ export function makeCloseBatch({requests, logger: defaultLogger}: Options) {
   }): Promise<void> {
     logger.log('Command "closeBatch" is called with settings', settings)
     settings = utils.types.isArray(settings) ? settings : [settings]
-    const results = await Promise.allSettled(settings.map(settings => requests.closeBatch({settings})))
+    const results = await Promise.allSettled(settings.map(settings => requests.closeBatch({settings, logger})))
     const error = results.find(({status}) => status === 'rejected') as PromiseRejectedResult
     if (error) throw error.reason
   }

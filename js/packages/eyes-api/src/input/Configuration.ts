@@ -1190,7 +1190,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
         ignoreBaseline: this.ignoreBaseline,
         ignoreGitBranching: this.ignoreGitMergeBase,
         saveDiffs: this.saveDiffs,
-        dontCloseBatches: this.dontCloseBatches,
+        keepBatchOpen: this.dontCloseBatches,
       },
       screenshot: {
         fully: this.forceFullPageScreenshot,
@@ -1224,7 +1224,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
         disableBrowserFetching: this.disableBrowserFetching,
         autProxy: this.autProxy,
         sendDom: this.sendDom,
-        maxDuration: this.matchTimeout,
+        retryTimeout: this.matchTimeout,
         matchLevel: this.defaultMatchSettings?.matchLevel,
         ignoreCaret: this.defaultMatchSettings?.ignoreCaret,
         ignoreDisplacements: this.defaultMatchSettings?.ignoreDisplacements,

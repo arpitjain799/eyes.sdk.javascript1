@@ -58,53 +58,49 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
     // get eyes per environment
     const getEyes = utils.general.cachify(async ({rawEnvironment}) => {
       const eyes = await core.openEyes({settings: {...settings, environment: {rawEnvironment}}, logger})
-      const h = makeHolderPromise()
+      const aborted = makeHolderPromise()
       const queue = []
       eyes.check = utils.general.wrap(eyes.check, async (check, options) => {
         const index = (options.settings as any).index
         queue[index] ??= makeHolderPromise()
-        if (index > 0) await Promise.race([(queue[index - 1] ??= makeHolderPromise()).promise, h.promise])
+        if (index > 0) await Promise.race([(queue[index - 1] ??= makeHolderPromise()).promise, aborted.promise])
         return check(options).finally(queue[index].resolve)
       })
       eyes.abort = utils.general.wrap(eyes.abort, async (abort, options) => {
-        h.reject()
+        aborted.reject()
         return abort(options)
       })
       return eyes
     })
 
-    const check = makeCheck({
-      spec,
-      getEyes,
-      client,
-      signal: controller.signal,
-      test,
-      target,
-      logger,
-    })
-    const checks = []
+    const storage = []
     let index = 0
-    const checkWithInterception: typeof check = async options => {
-      ;(options.settings as any).index = index++
-      const results = await check(options)
-      checks.push(...results.map(result => result.promise))
-      return results
-    }
+    // check with indexing and storage
+    const check = utils.general.wrap(
+      makeCheck({spec, getEyes, client, signal: controller.signal, test, target, logger}),
+      async (check, options) => {
+        ;(options.settings as any).index = index++
+        const results = await check(options)
+        storage.push(...results.map(result => result.promise))
+        return results
+      },
+    )
 
     let closed = false
-    const close = makeClose({checks, logger})
-    const closeOnlyOnce: typeof close = options => {
-      if (closed || aborted) return Promise.resolve([])
+    // close only once
+    const close = utils.general.wrap(makeClose({storage, logger}), async (close, options) => {
+      if (closed || aborted) return []
       closed = true
       return close(options)
-    }
+    })
+
     let aborted = false
-    const abort = makeAbort({checks, controller, logger})
-    const abortOnlyOnce: typeof abort = options => {
-      if (aborted || closed) return Promise.resolve([])
+    // abort only once
+    const abort = utils.general.wrap(makeAbort({storage, controller, logger}), async (abort, options) => {
+      if (aborted || closed) return []
       aborted = true
       return abort(options)
-    }
+    })
 
     return {
       test,
@@ -117,17 +113,10 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
       get aborted() {
         return aborted
       },
-      check: checkWithInterception,
-      checkAndClose: makeCheckAndClose({
-        spec,
-        getEyes,
-        client,
-        test,
-        target,
-        logger,
-      }),
-      close: closeOnlyOnce,
-      abort: abortOnlyOnce,
+      check,
+      checkAndClose: makeCheckAndClose({spec, getEyes, client, test, target, logger}),
+      close,
+      abort,
     }
   }
 }

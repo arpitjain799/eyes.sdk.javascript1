@@ -20,6 +20,6 @@ export function makeCheck({requests, logger: defaultLogger}: Options) {
   }): Promise<CheckResult[]> {
     logger.log('Command "check" is called with settings', settings)
     target.image = await transformImage({image: target.image, settings})
-    return requests.check({target, settings})
+    return requests.check({target, settings, logger})
   }
 }

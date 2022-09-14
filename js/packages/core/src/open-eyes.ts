@@ -7,7 +7,6 @@ import {makeCore as makeClassicCore} from './classic/core'
 import {makeCore as makeUFGCore} from './ufg/core'
 import {makeCheck} from './check'
 import {makeCheckAndClose} from './check-and-close'
-import {makeLocate} from './locate'
 import {makeLocateText} from './locate-text'
 import {makeExtractText} from './extract-text'
 import {makeClose} from './close'
@@ -15,8 +14,7 @@ import * as utils from '@applitools/utils'
 
 type Options<TDriver, TContext, TElement, TSelector> = {
   spec: SpecDriver<TDriver, TContext, TElement, TSelector>
-  core?: ClassicCore<TDriver, TElement, TSelector> | UFGCore<TDriver, TElement, TSelector>
-  baseCore?: BaseCore
+  core?: BaseCore | ClassicCore<TDriver, TElement, TSelector> | UFGCore<TDriver, TElement, TSelector>
   concurrency?: number
   logger?: Logger
 }
@@ -24,7 +22,6 @@ type Options<TDriver, TContext, TElement, TSelector> = {
 export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
   spec,
   core,
-  baseCore,
   concurrency,
   logger: defaultLogger,
 }: Options<TDriver, TContext, TElement, TSelector>) {
@@ -45,21 +42,22 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
     settings.userTestId = `${settings.testName}--${utils.general.guid()}`
     settings.apiKey ??= utils.general.getEnvValue('API_KEY')
     settings.serverUrl ??= utils.general.getEnvValue('SERVER_URL') ?? 'https://eyesapi.applitools.com'
-    settings.branchName ??= utils.general.getEnvValue('BRANCH')
-    settings.parentBranchName ??= utils.general.getEnvValue('PARENT_BRANCH')
-    settings.baselineBranchName ??= utils.general.getEnvValue('BASELINE_BRANCH')
-    settings.ignoreBaseline ??= false
-    settings.compareWithParentBranch ??= false
-    settings.dontCloseBatches ??= utils.general.getEnvValue('DONT_CLOSE_BATCHES', 'boolean')
     settings.batch ??= {}
     settings.batch.id ??= utils.general.getEnvValue('BATCH_ID') ?? utils.general.guid()
     settings.batch.name ??= utils.general.getEnvValue('BATCH_NAME')
     settings.batch.sequenceName ??= utils.general.getEnvValue('BATCH_SEQUENCE')
     settings.batch.notifyOnCompletion ??= utils.general.getEnvValue('BATCH_NOTIFY', 'boolean')
+    settings.keepBatchOpen ??= utils.general.getEnvValue('DONT_CLOSE_BATCHES', 'boolean')
+    settings.branchName ??= utils.general.getEnvValue('BRANCH')
+    settings.parentBranchName ??= utils.general.getEnvValue('PARENT_BRANCH')
+    settings.baselineBranchName ??= utils.general.getEnvValue('BASELINE_BRANCH')
+    settings.ignoreBaseline ??= false
+    settings.compareWithParentBranch ??= false
     ;(settings as OpenSettings<'ufg'>).renderConcurrency ??= (config as Config<any, any, 'ufg'>)?.check?.renderers?.length
 
-    core ??=
-      type === 'ufg' ? makeUFGCore({spec, core: baseCore, concurrency, logger}) : makeClassicCore({spec, core: baseCore, logger})
+    if (!utils.types.has(core, 'type')) {
+      core = type === 'ufg' ? makeUFGCore({spec, core, concurrency, logger}) : makeClassicCore({spec, core, logger})
+    }
 
     core.logEvent({
       settings: {
@@ -79,23 +77,12 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
     })
 
     const eyes = await core.openEyes({target, settings: settings as OpenSettings<TType>, logger})
-    return {
-      ...eyes,
-      get running() {
-        return eyes.running
-      },
-      get closed() {
-        return eyes.closed
-      },
-      get aborted() {
-        return eyes.aborted
-      },
+    return utils.general.extend(eyes as Eyes<TDriver, TElement, TSelector, TType>, {
       check: makeCheck<TDriver, TElement, TSelector, TType>({eyes, logger}),
       checkAndClose: makeCheckAndClose<TDriver, TElement, TSelector, TType>({eyes, logger}),
-      locate: makeLocate<TDriver, TElement, TSelector, TType>({eyes, logger}),
       locateText: makeLocateText<TDriver, TElement, TSelector, TType>({eyes, logger}),
       extractText: makeExtractText<TDriver, TElement, TSelector, TType>({eyes, logger}),
       close: makeClose<TDriver, TElement, TSelector, TType>({eyes, logger}),
-    } as Eyes<TDriver, TElement, TSelector, TType>
+    })
   }
 }

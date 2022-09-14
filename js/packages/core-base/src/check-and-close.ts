@@ -20,7 +20,7 @@ export function makeCheckAndClose({requests, logger: defaultLogger}: Options) {
   }): Promise<TestResult[]> {
     logger.log('Command "checkAndClose" is called with settings', settings)
     target.image = await transformImage({image: target.image, settings})
-    const results = await requests.checkAndClose({target, settings})
+    const results = await requests.checkAndClose({target, settings, logger})
     return results
   }
 }

@@ -137,6 +137,13 @@ export function wrap<TFunc extends (...args: any[]) => any>(
   return ((...args: Parameters<TFunc>) => wrapper(func, ...args)) as TFunc
 }
 
+export function extend<TTarget extends Record<PropertyKey, any>, TExtension extends Record<PropertyKey, any>>(
+  target: TTarget,
+  extension: TExtension,
+): TTarget & TExtension {
+  return Object.defineProperties(extension, Object.getOwnPropertyDescriptors(target))
+}
+
 export function pluralize(object: [] | number, config?: [manyCase: string, singleCase: string]): string {
   const count = types.isArray(object) ? object.length : object
   const isMany = count > 1

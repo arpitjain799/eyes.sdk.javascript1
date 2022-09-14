@@ -35,7 +35,7 @@ export function makeCheck<TDriver, TElement, TSelector, TType extends 'classic' 
     settings.matchLevel ??= 'Strict'
     settings.ignoreCaret ??= true
     settings.useDom ?? false
-    ;(settings as CheckSettings<TElement, TSelector, 'classic'>).maxDuration ??= 2000
+    ;(settings as CheckSettings<TElement, TSelector, 'classic'>).retryTimeout ??= 2000
 
     const results = await eyes.check({target: target as any, settings, logger})
     return results

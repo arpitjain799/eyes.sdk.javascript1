@@ -5,12 +5,12 @@ import {type Logger} from '@applitools/logger'
 import {type AbortController} from 'abort-controller'
 
 type Options = {
-  checks: Promise<{eyes: BaseEyes; renderer: Renderer}>[]
+  storage: Promise<{eyes: BaseEyes; renderer: Renderer}>[]
   controller: AbortController
   logger: Logger
 }
 
-export function makeAbort({checks, controller, logger: defaultLogger}: Options) {
+export function makeAbort({storage, controller, logger: defaultLogger}: Options) {
   return async function ({
     logger = defaultLogger,
   }: {
@@ -18,7 +18,7 @@ export function makeAbort({checks, controller, logger: defaultLogger}: Options) 
   } = {}): Promise<TestResult[]> {
     controller.abort()
 
-    const results = await Promise.allSettled(checks)
+    const results = await Promise.allSettled(storage)
 
     const eyes = results.reduce((eyes, result) => {
       const value = result.status === 'fulfilled' ? result.value : result.reason

@@ -1,15 +1,13 @@
 import {Logger} from './debug'
-import * as BaseCore from './core-base'
 import * as AutomationCore from './core-automation'
 
 export * from './core-automation'
 
-export type Screenshot = BaseCore.Target
-
-export type Target<TDriver> = AutomationCore.Target<TDriver> | Screenshot
+export type Target<TDriver> = AutomationCore.Target<TDriver> | AutomationCore.Screenshot
 
 export interface Core<TDriver, TElement, TSelector>
   extends AutomationCore.Core<TDriver, TElement, TSelector, Eyes<TDriver, TElement, TSelector>> {
+  readonly type: 'classic'
   openEyes(options: {
     target?: TDriver
     settings: AutomationCore.OpenSettings
@@ -32,5 +30,5 @@ export interface Eyes<TDriver, TElement, TSelector, TTarget = Target<TDriver>>
 }
 
 export type CheckSettings<TElement, TSelector> = AutomationCore.CheckSettings<TElement, TSelector> & {
-  maxDuration?: number
+  retryTimeout?: number
 }

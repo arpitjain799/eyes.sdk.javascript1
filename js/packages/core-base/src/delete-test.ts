@@ -19,7 +19,7 @@ export function makeDeleteTest({requests, logger: defaultLogger}: Options) {
   }): Promise<void> {
     logger.log('Command "deleteTest" is called with settings', settings)
     settings = utils.types.isArray(settings) ? settings : [settings]
-    const results = await Promise.allSettled(settings.map(settings => requests.deleteTest({settings})))
+    const results = await Promise.allSettled(settings.map(settings => requests.deleteTest({settings, logger})))
     const error = results.find(({status}) => status === 'rejected') as PromiseRejectedResult
     if (error) throw error.reason
   }

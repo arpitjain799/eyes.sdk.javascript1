@@ -4,7 +4,7 @@ import {Driver} from '@applitools/driver'
 
 type Options<TDriver, TContext, TElement, TSelector> = {
   spec: SpecDriver<TDriver, TContext, TElement, TSelector>
-  logger: Logger
+  logger?: Logger
 }
 
 export function makeSetViewportSize<TDriver, TContext, TElement, TSelector>({

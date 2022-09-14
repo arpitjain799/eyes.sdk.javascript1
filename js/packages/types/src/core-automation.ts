@@ -6,6 +6,8 @@ import * as BaseCore from './core-base'
 
 export * from './core-base'
 
+export type Screenshot = BaseCore.Target
+
 export type Target<TDriver> = TDriver
 
 export interface Core<TDriver, TElement, TSelector, TEyes = Eyes<TDriver, TElement, TSelector>>
@@ -16,6 +18,11 @@ export interface Core<TDriver, TElement, TSelector, TEyes = Eyes<TDriver, TEleme
   getViewportSize(options: {target: TDriver; logger?: Logger}): Promise<Size>
   setViewportSize(options: {target: TDriver; size: Size; logger?: Logger}): Promise<void>
   openEyes(options: {target?: TDriver; settings: BaseCore.OpenSettings; logger?: Logger}): Promise<TEyes>
+  locate<TLocator extends string>(options: {
+    target?: Target<TDriver> | Screenshot
+    settings: LocateSettings<TLocator, TElement, TSelector>
+    logger?: Logger
+  }): Promise<Record<TLocator, Region[]>>
 }
 
 export interface Eyes<TDriver, TElement, TSelector, TTarget = Target<TDriver>> extends BaseCore.Eyes<TTarget> {
@@ -25,11 +32,6 @@ export interface Eyes<TDriver, TElement, TSelector, TTarget = Target<TDriver>> e
     settings?: CheckSettings<TElement, TSelector> & BaseCore.CloseSettings
     logger?: Logger
   }): Promise<BaseCore.TestResult[]>
-  locate?<TLocator extends string>(options: {
-    target?: TTarget
-    settings: LocateSettings<TLocator, TElement, TSelector>
-    logger?: Logger
-  }): Promise<Record<TLocator, Region[]>>
   locateText?<TPattern extends string>(options: {
     target?: TTarget
     settings: LocateTextSettings<TPattern, TElement, TSelector>
@@ -63,13 +65,13 @@ export interface ScreenshotSettings<TElement, TSelector>
   lazyLoad?: boolean | {scrollLength?: number; waitingTime?: number; maxAmountToScroll?: number}
 }
 
-export type CheckSettings<TElement, TSelector> = BaseCore.CheckSettings<RegionReference<TElement, TSelector>> &
-  ScreenshotSettings<TElement, TSelector>
-
 export type LocateSettings<TLocator extends string, TElement, TSelector> = BaseCore.LocateSettings<
   TLocator,
   RegionReference<TElement, TSelector>
 > &
+  ScreenshotSettings<TElement, TSelector>
+
+export type CheckSettings<TElement, TSelector> = BaseCore.CheckSettings<RegionReference<TElement, TSelector>> &
   ScreenshotSettings<TElement, TSelector>
 
 export type LocateTextSettings<TPattern extends string, TElement, TSelector> = BaseCore.LocateTextSettings<

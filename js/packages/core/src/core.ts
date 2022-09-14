@@ -5,8 +5,10 @@ import {makeLogger, type Logger} from '@applitools/logger'
 import {makeCore as makeBaseCore} from '@applitools/core-base'
 import {makeGetViewportSize} from './automation/get-viewport-size'
 import {makeSetViewportSize} from './automation/set-viewport-size'
+import {makeLocate} from './automation/locate'
 import {makeOpenEyes} from './open-eyes'
 import {makeMakeManager} from './make-manager'
+import * as utils from '@applitools/utils'
 
 type Options<TDriver, TContext, TElement, TSelector> = {
   spec: SpecDriver<TDriver, TContext, TElement, TSelector>
@@ -27,16 +29,16 @@ export function makeCore<TDriver, TContext, TElement, TSelector>({
 }: Options<TDriver, TContext, TElement, TSelector>): Core<TDriver, TElement, TSelector> {
   logger = logger?.extend({label: 'core'}) ?? makeLogger({label: 'core'})
   logger.log(`Core is initialized ${core ? 'with' : 'without'} custom base core`)
-  const baseCore = core ?? makeBaseCore({agentId, cwd, logger})
+  core ??= makeBaseCore({agentId, cwd, logger})
 
-  return {
-    ...baseCore,
+  return utils.general.extend(core, {
     isDriver: spec.isDriver,
     isElement: spec.isElement,
     isSelector: spec.isSelector,
     getViewportSize: makeGetViewportSize({spec, logger}),
     setViewportSize: makeSetViewportSize({spec, logger}),
-    openEyes: makeOpenEyes({spec, baseCore, concurrency, logger}),
+    locate: makeLocate({spec, core, logger}),
+    openEyes: makeOpenEyes({spec, core, concurrency, logger}),
     makeManager: makeMakeManager({spec, concurrency, agentId, logger}),
-  }
+  })
 }

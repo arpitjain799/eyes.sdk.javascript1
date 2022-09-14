@@ -5,7 +5,6 @@ import {type Logger} from '@applitools/logger'
 import {makeDriver} from '@applitools/driver'
 import {makeCheck} from './check'
 import {makeCheckAndClose} from './check-and-close'
-import {makeLocate} from './locate'
 import {makeLocateText} from './locate-text'
 import {makeExtractText} from './extract-text'
 import * as utils from '@applitools/utils'
@@ -62,22 +61,11 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
 
     const eyes = await core.openEyes({settings, logger})
 
-    return {
-      ...eyes,
-      get running() {
-        return eyes.running
-      },
-      get closed() {
-        return eyes.closed
-      },
-      get aborted() {
-        return eyes.aborted
-      },
+    return utils.general.extend(eyes, {
       check: makeCheck({spec, eyes, target, logger}),
       checkAndClose: makeCheckAndClose({spec, eyes, target, logger}),
-      locate: makeLocate({spec, eyes, target, logger}),
       locateText: makeLocateText({spec, eyes, target, logger}),
       extractText: makeExtractText({spec, eyes, target, logger}),
-    }
+    })
   }
 }

@@ -16,7 +16,7 @@ export function makeClose({requests, logger: defaultLogger}: Options) {
     logger?: Logger
   } = {}): Promise<TestResult[]> {
     logger.log('Command "close" is called with settings', settings)
-    const results = await requests.close({settings})
+    const results = await requests.close({settings, logger})
     return results
   }
 }

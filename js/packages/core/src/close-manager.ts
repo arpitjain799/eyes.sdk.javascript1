@@ -5,11 +5,7 @@ import {TestError} from './errors/test-error'
 
 type Options<TDriver, TElement, TSelector, TType extends 'classic' | 'ufg'> = {
   core: BaseCore<unknown>
-  storage: {
-    eyes: Eyes<TDriver, TElement, TSelector, TType>
-    shouldCloseBatch: boolean
-    promise?: Promise<TestResult<TType>[]>
-  }[]
+  storage: {eyes: Eyes<TDriver, TElement, TSelector, TType>; promise?: Promise<TestResult<TType>[]>}[]
   logger?: Logger
 }
 
@@ -40,8 +36,8 @@ export function makeCloseManager<TDriver, TElement, TSelector, TType extends 'cl
       }),
     )
 
-    const batches = storage.reduce((batches, {eyes, shouldCloseBatch}) => {
-      if (shouldCloseBatch) {
+    const batches = storage.reduce((batches, {eyes}) => {
+      if (!eyes.test.keepBatchOpen) {
         const settings = {...eyes.test.server, batchId: eyes.test.batchId}
         batches[`${settings.serverUrl}:${settings.apiKey}:${settings.batchId}`] = settings
       }

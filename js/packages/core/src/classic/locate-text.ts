@@ -10,8 +10,8 @@ import * as utils from '@applitools/utils'
 type Options<TDriver, TContext, TElement, TSelector> = {
   spec: SpecDriver<TDriver, TContext, TElement, TSelector>
   eyes: BaseEyes
-  target: Target<TDriver>
-  logger: Logger
+  target?: Target<TDriver>
+  logger?: Logger
 }
 
 export function makeLocateText<TDriver, TContext, TElement, TSelector>({
