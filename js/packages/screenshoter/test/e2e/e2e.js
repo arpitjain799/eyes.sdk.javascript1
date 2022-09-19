@@ -90,7 +90,7 @@ exports.makeDriver = async function makeDriver({
   console.log(`makeDriver called for worker #${process.env.MOCHA_WORKER_ID}`, workerId)
   const androidEmulatorIds = process.env.ANDROID_EMULATOR_UDID
     ? process.env.ANDROID_EMULATOR_UDID.split(',')
-    : ['emulator-5555']
+    : ['emulator-5554']
   const iosSimulatorIds = process.env.IOS_SIMULATOR_UDID ? process.env.IOS_SIMULATOR_UDID.split(',') : []
   const apps = {
     android: 'https://applitools.jfrog.io/artifactory/Examples/android/1.3/app-debug.apk',
@@ -109,23 +109,23 @@ exports.makeDriver = async function makeDriver({
     android: {
       url: 'http://0.0.0.0:4723/wd/hub',
       capabilities: {
-        udid: androidEmulatorIds[workerId],
-        systemPort: 8200 + workerId,
-        mjpegServerPort: 9100 + workerId,
-        chromedriverPort: 9515 + workerId,
-        adbExecTimeout: 30000,
-        uiautomator2ServerLaunchTimeout: 240000,
-        newCommandTimeout: 0,
-        nativeWebScreenshot: true,
-        skipUnlock: true,
-        isHeadless: true,
+        'appium:udid': androidEmulatorIds[workerId],
+        'appium:systemPort': 8200 + workerId,
+        'appium:mjpegServerPort': 9100 + workerId,
+        'appium:chromedriverPort': 9515 + workerId,
+        'appium:adbExecTimeout': 30000,
+        'appium:uiautomator2ServerLaunchTimeout': 240000,
+        'appium:newCommandTimeout': 0,
+        'appium:nativeWebScreenshot': true,
+        'appium:skipUnlock': true,
+        'appium:isHeadless': true,
         browserName: app === 'chrome' ? app : '',
-        app: app === 'chrome' ? undefined : apps[app || type] || app,
-        deviceName: deviceName || 'Google Pixel 3a XL',
+        'appium:app': app === 'chrome' ? undefined : apps[app || type] || app,
+        'appium:deviceName': deviceName || 'Google Pixel 3a XL',
         platformName: 'Android',
-        platformVersion: platformVersion || '10.0',
-        automationName: 'uiautomator2',
-        orientation: orientation ? orientation.toUpperCase() : 'PORTRAIT',
+        'appium:platformVersion': platformVersion || '10.0',
+        'appium:automationName': 'uiautomator2',
+        'appium:orientation': orientation ? orientation.toUpperCase() : 'PORTRAIT',
         ...rest,
       },
     },
