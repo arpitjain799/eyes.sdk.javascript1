@@ -106,6 +106,7 @@ export interface SpecDriver<TDriver, TContext, TElement, TSelector> {
   click?(context: TContext, element: TElement | TSelector): Promise<void>
   type?(context: TContext, element: TElement, value: string): Promise<void>
   visit?(driver: TDriver, url: string): Promise<void>
+  switchWorld?(driver: TDriver, id?: string): Promise<void>
   // #endregion
 
   // #region MOBILE COMMANDS
