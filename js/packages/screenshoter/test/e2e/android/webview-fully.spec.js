@@ -11,14 +11,16 @@ describe('screenshoter android app', () => {
     await destroyDriver()
   })
 
-  it('take webview screenshot', async () => {
+  it('take full webview screenshot', async () => {
     const button = await driver.element({type: 'id', selector: 'com.applitools.eyes.android:id/btn_web_view'})
     await button.click()
     await driver.switchToWebView()
 
     await test({
       type: 'android',
-      tag: 'webview',
+      tag: 'webview-fully',
+      fully: true,
+      scrollingMode: 'scroll',
       wait: 1500,
       driver,
       logger,
