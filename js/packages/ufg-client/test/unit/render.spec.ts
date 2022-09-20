@@ -126,7 +126,7 @@ describe('render', () => {
     await assert.rejects(renderPromise, error => error.message.startsWith('Got unexpected status'))
   })
 
-  it('batches multiple calls in one request', async () => {
+  it.only('batches multiple calls in one request', async () => {
     const renderCalls = [] as RenderRequest[][]
     const render = makeRender({
       requests: {
@@ -142,7 +142,7 @@ describe('render', () => {
           })
         },
       } as UFGRequests,
-      batchingTimeout: 10,
+      batchingTimeout: 50,
     })
 
     const renders = [] as Promise<any>[]
@@ -151,11 +151,11 @@ describe('render', () => {
       render({request: createRenderRequest('page2')}),
       render({request: createRenderRequest('page3')}),
     )
-    await utils.general.sleep(10)
+    await utils.general.sleep(50)
     renders.push(render({request: createRenderRequest('page4')}))
-    await utils.general.sleep(5)
+    await utils.general.sleep(25)
     renders.push(render({request: createRenderRequest('page5')}))
-    await utils.general.sleep(5)
+    await utils.general.sleep(25)
     renders.push(render({request: createRenderRequest('page6')}))
     await Promise.all(renders)
 
