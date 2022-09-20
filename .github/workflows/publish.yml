@@ -223,14 +223,11 @@ jobs:
     needs:
       [
         setup,
+        core,
         driver,
         eg-client,
-        logger,
-        nml-client,
-        screenshoter,
-        snippets,
-        types,
         utils,
+        snippets,
         spec-selenium,
         test-server,
         test-utils
@@ -268,27 +265,6 @@ jobs:
         with:
           workflow: publish-ufg-client.yml
           inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).ufg-client.version}}"}'
-  vg-client-legacy:
-    needs:
-      [
-        setup,
-        core-legacy,
-        logger,
-        test-server,
-        test-utils,
-        utils
-      ]
-    if: ${{fromJSON(needs.setup.outputs.packages).vg-client-legacy && !failure() && !cancelled()}}
-    name: vg-client-legacy
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check-out repository
-        uses: actions/checkout@v3
-      - name: Run remote workflow
-        uses: ./.github/actions/run
-        with:
-          workflow: publish-vg-client-legacy.yml
-          inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).vg-client-legacy.version}}"}'
   eg-client:
     needs: [ setup, logger, utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).eg-client && !failure() && !cancelled()}}
@@ -311,6 +287,7 @@ jobs:
         types,
         utils,
         spec-selenium,
+        test-server,
         test-utils
       ]
     if: ${{fromJSON(needs.setup.outputs.packages).nml-client && !failure() && !cancelled()}}
@@ -417,15 +394,7 @@ jobs:
 
   # JS SDKS
   playwright:
-    needs:
-      [
-        setup,
-        api,
-        core-legacy,
-        spec-playwright,
-        vg-client-legacy,
-        test-utils
-      ]
+    needs: [ setup, api, core-legacy, spec-playwright, test-utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).playwright && !failure() && !cancelled()}}
     name: playwright
     runs-on: ubuntu-latest
@@ -438,15 +407,7 @@ jobs:
           workflow: publish-playwright.yml
           inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).playwright.version}}"}'
   puppeteer:
-    needs:
-      [
-        setup,
-        api,
-        core-legacy,
-        spec-puppeteer,
-        vg-client-legacy,
-        test-utils
-      ]
+    needs: [ setup, api, core-legacy, spec-puppeteer, test-utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).puppeteer && !failure() && !cancelled()}}
     name: puppeteer
     runs-on: ubuntu-latest
@@ -459,15 +420,7 @@ jobs:
           workflow: publish-puppeteer.yml
           inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).puppeteer.version}}"}'
   webdriverio:
-    needs:
-      [
-        setup,
-        api,
-        core-legacy,
-        spec-webdriverio,
-        vg-client-legacy,
-        test-utils
-      ]
+    needs: [ setup, core, api, spec-webdriverio, test-utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).webdriverio && !failure() && !cancelled()}}
     name: webdriverio
     runs-on: ubuntu-latest
@@ -493,15 +446,7 @@ jobs:
           workflow: publish-webdriverio-service.yml
           inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).webdriverio-service.version}}"}'
   selenium:
-    needs:
-      [
-        setup,
-        api,
-        core-legacy,
-        spec-selenium,
-        vg-client-legacy,
-        test-utils
-      ]
+    needs: [ setup, api, core-legacy, spec-selenium, test-utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).selenium && !failure() && !cancelled()}}
     name: selenium
     runs-on: ubuntu-latest
@@ -514,16 +459,7 @@ jobs:
           workflow: publish-selenium.yml
           inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).selenium.version}}"}'
   protractor:
-    needs:
-      [
-        setup,
-        api,
-        core-legacy,
-        types,
-        utils,
-        vg-client-legacy,
-        test-utils
-      ]
+    needs: [ setup, api, core-legacy, types, utils, test-utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).protractor && !failure() && !cancelled()}}
     name: protractor
     runs-on: ubuntu-latest
@@ -536,16 +472,7 @@ jobs:
           workflow: publish-protractor.yml
           inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).protractor.version}}"}'
   nightwatch:
-    needs:
-      [
-        setup,
-        api,
-        core-legacy,
-        types,
-        utils,
-        vg-client-legacy,
-        test-utils
-      ]
+    needs: [ setup, api, core-legacy, types, utils, test-utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).nightwatch && !failure() && !cancelled()}}
     name: nightwatch
     runs-on: ubuntu-latest
@@ -564,7 +491,6 @@ jobs:
         api,
         core-legacy,
         utils,
-        vg-client-legacy,
         test-server,
         test-utils
       ]
@@ -586,7 +512,6 @@ jobs:
         api,
         universal,
         logger,
-        vg-client-legacy,
         test-server,
         test-utils,
         types,
@@ -609,7 +534,6 @@ jobs:
         setup,
         core-legacy,
         utils,
-        vg-client-legacy,
         spec-playwright,
         test-utils
       ]
@@ -633,8 +557,7 @@ jobs:
         logger,
         spec-puppeteer,
         test-server,
-        utils,
-        vg-client-legacy
+        utils
       ]
     if: ${{fromJSON(needs.setup.outputs.packages).storybook && !failure() && !cancelled()}}
     name: storybook
