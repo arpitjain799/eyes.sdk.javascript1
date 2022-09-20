@@ -277,15 +277,14 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
   }
 
   async switchToWebView(webviewId?: string) {
-    await this._spec.switchWorld(this.target, webviewId)
+    await this._spec.switchWorld(this.target, {id: webviewId})
     await this.init({isWebView: true})
   }
 
-  // switchToNativeView() {
-  //   await this._spec.switchWorld(this.target, {goHome: true})
-  //   this._isWebView = false
-  //   await this.init()
-  // }
+  async switchToNativeView() {
+    await this._spec.switchWorld(this.target, {origin: true})
+    await this.init()
+  }
 
   async refreshContexts(): Promise<Context<TDriver, TContext, TElement, TSelector>> {
     if (this.isNative) return this.currentContext
