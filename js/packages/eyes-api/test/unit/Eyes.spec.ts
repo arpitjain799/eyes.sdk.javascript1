@@ -54,8 +54,9 @@ describe('Eyes', () => {
       displayName: 'name',
       branchName: 'branch',
       baselineBranchName: 'baseline',
+      apiKey: 'apikey',
     }
-    const eyes = new Eyes()
+    const eyes = new Eyes({apiKey: config.apiKey})
     eyes.getConfiguration().setDisplayName(config.displayName)
     eyes.setBranchName(config.branchName)
     eyes.configuration.baselineBranchName = config.baselineBranchName
@@ -75,7 +76,7 @@ describe('Eyes', () => {
           data: {
             target: driver,
             config: {
-              open: {...openConfig, apiKey: process.env.APPLITOOLS_API_KEY, environment: {}},
+              open: {...config, ...openConfig, environment: {}},
               screenshot: {normalization: {}},
               check: {},
               close: {},
@@ -93,6 +94,7 @@ describe('Eyes', () => {
       displayName: 'name',
       environment: {viewportSize: {width: 600, height: 700}},
       sessionType: 'SEQUENTIAL',
+      apiKey: 'apikey',
     }
     const eyes = new Eyes(config)
 
@@ -117,7 +119,7 @@ describe('Eyes', () => {
           data: {
             target: driver,
             config: {
-              open: {...config, ...openConfig, apiKey: process.env.APPLITOOLS_API_KEY, batch: {}},
+              open: {...config, ...openConfig},
               screenshot: {normalization: {}},
               check: {},
               close: {},
@@ -204,7 +206,6 @@ describe('Eyes', () => {
     await eyes.open(driver, {appName: 'app', testName: 'test'})
     await eyes.check({region: 'diff'})
     await assert.rejects(eyes.close(true), err => {
-      console.log(err)
       return err instanceof api.TestFailedError
     })
   })

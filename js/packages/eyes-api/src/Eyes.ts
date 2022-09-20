@@ -156,7 +156,7 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     }
   }
 
-  async open(driver: TDriver, config?: Configuration): Promise<TDriver>
+  async open(driver: TDriver, config?: Configuration<TElement, TSelector>): Promise<TDriver>
   async open(
     driver: TDriver,
     appName?: string,
@@ -166,7 +166,7 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   ): Promise<TDriver>
   async open(
     driver: TDriver,
-    configOrAppName?: Configuration | string,
+    configOrAppName?: Configuration<TElement, TSelector> | string,
     testName?: string,
     viewportSize?: RectangleSize,
     sessionType?: SessionType,
@@ -177,9 +177,17 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
 
     const config: types.Config<TElement, TSelector, 'ufg' | 'classic'> = this._config.toJSON()
     if (utils.types.instanceOf(configOrAppName, ConfigurationData)) {
-      Object.assign(config, configOrAppName.toJSON())
+      const transformedConfig = configOrAppName.toJSON()
+      config.open = {...config.open, ...transformedConfig.open}
+      config.screenshot = {...config.screenshot, ...transformedConfig.screenshot}
+      config.check = {...config.check, ...transformedConfig.check}
+      config.close = {...config.close, ...transformedConfig.close}
     } else if (utils.types.isObject(configOrAppName)) {
-      Object.assign(config, new ConfigurationData(configOrAppName, this._spec).toJSON())
+      const transformedConfig = new ConfigurationData(configOrAppName, this._spec).toJSON()
+      config.open = {...config.open, ...transformedConfig.open}
+      config.screenshot = {...config.screenshot, ...transformedConfig.screenshot}
+      config.check = {...config.check, ...transformedConfig.check}
+      config.close = {...config.close, ...transformedConfig.close}
     } else if (utils.types.isString(configOrAppName)) {
       config.open.appName = configOrAppName
     }
