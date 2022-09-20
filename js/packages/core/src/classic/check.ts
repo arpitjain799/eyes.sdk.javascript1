@@ -3,7 +3,7 @@ import type {Eyes as BaseEyes, Target as BaseTarget, CheckSettings as BaseCheckS
 import type {Target, CheckSettings, CheckResult} from '@applitools/types/classic'
 import {type Logger} from '@applitools/logger'
 import {makeDriver} from '@applitools/driver'
-import {takeScreenshot} from './utils/take-screenshot'
+import {takeScreenshot} from '../automation/utils/take-screenshot'
 import {takeDomCapture} from './utils/take-dom-capture'
 import {transformCheckSettings} from './utils/transform-check-settings'
 import {waitForLazyLoad} from '../utils/wait-for-lazy-load'

@@ -33,7 +33,7 @@ describe('extract-text', () => {
         {region: {type: 'css selector', selector: 'body > h1'}},
       ],
     })
-    assert.deepStrictEqual(strings, ['Header 1 Hello world!', 'Header 1 Hello world!', 'Header 1 Hello world!'])
+    assert.deepStrictEqual(strings, ['Header 1: Hello world!', 'Header 1: Hello world!', 'Header 1: Hello world!'])
     const [result] = await eyes.close()
     assert.strictEqual(result.status, 'Passed')
   })

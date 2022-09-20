@@ -6,7 +6,7 @@ import * as utils from '@applitools/utils'
 
 type Options = {
   requests: CoreRequests
-  logger: Logger
+  logger?: Logger
 }
 
 export function makeCloseBatch({requests, logger: defaultLogger}: Options) {
@@ -17,9 +17,11 @@ export function makeCloseBatch({requests, logger: defaultLogger}: Options) {
     settings: MaybeArray<CloseBatchSettings>
     logger?: Logger
   }): Promise<void> {
-    logger.log('Command "closeBatch" is called with settings', settings)
+    logger?.log('Command "closeBatch" is called with settings', settings)
     settings = utils.types.isArray(settings) ? settings : [settings]
-    const results = await Promise.allSettled(settings.map(settings => requests.closeBatch({settings, logger})))
+    const results = await Promise.allSettled(
+      settings.map(settings => (settings.batchId ? requests.closeBatch({settings, logger}) : null)),
+    )
     const error = results.find(({status}) => status === 'rejected') as PromiseRejectedResult
     if (error) throw error.reason
   }

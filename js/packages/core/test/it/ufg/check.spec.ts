@@ -1,6 +1,7 @@
 import {makeCore} from '../../../src/ufg/core'
 import {makeFakeClient} from '../../utils/fake-ufg-client'
 import {makeFakeCore} from '../../utils/fake-base-core'
+import {MockDriver, spec} from '@applitools/driver/fake'
 import * as utils from '@applitools/utils'
 import assert from 'assert'
 
@@ -205,5 +206,42 @@ describe('check', () => {
     })
 
     assert.strictEqual(checked, 2)
+  })
+
+  it('throws an error when dom snapshot returns an error', async () => {
+    const driver = new MockDriver()
+    driver.mockScript('dom-snapshot', () => JSON.stringify({status: 'ERROR', error: 'bla'}))
+    const fakeClient = makeFakeClient()
+    const fakeCore = makeFakeCore()
+    const core = makeCore({concurrency: 2, spec, core: fakeCore, client: fakeClient})
+    const eyes = await core.openEyes({
+      target: driver,
+      settings: {serverUrl: 'server-url', apiKey: 'api-key', appName: 'app-name', testName: 'test-name'},
+    })
+    assert.rejects(eyes.check({}), error => {
+      return error.message === "Error during execute poll script: 'bla'"
+    })
+  })
+
+  it('should throw an error on invalid dom snapshot JSON', async () => {
+    const driver = new MockDriver()
+    const response = Array.from({length: 200}, (_x, i) => i).join('')
+    driver.mockScript('dom-snapshot', () => response)
+    const fakeClient = makeFakeClient()
+    const fakeCore = makeFakeCore()
+    const core = makeCore({concurrency: 2, spec, core: fakeCore, client: fakeClient})
+    const eyes = await core.openEyes({
+      target: driver,
+      settings: {serverUrl: 'server-url', apiKey: 'api-key', appName: 'app-name', testName: 'test-name'},
+    })
+    assert.rejects(eyes.check({}), error => {
+      return (
+        error.message ===
+        `Response is not a valid JSON string. length: ${response.length}, first 100 chars: "${response.substr(
+          0,
+          100,
+        )}", last 100 chars: "${response.substr(-100)}". error: SyntaxError: Unexpected number in JSON at position 1`
+      )
+    })
   })
 })

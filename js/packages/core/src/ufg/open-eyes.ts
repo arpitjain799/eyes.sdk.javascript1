@@ -67,7 +67,7 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
         return check(options).finally(queue[index].resolve)
       })
       eyes.abort = utils.general.wrap(eyes.abort, async (abort, options) => {
-        aborted.reject()
+        aborted.reject(new Error('Command "check" was aborted due to possible error in previous step'))
         return abort(options)
       })
       return eyes

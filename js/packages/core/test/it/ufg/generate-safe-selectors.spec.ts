@@ -18,15 +18,20 @@ describe('generate-safe-selectors', () => {
 
     const {selectors} = await generateSafeSelectors({
       context: driver.mainContext,
-      elementReferences: ['element0', 'element1', 'element2', ...(await mockDriver.findElements('element3'))],
+      elementReferences: [
+        'element0',
+        'element1',
+        {type: 'css', selector: 'element2'},
+        ...(await mockDriver.findElements('element3')),
+      ],
     })
 
     assert.strictEqual(selectors.length, 5)
     assert.deepStrictEqual(
       selectors.map(selector => selector.originalSelector),
       [
-        {type: 'css', selector: 'element0'},
-        {type: 'css', selector: 'element1'},
+        {selector: 'element0'},
+        {selector: 'element1'},
         {type: 'css', selector: 'element2'},
         {type: 'css', selector: 'element3'},
         {type: 'css', selector: 'element3'},

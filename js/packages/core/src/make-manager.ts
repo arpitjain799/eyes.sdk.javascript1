@@ -28,15 +28,18 @@ export function makeMakeManager<TDriver, TContext, TElement, TSelector>({
   return async function makeManager<TType extends 'classic' | 'ufg' = 'classic'>({
     type,
     concurrency = defaultConcurrency,
+    legacyConcurrency,
     agentId = type === 'ufg' ? defaultAgentId?.replace(/(\/\d)/, '.visualgrid$1') : defaultAgentId,
     logger = defaultLogger,
   }: {
     type?: TType
     concurrency?: number
+    legacyConcurrency?: number
     agentId?: string
     logger?: Logger
   } = {}): Promise<EyesManager<TDriver, TElement, TSelector, TType>> {
     core ??= makeBaseCore({agentId, cwd, logger})
+    concurrency ??= utils.types.isInteger(legacyConcurrency) ? legacyConcurrency * 5 : 5
     const typedCore = type === 'ufg' ? makeUFGCore({spec, core, concurrency, logger}) : makeClassicCore({spec, core, logger})
 
     const storage = [] as {eyes: Eyes<TDriver, TElement, TSelector, TType>; promise?: Promise<TestResult<TType>[]>}[]

@@ -12,17 +12,22 @@ export function makeFakeCore({hooks}: any = {}): BaseCore & EventEmitter {
       emitter.emit('getAccountInfo')
       return {}
     },
+    async logEvent() {
+      emitter.emit('logEvent')
+      return {}
+    },
     async openEyes(options) {
       emitter.emit('beforeOpenEyes', options)
       try {
         await utils.general.sleep(10)
         await hooks?.openEyes?.(options)
-        const {settings} = options
+        const {settings = {}} = options
         const environment = settings.environment
         const steps = []
         let aborted = false
         let closed = false
         return {
+          test: {isNew: true},
           get running() {
             return !closed && !aborted
           },
@@ -41,7 +46,7 @@ export function makeFakeCore({hooks}: any = {}): BaseCore & EventEmitter {
               if (settings.name?.startsWith('fail')) {
                 throw new Error('Received fail step name')
               }
-              const result = {asExpected: true, target, settings, environment}
+              const result = {asExpected: !settings.name?.startsWith('diff'), target, settings, environment}
               steps.push(result)
               return [result]
             } finally {

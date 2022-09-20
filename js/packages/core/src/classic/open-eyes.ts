@@ -29,10 +29,10 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
     settings: OpenSettings
     logger?: Logger
   }): Promise<Eyes<TDriver, TElement, TSelector>> {
-    logger.log(`Command "openEyes" is called with ${spec.isDriver(target) ? 'default driver and' : ''} settings`, settings)
+    logger.log(`Command "openEyes" is called with ${spec?.isDriver(target) ? 'default driver and' : ''} settings`, settings)
 
     // TODO driver custom config
-    const driver = spec.isDriver(target) ? await makeDriver({spec, driver: target, logger}) : null
+    const driver = spec?.isDriver(target) ? await makeDriver({spec, driver: target, logger}) : null
 
     if (driver) {
       settings.environment ??= {}

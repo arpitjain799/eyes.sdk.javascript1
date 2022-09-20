@@ -23,8 +23,8 @@ export async function takeDomSnapshots<TDriver extends Driver<unknown, unknown, 
 }: {
   driver: TDriver
   settings: DomSnapshotsSettings
-  hooks: {beforeSnapshots?(): void | Promise<void>; beforeEachSnapshot?(): void | Promise<void>}
-  provides: {
+  hooks?: {beforeSnapshots?(): void | Promise<void>; beforeEachSnapshot?(): void | Promise<void>}
+  provides?: {
     getChromeEmulationDevices(): Promise<Record<ChromeEmulationDevice, Record<ScreenOrientation, Size>>>
     getIOSDevices(): Promise<Record<IOSDevice, Record<ScreenOrientation, Size>>>
   }

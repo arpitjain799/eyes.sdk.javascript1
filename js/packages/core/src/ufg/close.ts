@@ -32,12 +32,7 @@ export function makeClose({storage, logger: defaultLogger}: Options) {
     }, new Map<BaseEyes, Renderer>())
 
     if (error) {
-      await Promise.all(
-        Array.from(eyes.entries(), async ([eyes, renderer]) => {
-          const [result] = await eyes.abort({logger})
-          return {...result, renderer}
-        }),
-      )
+      await Promise.all(Array.from(eyes.entries(), async ([eyes]) => eyes.abort({logger})))
       throw error
     } else {
       return Promise.all(

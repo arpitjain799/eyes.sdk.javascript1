@@ -7,7 +7,7 @@ export function getEnvValue<T extends 'boolean' | 'number' | 'string' = 'string'
   if (!process) return
   const value = process.env[`APPLITOOLS_${name}`]
   if (value === undefined || value === 'null') return
-  if (type === 'boolean' && types.isBoolean(value)) return (value === 'true') as any
+  if (type === 'boolean') return ['true', true, '1', 1].includes(value) as any
   if (type === 'number') return Number(value) as any
   return value as any
 }
@@ -141,7 +141,10 @@ export function extend<TTarget extends Record<PropertyKey, any>, TExtension exte
   target: TTarget,
   extension: TExtension,
 ): TTarget & TExtension {
-  return Object.defineProperties(extension, Object.getOwnPropertyDescriptors(target))
+  return Object.defineProperties({} as any, {
+    ...Object.getOwnPropertyDescriptors(target),
+    ...Object.getOwnPropertyDescriptors(extension),
+  })
 }
 
 export function pluralize(object: [] | number, config?: [manyCase: string, singleCase: string]): string {

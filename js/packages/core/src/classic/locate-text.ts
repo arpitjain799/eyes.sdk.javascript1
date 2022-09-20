@@ -3,7 +3,7 @@ import type {Eyes as BaseEyes, Target as BaseTarget, LocateTextSettings as BaseL
 import type {Target, LocateTextSettings} from '@applitools/types/classic'
 import {type Logger} from '@applitools/logger'
 import {makeDriver} from '@applitools/driver'
-import {takeScreenshot} from './utils/take-screenshot'
+import {takeScreenshot} from '../automation/utils/take-screenshot'
 import {takeDomCapture} from './utils/take-dom-capture'
 import * as utils from '@applitools/utils'
 

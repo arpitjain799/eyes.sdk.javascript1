@@ -2,9 +2,9 @@ import {type Driver} from '@applitools/driver'
 import {type Logger} from '@applitools/logger'
 import {getCaptureDomPoll, getPollResult, getCaptureDomPollForIE, getPollResultForIE} from '@applitools/dom-capture'
 import {executePollScript, type PollScriptSettings} from '../../utils/execute-poll-script'
-import req from '@applitools/req'
+import req, {type Fetch} from '@applitools/req'
 
-export type DomCaptureSettings = Partial<PollScriptSettings> & {chunkByteLength?: number}
+export type DomCaptureSettings = Partial<PollScriptSettings> & {fetch?: Fetch; chunkByteLength?: number}
 
 export async function takeDomCapture<TDriver extends Driver<unknown, unknown, unknown, unknown>>({
   driver,
@@ -92,6 +92,7 @@ export async function takeDomCapture<TDriver extends Driver<unknown, unknown, un
           limit: 1,
           validate: ({response, error}) => Boolean(error) || response.status >= 400,
         },
+        fetch: settings.fetch,
       })
       if (response.status < 400) {
         const css = await response.text()

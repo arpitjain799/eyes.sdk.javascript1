@@ -31,11 +31,11 @@ export function makeCore<TDriver, TContext, TElement, TSelector>({
 
   return utils.general.extend(core, {
     type: 'classic' as const,
-    isDriver: spec.isDriver,
-    isElement: spec.isElement,
-    isSelector: spec.isSelector,
-    getViewportSize: makeGetViewportSize({spec, logger}),
-    setViewportSize: makeSetViewportSize({spec, logger}),
+    isDriver: spec?.isDriver,
+    isElement: spec?.isElement,
+    isSelector: spec?.isSelector,
+    getViewportSize: spec && makeGetViewportSize({spec, logger}),
+    setViewportSize: spec && makeSetViewportSize({spec, logger}),
     locate: makeLocate({spec, core, logger}),
     openEyes: makeOpenEyes({spec, core, logger}),
   })

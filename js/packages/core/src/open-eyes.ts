@@ -13,7 +13,7 @@ import {makeClose} from './close'
 import * as utils from '@applitools/utils'
 
 type Options<TDriver, TContext, TElement, TSelector> = {
-  spec: SpecDriver<TDriver, TContext, TElement, TSelector>
+  spec?: SpecDriver<TDriver, TContext, TElement, TSelector>
   core?: BaseCore | ClassicCore<TDriver, TElement, TSelector> | UFGCore<TDriver, TElement, TSelector>
   concurrency?: number
   logger?: Logger
@@ -40,8 +40,8 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
   }): Promise<Eyes<TDriver, TElement, TSelector, TType>> {
     settings = {...config?.open, ...settings}
     settings.userTestId = `${settings.testName}--${utils.general.guid()}`
-    settings.apiKey ??= utils.general.getEnvValue('API_KEY')
     settings.serverUrl ??= utils.general.getEnvValue('SERVER_URL') ?? 'https://eyesapi.applitools.com'
+    settings.apiKey ??= utils.general.getEnvValue('API_KEY')
     settings.batch ??= {}
     settings.batch.id ??= utils.general.getEnvValue('BATCH_ID') ?? utils.general.guid()
     settings.batch.name ??= utils.general.getEnvValue('BATCH_NAME')
