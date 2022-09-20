@@ -372,8 +372,10 @@ export async function performAction(browser: Driver, steps: any[]): Promise<void
   return browser.touchAction(steps as any)
 }
 export async function switchWorld(driver: Driver, id?: string): Promise<void> {
+  // this is done for resiliency
   await driver.getContexts()
   await utils.general.sleep(500)
+  // end
   const [, webview] = await driver.getContexts()
   await driver.switchContext(id ? id : webview)
 }

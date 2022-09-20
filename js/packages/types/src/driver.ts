@@ -22,6 +22,7 @@ export type DriverInfo = {
   isNative?: boolean
   isAndroid?: boolean
   isIOS?: boolean
+  isWebView?: boolean
   features?: {
     shadowSelector?: boolean
     allCookies?: boolean

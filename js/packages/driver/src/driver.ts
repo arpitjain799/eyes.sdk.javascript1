@@ -23,7 +23,6 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
   private _helper?:
     | HelperAndroid<TDriver, TContext, TElement, TSelector>
     | HelperIOS<TDriver, TContext, TElement, TSelector>
-  private _isWebView: boolean
 
   protected readonly _spec: types.SpecDriver<TDriver, TContext, TElement, TSelector>
 
@@ -108,7 +107,7 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
     return (!this.isWebView && this._driverInfo?.isNative) ?? false
   }
   get isWebView(): boolean {
-    return this._isWebView ?? false
+    return this._driverInfo?.isWebView ?? false
   }
   get isWeb(): boolean {
     return this.isWebView || !this.isNative
@@ -133,14 +132,14 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
     this._currentContext = context
   }
 
-  async init(): Promise<this> {
+  async init(options?: {isWebView?: boolean}): Promise<this> {
     const capabilities = await this._spec.getCapabilities?.(this.target)
     this._logger.log('Driver capabilities', capabilities)
 
     const capabilitiesInfo = capabilities ? parseCapabilities(capabilities, this._customConfig) : undefined
     const driverInfo = await this._spec.getDriverInfo?.(this.target)
 
-    this._driverInfo = {...capabilitiesInfo, ...driverInfo}
+    this._driverInfo = {...capabilitiesInfo, ...driverInfo, ...options}
 
     if (this.isMobile) {
       this._driverInfo.orientation =
@@ -248,20 +247,18 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
       // calculate safe area
       if (this.isIOS && !this._driverInfo.safeArea) {
         this._driverInfo.safeArea = {x: 0, y: 0, ...this._driverInfo.displaySize}
-        if (!this._isWebView) {
-          const topElement = await this.element({type: '-ios class chain', selector: '**/XCUIElementTypeNavigationBar'})
-          if (topElement) {
-            const topRegion = await this._spec.getElementRegion(this.target, topElement.target)
-            const topOffset = topRegion.y + topRegion.height
-            this._driverInfo.safeArea.y = topOffset
-            this._driverInfo.safeArea.height -= topOffset
-          }
-          const bottomElement = await this.element({type: '-ios class chain', selector: '**/XCUIElementTypeTabBar'})
-          if (bottomElement) {
-            const bottomRegion = await this._spec.getElementRegion(this.target, bottomElement.target)
-            const bottomOffset = bottomRegion.height
-            this._driverInfo.safeArea.height -= bottomOffset
-          }
+        const topElement = await this.element({type: '-ios class chain', selector: '**/XCUIElementTypeNavigationBar'})
+        if (topElement) {
+          const topRegion = await this._spec.getElementRegion(this.target, topElement.target)
+          const topOffset = topRegion.y + topRegion.height
+          this._driverInfo.safeArea.y = topOffset
+          this._driverInfo.safeArea.height -= topOffset
+        }
+        const bottomElement = await this.element({type: '-ios class chain', selector: '**/XCUIElementTypeTabBar'})
+        if (bottomElement) {
+          const bottomRegion = await this._spec.getElementRegion(this.target, bottomElement.target)
+          const bottomOffset = bottomRegion.height
+          this._driverInfo.safeArea.height -= bottomOffset
         }
       }
 
@@ -281,8 +278,7 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
 
   async switchToWebView(webviewId?: string) {
     await this._spec.switchWorld(this.target, webviewId)
-    this._isWebView = true
-    await this.init()
+    await this.init({isWebView: true})
   }
 
   // switchToNativeView() {
