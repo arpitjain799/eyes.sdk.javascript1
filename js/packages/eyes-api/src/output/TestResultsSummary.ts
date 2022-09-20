@@ -21,22 +21,26 @@ export class TestResultsSummaryData implements Iterable<TestResultContainerData>
   }
 
   getAllResults(): TestResultContainerData[] {
-    return this._summary.results.map(container => {
-      return new TestResultContainerData({container, deleteTest: this._deleteTest})
-    })
+    return (
+      this._summary?.results.map(container => {
+        return new TestResultContainerData({container, deleteTest: this._deleteTest})
+      }) ?? []
+    )
   }
 
   [Symbol.iterator](): Iterator<TestResultContainerData> {
-    return this._summary.results
-      .map(container => {
-        return new TestResultContainerData({container, deleteTest: this._deleteTest})
-      })
-      [Symbol.iterator]()
+    return (
+      this._summary?.results
+        .map(container => {
+          return new TestResultContainerData({container, deleteTest: this._deleteTest})
+        })
+        [Symbol.iterator]() ?? [][Symbol.iterator]()
+    )
   }
 
   /** @internal */
   toJSON(): types.TestResultContainer<'classic' | 'ufg'>[] {
-    return this._summary.results
+    return this._summary?.results
   }
 
   /** @internal */

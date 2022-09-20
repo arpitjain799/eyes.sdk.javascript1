@@ -99,7 +99,8 @@ export class VisualGridRunner extends EyesRunner {
   get config() {
     return {
       type: 'ufg',
-      concurrency: this._testConcurrency || this._legacyConcurrency,
+      concurrency: this._testConcurrency,
+      legacyConcurrency: this._legacyConcurrency,
     }
   }
 
