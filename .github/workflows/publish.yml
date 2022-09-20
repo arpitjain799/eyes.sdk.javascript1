@@ -73,7 +73,7 @@ jobs:
           workflow: publish-utils.yml
           inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).utils.version}}"}'
   logger:
-    needs: [ setup, logger, utils ]
+    needs: [ setup, utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).logger && !failure() && !cancelled()}}
     name: logger
     runs-on: ubuntu-latest
@@ -309,6 +309,8 @@ jobs:
         eg-client,
         logger,
         utils,
+        api,
+        spec-selenium,
         test-server,
         test-utils,
         types
