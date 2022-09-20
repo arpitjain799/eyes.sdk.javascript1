@@ -175,6 +175,8 @@ export type ChromeEmulationDeviceRenderer = {
 }
 
 export type IOSDevice =
+  | 'iPhone 14 Pro Max'
+  | 'iPhone 14'
   | 'iPhone 13 Pro Max'
   | 'iPhone 13 Pro'
   | 'iPhone 13'
