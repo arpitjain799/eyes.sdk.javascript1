@@ -126,7 +126,7 @@ describe('render', () => {
     await assert.rejects(renderPromise, error => error.message.startsWith('Got unexpected status'))
   })
 
-  it.only('batches multiple calls in one request', async () => {
+  it('batches multiple calls in one request', async () => {
     const renderCalls = [] as RenderRequest[][]
     const render = makeRender({
       requests: {

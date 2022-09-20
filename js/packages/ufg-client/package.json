@@ -70,7 +70,7 @@
     "@typescript-eslint/parser": "^5.22.0",
     "eslint": "^8.14.0",
     "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-mocha-no-only": "^1.1.1",
+    "eslint-plugin-no-only-tests": "^3.0.0",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^4.0.0",
     "husky": "^4.3.7",
