@@ -1,7 +1,7 @@
 import type {Selector, Renderer} from '@applitools/types'
 import type {Screenshot, ScreenshotSettings as ClassicScreenshotSettings} from '@applitools/types/classic'
 import type {AndroidVHS, IOSVHS} from '@applitools/types/ufg'
-import {type Logger} from '@applitools/logger'
+import {makeLogger, type Logger} from '@applitools/logger'
 import {makeReqBroker, type ReqBrokerConfig} from './req-broker'
 import * as utils from '@applitools/utils'
 
@@ -24,6 +24,7 @@ export async function takeScreenshot({
   settings: ScreenshotSettings
   logger?: Logger
 }): Promise<Screenshot> {
+  logger = logger?.extend({label: 'nml client'}) ?? makeLogger({label: 'nml client'})
   const req = makeReqBroker({config: settings, logger})
   const payload = {
     name: settings.name,
@@ -57,6 +58,7 @@ export async function takeSnapshots({
   settings: SnapshotSettings
   logger?: Logger
 }): Promise<IOSVHS[] | AndroidVHS[]> {
+  logger = logger?.extend({label: 'nml client'}) ?? makeLogger({label: 'nml client'})
   const req = makeReqBroker({config: settings, logger})
   const payload = {
     waitBeforeCapture: settings.waitBeforeCapture,
@@ -70,7 +72,6 @@ export async function takeSnapshots({
       payload,
     },
   })
-  response.json()
   const snapshot: AndroidVHS | IOSVHS = await response.json().then(({payload}) => {
     const {resourceMap, metadata} = payload.result
     const platformName = resourceMap.metadata.platformName
