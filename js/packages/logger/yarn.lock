@@ -16,10 +16,10 @@
     node-fetch "2.6.1"
     yargs "15.0.2"
 
-"@applitools/types@1.5.10":
-  version "1.5.10"
-  resolved "https://registry.yarnpkg.com/@applitools/types/-/types-1.5.10.tgz#dab5b5c9389873ecf4601aeff0b1017d0faebb4f"
-  integrity sha512-I+48Dk2w+El/0zDrj4LkQLlXXRDj8NUO7IU4j50WYr1yle+ncaAJBho11uTtekvjp/NVn6tgOdmTGH2rgYSlSg==
+"@applitools/types@1.5.11":
+  version "1.5.11"
+  resolved "https://registry.yarnpkg.com/@applitools/types/-/types-1.5.11.tgz#5ab482cc0f05f5a58d299bcec82596dfb60ac4ef"
+  integrity sha512-NNc19JojtHfu8BpEsBO18kAJmLYRd1vHudNHMKI1N7UW8npWjQrdUGVPBAhvuvaa27D1CcI9ZM7t29LkYCMZXw==
 
 "@applitools/utils@1.3.10":
   version "1.3.10"
