@@ -399,9 +399,12 @@ describe('processResources', () => {
     const url = 'http://localhost:1234/err/bla.css'
     const resources = await processResources({resources: {[url]: makeResource({url})}})
     assert.deepStrictEqual(resources.mapping, {[url]: makeResource({id: url, errorStatusCode: 504}).hash})
+    // NOTE: since node 18 address string had changed from `127.0.0.1:1234` to `::1:1234`
+    // TODO remove when support node >=18
+    output = output.replace('ECONNREFUSED 127.0.0.1:1234', 'ECONNREFUSED ::1:1234')
     assert.strictEqual(
       output,
-      'error fetching resource at http://localhost:1234/err/bla.css, setting errorStatusCode to 504. err=FetchError: request to http://localhost:1234/err/bla.css failed, reason: connect ECONNREFUSED 127.0.0.1:1234',
+      'error fetching resource at http://localhost:1234/err/bla.css, setting errorStatusCode to 504. err=FetchError: request to http://localhost:1234/err/bla.css failed, reason: connect ECONNREFUSED ::1:1234',
     )
   })
 
