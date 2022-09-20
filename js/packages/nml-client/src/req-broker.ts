@@ -66,9 +66,10 @@ function handleLogs({logger: defaultLogger}: {logger?: Logger} = {}): Hooks<ReqB
 
 function handleLongRequests({req}: {req: Req}): Hooks {
   return {
-    async afterResponse({request, response}) {
+    async afterResponse({request, response, options}) {
       if (response.status === 200) {
         return req(request.url + '-response', {
+          proxy: options.proxy,
           retry: {statuses: [404]},
         })
       }

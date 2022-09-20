@@ -70,6 +70,7 @@ export async function takeSnapshots({
       payload,
     },
   })
+  response.json()
   const snapshot: AndroidVHS | IOSVHS = await response.json().then(({payload}) => {
     const {resourceMap, metadata} = payload.result
     const platformName = resourceMap.metadata.platformName
