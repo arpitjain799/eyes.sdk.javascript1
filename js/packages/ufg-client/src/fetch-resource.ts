@@ -112,7 +112,7 @@ function handleStreaming({timeout, logger}: {timeout: number; logger: Logger}): 
         !response.headers.get('Content-Length') &&
         ['audio/', 'video/'].some(prefix => response.headers.get('Content-Type').startsWith(prefix))
       if (!isProbablyStreaming) return
-      return new Promise(resolve => {
+      return new Promise<Response>(resolve => {
         const timer = setTimeout(() => {
           controller.abort()
           resolve(new Response(null, {status: 599}))
@@ -121,7 +121,7 @@ function handleStreaming({timeout, logger}: {timeout: number; logger: Logger}): 
         response
           .arrayBuffer()
           .then(body => resolve(new Response(body, response)))
-          .catch(() => resolve())
+          .catch(() => resolve(new Response(null, {status: 599})))
           .finally(() => clearTimeout(timer))
       })
     },
