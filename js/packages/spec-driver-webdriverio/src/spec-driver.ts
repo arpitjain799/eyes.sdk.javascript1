@@ -371,14 +371,25 @@ export async function getElementText(browser: Driver, element: Element): Promise
 export async function performAction(browser: Driver, steps: any[]): Promise<void> {
   return browser.touchAction(steps as any)
 }
-export async function switchWorld(driver: Driver, target?: {origin?: boolean; id?: string}): Promise<void> {
+async function getWorlds(driver: Driver): Promise<any> {
   // this is done for resiliency
   await driver.getContexts()
   await utils.general.sleep(500)
   // end
-  const [origin, webview] = await driver.getContexts()
-  const providedTarget = target && target.origin ? origin : target.id
-  await driver.switchContext(providedTarget ?? webview)
+  return await driver.getContexts()
+}
+export async function getWorld(driver: Driver): Promise<any> {
+  const [origin] = await getWorlds(driver)
+  const currentWorld = await driver.getContext()
+  return {
+    id: currentWorld,
+    isNative: currentWorld === origin,
+    isWebView: currentWorld !== origin,
+  }
+}
+export async function switchWorld(driver: Driver, id?: string): Promise<void> {
+  const [, webview] = await getWorlds(driver)
+  await driver.switchContext(id ?? webview)
 }
 
 // #endregion

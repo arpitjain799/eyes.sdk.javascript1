@@ -23,6 +23,7 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
   private _helper?:
     | HelperAndroid<TDriver, TContext, TElement, TSelector>
     | HelperIOS<TDriver, TContext, TElement, TSelector>
+  private _previousWorld: string
 
   protected readonly _spec: types.SpecDriver<TDriver, TContext, TElement, TSelector>
 
@@ -132,18 +133,20 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
     this._currentContext = context
   }
 
-  async init(options?: {isWebView?: boolean}): Promise<this> {
+  async init(): Promise<this> {
     const capabilities = await this._spec.getCapabilities?.(this.target)
     this._logger.log('Driver capabilities', capabilities)
 
     const capabilitiesInfo = capabilities ? parseCapabilities(capabilities, this._customConfig) : undefined
     const driverInfo = await this._spec.getDriverInfo?.(this.target)
 
-    this._driverInfo = {...capabilitiesInfo, ...driverInfo, ...options}
+    this._driverInfo = {...capabilitiesInfo, ...driverInfo}
 
     if (this.isMobile) {
       this._driverInfo.orientation =
         (await this.getOrientation().catch(() => undefined)) ?? this._driverInfo.orientation
+      const {isWebView} = await this._spec.getWorld?.(this.target)
+      this._driverInfo.isWebView = isWebView
     }
 
     if (this.isWeb) {
@@ -276,14 +279,34 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
     return this
   }
 
-  async switchToWebView(webviewId?: string) {
-    await this._spec.switchWorld(this.target, {id: webviewId})
-    await this.init({isWebView: true})
+  // About the concept of a  "World":
+  //
+  // Since "context" is an overloaded term from frames, we have decided to use
+  // the concept of a "world" when switching between mobile app contexts (e.g., native and webview(s))
+  //
+  // Notes:
+  // - two new functions need to be added to a spec driver for this to work (`getWorld` and `switchWorld`)
+  // - you can see a reference implementation of this in spec-driver-webdriverio
+  // - if a world id is provided it will be used for switching
+  // - if a world id is not provided, the first non-native world will be used
+  //    (regardless of which world the driver is currently switched into)
+  // - before switching, the current world context is stored so it can switched back to later
+  //    (with the `restoreState` option)
+  async switchWorld(options?: {id?: string, restoreState?: boolean}) {
+    if (!this._previousWorld) {
+      const {id: previousWorldId} = await this._spec.getWorld?.(this.target)
+      this._previousWorld = previousWorldId
+    }
+    await this._spec.switchWorld?.(this.target, options && options.restoreState ? this._previousWorld : options && options.id)
+    await this.init()
   }
 
-  async switchToNativeView() {
-    await this._spec.switchWorld(this.target, {origin: true})
-    await this.init()
+  // re-init the driver when it is out of sync
+  // (e.g., when a user switches to a webview in their test after the initialization has happened)
+  async refresh(): Promise<void> {
+    if (!this.isMobile || this.isWebView) return
+    const {isWebView} = await this._spec.getWorld?.(this.target)
+    if (isWebView) await this.init()
   }
 
   async refreshContexts(): Promise<Context<TDriver, TContext, TElement, TSelector>> {

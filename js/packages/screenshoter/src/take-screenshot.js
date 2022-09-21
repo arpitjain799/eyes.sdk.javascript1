@@ -23,11 +23,18 @@ async function takeScreenshot({
   debug,
   logger,
   lazyLoad,
+  webview,
 }) {
   debug =
     debug ||
     (process.env.APPLITOOLS_DEBUG_SCREENSHOTS_DIR ? {path: process.env.APPLITOOLS_DEBUG_SCREENSHOTS_DIR} : debug)
   logger = logger ? logger.extend({label: 'screenshoter'}) : makeLogger({label: 'screenshoter'})
+
+  if (driver.isMobile) {
+    if (webview) await driver.switchWorld(typeof webview === 'string' ? {id: webview} : undefined)
+    else await driver.refresh()
+  }
+
   // screenshot of a window/app was requested (fully or viewport)
   const window = !region && (!frames || frames.length === 0)
   // framed screenshots could be taken only when screenshot of window/app fully was requested
@@ -115,6 +122,7 @@ async function takeScreenshot({
 
     // restore focus on original active context
     await activeContext.focus()
+    if (webview) await driver.switchWorld({restoreState: true})
   }
 }
 
