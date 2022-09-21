@@ -11,6 +11,13 @@ import {parseCapabilities} from './capabilities'
 
 const snippets = require('@applitools/snippets')
 
+type DriverOptions<TDriver, TContext, TElement, TSelector> = {
+  spec: types.SpecDriver<TDriver, TContext, TElement, TSelector>
+  driver: Driver<TDriver, TContext, TElement, TSelector> | TDriver
+  logger?: Logger
+  customConfig?: types.CustomDriverConfig
+}
+
 // eslint-disable-next-line
 export class Driver<TDriver, TContext, TElement, TSelector> {
   private _target: TDriver
@@ -27,12 +34,7 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
 
   protected readonly _spec: types.SpecDriver<TDriver, TContext, TElement, TSelector>
 
-  constructor(options: {
-    spec: types.SpecDriver<TDriver, TContext, TElement, TSelector>
-    driver: Driver<TDriver, TContext, TElement, TSelector> | TDriver
-    logger?: Logger
-    customConfig?: types.CustomDriverConfig
-  }) {
+  constructor(options: DriverOptions<TDriver, TContext, TElement, TSelector>) {
     if (options.driver instanceof Driver) return options.driver
 
     this._customConfig = options.customConfig ?? {}
@@ -137,7 +139,7 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
     const capabilities = await this._spec.getCapabilities?.(this.target)
     this._logger.log('Driver capabilities', capabilities)
 
-    const capabilitiesInfo = capabilities ? parseCapabilities(capabilities, this._customConfig) : undefined
+    const capabilitiesInfo = capabilities ? parseCapabilities(capabilities) : undefined
     const driverInfo = await this._spec.getDriverInfo?.(this.target)
 
     this._driverInfo = {...capabilitiesInfo, ...driverInfo}
@@ -164,6 +166,10 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
           this._driverInfo.platformName = userAgentInfo.platformName ?? this._driverInfo.platformName
           this._driverInfo.platformVersion = userAgentInfo.platformVersion ?? this._driverInfo.platformVersion
         }
+      }
+
+      if (!this._driverInfo.isMobile && (this.isAndroid || this.isIOS)) {
+        this._driverInfo.isMobile = true
       }
 
       this._driverInfo.features ??= {}
@@ -683,4 +689,13 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
   async visit(url: string): Promise<void> {
     await this._spec.visit(this.target, url)
   }
+}
+
+export async function makeDriver<TDriver, TContext, TElement, TSelector>(
+  options: DriverOptions<TDriver, TContext, TElement, TSelector>,
+): Promise<Driver<TDriver, TContext, TElement, TSelector>> {
+  const driver = new Driver(options)
+  await driver.init()
+  await driver.refreshContexts()
+  return driver
 }
