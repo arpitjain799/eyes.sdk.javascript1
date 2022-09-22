@@ -299,20 +299,31 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
   // - before switching, the current world context is stored so it can switched back to later
   //    (with the `restoreState` option)
   async switchWorld(options?: {id?: string, restoreState?: boolean}) {
-    if (!this._previousWorld) {
-      const {id: previousWorldId} = await this._spec.getWorld?.(this.target)
-      this._previousWorld = previousWorldId
+    if (!this._spec.getWorld || !this._spec.switchWorld) {
+      this._logger.log('world switching not implemented in the spec driver, skipping')
+      return
     }
-    await this._spec.switchWorld?.(this.target, options && options.restoreState ? this._previousWorld : options && options.id)
+    this._logger.log('switchWorld called with', options ? options : 'no options')
+    if (!this._previousWorld) {
+      const {id} = await this._spec.getWorld?.(this.target)
+      this._logger.log('storing current world id for future restoration', id)
+      this._previousWorld = id
+    }
+    const providedTarget = options && options.restoreState ? this._previousWorld : options && options.id
+    this._logger.log('switching world with', providedTarget)
+    await this._spec.switchWorld?.(this.target, providedTarget)
     await this.init()
   }
 
   // re-init the driver when it is out of sync
   // (e.g., when a user switches to a webview in their test after the initialization has happened)
   async refresh(): Promise<void> {
-    if (!this.isMobile || this.isWebView) return
+    if (!this.isMobile || this.isWebView || !this._spec.getWorld || !this._spec.switchWorld) return
     const {isWebView} = await this._spec.getWorld?.(this.target)
-    if (isWebView) await this.init()
+    if (isWebView) {
+      this._logger.log('refreshing driver since it is out of sync')
+      await this.init()
+    }
   }
 
   async refreshContexts(): Promise<Context<TDriver, TContext, TElement, TSelector>> {
