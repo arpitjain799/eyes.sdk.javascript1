@@ -1151,8 +1151,8 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
 
   /** @internal */
   toJSON(): types.Config<TElement, TSelector, 'classic'> & types.Config<TElement, TSelector, 'ufg'> {
-    const config: types.Config<TElement, TSelector, 'classic'> & types.Config<TElement, TSelector, 'ufg'> = {
-      open: {
+    return {
+      open: dropUndefinedProperties({
         serverUrl: this.serverUrl,
         apiKey: this.apiKey,
         agentId: this.agentId,
@@ -1167,14 +1167,14 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
         batch: this.batch,
         baselineEnvName: this.baselineEnvName,
         environmentName: this.environmentName,
-        environment: {
+        environment: dropUndefinedProperties({
           hostingApp: this.hostApp,
           hostingAppInfo: this.hostAppInfo,
           os: this.hostOS,
           osInfo: this.hostOSInfo,
           deviceName: this.deviceInfo,
           viewportSize: this.viewportSize,
-        },
+        }),
         branchName: this.branchName,
         parentBranchName: this.parentBranchName,
         baselineBranchName: this.baselineBranchName,
@@ -1183,8 +1183,8 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
         ignoreGitBranching: this.ignoreGitMergeBase,
         saveDiffs: this.saveDiffs,
         keepBatchOpen: this.dontCloseBatches,
-      },
-      screenshot: {
+      }),
+      screenshot: dropUndefinedProperties({
         fully: this.forceFullPageScreenshot,
         scrollRootElement: this.scrollRootElement,
         stitchMode: this.stitchMode,
@@ -1193,17 +1193,17 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
         overlap: !utils.types.isNull(this.stitchOverlap) ? {bottom: this.stitchOverlap} : undefined,
         waitBetweenStitches: this.waitBeforeScreenshots,
         waitBeforeCapture: this.waitBeforeCapture,
-        normalization: {
+        normalization: dropUndefinedProperties({
           cut: this.cut,
           rotation: this.rotation,
           scaleRatio: this.scaleRatio,
-        },
+        }),
         debugImages:
           this.debugScreenshots?.save && utils.types.has(this.debugScreenshots, 'path')
             ? this.debugScreenshots
             : undefined,
-      },
-      check: {
+      }),
+      check: dropUndefinedProperties({
         renderers: this.browsersInfo?.map(browserInfo => {
           if (utils.types.has(browserInfo, 'iosDeviceInfo')) {
             const {iosVersion, ...iosDeviceInfo} = browserInfo.iosDeviceInfo
@@ -1232,17 +1232,23 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
         strictRegions: this.defaultMatchSettings?.strictRegions,
         floatingRegions: this.defaultMatchSettings?.floatingRegions,
         accessibilityRegions: this.defaultMatchSettings?.accessibilityRegions,
-      },
-      close: {
+      }),
+      close: dropUndefinedProperties({
         updateBaselineIfDifferent: this.saveFailedTests,
         updateBaselineIfNew: this.saveNewTests,
-      },
+      }),
     }
-    return JSON.parse(JSON.stringify(config))
   }
 
   /** @internal */
   toString() {
     return utils.general.toString(this)
   }
+}
+
+function dropUndefinedProperties(object: Record<string, any>) {
+  return Object.entries(object).reduce(
+    (object, [key, value]) => (value !== undefined ? Object.assign(object, {[key]: value}) : object),
+    {} as any,
+  )
 }
