@@ -77,6 +77,7 @@ export type CheckSettings<TElement, TSelector> = {
   timeout?: number
   waitBeforeCapture?: number
   lazyLoad?: boolean | LazyLoadOptions
+  webview?: boolean | string
 }
 
 export type Target<TElement, TSelector> = {
@@ -204,6 +205,7 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
     if (!utils.types.isNull(settings.timeout)) this.timeout(settings.timeout)
     if (!utils.types.isNull(settings.waitBeforeCapture)) this.waitBeforeCapture(settings.waitBeforeCapture)
     if (!utils.types.isNull(settings.lazyLoad)) this.lazyLoad(settings.lazyLoad)
+    if (!utils.types.isNull(settings.webview)) this.webview(settings.webview)
   }
 
   /** @undocumented */
@@ -674,6 +676,11 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
     return this
   }
 
+  webview(option?: string | boolean): this {
+    this._settings.webview = option ?? true
+    return this
+  }
+
   /** @internal */
   toObject(): CheckSettings<TElement, TSelector> {
     return this._settings
@@ -708,6 +715,7 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
       waitBeforeCapture: this._settings.waitBeforeCapture,
       retryTimeout: this._settings.timeout,
       userCommandId: this._settings.variationGroupId,
+      webview: this._settings.webview,
     }
     return JSON.parse(JSON.stringify(settings))
   }
