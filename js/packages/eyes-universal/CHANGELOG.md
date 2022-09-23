@@ -10,6 +10,27 @@
 
 
 
+
+## 2.13.2 - 2022/9/23
+
+### Features
+### Bug fixes
+- Fixed `Eyes.check` command response regression
+
+## 2.13.1 - 2022/9/23
+
+### Features
+### Bug fixes
+- Fixed issue when lazy loading script being executed on native app
+
+## 2.13.0 - 2022/9/23
+
+### Features
+- Added `--shutdown-mode` argument, which accepts `stdin` value to kill the process when its stdin stream ends. The default value is `lazy`, which preserves the current behavior
+- Prevented any writes to stdout after port is reported
+### Bug fixes
+- Avoided unexpected touch actions during `check` on Android apps
+
 ## 2.12.3 - 2022/9/16
 
 ### Features
