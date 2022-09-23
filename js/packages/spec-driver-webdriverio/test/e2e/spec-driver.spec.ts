@@ -386,7 +386,7 @@ describe('spec driver', async () => {
       if (process.env.APPLITOOLS_WEBDRIVERIO_PROTOCOL === 'cdp') this.skip()
     })
 
-    before(async () => {
+    beforeEach(async () => {
       ;[browser, destroyBrowser] = await spec.build({
         app: 'https://applitools.jfrog.io/artifactory/Examples/android/1.3/app-debug.apk',
         device: 'Pixel 3a XL',
@@ -394,7 +394,7 @@ describe('spec driver', async () => {
       })
     })
 
-    after(async () => {
+    afterEach(async () => {
       if (destroyBrowser) await destroyBrowser()
       destroyBrowser = null as any
     })
@@ -404,6 +404,39 @@ describe('spec driver', async () => {
     })
     it('getOrientation()', async () => {
       await getOrientation({expected: 'landscape'})
+    })
+    it('getWorld', async () => {
+      const actual = await spec.getWorld(browser)
+      const expected = {
+        id: 'NATIVE_APP',
+        isNative: true,
+        isWebView: false,
+      }
+      assert.deepStrictEqual(actual, expected)
+    })
+    it('switchWorld without id', async () => {
+      await browser.setOrientation('portrait')
+      await browser.$('id:com.applitools.eyes.android:id/btn_web_view').click()
+      await spec.switchWorld(browser, null)
+      const actual = await spec.getWorld(browser)
+      const expected = {
+        id: 'WEBVIEW_com.applitools.eyes.android',
+        isNative: false,
+        isWebView: true,
+      }
+      assert.deepStrictEqual(actual, expected)
+    })
+    it('switchWorld with id', async () => {
+      await browser.setOrientation('portrait')
+      await browser.$('id:com.applitools.eyes.android:id/btn_web_view').click()
+      await spec.switchWorld(browser, 'WEBVIEW_com.applitools.eyes.android')
+      const actual = await spec.getWorld(browser)
+      const expected = {
+        id: 'WEBVIEW_com.applitools.eyes.android',
+        isNative: false,
+        isWebView: true,
+      }
+      assert.deepStrictEqual(actual, expected)
     })
   })
 
