@@ -312,12 +312,12 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
       this._previousWorld = id
     }
     const providedTarget = options && options.restoreState ? this._previousWorld : options && options.id
-    this._logger.log('switching world with', providedTarget)
+    this._logger.log('switching world with', providedTarget ? providedTarget : 'no id')
     try {
       await this._spec.switchWorld?.(this.target, providedTarget)
       await this.init()
     } catch (error) {
-      throw new Error(`Unable to switch worlds, the original error was ${error.message}`)
+      throw new Error(`Unable to switch worlds, the original error was: ${error.message}`)
     }
   }
 
