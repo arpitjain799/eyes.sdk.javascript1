@@ -313,8 +313,12 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
     }
     const providedTarget = options && options.restoreState ? this._previousWorld : options && options.id
     this._logger.log('switching world with', providedTarget)
-    await this._spec.switchWorld?.(this.target, providedTarget)
-    await this.init()
+    try {
+      await this._spec.switchWorld?.(this.target, providedTarget)
+      await this.init()
+    } catch (error) {
+      throw new Error(`Unable to switch worlds, the original error was ${error.message}`)
+    }
   }
 
   // re-init the driver when it is out of sync

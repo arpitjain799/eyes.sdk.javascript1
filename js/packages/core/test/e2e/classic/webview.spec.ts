@@ -86,4 +86,26 @@ describe('webview', () => {
 
     assert.strictEqual(result.status, 'Passed')
   })
+
+
+  it('has a helpful error when attempting to switch to a webview id that does not exist', async () => {
+    await driver.$('xpath://XCUIElementTypeStaticText[@name="Web view"]').click()
+
+    const core = makeCore({spec})
+
+    const eyes = await core.openEyes({
+      target: driver,
+      settings: {
+        serverUrl: 'https://eyesapi.applitools.com',
+        apiKey: process.env.APPLITOOLS_API_KEY,
+        appName: 'core app',
+        testName: 'webview + native app',
+      },
+    })
+    assert.rejects(
+      async () => {await eyes.check({settings: {webview: 'invalid-webview-id'}})},
+      err => err.message.startsWith('Unable to switch worlds')
+    )
+    await eyes.abort()
+  })
 })
