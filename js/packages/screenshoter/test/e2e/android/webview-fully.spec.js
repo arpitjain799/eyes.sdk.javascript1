@@ -4,12 +4,7 @@ describe('screenshoter android app', () => {
   let driver, destroyDriver
 
   beforeEach(async () => {
-    ;[driver, destroyDriver] = await makeDriver({
-      type: 'android',
-      logger,
-      platformVersion: '11.0',
-      deviceName: 'Pixel_3a_API_33_arm64-v8a',
-    })
+    ;[driver, destroyDriver] = await makeDriver({type: 'android', logger})
   })
 
   afterEach(async () => {

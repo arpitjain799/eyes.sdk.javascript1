@@ -4,7 +4,7 @@ describe('screenshoter ios app', () => {
   let driver, destroyDriver
 
   beforeEach(async () => {
-    ;[driver, destroyDriver] = await makeDriver({type: 'ios', logger, platformVersion: '16.0'})
+    ;[driver, destroyDriver] = await makeDriver({type: 'ios', logger})
   })
 
   afterEach(async () => {

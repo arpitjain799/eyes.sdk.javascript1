@@ -31,7 +31,7 @@ async function takeScreenshot({
   logger = logger ? logger.extend({label: 'screenshoter'}) : makeLogger({label: 'screenshoter'})
 
   if (driver.isMobile) {
-    if (webview) await driver.switchWorld(typeof webview === 'string' ? {id: webview} : undefined)
+    if (webview) await driver.switchWorld(typeof webview === 'string' ? {id: webview} : null)
     else await driver.refresh()
   }
 
