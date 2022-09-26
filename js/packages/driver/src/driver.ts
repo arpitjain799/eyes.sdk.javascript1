@@ -311,7 +311,7 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
       this._logger.log('storing current world id for future restoration', id)
       this._previousWorld = id
     }
-    const providedTarget = options && options.restoreState ? this._previousWorld : options && options.id
+    const providedTarget = options?.restoreState ? this._previousWorld : options?.id
     this._logger.log('switching world with', providedTarget ? providedTarget : 'no id')
     try {
       await this._spec.switchWorld?.(this.target, providedTarget)
