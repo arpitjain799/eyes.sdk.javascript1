@@ -407,11 +407,17 @@ describe('spec driver', async () => {
     })
     it('getWorld', async () => {
       const actual = await spec.getWorld(browser)
-      const expected = {
-        id: 'NATIVE_APP',
-        isNative: true,
-        isWebView: false,
-      }
+      const expected = 'NATIVE_APP'
+      assert.deepStrictEqual(actual, expected)
+    })
+    it('getWorlds', async () => {
+      await browser.setOrientation('portrait')
+      await browser.$('id:com.applitools.eyes.android:id/btn_web_view').click()
+      const actual = await spec.getWorlds(browser)
+      const expected = [
+        'NATIVE_APP',
+        'WEBVIEW_com.applitools.eyes.android',
+      ] 
       assert.deepStrictEqual(actual, expected)
     })
     it('switchWorld without id', async () => {
@@ -419,11 +425,7 @@ describe('spec driver', async () => {
       await browser.$('id:com.applitools.eyes.android:id/btn_web_view').click()
       await spec.switchWorld(browser, null)
       const actual = await spec.getWorld(browser)
-      const expected = {
-        id: 'WEBVIEW_com.applitools.eyes.android',
-        isNative: false,
-        isWebView: true,
-      }
+      const expected = 'WEBVIEW_com.applitools.eyes.android'
       assert.deepStrictEqual(actual, expected)
     })
     it('switchWorld with id', async () => {
@@ -431,11 +433,7 @@ describe('spec driver', async () => {
       await browser.$('id:com.applitools.eyes.android:id/btn_web_view').click()
       await spec.switchWorld(browser, 'WEBVIEW_com.applitools.eyes.android')
       const actual = await spec.getWorld(browser)
-      const expected = {
-        id: 'WEBVIEW_com.applitools.eyes.android',
-        isNative: false,
-        isWebView: true,
-      }
+      const expected = 'WEBVIEW_com.applitools.eyes.android'
       assert.deepStrictEqual(actual, expected)
     })
   })

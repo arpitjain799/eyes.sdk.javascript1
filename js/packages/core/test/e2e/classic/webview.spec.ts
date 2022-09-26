@@ -41,8 +41,7 @@ describe('webview', () => {
 
   it('user switches to webview in their test (not specified in check settings)', async () => {
     await driver.$('xpath://XCUIElementTypeStaticText[@name="Web view"]').click()
-    const [, webview] = await driver.getContexts()
-    await driver.switchContext(webview)
+    await spec.switchWorld(driver)
 
     const core = makeCore({spec})
 

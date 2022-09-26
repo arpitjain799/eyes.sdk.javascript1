@@ -104,6 +104,7 @@ export interface SpecDriver<TDriver, TContext, TElement, TSelector> {
   type?(context: TContext, element: TElement, value: string): Promise<void>
   visit?(driver: TDriver, url: string): Promise<void>
   getWorld?(driver: TDriver): Promise<any>
+  getWorlds?(driver: TDriver): Promise<any>
   switchWorld?(driver: TDriver, id?: string): Promise<void>
   // #endregion
 

@@ -8,13 +8,6 @@ const {Driver} = require('@applitools/driver')
 const {makeImage} = require('@applitools/image')
 const takeScreenshot = require('../../src/take-screenshot')
 
-exports.switchToWebView = async function switchToWebView(driver) {
-  await driver.getContexts()
-  await utils.general.sleep(500)
-  const [, webview] = await driver.getContexts()
-  await driver.switchContext(webview)
-}
-
 exports.logger = makeLogger()
 
 async function sanitizeAndroidStatusBar(image) {

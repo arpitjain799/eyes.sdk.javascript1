@@ -149,7 +149,7 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
     if (this.isMobile) {
       this._driverInfo.orientation =
         (await this.getOrientation().catch(() => undefined)) ?? this._driverInfo.orientation
-      const {isWebView} = await this._spec.getWorld?.(this.target)
+      const {isWebView} = await this.getWorld()
       this._driverInfo.isWebView = isWebView
     }
 
@@ -302,12 +302,12 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
   //    (with the `restoreState` option)
   async switchWorld(options?: {id?: string, restoreState?: boolean}) {
     if (!this._spec.getWorld || !this._spec.switchWorld) {
-      this._logger.log('world switching not implemented in the spec driver, skipping')
+      this._logger.warn('world switching not implemented in the spec driver, skipping')
       return
     }
     this._logger.log('switchWorld called with', options ? options : 'no options')
     if (!this._previousWorld) {
-      const {id} = await this._spec.getWorld?.(this.target)
+      const {id} = await this.getWorld()
       this._logger.log('storing current world id for future restoration', id)
       this._previousWorld = id
     }
@@ -321,16 +321,16 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
     }
   }
 
-  // re-init the driver when it is out of sync
-  // (e.g., when a user switches to a webview in their test after the initialization has happened)
-  async refresh(): Promise<void> {
-    if (!this.isMobile || this.isWebView || !this._spec.getWorld || !this._spec.switchWorld) return
-    const {isWebView} = await this._spec.getWorld?.(this.target)
-    if (isWebView) {
-      this._logger.log('refreshing driver since it is out of sync')
-      await this.init()
+  async getWorld(): Promise<any> {
+    const [origin] = await this._spec.getWorlds?.(this.target)
+    const currentWorld = await this._spec.getWorld?.(this.target)
+    return {
+      id: currentWorld,
+      isNative: currentWorld === origin,
+      isWebView: currentWorld !== origin,
     }
   }
+  // end world
 
   async refreshContexts(): Promise<Context<TDriver, TContext, TElement, TSelector>> {
     if (this.isNative) return this.currentContext

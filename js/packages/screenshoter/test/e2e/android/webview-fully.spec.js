@@ -1,4 +1,4 @@
-const {makeDriver, test, logger, switchToWebView} = require('../e2e')
+const {makeDriver, test, logger} = require('../e2e')
 
 describe('screenshoter android app', () => {
   let driver, destroyDriver
@@ -24,22 +24,6 @@ describe('screenshoter android app', () => {
       driver,
       logger,
       webview: true,
-    })
-  })
-
-  it('take full webview screenshot (when user switches to it)', async () => {
-    const button = await driver.element({type: 'id', selector: 'com.applitools.eyes.android:id/btn_web_view'})
-    await button.click()
-    await switchToWebView(driver.target)
-
-    await test({
-      type: 'android',
-      tag: 'webview-fully',
-      fully: true,
-      scrollingMode: 'scroll',
-      wait: 1500,
-      driver,
-      logger,
     })
   })
 })

@@ -30,10 +30,7 @@ async function takeScreenshot({
     (process.env.APPLITOOLS_DEBUG_SCREENSHOTS_DIR ? {path: process.env.APPLITOOLS_DEBUG_SCREENSHOTS_DIR} : debug)
   logger = logger ? logger.extend({label: 'screenshoter'}) : makeLogger({label: 'screenshoter'})
 
-  if (driver.isMobile) {
-    if (webview) await driver.switchWorld(typeof webview === 'string' ? {id: webview} : null)
-    else await driver.refresh()
-  }
+  if (webview && driver.isNative) await driver.switchWorld(typeof webview === 'string' ? {id: webview} : null)
 
   // screenshot of a window/app was requested (fully or viewport)
   const window = !region && (!frames || frames.length === 0)
