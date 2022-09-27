@@ -375,15 +375,10 @@ export async function getWorld(driver: Driver): Promise<any> {
   return driver.getContext()
 }
 export async function getWorlds(driver: Driver): Promise<any> {
-  // this is done for resiliency
-  await driver.getContexts()
-  await utils.general.sleep(500)
-  // end
-  return await driver.getContexts()
+  return driver.getContexts()
 }
-export async function switchWorld(driver: Driver, id?: string): Promise<void> {
-  const [, webview] = await getWorlds(driver)
-  await driver.switchContext(id ?? webview)
+export async function switchWorld(driver: Driver, id: string): Promise<void> {
+  return driver.switchContext(id)
 }
 
 // #endregion

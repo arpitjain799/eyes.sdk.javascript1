@@ -1,6 +1,7 @@
 import type {Size, Cookie} from '@applitools/types'
 import assert from 'assert'
 import * as spec from '../../src'
+import * as utils from '@applitools/utils'
 
 function extractElementId(element: any) {
   return element.elementId || element['element-6066-11e4-a52e-4f735466cecf'] || element.ELEMENT
@@ -413,6 +414,7 @@ describe('spec driver', async () => {
     it('getWorlds', async () => {
       await browser.setOrientation('portrait')
       await browser.$('id:com.applitools.eyes.android:id/btn_web_view').click()
+      await utils.general.sleep(5000)
       const actual = await spec.getWorlds(browser)
       const expected = [
         'NATIVE_APP',
@@ -420,15 +422,7 @@ describe('spec driver', async () => {
       ] 
       assert.deepStrictEqual(actual, expected)
     })
-    it('switchWorld without id', async () => {
-      await browser.setOrientation('portrait')
-      await browser.$('id:com.applitools.eyes.android:id/btn_web_view').click()
-      await spec.switchWorld(browser, null)
-      const actual = await spec.getWorld(browser)
-      const expected = 'WEBVIEW_com.applitools.eyes.android'
-      assert.deepStrictEqual(actual, expected)
-    })
-    it('switchWorld with id', async () => {
+    it('switchWorld(id)', async () => {
       await browser.setOrientation('portrait')
       await browser.$('id:com.applitools.eyes.android:id/btn_web_view').click()
       await spec.switchWorld(browser, 'WEBVIEW_com.applitools.eyes.android')
