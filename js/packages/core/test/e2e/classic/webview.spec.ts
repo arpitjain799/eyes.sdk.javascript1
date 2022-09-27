@@ -1,6 +1,20 @@
 import {makeCore} from '../../../src/classic/core'
 import * as spec from '@applitools/spec-driver-webdriverio'
+import * as utils from '@applitools/utils'
 import assert from 'assert'
+
+async function switchToWebview(driver: any, attempt = 1) {
+  await utils.general.sleep(500)
+  const worlds = await spec.getWorlds(driver)
+  if (!worlds[1]) {
+    if (attempt > 5) throw new Error(`no webview found - just ${worlds}`)
+    console.log(`no webview found, retrying (attempt ${attempt})`)
+    return switchToWebview(driver, attempt++)
+  }
+  console.log('webview found!')
+  await spec.switchWorld(driver, worlds[1])
+  return
+}
 
 describe('webview', () => {
   let driver, destroyDriver
@@ -16,76 +30,193 @@ describe('webview', () => {
     await destroyDriver?.()
   })
 
-  it('specified in check settings', async () => {
-    await driver.$('xpath://XCUIElementTypeStaticText[@name="Web view"]').click()
+  describe('specified in check settings', () => {
+    it('captures just the webview', async () => {
+      await driver.$('xpath://XCUIElementTypeStaticText[@name="Web view"]').click()
 
-    const core = makeCore({spec})
+      const core = makeCore({spec})
 
-    const eyes = await core.openEyes({
-      target: driver,
-      settings: {
-        serverUrl: 'https://eyesapi.applitools.com',
-        apiKey: process.env.APPLITOOLS_API_KEY,
-        appName: 'core app',
-        testName: 'webview',
-      },
+      const eyes = await core.openEyes({
+        target: driver,
+        settings: {
+          serverUrl: 'https://eyesapi.applitools.com',
+          apiKey: process.env.APPLITOOLS_API_KEY,
+          appName: 'core app',
+          testName: 'webview',
+        },
+      })
+
+      await eyes.check({
+        settings: {webview: true}, // can alternatively specify a string of the webview id (if known) - e.g., {webview: 'webview-id'}
+      })
+      const [result] = await eyes.close({settings: {updateBaselineIfNew: false}})
+
+      assert.strictEqual(result.status, 'Passed')
     })
 
-    await eyes.check({
-      settings: {webview: true}, // can alternatively specify a string of the webview id (if known) - e.g., {webview: 'webview-id'}
-    })
-    const [result] = await eyes.close({settings: {updateBaselineIfNew: false}})
+    it('captures just the webview (when manually switched to the webview)', async () => {
+      await driver.$('xpath://XCUIElementTypeStaticText[@name="Web view"]').click()
+      await switchToWebview(driver)
 
-    assert.strictEqual(result.status, 'Passed')
+      const core = makeCore({spec})
+
+      const eyes = await core.openEyes({
+        target: driver,
+        settings: {
+          serverUrl: 'https://eyesapi.applitools.com',
+          apiKey: process.env.APPLITOOLS_API_KEY,
+          appName: 'core app',
+          testName: 'webview',
+        },
+      })
+
+      await eyes.check({
+        settings: {webview: true},
+      })
+      const [result] = await eyes.close({settings: {updateBaselineIfNew: false}})
+
+      assert.strictEqual(result.status, 'Passed')
+    })
+
+    it('restores focus to the previous world after check', async () => {
+      await driver.$('xpath://XCUIElementTypeStaticText[@name="Web view"]').click()
+
+      const core = makeCore({spec})
+
+      const eyes = await core.openEyes({
+        target: driver,
+        settings: {
+          serverUrl: 'https://eyesapi.applitools.com',
+          apiKey: process.env.APPLITOOLS_API_KEY,
+          appName: 'core app',
+          testName: 'webview',
+        },
+      })
+
+      const worldBeforeCheck = await spec.getWorld(driver)
+      await eyes.check({
+        settings: {webview: true},
+      })
+      const worldAfterCheck = await spec.getWorld(driver)
+      await eyes.close({settings: {updateBaselineIfNew: false}}).catch()
+      assert.deepStrictEqual(worldAfterCheck, worldBeforeCheck)
+    })
+
+    it('restores focus to the previous world after check (when manually switched to the webview)', async () => {
+      await driver.$('xpath://XCUIElementTypeStaticText[@name="Web view"]').click()
+      await switchToWebview(driver)
+
+      const core = makeCore({spec})
+
+      const eyes = await core.openEyes({
+        target: driver,
+        settings: {
+          serverUrl: 'https://eyesapi.applitools.com',
+          apiKey: process.env.APPLITOOLS_API_KEY,
+          appName: 'core app',
+          testName: 'webview',
+        },
+      })
+
+      const worldBeforeCheck = await spec.getWorld(driver)
+      await eyes.check({
+        settings: {webview: true},
+      })
+      const worldAfterCheck = await spec.getWorld(driver)
+      await eyes.close({settings: {updateBaselineIfNew: false}}).catch()
+      assert.deepStrictEqual(worldAfterCheck, worldBeforeCheck)
+    })
   })
 
-  it('user switches to webview in their test (not specified in check settings)', async () => {
-    await driver.$('xpath://XCUIElementTypeStaticText[@name="Web view"]').click()
-    await spec.switchWorld(driver)
+  describe('not specified in check settings', () => {
+    it('captures the viewport', async () => {
+      await driver.$('xpath://XCUIElementTypeStaticText[@name="Web view"]').click()
 
-    const core = makeCore({spec})
+      const core = makeCore({spec})
 
-    const eyes = await core.openEyes({
-      target: driver,
-      settings: {
-        serverUrl: 'https://eyesapi.applitools.com',
-        apiKey: process.env.APPLITOOLS_API_KEY,
-        appName: 'core app',
-        testName: 'webview',
-      },
+      const eyes = await core.openEyes({
+        target: driver,
+        settings: {
+          serverUrl: 'https://eyesapi.applitools.com',
+          apiKey: process.env.APPLITOOLS_API_KEY,
+          appName: 'core app',
+          testName: 'webview - viewport',
+        },
+      })
+
+      await eyes.check({})
+      const [result] = await eyes.close({settings: {updateBaselineIfNew: false}})
+
+      assert.strictEqual(result.status, 'Passed')
     })
 
-    await eyes.check({})
-    const [result] = await eyes.close({settings: {updateBaselineIfNew: false}})
+    it('captures the viewport (when manually switched to the webview)', async () => {
+      await driver.$('xpath://XCUIElementTypeStaticText[@name="Web view"]').click()
+      await switchToWebview(driver)
 
-    assert.strictEqual(result.status, 'Passed')
+      const core = makeCore({spec})
+
+      const eyes = await core.openEyes({
+        target: driver,
+        settings: {
+          serverUrl: 'https://eyesapi.applitools.com',
+          apiKey: process.env.APPLITOOLS_API_KEY,
+          appName: 'core app',
+          testName: 'webview - viewport',
+        },
+      })
+
+      await eyes.check({})
+      const [result] = await eyes.close({settings: {updateBaselineIfNew: false}})
+
+      assert.strictEqual(result.status, 'Passed')
+    })
+
+    it('restores focus to the previous world after check', async () => {
+      await driver.$('xpath://XCUIElementTypeStaticText[@name="Web view"]').click()
+
+      const core = makeCore({spec})
+
+      const eyes = await core.openEyes({
+        target: driver,
+        settings: {
+          serverUrl: 'https://eyesapi.applitools.com',
+          apiKey: process.env.APPLITOOLS_API_KEY,
+          appName: 'core app',
+          testName: 'webview - viewport',
+        },
+      })
+
+      const worldBeforeCheck = await spec.getWorld(driver)
+      await eyes.check({})
+      const worldAfterCheck = await spec.getWorld(driver)
+      await eyes.close({settings: {updateBaselineIfNew: false}}).catch()
+      assert.deepStrictEqual(worldAfterCheck, worldBeforeCheck)
+    })
+
+    it('restores focus to the previous world after check (when manually switched to the webview)', async () => {
+      await driver.$('xpath://XCUIElementTypeStaticText[@name="Web view"]').click()
+      await switchToWebview(driver)
+
+      const core = makeCore({spec})
+
+      const eyes = await core.openEyes({
+        target: driver,
+        settings: {
+          serverUrl: 'https://eyesapi.applitools.com',
+          apiKey: process.env.APPLITOOLS_API_KEY,
+          appName: 'core app',
+          testName: 'webview - viewport',
+        },
+      })
+
+      const worldBeforeCheck = await spec.getWorld(driver)
+      await eyes.check({})
+      const worldAfterCheck = await spec.getWorld(driver)
+      await eyes.close({settings: {updateBaselineIfNew: false}}).catch()
+      assert.deepStrictEqual(worldAfterCheck, worldBeforeCheck)
+    })
   })
-
-  it('restores focus to the native app after performing a check (when specified as part of check settings)', async () => {
-    await driver.$('xpath://XCUIElementTypeStaticText[@name="Web view"]').click()
-
-    const core = makeCore({spec})
-
-    const eyes = await core.openEyes({
-      target: driver,
-      settings: {
-        serverUrl: 'https://eyesapi.applitools.com',
-        apiKey: process.env.APPLITOOLS_API_KEY,
-        appName: 'core app',
-        testName: 'webview + native app',
-      },
-    })
-
-    await eyes.check({
-      settings: {webview: true},
-    })
-    await driver.back()
-    await eyes.check({})
-    const [result] = await eyes.close({settings: {updateBaselineIfNew: false}})
-
-    assert.strictEqual(result.status, 'Passed')
-  })
-
 
   it('has a helpful error when attempting to switch to a webview id that does not exist', async () => {
     await driver.$('xpath://XCUIElementTypeStaticText[@name="Web view"]').click()
@@ -98,7 +229,7 @@ describe('webview', () => {
         serverUrl: 'https://eyesapi.applitools.com',
         apiKey: process.env.APPLITOOLS_API_KEY,
         appName: 'core app',
-        testName: 'webview + native app',
+        testName: 'webview',
       },
     })
     assert.rejects(

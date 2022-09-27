@@ -31,6 +31,7 @@ async function takeScreenshot({
   logger = logger ? logger.extend({label: 'screenshoter'}) : makeLogger({label: 'screenshoter'})
 
   if (webview && driver.isNative) await driver.switchWorld(typeof webview === 'string' ? {id: webview} : null)
+  if (!webview && driver.isWebView) await driver.switchWorld({goHome: true})
 
   // screenshot of a window/app was requested (fully or viewport)
   const window = !region && (!frames || frames.length === 0)
@@ -121,7 +122,7 @@ async function takeScreenshot({
       await activeContext.focus()
 
       // return driver to previous app world if switched
-      if (webview) await driver.switchWorld({restoreState: true})
+      await driver.switchWorld({restoreState: true})
     },
   }
 }
