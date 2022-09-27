@@ -287,6 +287,8 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
     return this
   }
 
+  // begin world
+  //
   // About the concept of a  "World":
   //
   // Since "context" is an overloaded term from frames, we have decided to use
@@ -300,18 +302,22 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
   //    (regardless of which world the driver is currently switched into)
   // - before switching, the current world context is stored so it can switched back to later
   //    (with the `restoreState` option)
-  async switchWorld(options?: {id?: string, restoreState?: boolean}) {
+  async switchWorld(options?: {id?: string, restoreState?: boolean, goHome?: boolean}) {
+    if (options?.restoreState && !this._previousWorld) return
     if (!this._spec.getWorld || !this._spec.switchWorld) {
       this._logger.warn('world switching not implemented in the spec driver, skipping')
       return
     }
     this._logger.log('switchWorld called with', options ? options : 'no options')
+    const {id, home, next} = await this.getWorld()
     if (!this._previousWorld) {
-      const {id} = await this.getWorld()
       this._logger.log('storing current world id for future restoration', id)
       this._previousWorld = id
     }
-    const providedTarget = options?.restoreState ? this._previousWorld : options?.id
+    const providedTarget = options?.restoreState
+      ? this._previousWorld : options?.goHome
+      ? home : options?.id
+      ? options.id : next
     this._logger.log('switching world with', providedTarget ? providedTarget : 'no id')
     try {
       await this._spec.switchWorld?.(this.target, providedTarget)
@@ -321,11 +327,30 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
     }
   }
 
+  async getWorlds(attempt = 1) {
+    if (!this._spec.getWorlds) return
+    this._logger.log('attempting to find worlds')
+    await utils.general.sleep(500)
+    const worlds = await this._spec.getWorlds?.(this.target)
+    if (!worlds[1]) {
+      if (attempt > 5) {
+        this._logger.warn(`just one world found - ${worlds}. done looking.`)
+        return worlds
+      }
+      this._logger.log(`just one world found, retrying to see if there are others (attempt #${attempt})`)
+      return this.getWorlds(attempt++)
+    }
+    this._logger.log(`worlds found - ${worlds}`)
+    return worlds
+  }
+
   async getWorld(): Promise<any> {
-    const [origin] = await this._spec.getWorlds?.(this.target)
+    const [origin, next] = await this.getWorlds()
     const currentWorld = await this._spec.getWorld?.(this.target)
     return {
       id: currentWorld,
+      home: origin,
+      next,
       isNative: currentWorld === origin,
       isWebView: currentWorld !== origin,
     }
