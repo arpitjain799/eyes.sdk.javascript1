@@ -238,8 +238,8 @@ describe('webdriver spec driver', async () => {
       destroyDriver = null
     })
 
-    it('getWorld', async () => {
-      const actual = await spec.getWorld(driver)
+    it('getCurrentWorld', async () => {
+      const actual = await spec.getCurrentWorld(driver)
       const expected = 'NATIVE_APP'
       assert.deepStrictEqual(actual, expected)
     })
@@ -256,7 +256,7 @@ describe('webdriver spec driver', async () => {
     it('switchWorld(id)', async () => {
       await spec.click(driver, {using: 'id', value: 'com.applitools.eyes.android:id/btn_web_view'})
       await spec.switchWorld(driver, 'WEBVIEW_com.applitools.eyes.android')
-      const actual = await spec.getWorld(driver)
+      const actual = await spec.getCurrentWorld(driver)
       const expected = 'WEBVIEW_com.applitools.eyes.android'
       assert.deepStrictEqual(actual, expected)
     })

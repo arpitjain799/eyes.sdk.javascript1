@@ -93,11 +93,11 @@ describe('webview', () => {
         },
       })
 
-      const worldBeforeCheck = await spec.getWorld(driver)
+      const worldBeforeCheck = await spec.getCurrentWorld(driver)
       await eyes.check({
         settings: {webview: true},
       })
-      const worldAfterCheck = await spec.getWorld(driver)
+      const worldAfterCheck = await spec.getCurrentWorld(driver)
       await eyes.close({settings: {updateBaselineIfNew: false}}).catch()
       assert.deepStrictEqual(worldAfterCheck, worldBeforeCheck)
     })
@@ -118,11 +118,11 @@ describe('webview', () => {
         },
       })
 
-      const worldBeforeCheck = await spec.getWorld(driver)
+      const worldBeforeCheck = await spec.getCurrentWorld(driver)
       await eyes.check({
         settings: {webview: true},
       })
-      const worldAfterCheck = await spec.getWorld(driver)
+      const worldAfterCheck = await spec.getCurrentWorld(driver)
       await eyes.close({settings: {updateBaselineIfNew: false}}).catch()
       assert.deepStrictEqual(worldAfterCheck, worldBeforeCheck)
     })
@@ -187,9 +187,9 @@ describe('webview', () => {
         },
       })
 
-      const worldBeforeCheck = await spec.getWorld(driver)
+      const worldBeforeCheck = await spec.getCurrentWorld(driver)
       await eyes.check({})
-      const worldAfterCheck = await spec.getWorld(driver)
+      const worldAfterCheck = await spec.getCurrentWorld(driver)
       await eyes.close({settings: {updateBaselineIfNew: false}}).catch()
       assert.deepStrictEqual(worldAfterCheck, worldBeforeCheck)
     })
@@ -210,9 +210,9 @@ describe('webview', () => {
         },
       })
 
-      const worldBeforeCheck = await spec.getWorld(driver)
+      const worldBeforeCheck = await spec.getCurrentWorld(driver)
       await eyes.check({})
-      const worldAfterCheck = await spec.getWorld(driver)
+      const worldAfterCheck = await spec.getCurrentWorld(driver)
       await eyes.close({settings: {updateBaselineIfNew: false}}).catch()
       assert.deepStrictEqual(worldAfterCheck, worldBeforeCheck)
     })

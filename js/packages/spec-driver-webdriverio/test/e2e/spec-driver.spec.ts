@@ -406,8 +406,8 @@ describe('spec driver', async () => {
     it('getOrientation()', async () => {
       await getOrientation({expected: 'landscape'})
     })
-    it('getWorld', async () => {
-      const actual = await spec.getWorld(browser)
+    it('getCurrentWorld', async () => {
+      const actual = await spec.getCurrentWorld(browser)
       const expected = 'NATIVE_APP'
       assert.deepStrictEqual(actual, expected)
     })
@@ -426,7 +426,7 @@ describe('spec driver', async () => {
       await browser.setOrientation('portrait')
       await browser.$('id:com.applitools.eyes.android:id/btn_web_view').click()
       await spec.switchWorld(browser, 'WEBVIEW_com.applitools.eyes.android')
-      const actual = await spec.getWorld(browser)
+      const actual = await spec.getCurrentWorld(browser)
       const expected = 'WEBVIEW_com.applitools.eyes.android'
       assert.deepStrictEqual(actual, expected)
     })
