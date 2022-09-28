@@ -3,9 +3,10 @@ import type {Eyes as BaseEyes} from '@applitools/types/base'
 import type {TestResult} from '@applitools/types/ufg'
 import {type Logger} from '@applitools/logger'
 import {type AbortController} from 'abort-controller'
+import {AbortError} from '../errors/abort-error'
 
 type Options = {
-  storage: Promise<{eyes: BaseEyes; renderer: Renderer}>[]
+  storage: {renderer: Renderer; promise: Promise<{eyes: BaseEyes; renderer: Renderer}>}[]
   controller: AbortController
   logger: Logger
 }
@@ -18,17 +19,28 @@ export function makeAbort({storage, controller, logger: defaultLogger}: Options)
   } = {}): Promise<TestResult[]> {
     controller.abort()
 
-    const results = await Promise.allSettled(storage)
-
-    const eyes = results.reduce((eyes, result) => {
-      const value = result.status === 'fulfilled' ? result.value : result.reason
-      return eyes.set(value.eyes, value.renderer)
-    }, new Map<BaseEyes, Renderer>())
+    const tests = storage.reduce((tests, {renderer, promise}) => {
+      const key = JSON.stringify(renderer)
+      return tests.set(key, promise)
+    }, new Map<string, Promise<{eyes: BaseEyes; renderer: Renderer}>>())
 
     return Promise.all(
-      Array.from(eyes.entries(), async ([eyes, renderer]) => {
+      Array.from(tests.values(), async promise => {
+        let eyes: BaseEyes, renderer: Renderer
+        try {
+          const value = await promise
+          eyes = value.eyes
+          renderer = value.renderer
+        } catch (error) {
+          eyes = error.info.eyes
+          renderer = error.info.renderer
+          if (!eyes) {
+            if (error instanceof AbortError) return error.info
+            else throw error
+          }
+        }
         const [result] = await eyes.abort({logger})
-        return {...result, renderer}
+        return {...result, renderer} as TestResult
       }),
     )
   }

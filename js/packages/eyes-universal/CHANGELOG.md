@@ -11,6 +11,38 @@
 
 
 
+## 2.15.0 - 2022/9/26
+
+### Features
+### Bug fixes
+- Fixed issue with missed offsets when floating region was provided in legacy format
+- Fixed issue with missed `userTestId` in manager's summary
+
+## 2.14.0 - 2022/9/25
+
+### Features
+### Bug fixes
+- Respond with dummy TestResult object on `Eyes.close` even if no session were actually started
+
+## 2.13.5 - 2022/9/25
+
+### Features
+### Bug fixes
+- Fixed the wrong naming of the error info field `testResults` renamed to `testResult`
+
+## 2.13.4 - 2022/9/25
+
+### Features
+### Bug fixes
+- Fixed propagation of the provided `userTestId` property
+- Return error object in manager's summary in common format
+
+## 2.13.3 - 2022/9/23
+
+### Features
+### Bug fixes
+- Fixed `lazyLoad` property propagation to helper lib
+
 ## 2.13.2 - 2022/9/23
 
 ### Features

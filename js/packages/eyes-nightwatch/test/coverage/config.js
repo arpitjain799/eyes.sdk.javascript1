@@ -1,0 +1,25 @@
+module.exports = {
+  extends: 'https://raw.githubusercontent.com/applitools/sdk.coverage.tests/universal-sdk/js/config.js',
+  overrides: [
+    'https://raw.githubusercontent.com/applitools/sdk.coverage.tests/universal-sdk/js/js-overrides.js',
+    'https://raw.githubusercontent.com/applitools/sdk.coverage.tests/universal-sdk/js/overrides.js',
+    {
+      'check region by selector on ie': {skip: true},
+      'should send dom on ie': {skip: true},
+      'check region by selector in frame fully on firefox legacy': {skip: true},
+      'appium android check region': {skip: true},
+      'appium android check region with ignore region': {skip: true},
+      'appium android check window': {skip: true},
+      'appium android landscape mode check region on android 7': {skip: true},
+      'appium android landscape mode check region on android 10': {skip: true},
+      'appium android landscape mode check window on android 7': {skip: true},
+      'appium android landscape mode check window on android 10': {skip: true},
+      'appium iOS check fully window with scroll and pageCoverage': {skip: true},
+      'appium iOS check region': {skip: true},
+      'appium iOS check region with ignore region': {skip: true},
+      'appium iOS check window': {skip: true},
+      'appium iOS check window region with scroll and pageCoverage': {skip: true},
+      'appium iOS nav bar check region': {skip: true},
+    },
+  ],
+}
