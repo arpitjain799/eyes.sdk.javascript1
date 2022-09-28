@@ -34,7 +34,7 @@ async function takeScreenshot({
   if (!webview && driver.isWebView) await driver.switchWorld({goHome: true})
 
   // screenshot of a window/app was requested (fully or viewport)
-  const window = !region && (!frames || frames.length === 0)
+  const window = !webview && !region && (!frames || frames.length === 0)
   // framed screenshots could be taken only when screenshot of window/app fully was requested
   framed = framed && fully && window
   // screenshots with status bar could be taken only when screenshot of app or framed app fully was requested
