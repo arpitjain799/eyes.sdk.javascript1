@@ -62,11 +62,11 @@ export type Selector<TSelector = never> =
     }
 
 export type WorldInfo = {
-  id: string,
-  home: string,
-  next?: string,
-  isNative: boolean,
-  isWebView: boolean,
+  id: string
+  home: string
+  next?: string
+  isNative: boolean
+  isWebView: boolean
 }
 
 export interface SpecDriver<TDriver, TContext, TElement, TSelector> {

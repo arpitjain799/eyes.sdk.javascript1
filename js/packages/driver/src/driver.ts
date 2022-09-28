@@ -149,7 +149,7 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
     if (this.isMobile) {
       this._driverInfo.orientation =
         (await this.getOrientation().catch(() => undefined)) ?? this._driverInfo.orientation
-      const {isWebView} = this.isMobile && await this.getCurrentWorld()
+      const {isWebView} = this.isMobile && (await this.getCurrentWorld())
       this._driverInfo.isWebView = isWebView
     }
 
@@ -303,7 +303,7 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
   // - before switching, the current world context is stored so it can switched back to later
   //    (with the `restoreState` option)
   // - the native app world can be switched to (with the `goHome` option)
-  async switchWorld(options?: {id?: string, restoreState?: boolean, goHome?: boolean}) {
+  async switchWorld(options?: {id?: string; restoreState?: boolean; goHome?: boolean}) {
     if (options?.restoreState && !this._previousWorld) return
     if (!this._spec.getCurrentWorld || !this._spec.switchWorld) {
       this._logger.warn('world switching not implemented in the spec driver, skipping')
@@ -316,9 +316,12 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
       this._previousWorld = id
     }
     const providedTarget = options?.restoreState
-      ? this._previousWorld : options?.goHome
-      ? home : options?.id
-      ? options.id : next
+      ? this._previousWorld
+      : options?.goHome
+      ? home
+      : options?.id
+      ? options.id
+      : next
     this._logger.log('switching world with', providedTarget ? providedTarget : 'no id')
     try {
       await this._spec.switchWorld?.(this.target, providedTarget)

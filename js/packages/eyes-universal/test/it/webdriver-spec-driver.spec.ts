@@ -247,10 +247,7 @@ describe('webdriver spec driver', async () => {
       await spec.click(driver, {using: 'id', value: 'com.applitools.eyes.android:id/btn_web_view'})
       await utils.general.sleep(5000)
       const actual = await spec.getWorlds(driver)
-      const expected = [
-        'NATIVE_APP',
-        'WEBVIEW_com.applitools.eyes.android',
-      ] 
+      const expected = ['NATIVE_APP', 'WEBVIEW_com.applitools.eyes.android']
       assert.deepStrictEqual(actual, expected)
     })
     it('switchWorld(id)', async () => {

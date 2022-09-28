@@ -8,10 +8,8 @@ async function switchToWebview(driver: any, attempt = 1) {
   const worlds = await spec.getWorlds(driver)
   if (!worlds[1]) {
     if (attempt > 5) throw new Error(`no webview found - just ${worlds}`)
-    console.log(`no webview found, retrying (attempt ${attempt})`)
     return switchToWebview(driver, attempt++)
   }
-  console.log('webview found!')
   await spec.switchWorld(driver, worlds[1])
   return
 }
@@ -233,8 +231,10 @@ describe('webview', () => {
       },
     })
     assert.rejects(
-      async () => {await eyes.check({settings: {webview: 'invalid-webview-id'}})},
-      err => err.message.startsWith('Unable to switch worlds')
+      async () => {
+        await eyes.check({settings: {webview: 'invalid-webview-id'}})
+      },
+      err => err.message.startsWith('Unable to switch worlds'),
     )
     await eyes.abort()
   })
