@@ -149,7 +149,7 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
     if (this.isMobile) {
       this._driverInfo.orientation =
         (await this.getOrientation().catch(() => undefined)) ?? this._driverInfo.orientation
-      const {isWebView} = await this.getWorld()
+      const {isWebView} = this.isMobile && await this.getWorld()
       this._driverInfo.isWebView = isWebView
     }
 
