@@ -2,7 +2,7 @@ import {makeCore} from '../../../src/classic/core'
 import * as spec from '@applitools/spec-driver-webdriverio'
 import assert from 'assert'
 
-describe('lock screen', () => {
+describe.skip('lock screen', () => {
   let driver, destroyDriver
 
   before(async () => {
