@@ -8,24 +8,30 @@ function startProxyServer({port = 0} = {}) {
   const server = http.createServer(function (req, res) {
     console.log('[proxy server] Receiving reverse proxy request for:', req.url)
     const parsedUrl = new URL(req.url)
-    const target = parsedUrl.protocol + '//' + parsedUrl.hostname
-    proxy.web(req, res, {target: target, secure: false})
+    const prependPath = parsedUrl.hostname === 'localhost' ? false : undefined
+    proxy.web(req, res, {target: req.url, prependPath})
   })
 
-  server.on('connect', function (req, socket) {
+  server.on('connect', function (req, clientSocket, head) {
     console.log('[proxy server (connect event)] Receiving reverse proxy request for:', req.url)
 
     const serverUrl = new URL('http://' + req.url)
 
-    const srvSocket = net.connect(serverUrl.port, serverUrl.hostname, function () {
-      socket.write('HTTP/1.1 200 Connection Established\r\n' + 'Proxy-agent: Node-Proxy\r\n' + '\r\n')
-      srvSocket.pipe(socket)
-      socket.pipe(srvSocket)
+    const srvSocket = net.connect(serverUrl.port || 80, serverUrl.hostname, function () {
+      console.log('[proxy server (connected)] Receiving reverse proxy request for:', serverUrl)
+      clientSocket.write('HTTP/1.1 200 Connection Established\r\n' + 'Proxy-agent: Node-Proxy\r\n' + '\r\n')
+      srvSocket.write(head)
+      srvSocket.pipe(clientSocket)
+      clientSocket.pipe(srvSocket)
     })
 
-    srvSocket.on('error', err => {
-      console.log(err.message)
-    })
+    srvSocket.on('data', data => console.log('[proxy server] data found', data))
+
+    srvSocket.on('end', () => console.log('[proxy server] end'))
+
+    srvSocket.on('error', err => console.log('[proxy server] error', err.message))
+
+    srvSocket.on('close', had_error => console.log('[proxy server] had error', had_error))
   })
 
   return new Promise(resolve => {
