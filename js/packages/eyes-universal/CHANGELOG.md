@@ -11,6 +11,13 @@
 
 
 
+## 2.16.4 - 2022/10/13
+
+### Features
+- Changed default value of `sendDom` from `true` to dynamically calculated
+### Bug fixes
+- Fixed issue with ufg renders failing intermittently
+
 ## 2.16.3 - 2022/10/8
 
 ### Features
