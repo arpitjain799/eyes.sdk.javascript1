@@ -1,3 +1,4 @@
+import type {ServerSocket} from './types'
 import type {
   Driver as CustomDriver,
   Context as CustomContext,
@@ -73,7 +74,13 @@ export async function makeServer({
     const refer = makeRefer()
     const socket = withTracker({
       debug,
-      socket: makeSocket(client, {logger: baseLogger}),
+      socket: makeSocket(client, {logger: baseLogger}) as ServerSocket<
+        CustomDriver,
+        CustomContext,
+        CustomElement,
+        CustomSelector
+      > &
+        Omit<Socket, 'command' | 'request'>,
     })
 
     if (shutdownMode === 'lazy' && idleTimeout) {
