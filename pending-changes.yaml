@@ -15,10 +15,9 @@ Apollo SDK:
     - 
 "@applitools/eyes-selenium":
   feature:
-    - Mark target element with `data-applitools-scroll` attribute before capture dom
+    - 
   bug-fix:
-    - Fixed bug that caused `extractText` to throw, due to fractional size of the target region
-    - Fix dontCloseBatches mapping
+    - 
 "@applitools/eyes-webdriverio":
   feature:
     - Mark target element with `data-applitools-scroll` attribute before capture dom
