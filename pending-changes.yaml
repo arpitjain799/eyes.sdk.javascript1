@@ -21,9 +21,7 @@ Apollo SDK:
     - Use user agent metadata to improve browser environment detection logic
     - Use APPLITOOLS_CONCURRENCY env variable to specify concurrency
   bug-fix:
-    - Fixed bug that caused `extractText` to throw, due to fractional size of the target region
-    - Fix dontCloseBatches mapping
-    - Fixed issue when current context is not being preserved in ufg mode
+    - 
 "@applitools/eyes-webdriverio":
   feature:
     - 
