@@ -19,8 +19,7 @@ Apollo SDK:
     - Mark target element with `data-applitools-scroll` attribute before capture dom
     - Added new iOS device - 'iPad Pro (11-inch) (4th generation)'
   bug-fix:
-    - Fixed bug that caused `extractText` to throw, due to fractional size of the target region
-    - Fix dontCloseBatches mapping
+    - 
 "@applitools/eyes-webdriverio":
   feature:
     - Added new selector extensions `child` and `fallback`
