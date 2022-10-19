@@ -163,7 +163,14 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     }
   }
 
+  async open(config?: Configuration<TElement, TSelector>): Promise<void>
   async open(driver: TDriver, config?: Configuration<TElement, TSelector>): Promise<TDriver>
+  async open(
+    appName?: string,
+    testName?: string,
+    viewportSize?: RectangleSize,
+    sessionType?: SessionType,
+  ): Promise<void>
   async open(
     driver: TDriver,
     appName?: string,
@@ -172,31 +179,35 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     sessionType?: SessionType,
   ): Promise<TDriver>
   async open(
-    driver: TDriver,
-    configOrAppName?: Configuration<TElement, TSelector> | string,
-    testName?: string,
-    viewportSize?: RectangleSize,
+    driverOrConfigOrAppName: TDriver | Configuration<TElement, TSelector> | string,
+    configOrAppNameOrTestName?: Configuration<TElement, TSelector> | string,
+    testNameOrViewportSize?: string,
+    viewportSizeOrSessionType?: RectangleSize,
     sessionType?: SessionType,
   ): Promise<TDriver> {
-    this._driver = driver
-
-    if (this._config.isDisabled) return driver
-
+    if (this._config.isDisabled) return this._driver
     const config = this._config.toJSON()
-    if (utils.types.instanceOf(configOrAppName, ConfigurationData)) {
-      const transformedConfig = configOrAppName.toJSON()
+
+    if (this._spec.isDriver(driverOrConfigOrAppName)) {
+      this._driver = driverOrConfigOrAppName
+    } else {
+      
+    }
+
+    if (utils.types.instanceOf(configOrAppNameOrTestName, ConfigurationData)) {
+      const transformedConfig = configOrAppNameOrTestName.toJSON()
       config.open = {...config.open, ...transformedConfig.open}
       config.screenshot = {...config.screenshot, ...transformedConfig.screenshot}
       config.check = {...config.check, ...transformedConfig.check}
       config.close = {...config.close, ...transformedConfig.close}
-    } else if (utils.types.isObject(configOrAppName)) {
-      const transformedConfig = new ConfigurationData(configOrAppName, this._spec).toJSON()
+    } else if (utils.types.isObject(configOrAppNameOrTestName)) {
+      const transformedConfig = new ConfigurationData(configOrAppNameOrTestName, this._spec).toJSON()
       config.open = {...config.open, ...transformedConfig.open}
       config.screenshot = {...config.screenshot, ...transformedConfig.screenshot}
       config.check = {...config.check, ...transformedConfig.check}
       config.close = {...config.close, ...transformedConfig.close}
-    } else if (utils.types.isString(configOrAppName)) {
-      config.open.appName = configOrAppName
+    } else if (utils.types.isString(configOrAppNameOrTestName)) {
+      config.open.appName = configOrAppNameOrTestName
     }
     if (utils.types.isString(testName)) config.open.testName = testName
     if (utils.types.has(viewportSize, ['width', 'height'])) config.open.environment.viewportSize = viewportSize
