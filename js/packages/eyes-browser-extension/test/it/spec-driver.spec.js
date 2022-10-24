@@ -178,12 +178,12 @@ describe('spec driver', async () => {
       arr: [0, 1, 2, {key: 3}],
     }
 
-    const {el1, ...result1} = await backgroundPage.evaluate(
+    const {...result1} = await backgroundPage.evaluate(
       ([driver, arg]) =>
         spec.executeScript(
           driver,
           arg => {
-            return {...arg, el1: document.querySelector('body')}
+            return {...arg}
           },
           arg,
         ),
@@ -196,7 +196,7 @@ describe('spec driver', async () => {
     const {tagName, ...result2} = await backgroundPage.evaluate(
       ([driver, arg]) =>
         spec.executeScript(driver, arg => ({...arg, tagName: document.querySelector('body').tagName}), arg),
-      [driver, {...arg, el2: el1}],
+      [driver, {...arg}],
     )
 
     assert.deepStrictEqual(result2, arg)
