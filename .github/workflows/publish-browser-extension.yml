@@ -67,6 +67,7 @@ jobs:
         run: |
           sudo apt-get install -y xvfb
           yarn
+          yarn build
           xvfb-run --auto-servernum -- yarn test:it
   publish:
     needs: [test]
