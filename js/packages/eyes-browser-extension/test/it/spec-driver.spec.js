@@ -196,7 +196,7 @@ describe('spec driver', async () => {
     const {tagName, ...result2} = await backgroundPage.evaluate(
       ([driver, arg]) =>
         spec.executeScript(driver, arg => ({...arg, tagName: document.querySelector('body').tagName}), arg),
-      [driver, {...arg, el2: el1}],
+      [driver, {...arg}],
     )
 
     assert.deepStrictEqual(result2, arg)
