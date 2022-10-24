@@ -86,7 +86,7 @@ jobs:
         id: version
         uses: ./.github/actions/publish
         with:
-          working-directory: ./js/packages/eyes-browser
+          working-directory: ./js/packages/eyes-browser-extension
           version: ${{inputs.version || github.event.inputs.version}}
           skip-npm: true
       - name: Publish to GitHub
