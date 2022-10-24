@@ -178,7 +178,7 @@ describe('spec driver', async () => {
       arr: [0, 1, 2, {key: 3}],
     }
 
-    const {el1, ...result1} = await backgroundPage.evaluate(
+    const {...result1} = await backgroundPage.evaluate(
       ([driver, arg]) =>
         spec.executeScript(
           driver,
