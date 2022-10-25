@@ -35,7 +35,7 @@ export default function startServer({logger}: {logger: Logger; cliType: CliType}
         const port = data.toString().match(/\d+/)[0]
         logger.log('server is spawned at port', port)
         socket.connect(`http://localhost:${port}/eyes`)
-        socket.emit('Core.makeSDK', {
+        socket.emit('Core.makeCore', {
           name: 'eyes-universal-tests',
           version: require(path.resolve(process.cwd(), 'package.json')).version,
           protocol: 'webdriver',
