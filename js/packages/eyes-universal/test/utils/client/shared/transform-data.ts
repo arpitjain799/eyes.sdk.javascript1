@@ -1,9 +1,9 @@
-import type * as types from '@applitools/types'
+import {type Selector} from '@applitools/driver'
 import * as utils from '@applitools/utils'
 
 export type TransformedDriver = {sessionId: string; serverUrl: string; capabilities: Record<string, any>}
 export type TransformedElement = {elementId: string}
-export type TransformedSelector = types.Selector<never>
+export type TransformedSelector = Selector<never>
 
 export type Spec<Driver, Element> = {
   isDriver: (d: any) => d is Driver
