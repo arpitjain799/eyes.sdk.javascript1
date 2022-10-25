@@ -3,7 +3,7 @@ import * as assert from 'assert'
 import {Eyes} from '../utils/client/webdriver'
 import {VisualGridRunner} from '@applitools/eyes-api'
 
-describe.skip('Universal client', () => {
+describe('Universal client', () => {
   let driver: spec.Driver, destroyDriver: () => Promise<void>
   describe('Web', () => {
     beforeEach(async () => {
@@ -16,19 +16,17 @@ describe.skip('Universal client', () => {
 
     it('work with cli', async () => {
       const eyes = new Eyes(new VisualGridRunner({testConcurrency: 1}))
-      const config = {
+      await eyes.open(driver, {
         appName: 'eyes-universal',
         testName: 'working with nodejs client',
-        saveNewTests: false,
-      }
-      await eyes.open(driver, config)
-      await eyes.check()
+      })
+      await eyes.check({})
       const result = await eyes.close()
       assert.strictEqual(result.status, 'Passed')
     })
   })
 
-  describe('Android', () => {
+  describe.skip('Android', () => {
     beforeEach(async () => {
       ;[driver, destroyDriver] = await spec.build({
         device: 'Pixel 3 XL',
