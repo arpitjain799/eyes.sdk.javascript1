@@ -1,22 +1,26 @@
-import type * as types from '@applitools/types'
-import type {Socket} from './socket'
-import type {Logger} from '@applitools/logger'
+import type {Size} from '@applitools/utils'
+import type {ClientSocket, Ref} from '../../../../src/types'
+import type * as core from '@applitools/core'
+import {type Logger} from '@applitools/logger'
 import type {CliType} from './spawn-server'
 import {makeLogger} from '@applitools/logger'
 import spawnServer from './spawn-server'
 
-export type ClientSocket<TDriver, TContext, TElement, TSelector> = Socket &
-  types.ClientSocket<TDriver, TContext, TElement, TSelector>
-
 export type TransformFunc = (data: any) => Promise<any>
 
-export class UniversalClient<Driver, Element, Selector> implements types.Core<Driver, Element, Selector> {
+export class UniversalClient<TDriver, TElement, TSelector>
+  implements
+    Omit<
+      core.Core<TDriver, TElement, TSelector>,
+      'isDriver' | 'openEyes' | 'getAccountInfo' | 'closeBatch' | 'logEvent'
+    >
+{
   protected _transform: TransformFunc
   // @TODO
   // should document the useage of the environment variable
   private _cliType: CliType = process.env.UNIVERSAL_CLIENT_CLI_TYPE as CliType
 
-  private _socket: ClientSocket<Driver, Driver, Element, Selector>
+  private _socket: ClientSocket<TDriver, TDriver, TElement, TSelector>
 
   private _logger: Logger = makeLogger({label: 'universal client'})
   private async _getSocket() {
@@ -27,24 +31,44 @@ export class UniversalClient<Driver, Element, Selector> implements types.Core<Dr
     return this._socket
   }
 
-  async makeManager(config?: types.EyesManagerConfig): Promise<EyesManager<Driver, Element, Selector>> {
+  async makeManager<TType extends 'classic' | 'ufg' = 'classic'>(options: {
+    type: TType
+    concurrency?: TType extends 'ufg' ? number : never
+    agentId?: string
+    logger?: Logger
+  }): Promise<EyesManager<TDriver, TElement, TSelector, TType>> {
     const socket = await this._getSocket()
-    const manager = await socket.request('Core.makeManager', config)
-
+    const manager = await socket.request('Core.makeManager', options)
     return new EyesManager({manager, socket, transform: this._transform})
   }
 
-  async getViewportSize({driver}: {driver: Driver}): Promise<types.Size> {
-    const socket = await this._getSocket()
-    return socket.request('Core.getViewportSize', {
-      driver: await this._transform(driver),
+  async locate<TLocator extends string>({
+    target,
+    settings,
+    config,
+  }: {
+    target?: TDriver
+    settings: core.LocateSettings<TLocator, TElement, TSelector>
+    config?: core.Config<TElement, TSelector, 'classic'>
+  }): Promise<core.LocateResult<TLocator>> {
+    return this._socket.request('Core.locate', {
+      target: await this._transform(target),
+      settings,
+      config: await this._transform(config),
     })
   }
 
-  async setViewportSize({driver, size}: {driver: Driver; size: types.Size}): Promise<void> {
+  async getViewportSize({target}: {target: TDriver}): Promise<Size> {
+    const socket = await this._getSocket()
+    return socket.request('Core.getViewportSize', {
+      target: await this._transform(target),
+    })
+  }
+
+  async setViewportSize({target, size}: {target: TDriver; size: Size}): Promise<void> {
     const socket = await this._getSocket()
     return socket.request('Core.setViewportSize', {
-      driver: await this._transform(driver),
+      target: await this._transform(target),
       size,
     })
   }
@@ -59,23 +83,25 @@ export class UniversalClient<Driver, Element, Selector> implements types.Core<Dr
     return socket.request('Core.deleteTest', options)
   }
 
-  // not used, just to adhere to types.Core<Driver, Element, Selector>
-  isDriver(driver: any): driver is Driver {
+  // not used, just to adhere to types.Core<TDriver, TElement, TSelector>
+  isTDriver(driver: any): driver is TDriver {
     return false
   }
 
-  isElement(element: any): element is Element {
+  isElement(element: any): element is TElement {
     return false
   }
 
-  isSelector(selector: any): selector is Selector {
+  isSelector(selector: any): selector is TSelector {
     return false
   }
 }
 
-export class EyesManager<Driver, Element, Selector> implements types.EyesManager<Driver, Element, Selector> {
-  private _manager: types.Ref
-  private _socket: ClientSocket<Driver, Driver, Element, Selector>
+export class EyesManager<TDriver, TElement, TSelector, TType extends 'classic' | 'ufg'>
+  implements core.EyesManager<TDriver, TElement, TSelector, TType>
+{
+  private _manager: Ref
+  private _socket: ClientSocket<TDriver, TDriver, TElement, TSelector>
   private _transform: TransformFunc
 
   constructor({
@@ -83,8 +109,8 @@ export class EyesManager<Driver, Element, Selector> implements types.EyesManager
     socket,
     transform,
   }: {
-    manager: types.Ref
-    socket: ClientSocket<Driver, Driver, Element, Selector>
+    manager: Ref
+    socket: ClientSocket<TDriver, TDriver, TElement, TSelector>
     transform: TransformFunc
   }) {
     this._manager = manager
@@ -92,30 +118,40 @@ export class EyesManager<Driver, Element, Selector> implements types.EyesManager
     this._transform = transform
   }
 
-  async openEyes({
-    driver,
-    config,
-  }: {
-    driver: Driver
-    config?: types.EyesConfig<Element, Selector>
-  }): Promise<Eyes<Driver, Element, Selector>> {
+  async openEyes({target, config}: {target?: TDriver; config?: core.Config<TElement, TSelector, TType>}): Promise<any> {
     const eyes = await this._socket.request('EyesManager.openEyes', {
       manager: this._manager,
-      driver: await this._transform(driver),
+      target: await this._transform(target),
       config: await this._transform(config),
     })
     return new Eyes({eyes, socket: this._socket, transform: this._transform})
   }
 
-  async closeManager(options?: {throwErr: boolean}): Promise<types.TestResultSummary> {
-    return this._socket.request('EyesManager.closeManager', {manager: this._manager, throwErr: options?.throwErr})
+  async closeManager({
+    settings,
+    logger,
+  }: {
+    settings?: {throwErr?: boolean}
+    logger?: Logger
+  } = {}): Promise<core.TestResultSummary<TType>> {
+    return this._socket.request('EyesManager.closeManager', {manager: this._manager, settings, logger})
   }
 }
 
 // not to be confused with the user-facing Eyes class
-export class Eyes<Driver, Element, Selector> implements types.Eyes<Driver, Element, Selector> {
-  private _eyes: types.Ref
-  private _socket: ClientSocket<Driver, Driver, Element, Selector>
+export class Eyes<TDriver, TElement, TSelector, TType extends 'classic' | 'ufg'>
+  implements
+    Omit<
+      core.Eyes<TDriver, TElement, TSelector, 'classic'>,
+      'test' | 'aborted' | 'closed' | 'running' | 'checkAndClose'
+    >,
+    Omit<
+      core.Eyes<TDriver, TElement, TSelector, 'ufg'>,
+      'test' | 'aborted' | 'closed' | 'running' | 'checkAndClose' | 'locateText' | 'extractText'
+    >
+{
+  private _eyes: Ref
+  private _socket: ClientSocket<TDriver, TDriver, TElement, TSelector>
   private _transform: TransformFunc
 
   constructor({
@@ -123,8 +159,8 @@ export class Eyes<Driver, Element, Selector> implements types.Eyes<Driver, Eleme
     socket,
     transform,
   }: {
-    socket: ClientSocket<Driver, Driver, Element, Selector>
-    eyes: types.Ref
+    socket: ClientSocket<TDriver, TDriver, TElement, TSelector>
+    eyes: Ref
     transform: TransformFunc
   }) {
     this._eyes = eyes
@@ -136,9 +172,9 @@ export class Eyes<Driver, Element, Selector> implements types.Eyes<Driver, Eleme
     settings,
     config,
   }: {
-    settings: types.CheckSettings<Element, Selector>
-    config?: types.EyesConfig<Element, Selector>
-  }): Promise<types.MatchResult> {
+    settings: core.CheckSettings<TElement, TSelector, TType>
+    config?: core.Config<TElement, TSelector, TType>
+  }): Promise<core.CheckResult<TType>[]> {
     return this._socket.request('Eyes.check', {
       eyes: this._eyes,
       settings: await this._transform(settings),
@@ -146,28 +182,14 @@ export class Eyes<Driver, Element, Selector> implements types.Eyes<Driver, Eleme
     })
   }
 
-  async locate<TLocator extends string>({
+  async locateText<TPattern extends string>({
     settings,
     config,
   }: {
-    settings: types.LocateSettings<TLocator>
-    config?: types.EyesConfig<Element, Selector>
-  }): Promise<Record<TLocator, types.Region[]>> {
-    return this._socket.request('Eyes.locate', {
-      eyes: this._eyes,
-      settings,
-      config: await this._transform(config),
-    })
-  }
-
-  async extractTextRegions<TPattern extends string>({
-    settings,
-    config,
-  }: {
-    settings: types.OCRSearchSettings<TPattern>
-    config?: types.EyesConfig<Element, Selector>
-  }): Promise<Record<TPattern, types.TextRegion[]>> {
-    return this._socket.request('Eyes.extractTextRegions', {
+    settings: core.LocateTextSettings<TPattern, TElement, TSelector, TType>
+    config?: core.Config<TElement, TSelector, TType>
+  }): Promise<core.LocateTextResult<TPattern>> {
+    return this._socket.request('Eyes.locateText', {
       eyes: this._eyes,
       settings,
       config: await this._transform(config),
@@ -175,24 +197,24 @@ export class Eyes<Driver, Element, Selector> implements types.Eyes<Driver, Eleme
   }
 
   async extractText({
-    regions,
+    settings,
     config,
   }: {
-    regions: types.OCRExtractSettings<Element, Selector>[]
-    config?: types.EyesConfig<Element, Selector>
+    settings: core.ExtractTextSettings<TElement, TSelector, TType>
+    config?: core.Config<TElement, TSelector, TType>
   }): Promise<string[]> {
     return this._socket.request('Eyes.extractText', {
       eyes: this._eyes,
-      regions: await this._transform(regions),
+      settings: await this._transform(settings),
       config: await this._transform(config),
     })
   }
 
-  close(options: {throwErr: boolean}): Promise<types.TestResult[]> {
-    return this._socket.request('Eyes.close', {eyes: this._eyes, throwErr: options.throwErr})
+  close({settings}: {settings: core.CloseSettings<TType>}): Promise<core.TestResult<TType>[]> {
+    return this._socket.request('Eyes.close', {eyes: this._eyes, settings})
   }
 
-  abort(): Promise<types.TestResult[]> {
+  abort(): Promise<core.TestResult<TType>[]> {
     return this._socket.request('Eyes.abort', {eyes: this._eyes})
   }
 }
