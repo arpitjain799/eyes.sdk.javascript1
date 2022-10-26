@@ -1,6 +1,6 @@
 import * as spec from '@applitools/spec-driver-selenium'
 import * as assert from 'assert'
-import {Eyes} from '../utils/client/webdriver'
+import {Eyes, universalClient} from '../utils/client/webdriver'
 import {VisualGridRunner} from '@applitools/eyes-api'
 
 describe('Universal client', () => {
@@ -12,6 +12,10 @@ describe('Universal client', () => {
     })
     afterEach(async () => {
       await destroyDriver()
+    })
+
+    after(() => {
+      universalClient.killServer()
     })
 
     it('work with cli', async () => {
