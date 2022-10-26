@@ -6,7 +6,7 @@ import {makeDriver, type SpecDriver} from '@applitools/driver'
 import {takeScreenshot} from '../automation/utils/take-screenshot'
 import {takeDomCapture} from './utils/take-dom-capture'
 import * as utils from '@applitools/utils'
-import {hits as hitsScript} from '@applitools/snippets'
+import {getText as getTextScript} from '@applitools/snippets'
 
 type Options<TDriver, TContext, TElement, TSelector> = {
   spec: SpecDriver<TDriver, TContext, TElement, TSelector>
@@ -43,7 +43,7 @@ export function makeExtractText<TDriver, TContext, TElement, TSelector>({
       if (!settings.hint && !utils.types.has(settings.region, ['x', 'y', 'width', 'height'])) {
         const element = await driver.currentContext.element(settings.region)
         if (!element) throw new Error(`Unable to find element using provided selector`)
-        settings.hint = await driver.currentContext.execute(hitsScript, [element])
+        settings.hint = await driver.currentContext.execute(getTextScript, [element])
         if (settings.hint) settings.hint = settings.hint.replace(/[.\\+]/g, '\\$&')
       }
       const baseTarget: BaseTarget = {
