@@ -21,6 +21,7 @@
     "build:dist": "webpack",
     "build:zip": "cd dist; zip -r eyes-browser-extension.zip *; mv eyes-browser-extension.zip ../",
     "generate:tests": "coverage-tests generate ./test/coverage/config.js --name 'eyes-browser-extension'",
+    "test:xvfb": "xvfb-run --auto-servernum -- yarn test",
     "test": "yarn test:it && yarn test:coverage",
     "test:sanity": "yarn test:it",
     "test:it": "mocha --no-timeouts --exit ./test/it/*.spec.js",
