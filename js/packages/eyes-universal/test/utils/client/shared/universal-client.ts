@@ -5,6 +5,7 @@ import {type Logger} from '@applitools/logger'
 import type {CliType} from './spawn-server'
 import {makeLogger} from '@applitools/logger'
 import spawnServer from './spawn-server'
+import {type ChildProcess} from 'child_process'
 
 export type TransformFunc = (data: any) => Promise<any>
 
@@ -21,14 +22,20 @@ export class UniversalClient<TDriver, TElement, TSelector>
   private _cliType: CliType = process.env.UNIVERSAL_CLIENT_CLI_TYPE as CliType
 
   private _socket: ClientSocket<TDriver, TDriver, TElement, TSelector>
+  private _server: ChildProcess
 
   private _logger: Logger = makeLogger({label: 'universal client'})
   private async _getSocket() {
     if (!this._socket) {
-      const {socket} = await spawnServer({logger: this._logger, cliType: this._cliType})
+      const {socket, server} = await spawnServer({logger: this._logger, cliType: this._cliType})
       this._socket = socket
+      this._server = server
     }
     return this._socket
+  }
+
+  killServer() {
+    return this._server?.kill()
   }
 
   async makeManager<TType extends 'classic' | 'ufg' = 'classic'>(options: {

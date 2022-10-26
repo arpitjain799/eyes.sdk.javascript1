@@ -1,7 +1,6 @@
 import {Server as HttpServer, request as httpRequest} from 'http'
 import {Server as HttpsServer, request as httpsRequest} from 'https'
 import {Server as WsServer, type AddressInfo} from 'ws'
-import fs from 'fs'
 
 const {name, version} = require('../package.json')
 const TOKEN_HEADER = 'x-eyes-universal-token'
@@ -16,16 +15,8 @@ export type HandlerOptions = {
   cert?: string | Buffer
 }
 
-export async function makeHandler({
-  port = 21077,
-  singleton = true,
-  debug = false,
-  portResolutionMode = 'next',
-  cert,
-  key,
-}: HandlerOptions = {}): Promise<{server?: WsServer; port: number}> {
-  if (cert) cert = fs.readFileSync(cert)
-  if (key) key = fs.readFileSync(key)
+export async function makeHandler(options: HandlerOptions = {}): Promise<{server?: WsServer; port: number}> {
+  const {port = 21077, singleton = true, debug = false, portResolutionMode = 'next', cert, key} = options
   const secure = Boolean(cert && key)
 
   const http = secure ? new HttpsServer({cert, key}) : new HttpServer()
@@ -55,7 +46,7 @@ export async function makeHandler({
         if (singleton && (await isHandshakable({port, secure}))) {
           return resolve({port})
         } else {
-          return resolve(await makeHandler({port: portResolutionMode === 'next' ? port + 1 : 0, singleton}))
+          return resolve(await makeHandler({...options, port: portResolutionMode === 'next' ? port + 1 : 0}))
         }
       }
       reject(err)
