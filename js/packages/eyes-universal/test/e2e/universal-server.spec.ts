@@ -1,11 +1,13 @@
 import WebSocket from 'ws'
+import {makeCertificate} from '../utils/certificate'
 import {makeServer} from '../../src'
 
 describe('universal-server', () => {
   it('starts server in secure mode', async () => {
+    const authority = await makeCertificate({days: 1, selfSigned: true})
     const server = await makeServer({
-      cert: './test/fixtures/cert.pem',
-      key: './test/fixtures/key.pem',
+      cert: authority.certificate,
+      key: authority.serviceKey,
       printStdout: true,
     })
     const ws = new WebSocket(`wss://localhost:${server.port}/eyes`, {rejectUnauthorized: false})
