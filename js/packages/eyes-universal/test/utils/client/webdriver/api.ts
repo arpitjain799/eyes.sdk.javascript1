@@ -16,7 +16,7 @@ export * from '@applitools/eyes-api'
 
 export class Eyes extends api.Eyes<Driver, Element, Selector> {
   protected static readonly _spec = universalClient
-  static setViewportSize: (driver: Driver, viewportSize: api.RectangleSize) => Promise<void>
+  static setViewportSize: (driver: Driver, viewportSize: api.RectangleSizePlain) => Promise<void>
 }
 
 export type ConfigurationPlain = api.ConfigurationPlain<Element, Selector>
