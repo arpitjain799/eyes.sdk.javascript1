@@ -10,7 +10,7 @@ class UniversalClientSelenium extends UniversalClient<Driver, Element, Selector>
   _transform: TransformFunc = data => transformData({data, spec, transformer})
 }
 
-const universalClient = new UniversalClientSelenium()
+export const universalClient = new UniversalClientSelenium()
 
 export * from '@applitools/eyes-api'
 

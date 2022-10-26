@@ -1,5 +1,6 @@
 import assert from 'assert'
 import {makeTestServer, makeProxyServer, restrictNetwork} from '@applitools/test-server'
+import {makeCertificate} from '../utils/certificate'
 import * as utils from '@applitools/utils'
 import * as spec from '../../src/spec-driver/webdriver'
 
@@ -7,10 +8,11 @@ describe('webdriver with self-signed cert', () => {
   let driver: spec.Driver, destroyDriver, proxyServer, webdriverServer, restoreNetwork, pageUrl
 
   before(async () => {
+    const authority = await makeCertificate({days: 1, selfSigned: true})
     webdriverServer = await makeTestServer({
       middlewares: ['webdriver'],
-      key: './test/fixtures/key.pem',
-      cert: './test/fixtures/cert.pem',
+      key: authority.serviceKey,
+      cert: authority.certificate,
     })
     proxyServer = await makeProxyServer()
     ;[driver, destroyDriver] = await spec.build({
