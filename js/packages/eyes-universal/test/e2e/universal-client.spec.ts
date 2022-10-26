@@ -15,12 +15,13 @@ describe('Universal client', () => {
     })
 
     it('work with cli', async () => {
+      await Eyes.setViewportSize(driver, {width: 700, height: 460})
       const eyes = new Eyes(new VisualGridRunner({testConcurrency: 1}))
       await eyes.open(driver, {
         appName: 'eyes-universal',
         testName: 'working with nodejs client',
       })
-      await eyes.check({})
+      await eyes.check()
       const result = await eyes.close()
       assert.strictEqual(result.status, 'Passed')
     })
