@@ -78,7 +78,9 @@ jobs:
           test-type: xvfb
   publish:
     needs: [test]
-    if: success() && always()
+    if: |
+      always() &&
+      (needs.test.result == 'success' || needs.test.result == 'skipped')
     name: Publish
     runs-on: ubuntu-latest
     steps:
