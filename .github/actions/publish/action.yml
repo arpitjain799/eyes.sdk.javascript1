@@ -44,17 +44,13 @@ runs:
         git config --local user.name "GitHub Action"
         echo "::endgroup::"
 
-        BRANCH="$(git rev-parse --abbrev-ref HEAD)"
-        if [ "$BRANCH" = "${{github.ref_name}}" ]
-        then
-          echo "::group::Creating temporary branch"
-          BRANCH="${PACKAGE_NAME}_$(date +%F_%H-%M)"
-          git checkout -b $BRANCH
-          git push -u origin $BRANCH
-          echo "::notice::Publish branch - $BRANCH"
-          echo "::set-output name=branch::$BRANCH"
-          echo "::endgroup::"
-        fi
+        echo "::group::Creating temporary branch"
+        BRANCH="${PACKAGE_NAME}_$(date +%F_%H-%M)"
+        git checkout -b $BRANCH
+        git push -u origin $BRANCH
+        echo "::notice::Publish branch - $BRANCH"
+        echo "::set-output name=branch::$BRANCH"
+        echo "::endgroup::"
 
         if [ "${{inputs.skip-build}}" = "false" ]
         then
@@ -81,18 +77,18 @@ runs:
           echo "::notice::Publish tag - $TAG"
           echo "::set-output name=tag::$TAG"
         fi
-        yarn add @applitools/bongo 
-        CHANGELOG="$(npx bongo log --latest-changelog)"
+
+        CHANGELOG="$(npx -p @applitools/bongo bongo log --latest-changelog)"
         CHANGELOG="${CHANGELOG//'%'/'%25'}"
         CHANGELOG="${CHANGELOG//$'\n'/'%0A'}"
         CHANGELOG="${CHANGELOG//$'\r'/'%0D'}"
         echo "::set-output name=changelog::$CHANGELOG"
         echo "::endgroup::"
 
-        echo "::group::Merge publish branch into ${{github.ref_name}}"
-        git checkout ${{github.ref_name}}
+        echo "::group::Merge publish branch into master"
+        git checkout master
         git status
-        git pull origin ${{github.ref_name}} --rebase
+        git pull origin master --rebase
         git merge $BRANCH
-        git push origin ${{github.ref_name}}
+        git push origin master
         echo "::endgroup::"
