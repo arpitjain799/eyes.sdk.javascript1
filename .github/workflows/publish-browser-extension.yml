@@ -65,12 +65,7 @@ jobs:
         shell: bash
         working-directory: ./js/packages/eyes-browser-extension
         run: |
-          sudo apt-get install -y xvfb
-      - name: Run tests
-        uses: ./.github/actions/tests
-        with:
-          working-directory: ./js/packages/eyes-browser-extension
-          test-type: xvfb
+          echo skip
   publish:
     needs: [test]
     name: Publish
