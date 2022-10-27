@@ -54,6 +54,7 @@ jobs:
           npx bongo verify-changelog
   test:
     needs: [verify]
+    if: github.event.inputs.run-tests != 'false'
     name: Test
     runs-on: ubuntu-latest
     steps:
@@ -66,19 +67,18 @@ jobs:
           registry-url: https://registry.npmjs.org/
           always-auth: true
       - name: Setup xvfb
-        if: ${{ github.event.inputs.run-tests }}
         shell: bash
         working-directory: ./js/packages/eyes-browser-extension
         run: |
           sudo apt-get install -y xvfb
       - name: Run tests
-        if: ${{ github.event.inputs.run-tests }}
         uses: ./.github/actions/tests
         with:
           working-directory: ./js/packages/eyes-browser-extension
           test-type: xvfb
   publish:
     needs: [test]
+    if: success() && always()
     name: Publish
     runs-on: ubuntu-latest
     steps:
