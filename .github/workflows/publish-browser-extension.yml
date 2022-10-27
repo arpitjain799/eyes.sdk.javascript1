@@ -104,4 +104,4 @@ jobs:
         with:
           tag_name: ${{steps.version.outputs.tag}}
           files: |
-            packages/${{env.PACKAGE_DIR}}/eyes-browser-extension.zip
+            js/packages/${{env.PACKAGE_DIR}}/eyes-browser-extension.zip
