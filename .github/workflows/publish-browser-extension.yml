@@ -75,7 +75,6 @@ jobs:
         uses: ./.github/actions/tests
         with:
           working-directory: ./js/packages/eyes-browser-extension
-          test-type: xvfb
   publish:
     needs: [test]
     if: |
