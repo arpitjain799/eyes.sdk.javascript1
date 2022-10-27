@@ -46,6 +46,7 @@ runs:
 
         echo "::group::Creating temporary branch"
         BRANCH="${PACKAGE_NAME}_$(date +%F_%H-%M)"
+        git checkout master
         git checkout -b $BRANCH
         git push -u origin $BRANCH
         echo "::notice::Publish branch - $BRANCH"
