@@ -11,6 +11,12 @@
 
 
 
+## 3.0.0 - 2022/10/28
+
+### Features
+- Major upgrade to v3
+### Bug fixes
+
 ## 2.16.9 - 2022/10/28
 
 ### Features
