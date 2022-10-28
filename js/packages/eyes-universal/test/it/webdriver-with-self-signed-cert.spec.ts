@@ -4,7 +4,8 @@ import {makeCertificate} from '../utils/certificate'
 import * as utils from '@applitools/utils'
 import * as spec from '../../src/spec-driver/webdriver'
 
-describe('webdriver with self-signed cert', () => {
+// unskip when when test-server supports cert and key in updated format
+describe.skip('webdriver with self-signed cert', () => {
   let driver: spec.Driver, destroyDriver, proxyServer, webdriverServer, restoreNetwork, pageUrl
 
   before(async () => {
