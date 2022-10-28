@@ -137,7 +137,6 @@ jobs:
         with:
           working-directory: ./js/packages/eyes-universal
           build-type: none
-          setup-type: none
           test-type: e2e
           shell: ${{matrix.shell}}
   publish:
