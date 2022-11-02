@@ -11,6 +11,12 @@
 
 
 
+## 2.17.1 - 2022/11/2
+
+### Features
+- Major upgrade to v3
+### Bug fixes
+
 ## 2.17.0 - 2022/11/2
 
 ### Features
