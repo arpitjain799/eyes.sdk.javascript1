@@ -22,6 +22,9 @@ outputs:
   tag:
     description: name of the tag pushed after publishing
     value: ${{steps.version.outputs.tag}}
+  changelog:
+    description: changelog entries for the latest package version
+    value: ${{steps.version.outputs.changelog}}
 
 runs:
   using: composite
@@ -62,4 +65,10 @@ runs:
         TAG="$(git describe --tags --abbrev=0)"
         echo "::notice::Publish tag $TAG"
         echo "::set-output name=tag::$TAG"
+
+        CHANGELOG="$(npx -y -p @applitools/bongo bongo log --latest-changelog)"
+        CHANGELOG="${CHANGELOG//'%'/'%25'}"
+        CHANGELOG="${CHANGELOG//$'\n'/'%0A'}"
+        CHANGELOG="${CHANGELOG//$'\r'/'%0D'}"
+        echo "::set-output name=changelog::$CHANGELOG"
         echo "::endgroup::"
