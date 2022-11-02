@@ -41,6 +41,7 @@ jobs:
       branch: ${{steps.version.outputs.branch}}
       version: ${{steps.version.outputs.version}}
       tag: ${{steps.version.outputs.tag}}
+      changelog: ${{steps.version.outputs.changelog}}
     steps:
       - name: Check-out repository
         uses: actions/checkout@v3
@@ -100,10 +101,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # - name: alpine
-          #   os: ubuntu-latest
-          #   container: node:lts-alpine # not just "alpine" because it is not possible to setup nodejs in a regular way
-          #   shell: ash -eo pipefail {0}
+          - name: alpine
+            os: ubuntu-latest
+            container: node:lts-alpine # not just "alpine" because it is not possible to setup nodejs in a regular way
+            shell: ash -eo pipefail {0}
           - name: ubuntu
             os: ubuntu-latest
             shell: bash
@@ -171,7 +172,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           body: |
-            ${{steps.publish.outputs.changelog}}
+            ${{needs.prepare.outputs.changelog}}
           tag_name: ${{needs.prepare.outputs.tag}}
           name: ${{needs.prepare.outputs.tag}}
           files: |
@@ -200,7 +201,7 @@ jobs:
                     },
                     {
                       "type":"section",
-                      "text": {"type": "mrkdwn", "text": ${{toJSON(steps.publish.outputs.changelog)}}}
+                      "text": {"type": "mrkdwn", "text": ${{toJSON(needs.prepare.outputs.changelog)}}}
                     },
                     {"type": "divider"},
                     {

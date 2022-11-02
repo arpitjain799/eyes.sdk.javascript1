@@ -9,7 +9,11 @@
 
 
 
+## 3.0.0 - 2022/11/2
 
+### Features
+- Major v3 release
+### Bug fixes
 
 ## 2.17.0 - 2022/11/2
 
