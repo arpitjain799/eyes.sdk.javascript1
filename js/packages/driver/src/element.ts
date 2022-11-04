@@ -196,9 +196,7 @@ export class Element<TDriver, TContext, TElement, TSelector> {
         x: contentSize.left,
         y: contentSize.top,
         width: contentSize.width,
-        height: this.driver.isIOS
-          ? Math.max(contentSize.height, contentSize.scrollableOffset)
-          : contentSize.height + contentSize.scrollableOffset,
+        height: contentSize.height + contentSize.scrollableOffset,
       }
     } catch (err) {
       this._logger.warn(`Unable to get the attribute 'contentSize' due to the following error: '${err.message}'`)
@@ -562,6 +560,7 @@ export class Element<TDriver, TContext, TElement, TSelector> {
           y: scrollableRegion.y - actualScrollableRegion.y,
         })
 
+        if (this.driver.isIOS) await new Promise(res => setTimeout(res, 2000)) // to allow the scrollbar to dissipate
         return this._state.scrollOffset
       }
     })
