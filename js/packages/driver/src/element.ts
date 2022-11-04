@@ -494,7 +494,7 @@ export class Element<TDriver, TContext, TElement, TSelector> {
 
         // vertical scrolling
         const yPadding = Math.max(Math.floor(effectiveRegion.height * 0.05), touchPadding + 3)
-        const xTrack = Math.floor(effectiveRegion.x + 5) // a little bit off left border
+        const xTrack = Math.floor(effectiveRegion.x + 10) // a little bit off left border
         const yBottom = effectiveRegion.y + effectiveRegion.height - yPadding
         const yDirection = remainingOffset.y > 0 ? 'down' : 'up'
         const yGap = yDirection === 'down' ? -touchPadding : touchPadding
