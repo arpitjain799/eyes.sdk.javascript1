@@ -1,13 +1,6 @@
 'use strict'
 
-const {
-  Eyes,
-  BatchInfo,
-  ConsoleLogHandler,
-  Target,
-  MatchLevel,
-  RectangleSize,
-} = require('../../index')
+const {Eyes, BatchInfo, Target, MatchLevel, RectangleSize} = require('../../dist')
 
 describe('TestEyesImages', function() {
   let batch
@@ -19,7 +12,6 @@ describe('TestEyesImages', function() {
   function setup(testTitle) {
     const eyes = new Eyes()
     eyes.setBatch(batch)
-    eyes.setLogHandler(new ConsoleLogHandler())
 
     eyes.getLogger().log(`running test: ${testTitle}`)
     return eyes

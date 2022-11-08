@@ -1,6 +1,6 @@
 'use strict'
 
-const {Eyes, BatchInfo, ConsoleLogHandler, RectangleSize, Region, Target} = require('../../index')
+const {Eyes, BatchInfo, RectangleSize, Region, Target} = require('../../dist')
 
 describe('TestEyesImages', function() {
   let batch
@@ -12,7 +12,6 @@ describe('TestEyesImages', function() {
   function setup(testTitle) {
     const eyes = new Eyes()
     eyes.setBatch(batch)
-    eyes.setLogHandler(new ConsoleLogHandler())
 
     eyes.getLogger().log(`running test: ${testTitle}`)
     return eyes
@@ -29,11 +28,7 @@ describe('TestEyesImages', function() {
 
   it('TestFluent_WithIgnoreRegion', async function() {
     const eyes = setup(this.test.title)
-    await eyes.open(
-      'TestEyesImages',
-      'CheckImage_WithIgnoreRegion_Fluent',
-      new RectangleSize(1024, 768),
-    )
+    await eyes.open('TestEyesImages', 'CheckImage_WithIgnoreRegion_Fluent', new RectangleSize(1024, 768))
 
     await eyes.check(
       'CheckImage_WithIgnoreRegion_Fluent',

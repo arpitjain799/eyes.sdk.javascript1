@@ -1,7 +1,8 @@
 'use strict'
 
 const assert = require('assert')
-const {Eyes, ConsoleLogHandler, GeneralUtils} = require('../../index')
+const utils = require('@applitools/utils')
+const {Eyes} = require('../../dist')
 
 let /** @type {Eyes} */ eyes
 describe('EyesImages.TestImageDiffs', function() {
@@ -9,12 +10,11 @@ describe('EyesImages.TestImageDiffs', function() {
 
   before(function() {
     eyes = new Eyes()
-    eyes.setLogHandler(new ConsoleLogHandler(false))
     // eyes.setProxy('http://localhost:8888');
   })
 
   it('ShouldDetectDiffs', async function() {
-    const testName = `${this.test.title}_${GeneralUtils.randomAlphanumeric()}`
+    const testName = `${this.test.title}_${utils.general.guid()}`
     const image1 = `${__dirname}/../fixtures/image1.png`
     const image2 = `${__dirname}/../fixtures/image2.png`
 

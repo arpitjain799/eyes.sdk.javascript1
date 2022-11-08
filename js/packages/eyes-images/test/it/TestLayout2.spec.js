@@ -1,6 +1,6 @@
 'use strict'
 
-const {Eyes, BatchInfo, ConsoleLogHandler, MatchLevel, RectangleSize} = require('../../index')
+const {Eyes, BatchInfo, MatchLevel, RectangleSize} = require('../../dist')
 
 describe('TestLayout2', function() {
   this.timeout(5 * 60 * 1000)
@@ -13,9 +13,7 @@ describe('TestLayout2', function() {
 
   function setup(testName) {
     const eyes = new Eyes()
-    eyes.setBaselineEnvName(batch.name)
     eyes.setBatch(batch)
-    eyes.setLogHandler(new ConsoleLogHandler())
     eyes.setMatchLevel(MatchLevel.Layout2)
     eyes.setSaveNewTests(true)
 
@@ -29,6 +27,7 @@ describe('TestLayout2', function() {
     }
     let eyes = setup(this.test.title)
     await open(eyes)
+    console.log('CHECK!!!!!')
     await eyes.checkImage(`${__dirname}/../fixtures/yahoo2c-chrome.png`)
     await eyes.close()
 

@@ -1,5 +1,5 @@
 'use strict'
-const {Eyes, BatchInfo, ConsoleLogHandler} = require('../../index')
+const {Eyes, BatchInfo, ConsoleLogHandler} = require('../../dist')
 
 const batch = new BatchInfo('JS Coverage Tests - eyes-selenium')
 

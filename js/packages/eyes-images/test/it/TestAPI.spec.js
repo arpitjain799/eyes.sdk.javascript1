@@ -1,7 +1,7 @@
 'use strict'
 
 const assert = require('assert')
-const {Eyes} = require('../../index')
+const {Eyes} = require('../../dist')
 
 describe('TestAPI', function() {
   this.timeout(5 * 60 * 1000)

@@ -1,7 +1,5 @@
-'use strict'
-
-const assertRejects = require('assert-rejects')
-const {Eyes, BatchInfo, DiffsFoundError, ConsoleLogHandler} = require('../../index')
+const assert = require('assert')
+const {Eyes, BatchInfo, DiffsFoundError} = require('../../dist')
 
 describe('TestCloseMethod', function() {
   this.timeout(5 * 60 * 1000)
@@ -9,7 +7,6 @@ describe('TestCloseMethod', function() {
   it('close', async function() {
     const batch = new BatchInfo()
     const eyes = new Eyes()
-    eyes.setLogHandler(new ConsoleLogHandler())
     eyes.setBatch(batch)
 
     await eyes.open(this.test.parent.title, this.test.title, {
@@ -24,6 +21,6 @@ describe('TestCloseMethod', function() {
       width: 600,
     })
     await eyes.checkImage(`${__dirname}/../fixtures/gbg2.png`, 'TestBitmap1')
-    await assertRejects(eyes.close(true), DiffsFoundError)
+    await assert.rejects(eyes.close(true), DiffsFoundError)
   })
 })
