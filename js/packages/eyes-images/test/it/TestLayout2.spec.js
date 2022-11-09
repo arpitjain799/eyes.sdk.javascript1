@@ -27,7 +27,6 @@ describe('TestLayout2', function() {
     }
     let eyes = setup(this.test.title)
     await open(eyes)
-    console.log('CHECK!!!!!')
     await eyes.checkImage(`${__dirname}/../fixtures/yahoo2c-chrome.png`)
     await eyes.close()
 

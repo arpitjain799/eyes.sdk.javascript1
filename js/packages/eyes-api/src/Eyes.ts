@@ -311,8 +311,26 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     return this.check({name, region: selector, timeout, fully: true})
   }
   /** @deprecated */
-  async checkRegion(region?: Region, name?: string, timeout?: number) {
-    return this.check({name, region, timeout})
+  async checkRegion(region: Region, name?: string, timeout?: number): Promise<MatchResultData>
+  /** @deprecated */
+  async checkRegion(
+    image: Buffer | URL | string,
+    region: Region,
+    name?: string,
+    ignoreMismatch?: boolean,
+  ): Promise<MatchResultData>
+  async checkRegion(
+    imageOrRegion: Buffer | URL | string | Region,
+    regionOrName?: Region | string,
+    nameOrTimeout?: string | number,
+    ignoreMismatch = false,
+  ) {
+    return utils.types.has(imageOrRegion, ['x', 'y', 'width', 'height'])
+      ? this.check({region: imageOrRegion, name: regionOrName as string, timeout: nameOrTimeout as number})
+      : this.check(
+          {image: imageOrRegion},
+          {region: regionOrName as Region, name: nameOrTimeout as string, ignoreMismatch},
+        )
   }
   /** @deprecated */
   async checkRegionByElement(element: TElement, name?: string, timeout?: number) {
