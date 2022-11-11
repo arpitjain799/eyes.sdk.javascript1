@@ -1,7 +1,7 @@
 const path = require('path')
 const {isUrl, requireUrl} = require('../common-util')
 
-function configLoader({config: configPath}) {
+async function configLoader({config: configPath}) {
   const config = isUrl(configPath)
     ? requireUrl(configPath)
     : require(path.join(path.resolve('.'), configPath))
