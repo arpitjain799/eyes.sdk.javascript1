@@ -69,6 +69,7 @@
   "scripts": {
     "lint": "eslint '**/*.ts'",
     "build": "ttsc",
+    "generate:tests": "coverage-tests generate ./test/coverage/config.js --name 'eyes-images'",
     "test": "mocha --no-timeouts -r ts-node/register --parallel --jobs 15 './test/**/*.spec.ts'",
     "test:sanity": "yarn test",
     "deps": "bongo deps",

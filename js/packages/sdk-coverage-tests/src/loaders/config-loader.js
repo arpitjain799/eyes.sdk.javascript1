@@ -17,7 +17,7 @@ async function configLoader({config: configPath}) {
   }
 
   if (config.extends) {
-    const baseConfig = configLoader({config: config.extends})
+    const baseConfig = await configLoader({config: config.extends})
     return Object.assign(baseConfig, config)
   }
 
