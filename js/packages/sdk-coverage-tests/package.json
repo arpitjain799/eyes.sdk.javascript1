@@ -1,6 +1,6 @@
 {
   "name": "@applitools/sdk-coverage-tests",
-  "version": "2.3.20",
+  "version": "2.7.0",
   "engines": {
     "node": ">=12.12.0"
   },
@@ -40,8 +40,8 @@
     "@babel/core": "7.12.10",
     "chalk": "4.1.1",
     "handlebars": "4.7.7",
-    "jszip": "^3.10.1",
-    "node-fetch": "^2.6.7",
+    "jszip": "3.10.1",
+    "node-fetch": "2.6.7",
     "prettier": "2.3.0",
     "sync-fetch": "0.3.0",
     "xml-js": "1.6.11",
