@@ -82,7 +82,7 @@ jobs:
       - name: Run tests
         uses: ./.github/actions/tests
         with:
-          working-directory: ./js/packages/eyes-cypress
+          working-directory: ${{matrix.path}}
           test-type: ${{(github.event_name == 'pull_request' && 'sanity') || github.event.inputs.test-type}}
           build-type: ${{github.event.inputs.build-type}}
           setup-type: ${{github.event.inputs.setup-type}}
