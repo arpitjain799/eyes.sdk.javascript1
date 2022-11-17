@@ -89,15 +89,12 @@ jobs:
           links: ${{matrix.links || github.event.inputs.links}}
           grep: ${{github.event.inputs.grep}}
         env:
+          APPLITOOLS_API_KEY: ${{secrets.APPLITOOLS_API_KEY}}
           APPLITOOLS_API_KEY_JSSDK: ${{secrets.APPLITOOLS_API_KEY_JSSDK}}
           APPLITOOLS_API_KEY_READ: ${{secrets.APPLITOOLS_API_KEY_READ}}
           SAUCE_ACCESS_KEY: ${{secrets.SAUCE_ACCESS_KEY}}
           SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
           AZURE_STORAGE_CONNECTION_STRING: ${{secrets.AZURE_STORAGE_CONNECTION_STRING}}
-          if:  ${{steps.setup.outputs.packages}} === 'cypress'
-          APPLITOOLS_API_KEY: ${{secrets.APPLITOOLS_API_KEY_JSSDK}}
-          else:
-          APPLITOOLS_API_KEY: ${{secrets.APPLITOOLS_API_KEY}}
       - name: Save testing artifacts
         uses: actions/upload-artifact@v2
         with:
