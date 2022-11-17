@@ -1,9 +1,6 @@
 name: Test packages
 
 on:
-  pull_request:
-    types: [opened, reopened, synchronize, ready_for_review]
-    branches-ignore: ['dependabot/**', 'draft/**', 'play/**']
   workflow_dispatch:
     inputs:
       packages:
@@ -82,7 +79,7 @@ jobs:
       - name: Run tests
         uses: ./.github/actions/tests
         with:
-          working-directory: ${{matrix.path}}
+          working-directory: ./js/packages/eyes-cypress
           test-type: ${{(github.event_name == 'pull_request' && 'sanity') || github.event.inputs.test-type}}
           build-type: ${{github.event.inputs.build-type}}
           setup-type: ${{github.event.inputs.setup-type}}
