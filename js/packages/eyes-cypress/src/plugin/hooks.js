@@ -35,7 +35,7 @@ function makeGlobalRunHooks({closeManager, closeBatches, closeUniversalServer}) 
             tapFileName: config.appliConfFile.tapFileName,
           });
         }
-        handleTestResults.printTestResults({testResults, resultConfig});
+        // handleTestResults.printTestResults({testResults, resultConfig});
       } finally {
         await closeUniversalServer();
       }
