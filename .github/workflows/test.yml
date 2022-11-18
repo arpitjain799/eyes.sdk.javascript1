@@ -75,7 +75,7 @@ jobs:
           registry-url: https://registry.npmjs.org/
           always-auth: true
       - name: Setup xvfb
-        if: ${{matrix.xvfb}}
+        if: ${{matrix.xvfb}} || ${{steps.setup.outputs.packages}} === 'cypress'
         run: |
           sudo apt-get install -y xvfb
           Xvfb -ac $DISPLAY -screen 0 1280x1024x16 &
