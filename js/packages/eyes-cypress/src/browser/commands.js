@@ -58,7 +58,7 @@ Cypress.Commands.add('eyesGetAllTestResults', () => {
   });
 });
 
-if (shouldUseBrowserHooks || Cypress.config('eyesFailCypressOnDiff')) {
+if (shouldUseBrowserHooks) {
   after(() => {
     if (!manager) return;
     return cy.then({timeout: 86400000}, async () => {

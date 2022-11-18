@@ -11,7 +11,11 @@ function makeGlobalRunHooks({closeManager, closeBatches, closeUniversalServer}) 
       try {
         if (!config.isTextTerminal) return;
         const summaries = await closeManager();
-
+        const resultConfig = {
+          showLogs: config.showLogs,
+          eyesFailCypressOnDiff: config.eyesFailCypressOnDiff,
+          isTextTerminal: config.isTextTerminal,
+        };
         let testResults;
         for (const summary of summaries) {
           testResults = summary.results.map(({testResults}) => testResults);
@@ -31,6 +35,7 @@ function makeGlobalRunHooks({closeManager, closeBatches, closeUniversalServer}) 
             tapFileName: config.appliConfFile.tapFileName,
           });
         }
+        handleTestResults.printTestResults({testResults, resultConfig});
       } finally {
         await closeUniversalServer();
       }
