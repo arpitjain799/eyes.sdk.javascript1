@@ -104,7 +104,7 @@ Apollo SDK:
   feature:
     - 
   bug-fix:
-    - 
+    - Add typescript definition for eyes plugin
 "@applitools/eyes-storybook":
   feature:
     - Deprecated "Content" match level value in favor of "IgnoreColors"

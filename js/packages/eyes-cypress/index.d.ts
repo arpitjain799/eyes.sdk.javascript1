@@ -83,3 +83,6 @@ declare global {
     }
   }
 }
+
+declare const _exports: (pluginModule: Cypress.ConfigOptions) => () => void;
+export = _exports;
