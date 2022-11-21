@@ -1,6 +1,7 @@
 {
-  "include": ["integration/typescript.spec.ts"],
-    "compilerOptions": {
+  "include": ["**/*.ts"],
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
     "target": "es6",
     "moduleResolution": "node16",
     "lib": ["es6", "dom"],
@@ -8,5 +9,6 @@
     "noImplicitAny": true,
     "skipLibCheck": true,
     "noEmit": true,
+    "esModuleInterop": true
   },
 }
