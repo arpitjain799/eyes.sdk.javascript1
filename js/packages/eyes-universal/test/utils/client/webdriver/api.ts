@@ -15,7 +15,7 @@ export const universalClient = new UniversalClientSelenium()
 export * from '@applitools/eyes-api'
 
 export class Eyes extends api.Eyes<Driver, Element, Selector> {
-  protected static readonly _spec = universalClient
+  protected static readonly _spec = universalClient as any
   static setViewportSize: (driver: Driver, viewportSize: api.RectangleSizePlain) => Promise<void>
 }
 
@@ -27,14 +27,16 @@ export class Configuration extends api.Configuration<Element, Selector> {
 
 export type OCRRegion = api.OCRRegion<Element, Selector>
 
-export type CheckSettingsPlain = api.CheckSettingsPlain<Element, Selector>
+export type CheckSettingsPlain = api.CheckSettingsAutomationPlain<Element, Selector>
 
-export class CheckSettings extends api.CheckSettings<Element, Selector> {
+export class CheckSettings extends api.CheckSettingsAutomation<Element, Selector> {
   protected static readonly _spec = universalClient
 }
 
-export const Target: api.Target<Element, Selector> = CheckSettings as any
+export const Target: api.Target<Element, Selector> = {...api.Target, _spec: universalClient} as any
 
 export class BatchClose extends api.BatchClose {
   protected static readonly _spec = universalClient
 }
+
+export const closeBatch = api.closeBatch(universalClient)

@@ -80,7 +80,7 @@ export class UniversalClient<TDriver, TElement, TSelector>
     })
   }
 
-  async closeBatches(options: any): Promise<void> {
+  async closeBatch(options: any): Promise<void> {
     const socket = await this._getSocket()
     return socket.request('Core.closeBatch', options)
   }
