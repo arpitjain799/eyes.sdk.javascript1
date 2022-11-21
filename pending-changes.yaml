@@ -102,9 +102,9 @@ Apollo SDK:
     - Fixed issue when current context is not being preserved in ufg mode
 "@applitools/eyes-cypress":
   feature:
-    - 
+    - Support ESM and TypeScript in Applitools' config file
   bug-fix:
-    - Add typescript definition for eyes plugin
+    - 
 "@applitools/eyes-storybook":
   feature:
     - Deprecated "Content" match level value in favor of "IgnoreColors"
