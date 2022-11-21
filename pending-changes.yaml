@@ -10,8 +10,7 @@ Apollo SDK:
       An example of how to inline `markdown code highlights`
 "@applitools/eyes-universal":
   feature:
-    - Added bmp image format support
-    - Added proxy support for images provided as url
+    - 
   bug-fix:
     - 
 "@applitools/eyes-selenium":

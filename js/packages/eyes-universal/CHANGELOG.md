@@ -9,6 +9,13 @@
 
 
 
+## 3.0.1 - 2022/11/21
+
+### Features
+- Added bmp image format support
+- Added proxy support for images provided as url
+### Bug fixes
+
 ## 3.0.0 - 2022/11/2
 
 ### Features
