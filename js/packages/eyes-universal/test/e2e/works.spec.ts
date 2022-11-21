@@ -42,7 +42,7 @@ describe('works', () => {
       server.on('error', reject)
 
       const timeout = setTimeout(() => reject(new Error('No output from the server for 20 seconds')), 20000)
-      server.stdout.once('data', data => {
+      server.stdout?.once('data', data => {
         clearTimeout(timeout)
         const [firstLine] = String(data).split('\n', 1)
         if (Number.isInteger(Number(firstLine))) {
@@ -68,7 +68,7 @@ describe('works', () => {
       server.on('exit', resolve)
       server.on('close', resolve)
 
-      server.stdin.end()
+      server.stdin?.end()
     })
     clearTimeout(timeoutId)
   })
