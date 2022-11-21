@@ -83,7 +83,7 @@
   },
   "devDependencies": {
     "@applitools/bongo": "^2.2.0",
-    "@applitools/eyes-api": "^1.10.3",
+    "@applitools/eyes-api": "^1.10.4",
     "@applitools/scripts": "^1.2.0",
     "@applitools/sdk-coverage-tests": "^2.7.8",
     "@applitools/spec-driver-selenium": "^1.5.8",
