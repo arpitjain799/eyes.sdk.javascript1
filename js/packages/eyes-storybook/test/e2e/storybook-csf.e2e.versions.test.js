@@ -27,6 +27,10 @@ describe('storybook-csf', () => {
       utils.process.sh(`node ${eyesStorybookPath} -f ${testConfigFile}`, {spawnOptions}),
     );
     const stdout = err ? err.stdout : result.stdout;
+
+    console.log('@@@', stdout)
+    console.log('!!!', result)
+    console.log('###', err)
     const output = stdout
       .replace(/Total time\: \d+ seconds/, 'Total time: <some_time> seconds')
       .replace(

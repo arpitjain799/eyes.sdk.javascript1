@@ -20,12 +20,12 @@
   },
   "devDependencies": {
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
-    "@storybook/addon-actions": "latest",
-    "@storybook/addon-storyshots": "latest",
-    "@storybook/addons": "latest",
-    "@storybook/builder-webpack4": "latest",
-    "@storybook/preset-create-react-app": "latest",
-    "@storybook/react": "latest",
+    "@storybook/addon-actions": "next",
+    "@storybook/addon-storyshots": "next",
+    "@storybook/addons": "next",
+    "@storybook/builder-webpack4": "next",
+    "@storybook/preset-create-react-app": "next",
+    "@storybook/react": "next",
     "webpack": "4"
   },
   "snaptdout": {

@@ -43,6 +43,9 @@ function __getClientAPI(...args) {
         addons.channel.once('storyRendered', () => {
           setTimeout(callback, 0);
         });
+        addons.channel.once('storyThrewException', () => {
+          setTimeout(callback, 0);
+        });
       } else {
         callback();
       }
