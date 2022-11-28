@@ -28,9 +28,6 @@ describe('storybook-csf', () => {
     );
     const stdout = err ? err.stdout : result.stdout;
 
-    console.log('@@@', stdout)
-    console.log('!!!', result)
-    console.log('###', err)
     const output = stdout
       .replace(/Total time\: \d+ seconds/, 'Total time: <some_time> seconds')
       .replace(
