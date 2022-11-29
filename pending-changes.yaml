@@ -10,7 +10,7 @@ Apollo SDK:
       An example of how to inline `markdown code highlights`
 "@applitools/eyes-universal":
   feature:
-    - Fixed OCR functionality with latest Eyes server
+    - 
   bug-fix:
     - 
 "@applitools/eyes-selenium":

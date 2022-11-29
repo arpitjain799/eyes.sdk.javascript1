@@ -9,6 +9,12 @@
 
 
 
+## 3.0.3 - 2022/11/29
+
+### Features
+- Fixed OCR functionality with latest Eyes server
+### Bug fixes
+
 ## 3.0.0 - 2022/11/2
 
 ### Features
