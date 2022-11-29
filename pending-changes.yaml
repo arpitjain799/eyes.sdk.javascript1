@@ -10,8 +10,7 @@ Apollo SDK:
       An example of how to inline `markdown code highlights`
 "@applitools/eyes-universal":
   feature:
-    - Added bmp image format support
-    - Added proxy support for images provided as url
+    - Fixed OCR functionality with latest Eyes server
   bug-fix:
     - Fixed issue when helper lib inputs were not cleaned up before calling new command
     - Fixed issue with element scroll position not being restored after screenshot is taken on native platforms
