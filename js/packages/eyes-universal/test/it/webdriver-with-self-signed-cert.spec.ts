@@ -1,6 +1,5 @@
 import assert from 'assert'
-import {makeTestServer, makeProxyServer, restrictNetwork} from '@applitools/test-server'
-import {makeCertificate} from '../utils/certificate'
+import {makeTestServer, makeProxyServer, generateCertificate, restrictNetwork} from '@applitools/test-server'
 import * as utils from '@applitools/utils'
 import * as spec from '../../src/spec-driver/webdriver'
 
@@ -9,12 +8,8 @@ describe.skip('webdriver with self-signed cert', () => {
   let driver: spec.Driver, destroyDriver, proxyServer, webdriverServer, restoreNetwork, pageUrl
 
   before(async () => {
-    const authority = await makeCertificate({days: 1, selfSigned: true})
-    webdriverServer = await makeTestServer({
-      middlewares: ['webdriver'],
-      key: authority.serviceKey,
-      cert: authority.certificate,
-    })
+    const authority = await generateCertificate({days: 1})
+    webdriverServer = await makeTestServer({...authority, middlewares: ['webdriver']})
     proxyServer = await makeProxyServer()
     ;[driver, destroyDriver] = await spec.build({
       url: `https://localhost:${webdriverServer.port}`,
