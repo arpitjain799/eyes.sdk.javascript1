@@ -18,9 +18,11 @@ describe('openEyes UFG', () => {
     const core = makeCore({spec, concurrency: 10})
 
     await driver.get('https://applitools.github.io/demo/TestPages/FramesTestPage/')
-    const frame1 = await driver.findElement(By.css('[name="frame1"]'))
-    await driver.switchTo().frame(frame1)
-    const innerFrameDiv = await driver.findElement(By.css('#inner-frame-div'))
+
+    const frame = await driver.findElement(By.css('[name="frame1"]'))
+    await driver.switchTo().frame(frame)
+
+    const frameUrlBaseline = await driver.executeScript(`return location.href`)
 
     const eyes = await core.openEyes({
       target: driver,
@@ -33,17 +35,14 @@ describe('openEyes UFG', () => {
       },
     })
 
-    await eyes.check({
-      settings: {
-        region: innerFrameDiv,
-        fully: true,
-        lazyLoad: true,
-        layoutBreakpoints: true,
-        renderers: [{name: 'chrome', width: 1000, height: 600}],
-      },
-    })
+    const frameUrlAfterOpenEyes = await driver.executeScript(`return location.href`)
 
-    const [result] = await eyes.close({settings: {updateBaselineIfNew: false}})
-    assert.strictEqual(result.status, 'Passed')
+    assert.strictEqual(
+      frameUrlBaseline,
+      frameUrlAfterOpenEyes,
+      'frame url baseline should be equals to frame url after open eyes',
+    )
+
+    await eyes.close({})
   })
 })

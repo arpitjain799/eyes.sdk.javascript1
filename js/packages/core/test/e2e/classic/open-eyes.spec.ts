@@ -18,9 +18,11 @@ describe('openEyes classic', () => {
     const core = makeCore<spec.Driver, spec.Driver, spec.Element, spec.Selector>({spec})
 
     await driver.get('https://applitools.github.io/demo/TestPages/FramesTestPage/')
-    const frame1 = await driver.findElement(By.css('[name="frame1"]'))
-    await driver.switchTo().frame(frame1)
-    const innerFrameDiv = await driver.findElement(By.css('#inner-frame-div'))
+
+    const frame = await driver.findElement(By.css('[name="frame1"]'))
+    await driver.switchTo().frame(frame)
+
+    const frameUrlBaseline = await driver.executeScript(`return location.href`)
 
     const eyes = await core.openEyes({
       target: driver,
@@ -28,23 +30,19 @@ describe('openEyes classic', () => {
         serverUrl: 'https://eyesapi.applitools.com',
         apiKey: process.env.APPLITOOLS_API_KEY,
         appName: 'core e2e',
-        testName: 'should preserve original frame after opening',
+        testName: 'classic - should preserve original frame after opening',
         environment: {viewportSize: {width: 700, height: 460}},
       },
     })
 
-    await eyes.check({
-      settings: {
-        name: 'layout region screenshot',
-        region: innerFrameDiv,
-        fully: true,
-        ignoreCaret: true,
-        layoutRegions: ['#inner'],
-        matchLevel: 'Strict',
-      },
-    })
+    const frameUrlAfterOpenEyes = await driver.executeScript(`return location.href`)
 
-    const [result] = await eyes.close()
-    assert.strictEqual(result.status, 'Passed')
+    assert.strictEqual(
+      frameUrlBaseline,
+      frameUrlAfterOpenEyes,
+      'frame url baseline should be equals to frame url after open eyes',
+    )
+
+    await eyes.close({})
   })
 })
