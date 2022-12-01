@@ -84,5 +84,10 @@ declare global {
   }
 }
 
-declare const _exports: (pluginModule: Cypress.ConfigOptions) => () => void;
+type eyesPlugin = (
+    on: Cypress.PluginEvents,
+    config: Cypress.PluginConfigOptions
+) => void;
+
+declare const _exports: ((pluginModule: Cypress.ConfigOptions) => () => void) & { eyesPlugin: eyesPlugin }
 export = _exports;

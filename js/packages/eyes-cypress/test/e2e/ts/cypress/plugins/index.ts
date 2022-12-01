@@ -1,3 +1,2 @@
-import eyes from '../../../../../'
-module.exports = (_on: any, _config: any) => {}
-eyes(module as Cypress.ConfigOptions);
+import {eyesPlugin} from '../../../../../'
+export default eyesPlugin
