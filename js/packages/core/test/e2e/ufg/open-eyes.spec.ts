@@ -3,7 +3,7 @@ import {By} from 'selenium-webdriver'
 import * as spec from '@applitools/spec-driver-selenium'
 import assert from 'assert'
 
-describe('switch context before openEyes', () => {
+describe('openEyes UFG', () => {
   let driver, destroyDriver
 
   before(async () => {
@@ -14,7 +14,7 @@ describe('switch context before openEyes', () => {
     await destroyDriver?.()
   })
 
-  it('works', async () => {
+  it('should preserve original frame after opening', async () => {
     const core = makeCore({spec, concurrency: 10})
 
     await driver.get('https://applitools.github.io/demo/TestPages/FramesTestPage/')
@@ -28,7 +28,7 @@ describe('switch context before openEyes', () => {
         serverUrl: 'https://eyesapi.applitools.com',
         apiKey: process.env.APPLITOOLS_API_KEY,
         appName: 'core e2e',
-        testName: 'ufg - switch context before openEyes',
+        testName: 'ufg - should preserve original frame after opening',
         environment: {viewportSize: {width: 700, height: 460}},
       },
     })
