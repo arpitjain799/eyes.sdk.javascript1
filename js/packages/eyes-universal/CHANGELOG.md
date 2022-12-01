@@ -9,6 +9,13 @@
 
 
 
+## 3.0.3 - 2022/12/1
+
+### Features
+### Bug fixes
+- Fixed issue when helper lib inputs were not cleaned up before calling new command
+- Fixed issue with element scroll position not being restored after screenshot is taken on native platforms
+
 ## 3.0.0 - 2022/11/2
 
 ### Features
