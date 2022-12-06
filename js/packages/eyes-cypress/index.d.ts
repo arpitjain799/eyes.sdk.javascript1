@@ -84,10 +84,22 @@ declare global {
   }
 }
 
+type eyesConfig = {
+    tapDirPath: string
+    tapFileName: string
+    eyesIsDisabled: boolean
+    eyesBrowser: any
+    eyesLayoutBreakpoints: any
+    eyesFailCypressOnDiff: boolean
+    eyesDisableBrowserFetching: boolean
+    eyesTestConcurrency: number
+    eyesWaitBeforeCapture: number
+}
+
 type eyesPlugin = (
     on: Cypress.PluginEvents,
     config: Cypress.PluginConfigOptions
-) => void;
+) => Promise<eyesConfig & { eyesPort: number }>;
 
 declare const _exports: ((pluginModule: Cypress.ConfigOptions) => () => void) & { eyesPlugin: eyesPlugin }
 export = _exports;
