@@ -8,8 +8,13 @@ describe('works', () => {
   } else if (process.platform === 'win32') {
     bin = './bin/eyes-universal-win'
   } else if (process.platform === 'linux') {
-    bin = `./bin/eyes-universal-${fs.existsSync('/etc/alpine-release') ? 'alpine' : 'linux'}`
+    if (process.arch === 'arm64') {
+      bin = './bin/eyes-universal-linux-arm64'
+    } else {
+      bin = `./bin/eyes-universal-${fs.existsSync('/etc/alpine-release') ? 'alpine' : 'linux'}`
+    }
   }
+  console.log(bin)
   let server: ChildProcess
   afterEach(() => {
     server?.kill()
