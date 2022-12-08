@@ -113,6 +113,10 @@ jobs:
           - name: macos
             os: macos-latest
             shell: bash
+          - name: linux-arm64
+            os: ubuntu-latest
+            container: arm64v8/node
+            shell: bash
     name: 'Test e2e (os: ${{matrix.name}})'
     runs-on: ${{matrix.os}}
     container: ${{matrix.container}}
@@ -177,6 +181,7 @@ jobs:
           files: |
             ./js/packages/eyes-universal/bin/eyes-universal-alpine
             ./js/packages/eyes-universal/bin/eyes-universal-linux
+            ./js/packages/eyes-universal/bin/eyes-universal-linux-arm64
             ./js/packages/eyes-universal/bin/eyes-universal-macos
             ./js/packages/eyes-universal/bin/eyes-universal-win.exe
             ./js/packages/eyes-universal/bin/eyes-universal.zip
@@ -215,6 +220,11 @@ jobs:
                           "type": "button",
                           "text": {"type": "plain_text", "emoji": true, "text": "Download for Linux 🐧"},
                           "url": "https://github.com/applitools/eyes.sdk.javascript1/releases/download/${{needs.prepare.outputs.tag}}/eyes-universal-linux"
+                        },
+                        {
+                          "type": "button",
+                          "text": {"type": "plain_text", "emoji": true, "text": "Download for Linux arm64 🐧 💪"},
+                          "url": "https://github.com/applitools/eyes.sdk.javascript1/releases/download/${{needs.prepare.outputs.tag}}/eyes-universal-linux-arm64"
                         },
                         {
                           "type": "button",
