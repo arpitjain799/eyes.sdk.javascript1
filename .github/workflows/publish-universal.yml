@@ -36,6 +36,14 @@ env:
 jobs:
   prepare:
     name: Prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: x64
+          - name: arm64
+            arch: aarch64
+            distro: ubuntu18.04
     runs-on: ubuntu-latest
     outputs:
       branch: ${{steps.version.outputs.branch}}
@@ -58,17 +66,70 @@ jobs:
           version: ${{inputs.version || github.event.inputs.version}}
       - name: Build
         shell: bash
+        env:
+            ARCH: ${{matrix.arch}}
+        if: ${{env.ARCH == ''}}
         working-directory: ./js/packages/eyes-universal
-        run: yarn build && yarn build:zip && yarn build:tgz
+        run: yarn build:${{matrix.name}} && yarn build:zip && yarn build:tgz
+      - uses: uraimo/run-on-arch-action@v2
+        if: ${{matrix.arch}}
+        name: Build ARM
+        with:
+          arch: ${{ matrix.arch }}
+          distro: ${{ matrix.distro }}
+          githubToken: ${{ github.token }}
+
+          # Mount the artifacts directory as /artifacts in the container
+          dockerRunArgs: |
+            --volume "${PWD}:/src"
+
+          # Pass some environment variables to the container
+          env: | # YAML, but pipe character is necessary
+            NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+
+          # The shell to run commands with in the container
+          shell: /bin/sh
+
+          install: |
+            case "${{ matrix.distro }}" in
+              ubuntu*|jessie|stretch|buster|bullseye)
+                apt-get update -q -y
+                apt-get install curl
+                curl -sL https://deb.nodesource.com/setup_14.x | bash -
+                apt-get install -q -y nodejs
+                npm install -g yarn
+                echo //registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN} > $HOME/.npmrc
+                cd /src
+                ;;
+              fedora*)
+                echo not supported
+                exit 1
+                ;;
+              alpine*)
+                echo not supported
+                exit 1
+                ;;
+            esac
+
+          run: |
+            yarn install
+            yarn build:arm64 && yarn build:zip && yarn build:tgz
+
+      - name: Show the artifact
+        # Items placed in /artifacts in the container will be in
+        # ${PWD}/artifacts on the host.
+        run: |
+          ls -al "${PWD}/bin"
       - name: Upload building artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: eyes-universal-bin-${{steps.version.outputs.version}}
+          name: eyes-universal-bin-${{steps.version.outputs.version}}-${{matrix.name}}
           retention-days: 2
           path:  |
             ./js/packages/eyes-universal/dist
             ./js/packages/eyes-universal/bin
   test-it:
+    if: false
     needs: [prepare]
     name: 'Test integration'
     runs-on: ubuntu-latest
@@ -104,19 +165,24 @@ jobs:
             os: ubuntu-latest
             container: node:lts-alpine # not just "alpine" because it is not possible to setup nodejs in a regular way
             shell: ash -eo pipefail {0}
+            arch: x64
           - name: ubuntu
             os: ubuntu-latest
             shell: bash
+            arch: x64
           - name: windows
             os: windows-latest
             shell: bash
+            arch: x64
           - name: macos
             os: macos-latest
             shell: bash
+            arch: x64
           - name: linux-arm64
             os: ubuntu-latest
-            container: arm64v8/node
+            base_image: raspios_lite_arm64:latest
             shell: bash
+            arch: arm64
     name: 'Test e2e (os: ${{matrix.name}})'
     runs-on: ${{matrix.os}}
     container: ${{matrix.container}}
@@ -126,17 +192,41 @@ jobs:
         with:
           ref: ${{needs.prepare.outputs.branch}}
       - name: Setup Node.js
+        env:
+            BASE_IMAGE: ${{matrix.base_image}}
+        if: ${{env.BASE_IMAGE == ''}}
         uses: actions/setup-node@v3
         with:
           node-version: lts/*
           registry-url: https://registry.npmjs.org/
+          architecture: ${{matrix.arch}}
           always-auth: true
       - name: Download building artifacts
         uses: actions/download-artifact@v3
         with:
-          name: eyes-universal-bin-${{needs.prepare.outputs.version}}
+          name: eyes-universal-bin-${{needs.prepare.outputs.version}}-${{matrix.arch}}
           path: ./js/packages/eyes-universal
+      - name: Run tests on ARM
+        if: ${{matrix.base_image}}
+        uses: pguyot/arm-runner-action@v2
+        id: build_image
+        with:
+          image_additional_mb: 2048
+          base_image: ${{matrix.base_image}}
+          commands: |
+              apt-get update -y
+              curl -sL https://deb.nodesource.com/setup_14.x | bash -
+              apt-get install nodejs
+              node -v
+              node -e 'console.log(process.arch)'
+              npm i -g yarn
+              echo //registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN} > $HOME/.npmrc
+              yarn install
+              yarn test:e2e
       - name: Run tests
+        env:
+            BASE_IMAGE: ${{matrix.base_image}}
+        if: ${{env.BASE_IMAGE == ''}}
         uses: ./.github/actions/tests
         with:
           working-directory: ./js/packages/eyes-universal
@@ -145,6 +235,7 @@ jobs:
           test-type: e2e
           shell: ${{matrix.shell}}
   publish:
+    if: false
     needs: [prepare, test-it, test-e2e]
     name: Publish
     runs-on: ubuntu-latest
@@ -239,7 +330,12 @@ jobs:
                         {
                           "type": "button",
                           "text": {"type": "plain_text", "emoji": true, "text": "Download archive 🗃️"},
-                          "url": "https://github.com/applitools/eyes.sdk.javascript1/releases/download/${{needs.prepare.outputs.tag}}/eyes-universal.zip"
+                          "url": "https://github.com/applitools/eyes.sdk.javascript1/releases/download/${{needs.prepare.outputs.tag}}/eyes-universal-x64.zip"
+                        },
+                        {
+                          "type": "button",
+                          "text": {"type": "plain_text", "emoji": true, "text": "Download archive arm64 🗃️ 💪"},
+                          "url": "https://github.com/applitools/eyes.sdk.javascript1/releases/download/${{needs.prepare.outputs.tag}}/eyes-universal-arm64.zip"
                         }
                       ]
                     }
