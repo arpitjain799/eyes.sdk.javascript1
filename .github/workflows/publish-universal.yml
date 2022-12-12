@@ -72,7 +72,7 @@ jobs:
       - name: Build
         shell: bash
         working-directory: ./js/packages/eyes-universal
-        run: yarn build:${{matrix.name}} && yarn build:zip && yarn build:tgz
+        run: uname -a && yarn build:${{matrix.name}} && yarn build:zip && yarn build:tgz
       - name: Upload building artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -81,32 +81,6 @@ jobs:
           path:  |
             ./js/packages/eyes-universal/dist
             ./js/packages/eyes-universal/bin
-  test-it:
-    needs: [prepare]
-    name: 'Test integration'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check-out repository
-        uses: actions/checkout@v3
-        with:
-          ref: ${{needs.prepare.outputs.branch}}
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: lts/*
-          registry-url: https://registry.npmjs.org/
-          always-auth: true
-      - name: Download building artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: eyes-universal-bin-${{needs.prepare.outputs.version}}
-          path: ./js/packages/eyes-universal
-      - name: Run tests
-        uses: ./.github/actions/tests
-        with:
-          working-directory: ./js/packages/eyes-universal
-          build-type: none
-          test-type: it
   test-e2e:
     needs: [prepare]
     strategy:
@@ -180,109 +154,3 @@ jobs:
           setup-type: none
           test-type: e2e
           shell: ${{matrix.shell}}
-  publish:
-    needs: [prepare, test-it, test-e2e]
-    name: Publish
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check-out repository
-        uses: actions/checkout@v3
-        with:
-          ref: ${{needs.prepare.outputs.branch}}
-          fetch-depth: 0
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: lts/*
-          registry-url: https://registry.npmjs.org/
-          always-auth: true
-      - name: Download building artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: eyes-universal-bin-${{needs.prepare.outputs.version}}
-          path: ./js/packages/eyes-universal
-      - name: Publish to NPM
-        id: publish
-        uses: ./.github/actions/publish
-        with:
-          working-directory: ./js/packages/eyes-universal
-          skip-build: true
-      - name: Publish to GitHub
-        uses: softprops/action-gh-release@v1
-        with:
-          body: |
-            ${{steps.publish.outputs.changelog}}
-          tag_name: ${{needs.prepare.outputs.tag}}
-          name: ${{needs.prepare.outputs.tag}}
-          files: |
-            ./js/packages/eyes-universal/bin/eyes-universal-alpine
-            ./js/packages/eyes-universal/bin/eyes-universal-linux
-            ./js/packages/eyes-universal/bin/eyes-universal-linux-arm64
-            ./js/packages/eyes-universal/bin/eyes-universal-macos
-            ./js/packages/eyes-universal/bin/eyes-universal-win.exe
-            ./js/packages/eyes-universal/bin/eyes-universal.zip
-            ./js/packages/eyes-universal/bin/eyes-universal.tar.gz
-      - name: Send slack notification
-        uses: slackapi/slack-github-action@v1.16.0
-        with:
-          payload: |
-            {
-              "attachments": [
-                {
-                  "color": "#00a398",
-                  "blocks": [
-                    {
-                      "type":"section",
-                      "text": {"type": "mrkdwn", "text": "@channel *Universal SDK* has been released under the tag <https://github.com/applitools/eyes.sdk.javascript1/releases/tag/${{needs.prepare.outputs.tag}}|${{needs.prepare.outputs.tag}}> 🎉 🎊 🥳"}
-                    },
-                    {
-                      "type": "header",
-                      "text": {"type": "plain_text", "text": "Changelog"}
-                    },
-                    {
-                      "type":"section",
-                      "text": {"type": "mrkdwn", "text": ${{toJSON(steps.publish.outputs.changelog)}}}
-                    },
-                    {"type": "divider"},
-                    {
-                      "type": "actions",
-                      "elements": [
-                        {
-                          "type": "button",
-                          "text": {"type": "plain_text", "emoji": true, "text": "Download for Mac 🍎"},
-                          "url": "https://github.com/applitools/eyes.sdk.javascript1/releases/download/${{needs.prepare.outputs.tag}}/eyes-universal-macos"
-                        },
-                        {
-                          "type": "button",
-                          "text": {"type": "plain_text", "emoji": true, "text": "Download for Linux 🐧"},
-                          "url": "https://github.com/applitools/eyes.sdk.javascript1/releases/download/${{needs.prepare.outputs.tag}}/eyes-universal-linux"
-                        },
-                        {
-                          "type": "button",
-                          "text": {"type": "plain_text", "emoji": true, "text": "Download for Linux arm64 🐧 💪"},
-                          "url": "https://github.com/applitools/eyes.sdk.javascript1/releases/download/${{needs.prepare.outputs.tag}}/eyes-universal-linux-arm64"
-                        },
-                        {
-                          "type": "button",
-                          "text": {"type": "plain_text", "emoji": true, "text": "Download for Windows 🪟"},
-                          "url": "https://github.com/applitools/eyes.sdk.javascript1/releases/download/${{needs.prepare.outputs.tag}}/eyes-universal-win.exe"
-                        },
-                        {
-                          "type": "button",
-                          "text": {"type": "plain_text", "emoji": true, "text": "Download for Alpine 🏔️"},
-                          "url": "https://github.com/applitools/eyes.sdk.javascript1/releases/download/${{needs.prepare.outputs.tag}}/eyes-universal-alpine"
-                        },
-                        {
-                          "type": "button",
-                          "text": {"type": "plain_text", "emoji": true, "text": "Download archive 🗃️"},
-                          "url": "https://github.com/applitools/eyes.sdk.javascript1/releases/download/${{needs.prepare.outputs.tag}}/eyes-universal.zip"
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{secrets.UNIVERSAL_SLACK_WEBHOOK_URL}}
-          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
