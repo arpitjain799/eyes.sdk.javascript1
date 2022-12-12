@@ -36,6 +36,12 @@ env:
 jobs:
   prepare:
     name: Prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: x64
+          - name: arm64
     runs-on: ubuntu-latest
     outputs:
       branch: ${{steps.version.outputs.branch}}
@@ -59,16 +65,17 @@ jobs:
       - name: Build
         shell: bash
         working-directory: ./js/packages/eyes-universal
-        run: yarn build && yarn build:zip && yarn build:tgz
+        run: yarn build:${{matrix.name}} && yarn build:zip && yarn build:tgz
       - name: Upload building artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: eyes-universal-bin-${{steps.version.outputs.version}}
+          name: eyes-universal-bin-${{steps.version.outputs.version}}-${{matrix.name}}
           retention-days: 2
           path:  |
             ./js/packages/eyes-universal/dist
             ./js/packages/eyes-universal/bin
   test-it:
+    if: false
     needs: [prepare]
     name: 'Test integration'
     runs-on: ubuntu-latest
@@ -104,19 +111,24 @@ jobs:
             os: ubuntu-latest
             container: node:lts-alpine # not just "alpine" because it is not possible to setup nodejs in a regular way
             shell: ash -eo pipefail {0}
+            arch: x64
           - name: ubuntu
             os: ubuntu-latest
             shell: bash
+            arch: x64
           - name: windows
             os: windows-latest
             shell: bash
+            arch: x64
           - name: macos
             os: macos-latest
             shell: bash
+            arch: x64
           - name: linux-arm64
             os: ubuntu-latest
-            container: arm64v8/node
+            base_image: raspios_lite_arm64:latest
             shell: bash
+            arch: arm64
     name: 'Test e2e (os: ${{matrix.name}})'
     runs-on: ${{matrix.os}}
     container: ${{matrix.container}}
@@ -126,17 +138,41 @@ jobs:
         with:
           ref: ${{needs.prepare.outputs.branch}}
       - name: Setup Node.js
+        env:
+            BASE_IMAGE: ${{matrix.base_image}}
+        if: ${{env.BASE_IMAGE == ''}}
         uses: actions/setup-node@v3
         with:
           node-version: lts/*
           registry-url: https://registry.npmjs.org/
+          architecture: ${{matrix.arch}}
           always-auth: true
       - name: Download building artifacts
         uses: actions/download-artifact@v3
         with:
-          name: eyes-universal-bin-${{needs.prepare.outputs.version}}
+          name: eyes-universal-bin-${{needs.prepare.outputs.version}}-${{matrix.arch}}
           path: ./js/packages/eyes-universal
+      - name: Run tests on ARM
+        if: ${{matrix.base_image}}
+        uses: pguyot/arm-runner-action@v2
+        id: build_image
+        with:
+          image_additional_mb: 2048
+          base_image: ${{matrix.base_image}}
+          commands: |
+              apt-get update -y
+              curl -sL https://deb.nodesource.com/setup_14.x | bash -
+              apt-get install nodejs
+              node -v
+              node -e 'console.log(process.arch)'
+              npm i -g yarn
+              echo //registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN} > $HOME/.npmrc
+              yarn install
+              yarn test:e2e
       - name: Run tests
+        env:
+            BASE_IMAGE: ${{matrix.base_image}}
+        if: ${{env.BASE_IMAGE == ''}}
         uses: ./.github/actions/tests
         with:
           working-directory: ./js/packages/eyes-universal
@@ -145,6 +181,7 @@ jobs:
           test-type: e2e
           shell: ${{matrix.shell}}
   publish:
+    if: false
     needs: [prepare, test-it, test-e2e]
     name: Publish
     runs-on: ubuntu-latest
