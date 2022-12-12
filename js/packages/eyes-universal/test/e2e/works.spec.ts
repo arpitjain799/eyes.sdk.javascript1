@@ -69,7 +69,7 @@ describe('works', () => {
     await new Promise<void>((resolve, reject) => {
       server.on('error', reject)
 
-      timeoutId = setTimeout(() => reject(new Error('No output from the server for 20 seconds')), 2000)
+      timeoutId = setTimeout(() => reject(new Error('No output from the server for 20 seconds')), 20000)
       server.on('exit', resolve)
       server.on('close', resolve)
 
