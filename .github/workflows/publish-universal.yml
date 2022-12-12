@@ -40,7 +40,7 @@ jobs:
     outputs:
       branch: ${{steps.version.outputs.branch}}
       version: ${{steps.version.outputs.version}}
-      tag: ${{steps.version.outputs.tag}}
+      tag: ${{steps.version.outputs.tag}}-${{ github.workflow }}-${{ github.run_number }}remove-me
     steps:
       - name: Check-out repository
         uses: actions/checkout@v3
@@ -56,20 +56,88 @@ jobs:
         with:
           working-directory: ./js/packages/eyes-universal
           version: ${{inputs.version || github.event.inputs.version}}
+  build:
+    needs: [prepare]
+    name: Build
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: x64
+          - name: arm64
+            arch: aarch64
+            distro: ubuntu18.04
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{needs.prepare.outputs.branch}}
+      - name: Setup Node.js
+        env:
+            arch: ${{matrix.arch}}
+        if: ${{env.arch == ''}}
+        uses: actions/setup-node@v3
+        with:
+          node-version: lts/*
+          registry-url: https://registry.npmjs.org/
+          always-auth: true
       - name: Build
         shell: bash
+        # env:
+        #     arch: ${{matrix.arch}}
+        # if: ${{env.arch == ''}}
         working-directory: ./js/packages/eyes-universal
-        run: yarn build && yarn build:zip && yarn build:tgz
+        run: |
+          echo //registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}} > $HOME/.npmrc && yarn install && rm -rf $HOME/.npmrc
+          yarn build:${{matrix.name}} 
+          # yarn build:zip && yarn build:tgz
+      - uses: uraimo/run-on-arch-action@v2
+        # if: ${{matrix.arch}}
+        if: false
+        name: Build ARM
+        with:
+          env: |
+            artifact_name: universal-${{ matrix.distro }}_${{ matrix.arch }}
+          githubToken: ${{ github.token }}
+          arch: ${{ matrix.arch }}
+          distro: ${{ matrix.distro }}
+          dockerRunArgs: |
+            --volume "${PWD}/js/packages/eyes-universal/:/src"
+          shell: /bin/sh
+          install: |
+            case "${{ matrix.distro }}" in
+              ubuntu*|jessie|stretch|buster|bullseye)
+                apt-get update -q -y
+                apt-get install -q -y curl zip tar
+                curl -sL https://deb.nodesource.com/setup_14.x | bash -
+                apt-get install -q -y nodejs
+                npm install -g yarn
+                ;;
+              fedora*)
+                echo not supported
+                exit 1
+                ;;
+              alpine*)
+                echo not supported
+                exit 1
+                ;;
+            esac
+          run: |
+            cd /src
+            echo //registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}} > $HOME/.npmrc && yarn install && rm -rf $HOME/.npmrc
+            yarn build:arm64 && yarn build:zip && yarn build:tgz
       - name: Upload building artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: eyes-universal-bin-${{steps.version.outputs.version}}
+          name: eyes-universal-bin-${{needs.prepare.outputs.version}}-${{matrix.name}}
           retention-days: 2
           path:  |
             ./js/packages/eyes-universal/dist
             ./js/packages/eyes-universal/bin
   test-it:
-    needs: [prepare]
+    if: false
+    needs: [prepare, build]
     name: 'Test integration'
     runs-on: ubuntu-latest
     steps:
@@ -86,7 +154,7 @@ jobs:
       - name: Download building artifacts
         uses: actions/download-artifact@v3
         with:
-          name: eyes-universal-bin-${{needs.prepare.outputs.version}}
+          name: eyes-universal-bin-${{needs.prepare.outputs.version}}-x64
           path: ./js/packages/eyes-universal
       - name: Run tests
         uses: ./.github/actions/tests
@@ -95,7 +163,8 @@ jobs:
           build-type: none
           test-type: it
   test-e2e:
-    needs: [prepare]
+    needs: [prepare, build]
+    if: false
     strategy:
       fail-fast: false
       matrix:
@@ -104,19 +173,25 @@ jobs:
             os: ubuntu-latest
             container: node:lts-alpine # not just "alpine" because it is not possible to setup nodejs in a regular way
             shell: ash -eo pipefail {0}
+            arch-group: x64
           - name: ubuntu
             os: ubuntu-latest
             shell: bash
+            arch-group: x64
           - name: windows
             os: windows-latest
             shell: bash
+            arch-group: x64
           - name: macos
             os: macos-latest
             shell: bash
+            arch-group: x64
           - name: linux-arm64
+            arch: aarch64
+            distro: ubuntu18.04
             os: ubuntu-latest
-            container: arm64v8/node
             shell: bash
+            arch-group: arm64
     name: 'Test e2e (os: ${{matrix.name}})'
     runs-on: ${{matrix.os}}
     container: ${{matrix.container}}
@@ -126,6 +201,9 @@ jobs:
         with:
           ref: ${{needs.prepare.outputs.branch}}
       - name: Setup Node.js
+        env:
+            arch: ${{matrix.arch}}
+        if: ${{env.arch == ''}}
         uses: actions/setup-node@v3
         with:
           node-version: lts/*
@@ -134,9 +212,48 @@ jobs:
       - name: Download building artifacts
         uses: actions/download-artifact@v3
         with:
-          name: eyes-universal-bin-${{needs.prepare.outputs.version}}
+          name: eyes-universal-bin-${{needs.prepare.outputs.version}}-${{matrix.arch-group}}
           path: ./js/packages/eyes-universal
+
+      - uses: uraimo/run-on-arch-action@v2
+        if: ${{matrix.arch}}
+        name: Run Tests On ARM
+        with:
+          env: |
+            artifact_name: universal-${{ matrix.distro }}_${{ matrix.arch }}
+          githubToken: ${{ github.token }}
+          arch: ${{ matrix.arch }}
+          distro: ${{ matrix.distro }}
+          dockerRunArgs: |
+            --volume "${PWD}/js/packages/eyes-universal/:/src"
+          shell: /bin/sh
+          install: |
+            case "${{ matrix.distro }}" in
+              ubuntu*|jessie|stretch|buster|bullseye)
+                apt-get update -q -y
+                apt-get install -q -y curl zip tar
+                curl -sL https://deb.nodesource.com/setup_14.x | bash -
+                apt-get install -q -y nodejs
+                npm install -g yarn
+                ;;
+              fedora*)
+                echo not supported
+                exit 1
+                ;;
+              alpine*)
+                echo not supported
+                exit 1
+                ;;
+            esac
+          run: |
+            cd /src
+            echo //registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}} > $HOME/.npmrc && yarn install && rm -rf $HOME/.npmrc
+            yarn test:e2e
+
       - name: Run tests
+        env:
+            arch: ${{matrix.arch}}
+        if: ${{env.arch == ''}}
         uses: ./.github/actions/tests
         with:
           working-directory: ./js/packages/eyes-universal
@@ -144,8 +261,36 @@ jobs:
           setup-type: none
           test-type: e2e
           shell: ${{matrix.shell}}
+  bundle:
+    needs: [prepare, build]
+    runs-on: ubuntu-latest
+    name: Bundle the resouces
+    steps:
+      - name: Download building artifacts x64
+        uses: actions/download-artifact@v3
+        with:
+          name: eyes-universal-bin-${{needs.prepare.outputs.version}}-x64
+          path: ./eyes-universal
+      - name: Download building artifacts arm64
+        uses: actions/download-artifact@v3
+        with:
+          name: eyes-universal-bin-${{needs.prepare.outputs.version}}-arm64
+          path: ./eyes-universal-arm64
+      - name: Bundle artifacts
+        shell: bash
+        run: |
+          find ./eyes-universal-arm64 -type f -not -name '*.zip' -not -name '*.tar.gz' -exec bash -c 'cp ${0} ./eyes-universal/bin/$(basename ${0})' {} \;
+      - name: Upload bundle artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: eyes-universal-bin-${{needs.prepare.outputs.version}}
+          retention-days: 2
+          path:  |
+            ./eyes-universal/dist
+            ./eyes-universal/bin
   publish:
-    needs: [prepare, test-it, test-e2e]
+    # needs: [prepare, build, test-it, test-e2e]
+    needs: [prepare, bundle]
     name: Publish
     runs-on: ubuntu-latest
     steps:
@@ -155,6 +300,7 @@ jobs:
           ref: ${{needs.prepare.outputs.branch}}
           fetch-depth: 0
       - name: Setup Node.js
+        if: false
         uses: actions/setup-node@v3
         with:
           node-version: lts/*
@@ -166,6 +312,7 @@ jobs:
           name: eyes-universal-bin-${{needs.prepare.outputs.version}}
           path: ./js/packages/eyes-universal
       - name: Publish to NPM
+        if: false
         id: publish
         uses: ./.github/actions/publish
         with:
@@ -197,6 +344,9 @@ jobs:
                   "blocks": [
                     {
                       "type":"section",
+                      "text": {"type": "mrkdwn", "text": "THIS is a test!"}
+                    },
+                    {
                       "text": {"type": "mrkdwn", "text": "@channel *Universal SDK* has been released under the tag <https://github.com/applitools/eyes.sdk.javascript1/releases/tag/${{needs.prepare.outputs.tag}}|${{needs.prepare.outputs.tag}}> 🎉 🎊 🥳"}
                     },
                     {
