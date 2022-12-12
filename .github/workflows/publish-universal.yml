@@ -88,7 +88,7 @@ jobs:
             os: macos-latest
             shell: bash
           - name: linux-arm64
-            os: ubuntu-latest
+            os: macos-latest
             container: arm64v8/node
             shell: bash
     name: 'Test e2e (os: ${{matrix.name}})'
