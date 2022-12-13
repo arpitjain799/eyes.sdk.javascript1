@@ -130,7 +130,7 @@ jobs:
               node -v
               node -e 'console.log(process.arch)'
               npm i -g yarn
-              echo //registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}} > $PREFIX/etc/npmrc
+              echo //registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN} > $HOME/.npmrc
       - name: Setup Node.js
         env:
             BASE_IMAGE: ${{matrix.base_image}}
