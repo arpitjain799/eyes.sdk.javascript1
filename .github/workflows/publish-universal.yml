@@ -88,13 +88,20 @@ jobs:
             os: macos-latest
             shell: bash
           - name: linux-arm64
-            os: macos-latest
+            os: ubuntu-latest
             container: arm64v8/node
+            base_image: raspios_lite_arm64:latest
             shell: bash
     name: 'Test e2e (os: ${{matrix.name}})'
     runs-on: ${{matrix.os}}
     container: ${{matrix.container}}
     steps:
+      - name: Set ARM
+        if: ${{matrix.base_image}}
+        uses: pguyot/arm-runner-action@v2
+        id: build_image
+        with:
+          base_image: ${{matrix.base_image}}
       - name: Check-out repository
         uses: actions/checkout@v3
         with:
