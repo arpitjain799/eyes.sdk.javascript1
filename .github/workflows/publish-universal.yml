@@ -121,15 +121,15 @@ jobs:
         if: ${{matrix.base_image}}
         uses: pguyot/arm-runner-action@v2
         id: build_image
-        commands: |
-            apt-get update -y
-            curl -sL https://deb.nodesource.com/setup_14.x | bash -
-            apt-get install nodejs
-            node -v
-            node -e 'console.log(process.arch)'
-            node -g yarn
         with:
           base_image: ${{matrix.base_image}}
+          commands: |
+              apt-get update -y
+              curl -sL https://deb.nodesource.com/setup_14.x | bash -
+              apt-get install nodejs
+              node -v
+              node -e 'console.log(process.arch)'
+              node -g yarn
       - name: Setup Node.js
         env:
             BASE_IMAGE: ${{matrix.base_image}}
