@@ -1,7 +1,7 @@
-import type {Target, CheckSettings, CheckResult} from './types'
-import type {Eyes as BaseEyes, Target as BaseTarget, CheckSettings as BaseCheckSettings} from '@applitools/core-base'
+import type {Eyes, Target, CheckSettings, CheckResult} from './types'
+import type {Target as BaseTarget, CheckSettings as BaseCheckSettings} from '@applitools/core-base'
 import {type Logger} from '@applitools/logger'
-import {makeDriver, type SpecDriver} from '@applitools/driver'
+import {makeDriver, type Driver, type SpecDriver} from '@applitools/driver'
 import {takeScreenshot} from '../automation/utils/take-screenshot'
 import {takeDomCapture} from './utils/take-dom-capture'
 import {toBaseCheckSettings} from '../utils/to-base-check-settings'
@@ -9,38 +9,46 @@ import {waitForLazyLoad} from '../utils/wait-for-lazy-load'
 import * as utils from '@applitools/utils'
 
 type Options<TDriver, TContext, TElement, TSelector> = {
-  spec: SpecDriver<TDriver, TContext, TElement, TSelector>
-  eyes: BaseEyes
-  target?: Target<TDriver>
+  eyes: Eyes<TDriver, TContext, TElement, TSelector>
+  driver?: Driver<TDriver, TContext, TElement, TSelector>
+  spec?: SpecDriver<TDriver, TContext, TElement, TSelector>
   logger?: Logger
 }
 
 export function makeCheck<TDriver, TContext, TElement, TSelector>({
-  spec,
   eyes,
-  target: defaultTarget,
+  driver: defaultDriver,
+  spec,
   logger: defaultLogger,
-}: Options<TDriver, TContext, TElement, TSelector>) {
+}: Options<TDriver, TContext, TElement, TSelector>): Eyes<TDriver, TContext, TElement, TSelector>['check'] {
   return async function check({
-    target = defaultTarget,
     settings = {},
+    driver,
+    target,
     logger = defaultLogger,
   }: {
-    target?: Target<TDriver>
     settings?: CheckSettings<TElement, TSelector>
+    driver?: Driver<TDriver, TContext, TElement, TSelector>
+    target?: Target<TDriver>
     logger?: Logger
   } = {}): Promise<CheckResult[]> {
     logger.log('Command "check" is called with settings', settings)
-    if (!spec?.isDriver(target)) {
-      return eyes.check({target: target as BaseTarget, settings: settings as BaseCheckSettings, logger})
+    driver ??= spec?.isDriver(target) ? await makeDriver({spec, driver: target, logger}) : defaultDriver
+    const baseEyes = await eyes.getBaseEyes()
+    if (!driver) {
+      const baseTarget = target as BaseTarget
+      const baseSettings = settings as BaseCheckSettings
+      return (
+        await Promise.all(baseEyes.map(baseEyes => baseEyes.check({target: baseTarget, settings: baseSettings, logger})))
+      ).flat()
     }
-    // TODO driver custom config
-    const driver = await makeDriver({spec, driver: target, logger})
+    await driver.refreshContexts()
     await driver.currentContext.setScrollingElement(settings.scrollRootElement)
     if (settings.lazyLoad && driver.isWeb) {
       await waitForLazyLoad({driver, settings: settings.lazyLoad !== true ? settings.lazyLoad : {}, logger})
     }
-    const shouldRunOnce = eyes.test.isNew
+    // TODO it actually could be different per eyes
+    const shouldRunOnce = true
     const finishAt = Date.now() + settings.retryTimeout
     let baseTarget: BaseTarget
     let baseSettings: BaseCheckSettings
@@ -72,10 +80,16 @@ export function makeCheck<TDriver, TContext, TElement, TSelector>({
         baseTarget.fullViewSize = scrollingElement ? await scrollingElement.getContentSize() : await driver.getViewportSize()
       }
       await screenshot.restoreState()
-      results = await eyes.check({target: baseTarget, settings: {...baseSettings, ignoreMismatch: !shouldRunOnce}, logger})
+      baseSettings.ignoreMismatch = !shouldRunOnce
+      results = (
+        await Promise.all(baseEyes.map(baseEyes => baseEyes.check({target: baseTarget, settings: baseSettings, logger})))
+      ).flat()
     } while (!shouldRunOnce && !results.some(result => result.asExpected) && Date.now() < finishAt)
     if (!shouldRunOnce && !results.some(result => result.asExpected)) {
-      results = await eyes.check({target: baseTarget, settings: baseSettings, logger})
+      baseSettings.ignoreMismatch = false
+      results = (
+        await Promise.all(baseEyes.map(baseEyes => baseEyes.check({target: baseTarget, settings: baseSettings, logger})))
+      ).flat()
     }
     return results
   }

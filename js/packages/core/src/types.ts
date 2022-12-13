@@ -11,52 +11,55 @@ export type Target<TDriver, TType extends 'classic' | 'ufg'> = TType extends 'uf
   ? UFGCore.Target<TDriver>
   : ClassicCore.Target<TDriver>
 
-export interface Core<TDriver, TElement, TSelector> extends AutomationCore.Core<TDriver, TElement, TSelector> {
+export interface Core<TDriver, TContext, TElement, TSelector>
+  extends AutomationCore.Core<TDriver, TContext, TElement, TSelector> {
+  makeManager<TType extends 'classic' | 'ufg' = 'classic'>(options?: {
+    type: TType
+    concurrency?: TType extends 'ufg' ? number : never
+    agentId?: string
+    logger?: Logger
+  }): Promise<EyesManager<TDriver, TContext, TElement, TSelector, TType>>
   openEyes<TType extends 'classic' | 'ufg' = 'classic'>(options: {
     type?: TType
     target?: TDriver
     settings?: Partial<OpenSettings<TType>>
     config?: Config<TElement, TSelector, TType>
     logger?: Logger
-  }): Promise<Eyes<TDriver, TElement, TSelector, TType>>
+  }): Promise<Eyes<TDriver, TContext, TElement, TSelector, TType>>
   locate<TLocator extends string>(options: {
     target?: TDriver | AutomationCore.Screenshot
     settings?: Partial<LocateSettings<TLocator, TElement, TSelector>>
     config?: Config<TElement, TSelector, 'classic'>
     logger?: Logger
   }): Promise<AutomationCore.LocateResult<TLocator>>
-  makeManager<TType extends 'classic' | 'ufg' = 'classic'>(options?: {
-    type: TType
-    concurrency?: TType extends 'ufg' ? number : never
-    agentId?: string
-    logger?: Logger
-  }): Promise<EyesManager<TDriver, TElement, TSelector, TType>>
 }
 
-export interface EyesManager<TDriver, TElement, TSelector, TType extends 'classic' | 'ufg'> {
+export interface EyesManager<TDriver, TContext, TElement, TSelector, TType extends 'classic' | 'ufg'> {
   openEyes(options: {
     target?: TDriver
     settings?: Partial<OpenSettings<TType>>
     config?: Config<TElement, TSelector, TType>
     logger?: Logger
-  }): Promise<Eyes<TDriver, TElement, TSelector, TType>>
+  }): Promise<Eyes<TDriver, TContext, TElement, TSelector, TType>>
   closeManager: (options?: {settings?: {throwErr?: boolean}; logger?: Logger}) => Promise<TestResultSummary<TType>>
 }
 
-export interface ClassicEyes<TDriver, TElement, TSelector, TTarget = Target<TDriver, 'classic'>>
-  extends ClassicCore.Eyes<TDriver, TElement, TSelector, TTarget> {
-  check(options?: {
+export interface ClassicEyes<TDriver, TContext, TElement, TSelector, TTarget = Target<TDriver, 'classic'>>
+  extends ClassicCore.Eyes<TDriver, TContext, TElement, TSelector, TTarget> {
+  check<TType extends 'classic' | 'ufg' = 'classic'>(options?: {
+    type?: TType
     target?: TTarget
-    settings?: Partial<CheckSettings<TElement, TSelector, 'classic'>>
-    config?: Config<TElement, TSelector, 'classic'>
+    settings?: Partial<CheckSettings<TElement, TSelector, TType>>
+    config?: Config<TElement, TSelector, TType>
     logger?: Logger
-  }): Promise<CheckResult<'classic'>[]>
-  checkAndClose(options?: {
+  }): Promise<CheckResult<TType>[]>
+  checkAndClose<TType extends 'classic' | 'ufg' = 'classic'>(options?: {
+    type?: TType
     target?: TTarget
-    settings?: Partial<CheckSettings<TElement, TSelector, 'classic'> & CloseSettings<'classic'>>
-    config?: Config<TElement, TSelector, 'classic'>
+    settings?: Partial<CheckSettings<TElement, TSelector, TType> & CloseSettings<TType>>
+    config?: Config<TElement, TSelector, TType>
     logger?: Logger
-  }): Promise<TestResult<'classic'>[]>
+  }): Promise<TestResult<TType>[]>
   locateText<TPattern extends string>(options: {
     target?: TTarget
     settings: Partial<LocateTextSettings<TPattern, TElement, TSelector, 'classic'>>
@@ -76,20 +79,22 @@ export interface ClassicEyes<TDriver, TElement, TSelector, TTarget = Target<TDri
   }): Promise<TestResult<'classic'>[]>
 }
 
-export interface UFGEyes<TDriver, TElement, TSelector, TTarget = Target<TDriver, 'ufg'>>
-  extends UFGCore.Eyes<TDriver, TElement, TSelector, TTarget> {
-  check(options?: {
+export interface UFGEyes<TDriver, TContext, TElement, TSelector, TTarget = Target<TDriver, 'ufg'>>
+  extends UFGCore.Eyes<TDriver, TContext, TElement, TSelector, TTarget> {
+  check<TType extends 'classic' | 'ufg' = 'ufg'>(options?: {
+    type?: TType
     target?: TTarget
-    settings?: Partial<CheckSettings<TElement, TSelector, 'ufg'>>
-    config?: Config<TElement, TSelector, 'ufg'>
+    settings?: Partial<CheckSettings<TElement, TSelector, TType>>
+    config?: Config<TElement, TSelector, TType>
     logger?: Logger
-  }): Promise<CheckResult<'ufg'>[]>
-  checkAndClose(options?: {
+  }): Promise<CheckResult<TType>[]>
+  checkAndClose<TType extends 'classic' | 'ufg' = 'ufg'>(options?: {
+    type?: TType
     target?: TTarget
-    settings?: Partial<CheckSettings<TElement, TSelector, 'ufg'> & CloseSettings<'ufg'>>
-    config?: Config<TElement, TSelector, 'ufg'>
+    settings?: Partial<CheckSettings<TElement, TSelector, TType> & CloseSettings<TType>>
+    config?: Config<TElement, TSelector, TType>
     logger?: Logger
-  }): Promise<TestResult<'ufg'>[]>
+  }): Promise<TestResult<TType>[]>
   close(options?: {
     settings?: Partial<CloseSettings<'ufg'>>
     config?: Config<TElement, TSelector, 'ufg'>
@@ -99,11 +104,14 @@ export interface UFGEyes<TDriver, TElement, TSelector, TTarget = Target<TDriver,
 
 export type Eyes<
   TDriver,
+  TContext,
   TElement,
   TSelector,
   TType extends 'classic' | 'ufg',
   TTarget = Target<TDriver, TType>,
-> = TType extends 'ufg' ? UFGEyes<TDriver, TElement, TSelector, TTarget> : ClassicEyes<TDriver, TElement, TSelector, TTarget>
+> = TType extends 'ufg'
+  ? UFGEyes<TDriver, TContext, TElement, TSelector, TTarget>
+  : ClassicEyes<TDriver, TContext, TElement, TSelector, TTarget>
 
 export type Config<TElement, TSelector, TType extends 'classic' | 'ufg'> = {
   open: Partial<OpenSettings<TType>>

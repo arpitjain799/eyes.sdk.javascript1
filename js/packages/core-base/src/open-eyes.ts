@@ -11,11 +11,11 @@ import {makeAbort} from './abort'
 
 type Options = {
   requests: CoreRequests
-  logger: Logger
   cwd: string
+  logger: Logger
 }
 
-export function makeOpenEyes({requests, logger: defaultLogger, cwd = process.cwd()}: Options) {
+export function makeOpenEyes({requests, cwd = process.cwd(), logger: defaultLogger}: Options) {
   return async function openEyes({settings, logger = defaultLogger}: {settings: OpenSettings; logger?: Logger}): Promise<Eyes> {
     logger.log('Command "openEyes" is called with settings', settings)
 

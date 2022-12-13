@@ -58,6 +58,8 @@ export interface TestInfo {
   keepBatchOpen: boolean
   server: ServerSettings
   account: AccountInfo
+  rendererId?: string
+  rendererInfo?: {type?: 'web' | 'native'; renderer?: Record<string, any>}
 }
 
 export interface ServerSettings {
@@ -89,6 +91,11 @@ type Environment = {
   viewportSize?: Size
   userAgent?: string
   rawEnvironment?: Record<string, any>
+  rendererId?: string
+  rendererInfo?: {
+    type?: 'web' | 'native'
+    renderer?: Record<string, any>
+  }
 }
 export interface OpenSettings extends ServerSettings {
   appName: string
@@ -198,6 +205,8 @@ export interface CheckSettings<TRegion = Region> extends ImageSettings<TRegion> 
   ignoreCaret?: boolean
   ignoreDisplacements?: boolean
   pageId?: string
+  /** @internal */
+  stepIndex?: number
   /** @internal */
   renderId?: string
   /** @internal */

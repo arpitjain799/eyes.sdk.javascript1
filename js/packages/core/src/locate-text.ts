@@ -3,15 +3,15 @@ import type {Eyes as ClassicEyes} from './classic/types'
 import type {Eyes as UFGEyes} from './ufg/types'
 import {type Logger} from '@applitools/logger'
 
-type Options<TDriver, TElement, TSelector> = {
-  eyes: ClassicEyes<TDriver, TElement, TSelector> | UFGEyes<TDriver, TElement, TSelector>
+type Options<TDriver, TContext, TElement, TSelector> = {
+  eyes: ClassicEyes<TDriver, TContext, TElement, TSelector> | UFGEyes<TDriver, TContext, TElement, TSelector>
   logger: Logger
 }
 
-export function makeLocateText<TDriver, TElement, TSelector, TType extends 'classic' | 'ufg' = 'classic' | 'ufg'>({
+export function makeLocateText<TDriver, TContext, TElement, TSelector, TType extends 'classic' | 'ufg' = 'classic' | 'ufg'>({
   eyes,
   logger: defaultLogger,
-}: Options<TDriver, TElement, TSelector>) {
+}: Options<TDriver, TContext, TElement, TSelector>) {
   return async function locateText<TPattern extends string>({
     target,
     settings,

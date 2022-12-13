@@ -147,6 +147,8 @@ export function makeCoreRequests({
         isNew: result.isNew ?? response.status === 201,
         keepBatchOpen: settings.keepBatchOpen,
         server: {serverUrl: settings.serverUrl, apiKey: settings.apiKey, proxy: settings.proxy},
+        rendererId: settings.environment?.rendererId,
+        rendererInfo: settings.environment?.rendererInfo,
         account: null,
       }
       if (result.renderingInfo) {

@@ -1,11 +1,10 @@
 import type {Region} from '@applitools/utils'
-import type {Target, TestInfo, CheckSettings, CheckResult} from './types'
-import type {Eyes as BaseEyes} from '@applitools/core-base'
+import type {Eyes, Target, CheckSettings, CheckResult} from './types'
 import {type DomSnapshot, type AndroidSnapshot, type IOSSnapshot} from '@applitools/ufg-client'
 import {type AbortSignal} from 'abort-controller'
 import {type Logger} from '@applitools/logger'
-import {type UFGClient, type RenderSettings} from '@applitools/ufg-client'
-import {makeDriver, type SpecDriver, type Selector} from '@applitools/driver'
+import {type UFGClient} from '@applitools/ufg-client'
+import {makeDriver, type Driver, type SpecDriver, type Selector, type Cookie} from '@applitools/driver'
 import {takeSnapshots} from './utils/take-snapshots'
 import {waitForLazyLoad} from '../utils/wait-for-lazy-load'
 import {toBaseCheckSettings} from '../utils/to-base-check-settings'
@@ -15,33 +14,33 @@ import * as utils from '@applitools/utils'
 import chalk from 'chalk'
 
 type Options<TDriver, TContext, TElement, TSelector> = {
-  getEyes: (options: {rawEnvironment: any}) => Promise<BaseEyes>
+  eyes: Eyes<TDriver, TContext, TElement, TSelector>
   client: UFGClient
-  test: TestInfo
+  driver?: Driver<TDriver, TContext, TElement, TSelector>
   spec?: SpecDriver<TDriver, TContext, TElement, TSelector>
   signal?: AbortSignal
-  target?: Target<TDriver>
   logger?: Logger
 }
 
 export function makeCheck<TDriver, TContext, TElement, TSelector>({
-  spec,
-  getEyes,
+  eyes,
   client,
-  test,
+  driver: defaultDriver,
+  spec,
   signal,
-  target: defaultTarget,
   logger: defaultLogger,
-}: Options<TDriver, TContext, TElement, TSelector>) {
+}: Options<TDriver, TContext, TElement, TSelector>): Eyes<TDriver, TContext, TElement, TSelector>['check'] {
   return async function check({
-    target = defaultTarget,
     settings = {},
+    driver,
+    target,
     logger = defaultLogger,
   }: {
-    target?: Target<TDriver>
     settings?: CheckSettings<TElement, TSelector>
+    driver?: Driver<TDriver, TContext, TElement, TSelector>
+    target?: Target<TDriver>
     logger?: Logger
-  }): Promise<(CheckResult & {promise: Promise<CheckResult & {eyes: BaseEyes}>})[]> {
+  }): Promise<CheckResult[]> {
     logger.log('Command "check" is called with settings', settings)
 
     if (signal.aborted) {
@@ -57,9 +56,8 @@ export function makeCheck<TDriver, TContext, TElement, TSelector>({
       userAgent: string,
       regionToTarget: Selector | Region,
       selectorsToCalculate: {originalSelector: Selector; safeSelector: Selector}[]
-    if (spec?.isDriver(target)) {
-      // TODO driver custom config
-      const driver = await makeDriver({spec, driver: target, logger})
+    driver ??= spec?.isDriver(target) ? await makeDriver({spec, driver: target, logger}) : defaultDriver
+    if (driver) {
       if (driver.isWeb && (!settings.renderers || settings.renderers.length === 0)) {
         const viewportSize = await driver.getViewportSize()
         settings.renderers = [{name: 'chrome', ...viewportSize}]
@@ -86,7 +84,7 @@ export function makeCheck<TDriver, TContext, TElement, TSelector>({
       snapshots = await takeSnapshots({
         driver,
         settings: {
-          ...test.server,
+          ...eyes.test.server,
           waitBeforeCapture: settings.waitBeforeCapture,
           disableBrowserFetching: settings.disableBrowserFetching,
           layoutBreakpoints: settings.layoutBreakpoints,
@@ -135,47 +133,52 @@ export function makeCheck<TDriver, TContext, TElement, TSelector>({
           throw new AbortError('Command "check" was aborted before rendering')
         }
 
-        const {cookies, ...snapshot} = snapshots[index] as typeof snapshots[number] & {cookies: any[]}
+        const {cookies, ...snapshot} = snapshots[index] as typeof snapshots[number] & {cookies: Cookie[]}
+        const snapshotType = utils.types.has(snapshot, 'cdt') ? 'web' : 'native'
         const renderTargetPromise = client.createRenderTarget({
           snapshot,
-          settings: {renderer, referer: snapshotUrl, cookies, proxy: test.server.proxy, autProxy: settings.autProxy, userAgent},
+          settings: {
+            renderer,
+            referer: snapshotUrl,
+            cookies,
+            proxy: eyes.test.server.proxy,
+            autProxy: settings.autProxy,
+            userAgent,
+          },
         })
 
-        const renderSettings: RenderSettings = {
-          ...settings,
-          region: regionToTarget,
-          type: utils.types.has(snapshot, 'cdt') ? 'web' : 'native',
-          renderer,
-          selectorsToCalculate: selectorsToCalculate.flatMap(({safeSelector}) => safeSelector ?? []),
-          includeFullPageSize: Boolean(settings.pageId),
-        }
-
-        const {rendererId, rawEnvironment} = await client.bookRenderer({settings: renderSettings})
-        const eyes = await getEyes({rawEnvironment})
+        const [baseEyes] = await eyes.getBaseEyes({settings: {renderer, type: snapshotType}, logger})
 
         try {
           if (signal.aborted) {
             logger.warn('Command "check" was aborted before rendering')
             throw new AbortError('Command "check" was aborted before rendering')
-          } else if (eyes.aborted) {
-            logger.warn(`Renderer with id ${rendererId} was aborted during one of the previous steps`)
-            throw new AbortError(`Renderer with id "${rendererId}" was aborted during one of the previous steps`)
+          } else if (baseEyes.aborted) {
+            logger.warn(`Renderer with id ${baseEyes.test.rendererId} was aborted during one of the previous steps`)
+            throw new AbortError(`Renderer with id "${baseEyes.test.rendererId}" was aborted during one of the previous steps`)
           }
 
-          renderSettings.rendererId = rendererId
           const renderTarget = await renderTargetPromise
 
           if (signal.aborted) {
             logger.warn('Command "check" was aborted before rendering')
             throw new AbortError('Command "check" was aborted before rendering')
-          } else if (eyes.aborted) {
-            logger.warn(`Renderer with id ${rendererId} was aborted during one of the previous steps`)
-            throw new AbortError(`Renderer with id "${rendererId}" was aborted during one of the previous steps`)
+          } else if (baseEyes.aborted) {
+            logger.warn(`Renderer with id ${baseEyes.test.rendererId} was aborted during one of the previous steps`)
+            throw new AbortError(`Renderer with id "${baseEyes.test.rendererId}" was aborted during one of the previous steps`)
           }
 
           const {renderId, selectorRegions, ...baseTarget} = await client.render({
             target: renderTarget,
-            settings: renderSettings,
+            settings: {
+              ...settings,
+              region: regionToTarget,
+              selectorsToCalculate: selectorsToCalculate.flatMap(({safeSelector}) => safeSelector ?? []),
+              includeFullPageSize: Boolean(settings.pageId),
+              type: snapshotType,
+              renderer,
+              rendererId: baseEyes.test.rendererId,
+            },
             signal,
           })
           let offset = 0
@@ -192,33 +195,33 @@ export function makeCheck<TDriver, TContext, TElement, TSelector>({
           if (signal.aborted) {
             logger.warn('Command "check" was aborted after rendering')
             throw new AbortError('Command "check" was aborted after rendering')
-          } else if (eyes.aborted) {
-            logger.warn(`Renderer with id ${rendererId} was aborted during one of the previous steps`)
-            throw new AbortError(`Renderer with id "${rendererId}" was aborted during one of the previous steps`)
+          } else if (baseEyes.aborted) {
+            logger.warn(`Renderer with id ${baseEyes.test.rendererId} was aborted during one of the previous steps`)
+            throw new AbortError(`Renderer with id "${baseEyes.test.rendererId}" was aborted during one of the previous steps`)
           }
 
-          const [result] = await eyes.check({target: {...baseTarget, isTransformed: true}, settings: baseSettings, logger})
+          const [result] = await baseEyes.check({target: {...baseTarget, isTransformed: true}, settings: baseSettings, logger})
 
-          if (eyes.aborted) {
-            logger.warn(`Renderer with id ${rendererId} was aborted during one of the previous steps`)
-            throw new AbortError(`Renderer with id "${rendererId}" was aborted during one of the previous steps`)
+          if (baseEyes.aborted) {
+            logger.warn(`Renderer with id ${baseEyes.test.rendererId} was aborted during one of the previous steps`)
+            throw new AbortError(`Renderer with id "${baseEyes.test.rendererId}" was aborted during one of the previous steps`)
           }
 
-          return {...result, eyes, renderer}
+          return {...result, eyes: baseEyes, renderer}
         } catch (error) {
-          await eyes.abort()
-          error.info = {eyes}
+          await baseEyes.abort()
+          error.info = {eyes: baseEyes}
           throw error
         }
       } catch (error) {
-        error.info = {...error.info, userTestId: test.userTestId, renderer}
+        error.info = {...error.info, userTestId: eyes.test.userTestId, renderer}
         throw error
       }
     })
 
     return settings.renderers.map((renderer, index) => ({
       asExpected: true,
-      userTestId: test.userTestId,
+      userTestId: eyes.test.userTestId,
       renderer,
       promise: promises[index],
     }))
