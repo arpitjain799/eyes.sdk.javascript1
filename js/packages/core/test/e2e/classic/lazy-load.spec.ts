@@ -2,7 +2,7 @@ import {makeCore} from '../../../src/classic/core'
 import * as spec from '@applitools/spec-driver-selenium'
 import assert from 'assert'
 
-describe('lazy load', () => {
+describe.skip('lazy load', () => {
   let driver, destroyDriver
 
   before(async () => {
