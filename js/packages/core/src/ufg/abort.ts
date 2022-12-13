@@ -1,4 +1,4 @@
-import type {TestResult} from './types'
+import type {Eyes, TestResult} from './types'
 import type {Eyes as BaseEyes} from '@applitools/core-base'
 import {type Logger} from '@applitools/logger'
 import {type Renderer} from '@applitools/ufg-client'
@@ -11,7 +11,11 @@ type Options = {
   logger: Logger
 }
 
-export function makeAbort({storage, controller, logger: defaultLogger}: Options) {
+export function makeAbort({
+  storage,
+  controller,
+  logger: defaultLogger,
+}: Options): Eyes<unknown, unknown, unknown, unknown>['close'] {
   return async function ({
     logger = defaultLogger,
   }: {

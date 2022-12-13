@@ -5,15 +5,15 @@ import type {Eyes as UFGEyes} from './ufg/types'
 import {type Logger} from '@applitools/logger'
 import * as utils from '@applitools/utils'
 
-type Options<TDriver, TElement, TSelector> = {
-  eyes: ClassicEyes<TDriver, TElement, TSelector> | UFGEyes<TDriver, TElement, TSelector>
+type Options<TDriver, TContext, TElement, TSelector> = {
+  eyes: ClassicEyes<TDriver, TContext, TElement, TSelector> | UFGEyes<TDriver, TContext, TElement, TSelector>
   logger: Logger
 }
 
-export function makeExtractText<TDriver, TElement, TSelector, TType extends 'classic' | 'ufg'>({
+export function makeExtractText<TDriver, TContext, TElement, TSelector, TType extends 'classic' | 'ufg'>({
   eyes,
   logger: defaultLogger,
-}: Options<TDriver, TElement, TSelector>) {
+}: Options<TDriver, TContext, TElement, TSelector>) {
   return async function extractText({
     target,
     settings,

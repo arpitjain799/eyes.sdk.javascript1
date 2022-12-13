@@ -13,7 +13,7 @@ describe('default scroll root element', () => {
     await destroyDriver?.()
   })
 
-  it('uses html or body as default scroll root elements', async () => {
+  it.skip('uses html or body as default scroll root elements', async () => {
     const core = makeCore<spec.Driver, spec.Driver, spec.Element, spec.Selector>({spec})
     const eyes = await core.openEyes({
       target: driver,

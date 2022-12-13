@@ -24,7 +24,7 @@ describe('proxy', () => {
       await restoreNetwork?.()
     })
 
-    it('classic works with proxy', async () => {
+    it.skip('classic works with proxy', async () => {
       const core = makeCore()
       const manager = await core.makeManager({type: 'classic'})
       const eyes = await manager.openEyes({

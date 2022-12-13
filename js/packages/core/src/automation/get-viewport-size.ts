@@ -1,5 +1,6 @@
+import type {Core} from './types'
 import {type Logger} from '@applitools/logger'
-import {makeDriver, type SpecDriver} from '@applitools/driver'
+import {makeDriver, type Driver, type SpecDriver} from '@applitools/driver'
 
 type Options<TDriver, TContext, TElement, TSelector> = {
   spec: SpecDriver<TDriver, TContext, TElement, TSelector>
@@ -9,10 +10,18 @@ type Options<TDriver, TContext, TElement, TSelector> = {
 export function makeGetViewportSize<TDriver, TContext, TElement, TSelector>({
   spec,
   logger: defaultLogger,
-}: Options<TDriver, TContext, TElement, TSelector>) {
-  return async function getViewportSize({target, logger = defaultLogger}: {target: TDriver; logger?: Logger}) {
-    logger.log('Command "getViewportSize" is called')
-    const driver = await makeDriver<TDriver, TContext, TElement, TSelector>({spec, driver: target, logger})
+}: Options<TDriver, TContext, TElement, TSelector>): Core<TDriver, TContext, TElement, TSelector>['getViewportSize'] {
+  return async function getViewportSize({
+    driver,
+    target,
+    logger = defaultLogger,
+  }: {
+    driver?: Driver<TDriver, TContext, TElement, TSelector>
+    target?: TDriver
+    logger?: Logger
+  }) {
+    logger.log(`Command "getViewportSize" is called with ${driver ? 'driver' : 'target'}`)
+    driver ??= await makeDriver<TDriver, TContext, TElement, TSelector>({spec, driver: target, logger})
     return driver.getViewportSize()
   }
 }

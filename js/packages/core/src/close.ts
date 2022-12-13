@@ -4,15 +4,15 @@ import type {Eyes as UFGEyes} from './ufg/types'
 import {type Logger} from '@applitools/logger'
 import {TestError} from './errors/test-error'
 
-type Options<TDriver, TElement, TSelector> = {
-  eyes: ClassicEyes<TDriver, TElement, TSelector> | UFGEyes<TDriver, TElement, TSelector>
+type Options<TDriver, TContext, TElement, TSelector> = {
+  eyes: ClassicEyes<TDriver, TContext, TElement, TSelector> | UFGEyes<TDriver, TContext, TElement, TSelector>
   logger: Logger
 }
 
-export function makeClose<TDriver, TElement, TSelector, TType extends 'classic' | 'ufg'>({
+export function makeClose<TDriver, TContext, TElement, TSelector, TType extends 'classic' | 'ufg'>({
   eyes,
   logger: defaultLogger,
-}: Options<TDriver, TElement, TSelector>) {
+}: Options<TDriver, TContext, TElement, TSelector>) {
   return async function close({
     settings,
     config,
