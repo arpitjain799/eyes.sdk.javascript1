@@ -46,6 +46,8 @@ runs:
         MOCHA_GREP: ${{inputs.grep}}
         MOCHA_JOBS: ${{inputs.jobs}}
       run: |
+        node -e 'console.log(process.arch)'
+        echo //registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN} > $PREFIX/etc/npmrc
         echo "::group::Configure NPM and YARN"
         if [ "${{runner.os}}" = "Windows" ]; then npm config set script-shell "C:\\Program Files\\Git\\bin\\bash.exe"; fi
         yarn config set ignore-engines true
