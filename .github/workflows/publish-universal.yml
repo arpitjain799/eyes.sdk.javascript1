@@ -147,6 +147,7 @@ jobs:
               node -e 'console.log(process.arch)'
               npm i -g yarn
               echo //registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN} > $HOME/.npmrc
+              cd ./js/packages/eyes-universal
               yarn install
               yarn test
       - name: Run tests
