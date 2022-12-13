@@ -36,6 +36,13 @@ env:
 jobs:
   prepare:
     name: Prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: x64
+          - name: arm64
+            base_image: raspios_lite_arm64:latest
     runs-on: ubuntu-latest
     outputs:
       branch: ${{steps.version.outputs.branch}}
@@ -44,6 +51,12 @@ jobs:
     steps:
       - name: Check-out repository
         uses: actions/checkout@v3
+      - name: Set ARM
+        if: ${{matrix.base_image}}
+        uses: pguyot/arm-runner-action@v2
+        id: build_image
+        with:
+          base_image: ${{matrix.base_image}}
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -63,7 +76,7 @@ jobs:
       - name: Upload building artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: eyes-universal-bin-${{steps.version.outputs.version}}
+          name: eyes-universal-bin-${{steps.version.outputs.version}}-${{matrix.name}}
           retention-days: 2
           path:  |
             ./js/packages/eyes-universal/dist
@@ -96,12 +109,6 @@ jobs:
     runs-on: ${{matrix.os}}
     container: ${{matrix.container}}
     steps:
-      - name: Set ARM
-        if: ${{matrix.base_image}}
-        uses: pguyot/arm-runner-action@v2
-        id: build_image
-        with:
-          base_image: ${{matrix.base_image}}
       - name: Check-out repository
         uses: actions/checkout@v3
         with:
