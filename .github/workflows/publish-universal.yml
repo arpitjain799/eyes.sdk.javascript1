@@ -149,7 +149,7 @@ jobs:
               npm i -g yarn
               echo //registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN} > $HOME/.npmrc
               yarn install
-              yarn test
+              yarn test:e2e
       - name: Run tests
         env:
             BASE_IMAGE: ${{matrix.base_image}}
