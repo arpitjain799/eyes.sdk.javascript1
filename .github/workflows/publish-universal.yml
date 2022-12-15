@@ -311,6 +311,8 @@ jobs:
           name: eyes-universal-bin-${{needs.prepare.outputs.version}}
           path: ./js/packages/eyes-universal
       - name: Publish to NPM
+        # TODO: REMOVE IT!!!!!
+        if: false
         id: publish
         uses: ./.github/actions/publish
         with:
