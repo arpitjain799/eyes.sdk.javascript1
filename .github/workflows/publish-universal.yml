@@ -40,7 +40,8 @@ jobs:
     outputs:
       branch: ${{steps.version.outputs.branch}}
       version: ${{steps.version.outputs.version}}
-      tag: ${{steps.version.outputs.tag}}
+      # TODO: remove `-remove-me`
+      tag: ${{steps.version.outputs.tag}}-remove-me
     steps:
       - name: Check-out repository
         uses: actions/checkout@v3
@@ -311,6 +312,8 @@ jobs:
           name: eyes-universal-bin-${{needs.prepare.outputs.version}}
           path: ./js/packages/eyes-universal
       - name: Publish to NPM
+        # TODO: REMOVE IT!!!!!
+        if: false
         id: publish
         uses: ./.github/actions/publish
         with:
@@ -347,10 +350,6 @@ jobs:
                     {
                       "type": "header",
                       "text": {"type": "plain_text", "text": "Changelog"}
-                    },
-                    {
-                      "type":"section",
-                      "text": {"type": "mrkdwn", "text": ${{toJSON(steps.publish.outputs.changelog)}}}
                     },
                     {"type": "divider"},
                     {
