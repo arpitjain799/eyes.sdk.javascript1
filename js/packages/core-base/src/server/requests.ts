@@ -90,7 +90,9 @@ export function makeCoreRequests({
     const req = makeReqEyes({config: {...settings, agentId}, fetch, logger})
     logger.log('Request "openEyes" called with settings', settings)
 
-    const accountPromise = getAccountInfoWithCache({settings})
+    const account = await getAccountInfoWithCache({settings})
+    const runningOnExecutionGrid = !!settings.environment.runningOnExecutionGrid
+    const selfHealingEnabled = !!(utils.types.isDefined(settings.selfHealingEnabled) ? settings.selfHealingEnabled : account.selfHealingEnabled)
 
     const response = await req('/api/sessions/running', {
       name: 'openEyes',
@@ -134,6 +136,7 @@ export function makeCoreRequests({
           ignoreBaseline: settings.ignoreBaseline,
           saveDiffs: settings.saveDiffs,
           timeout: settings.abortIdleTestTimeout,
+          egSessionId: (selfHealingEnabled && runningOnExecutionGrid) ? settings.environment.driverSessionId : null,
         },
       },
       expected: [200, 201],
@@ -159,7 +162,7 @@ export function makeCoreRequests({
         const {serviceUrl, accessToken, resultsUrl, ...rest} = result.renderingInfo
         test.account = {ufg: {serverUrl: serviceUrl, accessToken}, uploadUrl: resultsUrl, ...rest}
       } else {
-        test.account = await accountPromise
+        test.account = account
       }
       return test
     })

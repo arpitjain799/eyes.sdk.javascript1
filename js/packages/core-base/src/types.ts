@@ -96,6 +96,8 @@ type Environment = {
     type?: 'web' | 'native'
     renderer?: Record<string, any>
   }
+  driverSessionId?: string
+  runningOnExecutionGrid?: boolean
 }
 export interface OpenSettings extends ServerSettings {
   appName: string
@@ -122,6 +124,7 @@ export interface OpenSettings extends ServerSettings {
   abortIdleTestTimeout?: number
   connectionTimeout?: number
   removeSession?: boolean
+  selfHealingEnabled?: boolean
 }
 
 export interface LocateSettings<TLocator extends string, TRegion = Region> extends ServerSettings, ImageSettings<TRegion> {
@@ -160,6 +163,7 @@ export interface AccountInfo {
   uploadUrl: string // resultsUrl
   maxImageHeight: number
   maxImageArea: number
+  selfHealingEnabled: boolean
 }
 
 type ImageRotation = -270 | -180 | -90 | 0 | 90 | 180 | 270
