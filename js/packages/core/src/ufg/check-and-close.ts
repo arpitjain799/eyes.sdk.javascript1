@@ -15,6 +15,6 @@ type Options<TDriver, TContext, TElement, TSelector> = {
 
 export function makeCheckAndClose<TDriver, TContext, TElement, TSelector>(
   _options: Options<TDriver, TContext, TElement, TSelector>,
-): Eyes<TDriver, TContext, TElement, TSelector>['checkAndClose'] {
+) {
   return null
 }

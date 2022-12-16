@@ -20,7 +20,7 @@ export function makeCheck<TDriver, TContext, TElement, TSelector>({
   target: defaultTarget,
   spec,
   logger: defaultLogger,
-}: Options<TDriver, TContext, TElement, TSelector>): Eyes<TDriver, TContext, TElement, TSelector>['check'] {
+}: Options<TDriver, TContext, TElement, TSelector>) {
   return async function check({
     target = defaultTarget,
     settings = {},
