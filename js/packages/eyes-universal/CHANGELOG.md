@@ -9,6 +9,14 @@
 
 
 
+## 3.1.0 - 2022/12/16
+
+### Features
+### Bug fixes
+- Fixed issue when helper lib inputs were not cleaned up before calling new command
+- Fixed issue with element scroll position not being restored after screenshot is taken on native platforms
+- Handle fake shadowRoot with UFG
+
 ## 3.0.0 - 2022/11/2
 
 ### Features
