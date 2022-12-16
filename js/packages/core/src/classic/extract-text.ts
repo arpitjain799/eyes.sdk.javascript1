@@ -1,8 +1,8 @@
 import type {MaybeArray} from '@applitools/utils'
-import type {Eyes, Target, ExtractTextSettings} from './types'
-import type {Target as BaseTarget, ExtractTextSettings as BaseExtractTextSettings} from '@applitools/core-base'
+import type {ClassicTarget, DriverTarget, ImageTarget, Eyes, ExtractTextSettings} from './types'
+import type {ExtractTextSettings as BaseExtractTextSettings} from '@applitools/core-base'
 import {type Logger} from '@applitools/logger'
-import {makeDriver, type Driver, type SpecDriver} from '@applitools/driver'
+import {makeDriver, isDriver, type SpecDriver} from '@applitools/driver'
 import {takeScreenshot} from '../automation/utils/take-screenshot'
 import {takeDomCapture} from './utils/take-dom-capture'
 import * as utils from '@applitools/utils'
@@ -10,39 +10,33 @@ import {getText as getTextScript} from '@applitools/snippets'
 
 type Options<TDriver, TContext, TElement, TSelector> = {
   eyes: Eyes<TDriver, TContext, TElement, TSelector>
-  driver?: Driver<TDriver, TContext, TElement, TSelector>
+  target?: DriverTarget<TDriver, TContext, TElement, TSelector>
   spec?: SpecDriver<TDriver, TContext, TElement, TSelector>
   logger?: Logger
 }
 
 export function makeExtractText<TDriver, TContext, TElement, TSelector>({
   eyes,
-  driver: defaultDriver,
+  target: defaultTarget,
   spec,
   logger: defaultLogger,
-}: Options<TDriver, TContext, TElement, TSelector>): Eyes<TDriver, TContext, TElement, TSelector>['extractText'] {
+}: Options<TDriver, TContext, TElement, TSelector>) {
   return async function extractText({
+    target = defaultTarget,
     settings,
-    driver,
-    target,
     logger = defaultLogger,
   }: {
-    settings?: MaybeArray<ExtractTextSettings<TElement, TSelector>>
-    driver?: Driver<TDriver, TContext, TElement, TSelector>
-    target?: Target<TDriver>
+    target?: ClassicTarget<TDriver, TContext, TElement, TSelector>
+    settings: MaybeArray<ExtractTextSettings<TElement, TSelector>>
     logger?: Logger
-  } = {}): Promise<string[]> {
+  }): Promise<string[]> {
     logger.log('Command "extractText" is called with settings', settings)
-    driver ??= spec?.isDriver(target) ? await makeDriver({spec, driver: target, logger}) : defaultDriver
     const [baseEyes] = await eyes.getBaseEyes()
-    if (!driver) {
-      return baseEyes.extractText({
-        target: target as BaseTarget,
-        settings: settings as MaybeArray<BaseExtractTextSettings>,
-        logger,
-      })
+    if (!isDriver(target, spec)) {
+      return baseEyes.extractText({target, settings: settings as MaybeArray<BaseExtractTextSettings>, logger})
     }
     settings = utils.types.isArray(settings) ? settings : [settings]
+    const driver = await makeDriver({spec, driver: target, logger})
     const results = await settings.reduce(async (prev, settings) => {
       const steps = await prev
       const screenshot = await takeScreenshot({driver, settings, logger})
@@ -52,7 +46,7 @@ export function makeExtractText<TDriver, TContext, TElement, TSelector>({
         settings.hint = await driver.currentContext.execute(getTextScript, [element])
         if (settings.hint) settings.hint = settings.hint.replace(/[.\\+]/g, '\\$&')
       }
-      const baseTarget: BaseTarget = {
+      const baseTarget: ImageTarget = {
         image: await screenshot.image.toPng(),
         size: utils.geometry.size(screenshot.region),
         locationInViewport: utils.geometry.location(screenshot.region),

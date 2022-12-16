@@ -1,7 +1,7 @@
-import type {Core, Eyes, Target, OpenSettings} from './types'
+import type {DriverTarget, Eyes, OpenSettings} from './types'
 import type {Core as BaseCore, Eyes as BaseEyes} from '@applitools/core-base'
 import {type Logger} from '@applitools/logger'
-import {makeDriver, type Driver, type SpecDriver} from '@applitools/driver'
+import {makeDriver, type SpecDriver} from '@applitools/driver'
 import {makeGetBaseEyes} from './get-base-eyes'
 import {makeCheck} from './check'
 import {makeCheckAndClose} from './check-and-close'
@@ -19,26 +19,24 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
   core,
   spec,
   logger: defaultLogger,
-}: Options<TDriver, TContext, TElement, TSelector>): Core<TDriver, TContext, TElement, TSelector>['openEyes'] {
+}: Options<TDriver, TContext, TElement, TSelector>) {
   return async function openEyes({
+    target,
     settings,
     eyes,
-    driver,
-    target,
     logger = defaultLogger,
   }: {
-    settings?: OpenSettings
+    target?: DriverTarget<TDriver, TContext, TElement, TSelector>
+    settings: OpenSettings
     eyes?: BaseEyes[]
-    driver?: Driver<TDriver, TContext, TElement, TSelector>
-    target?: Target<TDriver>
     logger?: Logger
   }): Promise<Eyes<TDriver, TContext, TElement, TSelector>> {
     logger.log(
-      `Command "openEyes" is called with ${spec?.isDriver(target) ? 'default driver and' : ''}`,
+      `Command "openEyes" is called with ${target ? 'default driver and' : ''}`,
       ...(settings ? ['settings', settings] : []),
       eyes ? 'predefined eyes' : '',
     )
-    driver ??= spec?.isDriver(target) ? await makeDriver({spec, driver: target, logger, customConfig: settings}) : null
+    const driver = target && (await makeDriver({spec, driver: target, logger, customConfig: settings}))
     if (driver && !eyes) {
       const currentContext = driver.currentContext
       settings.environment ??= {}
@@ -82,10 +80,10 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
     return utils.general.extend(baseEyes, eyes => ({
       type: 'classic' as const,
       getBaseEyes,
-      check: makeCheck({eyes, driver, spec, logger}),
-      checkAndClose: makeCheckAndClose({eyes, driver, spec, logger}),
-      locateText: makeLocateText({eyes, driver, spec, logger}),
-      extractText: makeExtractText({eyes, driver, spec, logger}),
+      check: makeCheck({eyes, target: driver, spec, logger}),
+      checkAndClose: makeCheckAndClose({eyes, target: driver, spec, logger}),
+      locateText: makeLocateText({eyes, target: driver, spec, logger}),
+      extractText: makeExtractText({eyes, target: driver, spec, logger}),
     }))
   }
 }

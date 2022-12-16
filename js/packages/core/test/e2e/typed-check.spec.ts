@@ -12,7 +12,7 @@ describe('typed check', () => {
     await destroyDriver?.()
   })
 
-  it.skip('performs classic check during ufg test', async () => {
+  it('performs classic check during ufg test', async () => {
     await driver.get('https://applitools.github.io/demo/TestPages/PageWithBurgerMenu/index.html')
 
     const core = makeCore({spec})
@@ -32,13 +32,11 @@ describe('typed check', () => {
         ],
       },
     })
-
     await eyes.check({
       type: 'classic',
       settings: {
         name: 'classic step',
         fully: false,
-        sendDom: false,
         renderers: [
           {name: 'chrome', width: 800, height: 600},
           {name: 'safari', width: 800, height: 600},
@@ -48,7 +46,6 @@ describe('typed check', () => {
         },
       },
     })
-
     await eyes.check({
       type: 'ufg',
       settings: {
@@ -78,27 +75,15 @@ describe('typed check', () => {
     })
 
     await eyes.check({
-      settings: {
-        name: 'default ufg step',
-        fully: false,
-      },
+      settings: {name: 'default classic step', fully: false},
     })
-
-    await eyes.check({
-      type: 'classic',
-      settings: {
-        name: 'classic step',
-        fully: false,
-        sendDom: false,
-      },
-    })
-
     await eyes.check({
       type: 'ufg',
-      settings: {
-        name: 'ufg step',
-        fully: false,
-      },
+      settings: {name: 'ufg step', fully: false},
+    })
+    await eyes.check({
+      type: 'classic',
+      settings: {name: 'classic step', fully: false},
     })
 
     await eyes.close({settings: {throwErr: true}})

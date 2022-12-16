@@ -1,49 +1,44 @@
-import type {Target, Config, CheckSettings, CheckResult} from './types'
-import type {Eyes as ClassicEyes} from './classic/types'
-import type {Eyes as UFGEyes} from './ufg/types'
+import type {Target, Eyes, Config, CheckSettings, CheckResult} from './types'
 import {type Logger} from '@applitools/logger'
+import {makeDriver, isDriver, type SpecDriver} from '@applitools/driver'
 import * as utils from '@applitools/utils'
 import chalk from 'chalk'
 
-type Options<TDriver, TContext, TElement, TSelector> = {
-  type?: 'classic' | 'ufg'
-  getTypedEyes<TType extends 'classic' | 'ufg'>(options: {
-    type: TType
-    renderers: any[]
-  }): Promise<
-    TType extends 'ufg' ? UFGEyes<TDriver, TContext, TElement, TSelector> : ClassicEyes<TDriver, TContext, TElement, TSelector>
-  >
+type Options<TDriver, TContext, TElement, TSelector, TType extends 'classic' | 'ufg'> = {
+  type?: TType
+  eyes: Eyes<TDriver, TContext, TElement, TSelector, TType>
+  target?: Target<TDriver, TContext, TElement, TSelector, TType>
+  spec?: SpecDriver<TDriver, TContext, TElement, TSelector>
   logger?: Logger
 }
 
-export function makeCheck<TDriver, TContext, TElement, TSelector, TType extends 'classic' | 'ufg'>({
+export function makeCheck<TDriver, TContext, TElement, TSelector, TDefaultType extends 'classic' | 'ufg' = 'classic'>({
   type: defaultType,
-  getTypedEyes,
+  eyes,
+  target: defaultTarget,
+  spec,
   logger: defaultLogger,
-}: Options<TDriver, TContext, TElement, TSelector>) {
-  return async function check({
-    type = defaultType as TType,
-    target,
+}: Options<TDriver, TContext, TElement, TSelector, TDefaultType>) {
+  return async function check<TType extends 'classic' | 'ufg' = TDefaultType>({
+    type = defaultType as any,
+    target = defaultTarget as any,
     settings,
     config,
     logger = defaultLogger,
   }: {
     type?: TType
-    target?: Target<TDriver, TType>
+    target?: Target<TDriver, TContext, TElement, TSelector, TType>
     settings?: CheckSettings<TElement, TSelector, TType>
     config?: Config<TElement, TSelector, TType>
     logger?: Logger
   } = {}): Promise<CheckResult<TType>[]> {
     settings = {...config?.screenshot, ...config?.check, ...settings}
-
-    const eyes = await getTypedEyes({type, renderers: (settings as any).renderers})
-
     settings.fully ??= !settings.region && (!settings.frames || settings.frames.length === 0)
     settings.waitBeforeCapture ??= 100
     settings.stitchMode ??= 'Scroll'
     settings.hideScrollbars ??= true
     settings.hideCaret ??= true
-    settings.overlap ??= {top: 10, bottom: 50}
+    settings.overlap = {top: 10, bottom: 50, ...settings?.overlap}
     settings.matchLevel ??= 'Strict'
     settings.ignoreCaret ??= true
     settings.sendDom ??=
@@ -63,7 +58,16 @@ export function makeCheck<TDriver, TContext, TElement, TSelector, TType extends 
       logger.console.log(chalk.yellow(`The "Content" match level value has been deprecated, use "IgnoreColors" instead.`))
     }
 
-    const results = await (eyes as any).check({target: target as any, settings, logger})
+    const driver = isDriver(target, spec) ? await makeDriver({spec, driver: target, logger}) : null
+    const typedEyes = await eyes.getTypedEyes({
+      type,
+      settings: driver && {
+        type: driver.isNative ? 'native' : 'web',
+        renderers: (settings as CheckSettings<TElement, TSelector, 'ufg'>).renderers,
+      },
+      logger,
+    })
+    const results = await typedEyes.check({target: driver ?? target, settings, logger})
     return results
   }
 }

@@ -1,6 +1,6 @@
 export function makeControlledPromise<T = void>(): PromiseLike<T> & {
-  resolve(value: T): void
-  reject(reason?: any): void
+  resolve(value: T): Promise<T>
+  reject(reason?: any): Promise<never>
 } {
   let promise: Promise<T>
   let resolve: (value: T) => void
@@ -18,10 +18,12 @@ export function makeControlledPromise<T = void>(): PromiseLike<T> & {
     resolve(value: T) {
       if (resolve) resolve(value)
       else result ??= {status: 'fulfilled', value}
+      return Promise.resolve(value)
     },
     reject(reason) {
       if (reject) reject(reason)
       else result ??= {status: 'rejected', reason}
+      return Promise.reject(reason)
     },
   }
 }

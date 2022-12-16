@@ -27,7 +27,7 @@ export function makeMakeManager<TDriver, TContext, TElement, TSelector>({
   logger: defaultLogger,
 }: Options<TDriver, TContext, TElement, TSelector>) {
   return async function makeManager<TType extends 'classic' | 'ufg' = 'classic'>({
-    type,
+    type = 'classic' as TType,
     concurrency = defaultConcurrency,
     legacyConcurrency,
     agentId = type === 'ufg' ? defaultAgentId?.replace(/(\/\d)/, '.visualgrid$1') : defaultAgentId,
@@ -35,6 +35,7 @@ export function makeMakeManager<TDriver, TContext, TElement, TSelector>({
   }: {
     type?: TType
     concurrency?: number
+    /** @deprecated */
     legacyConcurrency?: number
     agentId?: string
     logger?: Logger

@@ -8,48 +8,27 @@ import {type Renderer, type DomSnapshot, type AndroidSnapshot, type IOSSnapshot}
 
 export * from '../automation/types'
 
-export type Target<TDriver> =
-  | AutomationCore.Target<TDriver>
-  | MaybeArray<DomSnapshot>
-  | MaybeArray<AndroidSnapshot>
-  | MaybeArray<IOSSnapshot>
+export type SnapshotTarget = MaybeArray<DomSnapshot> | MaybeArray<AndroidSnapshot> | MaybeArray<IOSSnapshot>
 
-export interface Core<TDriver, TContext, TElement, TSelector>
-  extends AutomationCore.Core<TDriver, TContext, TElement, TSelector, Eyes<TDriver, TContext, TElement, TSelector>> {
+export type UFGTarget<TDriver, TContext, TElement, TSelector> =
+  | AutomationCore.DriverTarget<TDriver, TContext, TElement, TSelector>
+  | SnapshotTarget
+
+export interface Core<TDriver, TContext, TElement, TSelector, TEyes = Eyes<TDriver, TContext, TElement, TSelector>>
+  extends AutomationCore.Core<TDriver, TContext, TElement, TSelector, TEyes> {
   readonly type: 'ufg'
   openEyes(options: {
-    driver?: Driver<TDriver, TContext, TElement, TSelector>
+    target?: AutomationCore.DriverTarget<TDriver, TContext, TElement, TSelector>
     settings: OpenSettings
+    eyes?: BaseCore.Eyes[]
     logger?: Logger
-  }): Promise<Eyes<TDriver, TContext, TElement, TSelector>>
-  openEyes(options: {
-    target?: TDriver
-    settings: OpenSettings
-    logger?: Logger
-  }): Promise<Eyes<TDriver, TContext, TElement, TSelector>>
-  /** @internal */
-  openEyes(options: {
-    driver?: Driver<TDriver, TContext, TElement, TSelector>
-    eyes: BaseCore.Eyes[]
-    logger?: Logger
-  }): Promise<Eyes<TDriver, TContext, TElement, TSelector>>
-  /** @internal */
-  openEyes(options: {
-    target?: TDriver
-    eyes: BaseCore.Eyes[]
-    logger?: Logger
-  }): Promise<Eyes<TDriver, TContext, TElement, TSelector>>
+  }): Promise<TEyes>
 }
 
-export interface Eyes<TDriver, TContext, TElement, TSelector, TTarget = Target<TDriver>>
+export interface Eyes<TDriver, TContext, TElement, TSelector, TTarget = UFGTarget<TDriver, TContext, TElement, TSelector>>
   extends AutomationCore.Eyes<TDriver, TContext, TElement, TSelector, TTarget> {
   readonly type: 'ufg'
   getBaseEyes(options?: {settings?: {type: 'web' | 'native'; renderer: Renderer}; logger?: Logger}): Promise<BaseCore.Eyes[]>
-  check(options?: {
-    driver?: Driver<TDriver, TContext, TElement, TSelector>
-    settings?: CheckSettings<TElement, TSelector>
-    logger?: Logger
-  }): Promise<CheckResult[]>
   check(options?: {target?: TTarget; settings?: CheckSettings<TElement, TSelector>; logger?: Logger}): Promise<CheckResult[]>
   checkAndClose(options?: {
     driver?: Driver<TDriver, TContext, TElement, TSelector>
@@ -77,6 +56,7 @@ export type CheckSettings<TElement, TSelector> = AutomationCore.CheckSettings<TE
   disableBrowserFetching?: boolean
   layoutBreakpoints?: boolean | number[]
   ufgOptions?: Record<string, any>
+  nmgOptions?: Record<string, any>
   autProxy?: Proxy & {mode?: 'Allow' | 'Block'; domains?: string[]}
 }
 

@@ -5,63 +5,41 @@ import {type Logger} from '@applitools/logger'
 
 export * from '@applitools/core-base/types'
 
-export type Screenshot = BaseCore.Target
-
-export type Target<TDriver> = TDriver
+export type DriverTarget<TDriver, TContext, TElement, TSelector> = TDriver | Driver<TDriver, TContext, TElement, TSelector>
 
 export interface Core<TDriver, TContext, TElement, TSelector, TEyes = Eyes<TDriver, TContext, TElement, TSelector>>
   extends BaseCore.Core<TEyes> {
   isDriver(driver: any): driver is TDriver
   isElement(element: any): element is TElement
   isSelector(selector: any): selector is TSelector
-  getViewportSize(options: {driver: Driver<TDriver, TContext, TElement, TSelector>; logger?: Logger}): Promise<Size>
-  getViewportSize(options: {target: TDriver; logger?: Logger}): Promise<Size>
-  setViewportSize(options: {driver: Driver<TDriver, TContext, TElement, TSelector>; size: Size; logger?: Logger}): Promise<void>
-  setViewportSize(options: {target: TDriver; size: Size; logger?: Logger}): Promise<void>
+  getViewportSize(options: {target: DriverTarget<TDriver, TContext, TElement, TSelector>; logger?: Logger}): Promise<Size>
+  setViewportSize(options: {
+    target: DriverTarget<TDriver, TContext, TElement, TSelector>
+    size: Size
+    logger?: Logger
+  }): Promise<void>
   openEyes(options: {
-    driver?: Driver<TDriver, TContext, TElement, TSelector>
+    target?: DriverTarget<TDriver, TContext, TElement, TSelector>
     settings: BaseCore.OpenSettings
+    eyes?: BaseCore.Eyes[]
     logger?: Logger
   }): Promise<TEyes>
-  openEyes(options: {target?: TDriver; settings?: BaseCore.OpenSettings; logger?: Logger}): Promise<TEyes>
-  /** @internal */
-  openEyes(options: {
-    driver?: Driver<TDriver, TContext, TElement, TSelector>
-    eyes: BaseCore.Eyes[]
-    logger?: Logger
-  }): Promise<TEyes>
-  /** @internal */
-  openEyes(options: {target?: TDriver; eyes: BaseCore.Eyes[]; logger?: Logger}): Promise<TEyes>
   locate<TLocator extends string>(options: {
-    driver: Driver<TDriver, TContext, TElement, TSelector>
-    settings: LocateSettings<TLocator, TElement, TSelector>
-    logger?: Logger
-  }): Promise<BaseCore.LocateResult<TLocator>>
-  locate<TLocator extends string>(options: {
-    target: Target<TDriver> | Screenshot
+    target: DriverTarget<TDriver, TContext, TElement, TSelector> | BaseCore.ImageTarget
     settings: LocateSettings<TLocator, TElement, TSelector>
     logger?: Logger
   }): Promise<BaseCore.LocateResult<TLocator>>
 }
 
-export interface Eyes<TDriver, TContext, TElement, TSelector, TTarget = Target<TDriver>> extends BaseCore.Eyes<TTarget> {
+export interface Eyes<TDriver, TContext, TElement, TSelector, TTarget = DriverTarget<TDriver, TContext, TElement, TSelector>>
+  extends BaseCore.Eyes<TTarget> {
   getBaseEyes(options?: {logger?: Logger}): Promise<BaseCore.Eyes[]>
-  check(options: {
-    driver?: Driver<TDriver, TContext, TElement, TSelector>
-    settings?: CheckSettings<TElement, TSelector>
-    logger?: Logger
-  }): Promise<BaseCore.CheckResult[]>
-  check(options: {
+  check(options?: {
     target?: TTarget
     settings?: CheckSettings<TElement, TSelector>
     logger?: Logger
   }): Promise<BaseCore.CheckResult[]>
-  checkAndClose(options: {
-    driver?: Driver<TDriver, TContext, TElement, TSelector>
-    settings?: CheckSettings<TElement, TSelector> & BaseCore.CloseSettings
-    logger?: Logger
-  }): Promise<BaseCore.TestResult[]>
-  checkAndClose(options: {
+  checkAndClose(options?: {
     target?: TTarget
     settings?: CheckSettings<TElement, TSelector> & BaseCore.CloseSettings
     logger?: Logger

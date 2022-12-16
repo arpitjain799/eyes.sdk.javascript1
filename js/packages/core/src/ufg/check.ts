@@ -1,10 +1,10 @@
 import type {Region} from '@applitools/utils'
-import type {Eyes, Target, CheckSettings, CheckResult} from './types'
+import type {DriverTarget, UFGTarget, Eyes, CheckSettings, CheckResult} from './types'
 import {type DomSnapshot, type AndroidSnapshot, type IOSSnapshot} from '@applitools/ufg-client'
 import {type AbortSignal} from 'abort-controller'
 import {type Logger} from '@applitools/logger'
 import {type UFGClient} from '@applitools/ufg-client'
-import {makeDriver, type Driver, type SpecDriver, type Selector, type Cookie} from '@applitools/driver'
+import {makeDriver, isDriver, type SpecDriver, type Selector, type Cookie} from '@applitools/driver'
 import {takeSnapshots} from './utils/take-snapshots'
 import {waitForLazyLoad} from '../utils/wait-for-lazy-load'
 import {toBaseCheckSettings} from '../utils/to-base-check-settings'
@@ -16,7 +16,7 @@ import chalk from 'chalk'
 type Options<TDriver, TContext, TElement, TSelector> = {
   eyes: Eyes<TDriver, TContext, TElement, TSelector>
   client: UFGClient
-  driver?: Driver<TDriver, TContext, TElement, TSelector>
+  target?: DriverTarget<TDriver, TContext, TElement, TSelector>
   spec?: SpecDriver<TDriver, TContext, TElement, TSelector>
   signal?: AbortSignal
   logger?: Logger
@@ -25,20 +25,18 @@ type Options<TDriver, TContext, TElement, TSelector> = {
 export function makeCheck<TDriver, TContext, TElement, TSelector>({
   eyes,
   client,
-  driver: defaultDriver,
+  target: defaultTarget,
   spec,
   signal,
   logger: defaultLogger,
-}: Options<TDriver, TContext, TElement, TSelector>): Eyes<TDriver, TContext, TElement, TSelector>['check'] {
+}: Options<TDriver, TContext, TElement, TSelector>) {
   return async function check({
+    target = defaultTarget,
     settings = {},
-    driver,
-    target,
     logger = defaultLogger,
   }: {
     settings?: CheckSettings<TElement, TSelector>
-    driver?: Driver<TDriver, TContext, TElement, TSelector>
-    target?: Target<TDriver>
+    target?: UFGTarget<TDriver, TContext, TElement, TSelector>
     logger?: Logger
   }): Promise<CheckResult[]> {
     logger.log('Command "check" is called with settings', settings)
@@ -56,8 +54,9 @@ export function makeCheck<TDriver, TContext, TElement, TSelector>({
       userAgent: string,
       regionToTarget: Selector | Region,
       selectorsToCalculate: {originalSelector: Selector; safeSelector: Selector}[]
-    driver ??= spec?.isDriver(target) ? await makeDriver({spec, driver: target, logger}) : defaultDriver
-    if (driver) {
+    if (isDriver(target, spec)) {
+      const driver = await makeDriver({spec, driver: target, logger})
+      await driver.currentContext.setScrollingElement(settings.scrollRootElement ?? null)
       if (driver.isWeb && (!settings.renderers || settings.renderers.length === 0)) {
         const viewportSize = await driver.getViewportSize()
         settings.renderers = [{name: 'chrome', ...viewportSize}]
@@ -93,8 +92,12 @@ export function makeCheck<TDriver, TContext, TElement, TSelector>({
         },
         hooks: {
           async beforeSnapshots() {
-            if (driver.isWeb && settings.lazyLoad) {
-              await waitForLazyLoad({driver, settings: settings.lazyLoad !== true ? settings.lazyLoad : {}, logger})
+            if (settings.lazyLoad && driver.isWeb) {
+              await waitForLazyLoad({
+                context: driver.currentContext,
+                settings: settings.lazyLoad !== true ? settings.lazyLoad : {},
+                logger,
+              })
             }
           },
         },

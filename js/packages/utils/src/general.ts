@@ -124,6 +124,9 @@ export function cachify<TFunc extends (...args: any[]) => any>(
   return funcWithCache
 
   function stringifyKey(key: any): string {
+    key = types.isPlainObject(key)
+      ? Object.fromEntries(Object.entries(key).sort(([key1], [key2]) => (key1 > key2 ? 1 : -1)))
+      : key
     return JSON.stringify(key, (_key, value) => (typeof value === 'function' ? value.toString() : value))
   }
 }

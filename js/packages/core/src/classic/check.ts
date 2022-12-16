@@ -1,7 +1,7 @@
-import type {Eyes, Target, CheckSettings, CheckResult} from './types'
-import type {Target as BaseTarget, CheckSettings as BaseCheckSettings} from '@applitools/core-base'
+import type {ClassicTarget, DriverTarget, ImageTarget, Eyes, CheckSettings, CheckResult} from './types'
+import type {CheckSettings as BaseCheckSettings} from '@applitools/core-base'
 import {type Logger} from '@applitools/logger'
-import {makeDriver, type Driver, type SpecDriver} from '@applitools/driver'
+import {makeDriver, isDriver, type SpecDriver} from '@applitools/driver'
 import {takeScreenshot} from '../automation/utils/take-screenshot'
 import {takeDomCapture} from './utils/take-dom-capture'
 import {toBaseCheckSettings} from '../utils/to-base-check-settings'
@@ -10,47 +10,49 @@ import * as utils from '@applitools/utils'
 
 type Options<TDriver, TContext, TElement, TSelector> = {
   eyes: Eyes<TDriver, TContext, TElement, TSelector>
-  driver?: Driver<TDriver, TContext, TElement, TSelector>
+  target?: DriverTarget<TDriver, TContext, TElement, TSelector>
   spec?: SpecDriver<TDriver, TContext, TElement, TSelector>
   logger?: Logger
 }
 
 export function makeCheck<TDriver, TContext, TElement, TSelector>({
   eyes,
-  driver: defaultDriver,
+  target: defaultTarget,
   spec,
   logger: defaultLogger,
 }: Options<TDriver, TContext, TElement, TSelector>): Eyes<TDriver, TContext, TElement, TSelector>['check'] {
   return async function check({
+    target = defaultTarget,
     settings = {},
-    driver,
-    target,
     logger = defaultLogger,
   }: {
+    target?: ClassicTarget<TDriver, TContext, TElement, TSelector>
     settings?: CheckSettings<TElement, TSelector>
-    driver?: Driver<TDriver, TContext, TElement, TSelector>
-    target?: Target<TDriver>
     logger?: Logger
   } = {}): Promise<CheckResult[]> {
     logger.log('Command "check" is called with settings', settings)
-    driver ??= spec?.isDriver(target) ? await makeDriver({spec, driver: target, logger}) : defaultDriver
     const baseEyes = await eyes.getBaseEyes()
-    if (!driver) {
-      const baseTarget = target as BaseTarget
-      const baseSettings = settings as BaseCheckSettings
+    if (!isDriver(target, spec)) {
       return (
-        await Promise.all(baseEyes.map(baseEyes => baseEyes.check({target: baseTarget, settings: baseSettings, logger})))
+        await Promise.all(baseEyes.map(baseEyes => baseEyes.check({target, settings: settings as BaseCheckSettings, logger})))
       ).flat()
     }
+    const driver = await makeDriver({spec, driver: target, logger})
     await driver.refreshContexts()
-    await driver.currentContext.setScrollingElement(settings.scrollRootElement)
+    await driver.currentContext.setScrollingElement(settings.scrollRootElement ?? null)
     if (settings.lazyLoad && driver.isWeb) {
-      await waitForLazyLoad({driver, settings: settings.lazyLoad !== true ? settings.lazyLoad : {}, logger})
+      if (settings.lazyLoad) {
+        await waitForLazyLoad({
+          context: driver.currentContext,
+          settings: settings.lazyLoad !== true ? settings.lazyLoad : {},
+          logger,
+        })
+      }
     }
     // TODO it actually could be different per eyes
     const shouldRunOnce = true
     const finishAt = Date.now() + settings.retryTimeout
-    let baseTarget: BaseTarget
+    let baseTarget: ImageTarget
     let baseSettings: BaseCheckSettings
     let results: CheckResult[]
     const {elementReferencesToCalculate, getBaseCheckSettings} = toBaseCheckSettings({settings})

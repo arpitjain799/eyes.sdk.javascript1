@@ -1,11 +1,7 @@
-import type {Eyes, Target, CheckSettings, CloseSettings, TestResult} from './types'
-import type {
-  Target as BaseTarget,
-  CheckSettings as BaseCheckSettings,
-  CloseSettings as BaseCloseSettings,
-} from '@applitools/core-base'
+import type {ClassicTarget, DriverTarget, ImageTarget, Eyes, CheckSettings, CloseSettings, TestResult} from './types'
+import type {CheckSettings as BaseCheckSettings, CloseSettings as BaseCloseSettings} from '@applitools/core-base'
 import {type Logger} from '@applitools/logger'
-import {makeDriver, type Driver, type SpecDriver} from '@applitools/driver'
+import {makeDriver, isDriver, type SpecDriver} from '@applitools/driver'
 import {takeScreenshot} from '../automation/utils/take-screenshot'
 import {takeDomCapture} from './utils/take-dom-capture'
 import {toBaseCheckSettings} from '../utils/to-base-check-settings'
@@ -14,46 +10,49 @@ import * as utils from '@applitools/utils'
 
 type Options<TDriver, TContext, TElement, TSelector> = {
   eyes: Eyes<TDriver, TContext, TElement, TSelector>
-  driver?: Driver<TDriver, TContext, TElement, TSelector>
+  target?: DriverTarget<TDriver, TContext, TElement, TSelector>
   spec?: SpecDriver<TDriver, TContext, TElement, TSelector>
   logger?: Logger
 }
 
 export function makeCheckAndClose<TDriver, TContext, TElement, TSelector>({
   eyes,
-  driver: defaultDriver,
+  target: defaultTarget,
   spec,
   logger: defaultLogger,
-}: Options<TDriver, TContext, TElement, TSelector>): Eyes<TDriver, TContext, TElement, TSelector>['checkAndClose'] {
+}: Options<TDriver, TContext, TElement, TSelector>) {
   return async function checkAndClose({
+    target = defaultTarget,
     settings = {},
-    driver,
-    target,
     logger = defaultLogger,
   }: {
+    target?: ClassicTarget<TDriver, TContext, TElement, TSelector>
     settings?: CheckSettings<TElement, TSelector> & CloseSettings
-    driver?: Driver<TDriver, TContext, TElement, TSelector>
-    target?: Target<TDriver>
     logger?: Logger
   } = {}): Promise<TestResult[]> {
     logger.log('Command "checkAndClose" is called with settings', settings)
-    driver ??= spec?.isDriver(target) ? await makeDriver({spec, driver: target, logger}) : defaultDriver
     const baseEyes = await eyes.getBaseEyes({logger})
-    if (!driver) {
-      const baseTarget = target as BaseTarget
+    if (!isDriver(target, spec)) {
       const baseSettings = settings as BaseCheckSettings & BaseCloseSettings
       return (
-        await Promise.all(baseEyes.map(baseEyes => baseEyes.checkAndClose({target: baseTarget, settings: baseSettings, logger})))
+        await Promise.all(baseEyes.map(baseEyes => baseEyes.checkAndClose({target, settings: baseSettings, logger})))
       ).flat()
     }
-    if (settings.lazyLoad) await waitForLazyLoad({driver, settings: settings.lazyLoad !== true ? settings.lazyLoad : {}, logger})
+    const driver = await makeDriver({spec, driver: target, logger})
+    if (settings.lazyLoad && driver.isWeb) {
+      await waitForLazyLoad({
+        context: driver.currentContext,
+        settings: settings.lazyLoad !== true ? settings.lazyLoad : {},
+        logger,
+      })
+    }
     const {elementReferencesToCalculate, getBaseCheckSettings} = toBaseCheckSettings({settings})
     const screenshot = await takeScreenshot({
       driver,
       settings: {...settings, regionsToCalculate: elementReferencesToCalculate},
       logger,
     })
-    const baseTarget: BaseTarget = {
+    const baseTarget: ImageTarget = {
       name: await driver.getTitle(),
       source: await driver.getUrl(),
       image: await screenshot.image.toPng(),

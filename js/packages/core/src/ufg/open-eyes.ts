@@ -1,7 +1,7 @@
-import type {Eyes, Target, OpenSettings, TestInfo} from './types'
+import type {DriverTarget, Eyes, OpenSettings, TestInfo} from './types'
 import type {Core as BaseCore, Eyes as BaseEyes} from '@applitools/core-base'
 import {type Logger} from '@applitools/logger'
-import {makeDriver, type Driver, type SpecDriver} from '@applitools/driver'
+import {makeDriver, type SpecDriver} from '@applitools/driver'
 import {makeUFGClient, type UFGClient} from '@applitools/ufg-client'
 import {makeGetBaseEyes} from './get-base-eyes'
 import {makeCheck} from './check'
@@ -25,26 +25,22 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
   logger: defaultLogger,
 }: Options<TDriver, TContext, TElement, TSelector>) {
   return async function openEyes({
+    target,
     settings,
     eyes,
-    driver,
-    target,
     logger = defaultLogger,
   }: {
-    settings?: OpenSettings
+    target?: DriverTarget<TDriver, TContext, TElement, TSelector>
+    settings: OpenSettings
     eyes?: BaseEyes[]
-    driver?: Driver<TDriver, TContext, TElement, TSelector>
-    target?: Target<TDriver>
     logger?: Logger
   }): Promise<Eyes<TDriver, TContext, TElement, TSelector>> {
     logger.log(
-      `Command "openEyes" is called with ${spec?.isDriver(target) ? 'default driver and' : ''}`,
+      `Command "openEyes" is called with ${target ? 'default driver and' : ''}`,
       ...(settings ? ['settings', settings] : []),
       eyes ? 'predefined eyes' : '',
     )
-    driver ??= spec?.isDriver(target)
-      ? await makeDriver({spec, driver: target, logger, customConfig: {disableHelper: true}})
-      : null
+    const driver = target && (await makeDriver({spec, driver: target, logger, customConfig: {disableHelper: true}}))
     if (driver && !eyes) {
       const currentContext = driver.currentContext
       if (settings.environment?.viewportSize) {
@@ -89,16 +85,14 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
         getBaseEyes,
         // check with indexing and storage
         check: utils.general.wrap(
-          makeCheck({eyes, client, driver, spec, signal: controller.signal, logger}),
+          makeCheck({eyes, client, target: driver, spec, signal: controller.signal, logger}),
           async (check, options = {}) => {
-            options.settings ??= {}
-            options.settings.stepIndex = stepIndex++
-            const results = await check(options)
+            const results = await check({...options, settings: {...options.settings, stepIndex: stepIndex++}})
             storage.push(...results.map(result => ({promise: result.promise, renderer: result.renderer})))
             return results
           },
         ),
-        checkAndClose: makeCheckAndClose({eyes, client, driver, spec, signal: controller.signal, logger}),
+        checkAndClose: makeCheckAndClose({eyes, client, target: driver, spec, signal: controller.signal, logger}),
         // close only once
         close: utils.general.wrap(makeClose({storage, logger}), async (close, options) => {
           if (closed || aborted) return []

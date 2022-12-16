@@ -8,6 +8,7 @@ import {makeLocateText} from './locate-text'
 import {makeExtractText} from './extract-text'
 import {makeClose} from './close'
 import {makeAbort} from './abort'
+import * as utils from '@applitools/utils'
 
 type Options = {
   requests: CoreRequests
@@ -40,23 +41,23 @@ export function makeOpenEyes({requests, cwd = process.cwd(), logger: defaultLogg
 
     const eyesRequests = await requests.openEyes({settings, logger})
 
-    return {
-      test: eyesRequests.test,
-      get running() {
-        return eyesRequests.running
-      },
-      get closed() {
-        return eyesRequests.closed
-      },
-      get aborted() {
-        return eyesRequests.aborted
-      },
-      check: makeCheck({requests: eyesRequests, logger}),
+    const aborted = utils.promises.makeControlledPromise<never>()
+    const queue = []
+    return utils.general.extend(eyesRequests, {
+      check: utils.general.wrap(makeCheck({requests: eyesRequests, logger}), async (check, options) => {
+        const index = options.settings?.stepIndex
+        queue[index] ??= utils.promises.makeControlledPromise()
+        if (index > 0) await Promise.race([(queue[index - 1] ??= utils.promises.makeControlledPromise()), aborted])
+        return Promise.race([check(options), aborted]).finally(queue[index].resolve)
+      }),
       checkAndClose: makeCheckAndClose({requests: eyesRequests, logger}),
       locateText: makeLocateText({requests: eyesRequests, logger}),
       extractText: makeExtractText({requests: eyesRequests, logger}),
       close: makeClose({requests: eyesRequests, logger}),
-      abort: makeAbort({requests: eyesRequests, logger}),
-    }
+      abort: utils.general.wrap(makeAbort({requests: eyesRequests, logger}), async (abort, options) => {
+        aborted.reject(new Error('Command "check" was aborted due to possible error in previous step'))
+        return abort(options)
+      }),
+    })
   }
 }

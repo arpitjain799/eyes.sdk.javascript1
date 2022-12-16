@@ -9,7 +9,7 @@ const env = {
   //  app: 'https://applitools.jfrog.io/artifactory/Examples/duckduckgo-5.87.0-play-debug.apk',
   //},
   ios: {
-    device: 'iPhone 12',
+    device: 'iPhone 13',
     app: 'https://applitools.jfrog.io/artifactory/Examples/IOSTestApp-instrumented-nml-nmg-flat-caps.zip',
     injectUFGLib: true,
     withNML: true,
