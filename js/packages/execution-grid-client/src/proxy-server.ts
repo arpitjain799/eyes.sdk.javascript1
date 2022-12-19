@@ -19,6 +19,7 @@ export type ServerOptions = {
   port?: number
   resolveUrls?: boolean
   logger?: Logger
+  useSelfHealing?: boolean
 }
 
 const RETRY_BACKOFF = [].concat(
@@ -37,11 +38,13 @@ export function makeServer({
   proxyUrl = process.env.APPLITOOLS_PROXY,
   eyesServerUrl = process.env.APPLITOOLS_SERVER_URL,
   apiKey = process.env.APPLITOOLS_API_KEY,
+  useSelfHealing,
   port = 0,
   resolveUrls = true,
   logger,
 }: ServerOptions = {}): Promise<{url: string; port: number; server: Server}> {
   logger = logger ? logger.extend({label: 'eg-client'}) : makeLogger({label: 'eg-client', colors: true})
+  const metadata: any[] = []
 
   const proxyRequest = makeProxy({
     url: egServerUrl,
@@ -67,6 +70,24 @@ export function makeServer({
         return await createSession({request, response, logger: requestLogger})
       } else if (request.method === 'DELETE' && /^\/session\/[^\/]+\/?$/.test(request.url)) {
         return await deleteSession({request, response, logger: requestLogger})
+      } else if (useSelfHealing && request.method === 'POST' && /element/.test(request.url)) {
+        requestLogger.log('Self-healing enabled, inspecting element requests to collect relevant metadata')
+        const proxyResponse = await proxyRequest({
+          request,
+          response,
+          options: {handle: false},
+          logger,
+        })
+        const {appliCustomData: {selfHealing}} = await proxyResponse.json()
+        if (selfHealing) {
+          requestLogger.log('Self-healed locators detected', selfHealing)
+          metadata.push(selfHealing)
+        }
+        proxyResponse.pipe(response)
+        return
+      } else if (useSelfHealing && request.method === 'GET' && /metadata/.test(request.url)) {
+        requestLogger.log('Session metadata requested, returning', metadata)
+        response.writeHead(200).end(JSON.stringify({value: metadata}))
       } else {
         requestLogger.log('Passthrough request')
         return await proxyRequest({request, response, logger: requestLogger})
