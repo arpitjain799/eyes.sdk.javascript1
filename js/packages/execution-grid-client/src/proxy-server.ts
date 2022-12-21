@@ -71,17 +71,19 @@ export function makeServer({
       } else if (request.method === 'DELETE' && /^\/session\/[^\/]+\/?$/.test(request.url)) {
         return await deleteSession({request, response, logger: requestLogger})
       } else if (useSelfHealing && request.method === 'POST' && /element/.test(request.url)) {
-        requestLogger.log('Self-healing enabled, inspecting element requests to collect relevant metadata')
+        requestLogger.log('Inspecting element lookup request to collect self-healing metadata')
         const proxyResponse = await proxyRequest({
           request,
           response,
           options: {handle: false},
           logger,
         })
-        const {appliCustomData: {selfHealing}} = await proxyResponse.json()
-        if (selfHealing) {
-          requestLogger.log('Self-healed locators detected', selfHealing)
-          metadata.push(selfHealing)
+        const {appliCustomData} = await proxyResponse.json()
+        if (appliCustomData?.selfHealing) {
+          requestLogger.log('Self-healed locators detected', appliCustomData.selfHealing)
+          metadata.push(appliCustomData.selfHealing)
+        } else {
+          requestLogger.log('No self-healing metadata found')
         }
         proxyResponse.pipe(response)
         return
@@ -145,6 +147,8 @@ export function makeServer({
       'applitools:timeout': extractCapability(requestBody, 'applitools:timeout') ?? egTimeout,
       'applitools:inactivityTimeout':
         extractCapability(requestBody, 'applitools:inactivityTimeout') ?? egInactivityTimeout,
+      'applitools:useSelfHealing':
+        extractCapability(requestBody, 'applitools:useSelfHealing') ?? useSelfHealing,
     }
 
     if (requestBody.capabilities) {
