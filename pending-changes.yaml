@@ -15,6 +15,7 @@ Apollo SDK:
     - Fixed issue when helper lib inputs were not cleaned up before calling new command
     - Fixed issue with element scroll position not being restored after screenshot is taken on native platforms
     - Handle fake shadowRoot with UFG
+    - Handed error during polling in long requests to eyes server
 "@applitools/eyes-selenium":
   feature:
     - Added new selector extensions `child` and `fallback`
@@ -23,6 +24,7 @@ Apollo SDK:
     - Use user agent metadata to improve browser environment detection logic
     - Use APPLITOOLS_CONCURRENCY env variable to specify concurrency
     - Added `ignoreColors` method to `CheckSettings` to set a match level
+    - Added `nmgOptions` to `CheckSettings`
   bug-fix:
     - Fixed bug that caused `extractText` to throw, due to fractional size of the target region
     - Fix dontCloseBatches mapping
@@ -30,16 +32,19 @@ Apollo SDK:
     - Fixed issue when helper lib inputs were not cleaned up before calling new command
     - Fixed issue with element scroll position not being restored after screenshot is taken on native platforms
     - Handle fake shadowRoot with UFG
+    - Handed error during polling in long requests to eyes server
 "@applitools/eyes-webdriverio":
   feature:
-    - 
+    - Added `nmgOptions` to `CheckSettings`
   bug-fix:
     - Handle fake shadowRoot with UFG
+    - Handed error during polling in long requests to eyes server
 "@applitools/eyes-playwright":
   feature:
     - 
   bug-fix:
     - Handle fake shadowRoot with UFG
+    - Handed error during polling in long requests to eyes server
 "@applitools/eyes-protractor":
   feature:
     - Added new selector extensions `child` and `fallback`
@@ -54,17 +59,19 @@ Apollo SDK:
     - Use user agent metadata to improve browser environment detection logic
     - Use APPLITOOLS_CONCURRENCY env variable to specify concurrency
     - Added `ignoreColors` method to `CheckSettings` to set a match level
+    - Added `nmgOptions` to `CheckSettings`
   bug-fix:
     - Fixed incorrect calculation of the target element position.
     - Fixed the issue with screenshots being taken on chrome-emulated devices
     - Fixed issue when current context is not being preserved in ufg mode
     - Fixed issue with element scroll position not being restored after screenshot is taken on native platforms
     - Handle fake shadowRoot with UFG
+    - Handed error during polling in long requests to eyes server
 "@applitools/eyes-puppeteer":
   feature:
     - 
   bug-fix:
-    - Handle fake shadowRoot with UFG
+    - 
 "@applitools/eyes-testcafe":
   feature:
     - Added new selector extensions `child` and `fallback`
@@ -79,6 +86,7 @@ Apollo SDK:
   bug-fix:
     - Fixed incorrect calculation of the target element position.
     - Handle fake shadowRoot with UFG
+    - Handed error during polling in long requests to eyes server
 "@applitools/eyes-nightwatch":
   feature:
     - Added new selector extensions `child` and `fallback`
@@ -98,6 +106,7 @@ Apollo SDK:
     - Fixed issue when current context is not being preserved in ufg mode
     - Fixed issue with element scroll position not being restored after screenshot is taken on native platforms
     - Handle fake shadowRoot with UFG
+    - Handed error during polling in long requests to eyes server
 "@applitools/eyes-cypress":
   feature:
     - 
@@ -105,9 +114,9 @@ Apollo SDK:
     - Handle fake shadowRoot with UFG
 "@applitools/eyes-storybook":
   feature:
-    - Deprecated "Content" match level value in favor of "IgnoreColors"
+    - 
   bug-fix:
-    - Handle fake shadowRoot with UFG
+    - 
 "@applitools/eyes-webdriverio5-service":
   feature:
     - Added new selector extensions `child` and `fallback`
