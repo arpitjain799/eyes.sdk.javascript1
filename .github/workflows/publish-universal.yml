@@ -96,8 +96,6 @@ jobs:
         if: ${{matrix.arch}}
         name: Build ARM
         with:
-          env: |
-            artifact_name: universal-${{ matrix.distro }}_${{ matrix.arch }}
           githubToken: ${{ github.token }}
           arch: ${{ matrix.arch }}
           distro: ${{ matrix.distro }}
@@ -198,9 +196,7 @@ jobs:
         with:
           ref: ${{needs.prepare.outputs.branch}}
       - name: Setup Node.js
-        env:
-            arch: ${{matrix.arch}}
-        if: ${{env.arch == ''}}
+        if: ${{env.arch-group == 'x64'}}
         uses: actions/setup-node@v3
         with:
           node-version: lts/*
@@ -216,8 +212,6 @@ jobs:
         if: ${{matrix.arch}}
         name: Run Tests On ARM
         with:
-          env: |
-            artifact_name: universal-${{ matrix.distro }}_${{ matrix.arch }}
           githubToken: ${{ github.token }}
           arch: ${{ matrix.arch }}
           distro: ${{ matrix.distro }}
@@ -233,11 +227,7 @@ jobs:
                 apt-get install -q -y nodejs
                 npm install -g yarn
                 ;;
-              fedora*)
-                echo not supported
-                exit 1
-                ;;
-              alpine*)
+              *)
                 echo not supported
                 exit 1
                 ;;
@@ -248,9 +238,7 @@ jobs:
             yarn test:e2e
 
       - name: Run tests
-        env:
-            arch: ${{matrix.arch}}
-        if: ${{env.arch == ''}}
+        if: ${{env.arch-group == 'x64'}}
         uses: ./.github/actions/tests
         with:
           working-directory: ./js/packages/eyes-universal
@@ -276,11 +264,7 @@ jobs:
       - name: Bundle artifacts
         shell: bash
         working-directory: ./eyes-universal
-        run: |
-          find ../eyes-universal-arm64 -type f -not -name '*.zip' -not -name '*.tar.gz' -exec bash -c 'cp ${0} ./bin/$(basename ${0})' {} \;
-          rm -rf ./bin/*.tar.gz ./bin/*.zip
-          zip -j ./bin/eyes-universal.zip $(find ./bin -type f -not -name '*.zip' -not -name '*.tar.gz' | xargs)
-          tar -czf ./bin/eyes-universal.tar.gz $(find ./bin -type f -not -name '*.zip' -not -name '*.tar.gz' | xargs)
+        run: ./.github/scripts/arm64-bundle-resources.sh
       - name: Upload bundle artifacts
         uses: actions/upload-artifact@v3
         with:
