@@ -166,20 +166,10 @@ export async function setWindowSize(driver: Driver, size: Size): Promise<void> {
   // Same deal as with getWindowSize. If running on JWP, need to catch and retry
   // with a different command.
   try {
-    if (process.env.APPLITOOLS_NIGHTWATCH_MAJOR_VERSION === '1') {
-      await call(driver, 'setWindowRect' as any, size)
-    } else {
-      // calling setWindowRect without a callback above version 1, as the callback is called before the command finishes.
-      await driver.setWindowRect(size as any)
-    }
+    await call(driver, 'setWindowRect' as any, size)
   } catch {
-    if (process.env.APPLITOOLS_NIGHTWATCH_MAJOR_VERSION === '1') {
-      await call(driver, 'setWindowPosition' as 'windowPosition', 0, 0)
-      await call(driver, 'setWindowSize' as 'windowSize', size.width, size.height)
-    } else {
-      await driver.setWindowPosition(0, 0)
-      await driver.setWindowSize(size.width, size.height)
-    }
+    await call(driver, 'setWindowPosition' as 'windowPosition', 0, 0)
+    await call(driver, 'setWindowSize' as 'windowSize', size.width, size.height)
   }
 }
 export async function getCookies(driver: Driver, context?: boolean): Promise<Cookie[]> {
@@ -229,7 +219,7 @@ export async function hover(driver: Driver, element: Element | Selector): Promis
   if (isSelector(element)) element = await findElement(driver, element)
   await call(driver, 'moveTo', extractElementId(element))
 }
-export async function type(driver: Driver, element: Element | Selector, keys: string): Promise<void> {
+export async function setElementText(driver: Driver, element: Element | Selector, keys: string): Promise<void> {
   if (isSelector(element)) element = await findElement(driver, element)
   await driver.elementIdValue(extractElementId(element), keys)
 }
@@ -253,66 +243,59 @@ const browserOptionsNames: Record<string, string> = {
   firefox: 'moz:firefoxOptions',
 }
 export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
-  // config prep
+  const Nightwatch = require('nightwatch')
   const parseEnv = require('@applitools/test-utils/src/parse-env')
-  const {browser = '', capabilities, url, configurable = true, args = [], headless} = parseEnv({...env, legacy: true})
-  const desiredCapabilities = {browserName: browser, ...capabilities}
+
+  const {
+    browser = '',
+    capabilities,
+    url,
+    configurable = true,
+    args = [],
+    headless,
+    logLevel = 'silent',
+  } = parseEnv({...env, legacy: env.legacy ?? process.env.APPLITOOLS_NIGHTWATCH_MAJOR_VERSION === '1'})
+  const options: any = {
+    output: logLevel !== 'silent',
+    capabilities: {browserName: browser, ...capabilities},
+    webdriver: {
+      host: url.hostname,
+      port: url.port || (url.protocol.startsWith('https') ? 443 : undefined),
+      default_path_prefix: url.pathname,
+      check_process_delay: 100,
+      max_status_poll_tries: 10,
+      status_poll_interval: 200,
+      process_create_timeout: 120000,
+      start_session: true,
+      start_process: false,
+    },
+    useAsync: true,
+  }
   if (configurable) {
-    const browserOptionsName = browserOptionsNames[browser || desiredCapabilities.browserName]
+    const browserOptionsName = browserOptionsNames[browser || options.capabilities.browserName]
     if (browserOptionsName) {
-      const browserOptions = desiredCapabilities[browserOptionsName] || {}
+      const browserOptions = options.capabilities[browserOptionsName] || {}
       browserOptions.args = [...(browserOptions.args || []), ...args]
       if (headless) browserOptions.args.push('headless')
       if (browser === 'firefox') {
-        desiredCapabilities.alwaysMatch = {[browserOptionsName]: browserOptions}
+        options.capabilities.alwaysMatch = {[browserOptionsName]: browserOptions}
       } else {
-        desiredCapabilities[browserOptionsName] = browserOptions
+        options.capabilities[browserOptionsName] = browserOptions
       }
       if (browser !== 'firefox' && !browserOptions.mobileEmulation) browserOptions.w3c = false
     }
   }
-  // needed for mobile native to work in newer versions of nightwatch
-  if (desiredCapabilities.browserName === '') desiredCapabilities.browserName = null
-
-  // building
-  const Nightwatch = require('nightwatch')
-  const Settings = require('nightwatch/lib/settings/settings')
-  const settings = Settings.parse(
-    {},
-    {
-      test_settings: {
-        default: {
-          output: false,
-          webdriver: {
-            host: !url.host.includes('localhost') ? url.host : undefined,
-            port: url.port || (url.protocol === 'https:' ? 443 : undefined),
-            default_path_prefix: url.pathname,
-          },
-          desiredCapabilities,
-        },
-      },
-    },
-    {},
-    'default',
-  )
+  if (options.capabilities.browserName === '') options.capabilities.browserName = null
+  if (options.capabilities.browserName !== 'firefox') options.selenium = options.webdriver
 
   if (process.env.APPLITOOLS_NIGHTWATCH_MAJOR_VERSION === '1') {
-    const client = Nightwatch.client(settings)
+    options.desiredCapabilities = options.capabilities
+    const client = Nightwatch.client(options)
     client.isES6AsyncTestcase = true
     await client.createSession()
     return [client.api, () => client.session.close()]
   } else {
-    // for CheckRegionBySelectorInFrameFullyOnFirefoxLegacy
-    settings.desiredCapabilities.browserName =
-      settings.desiredCapabilities.browserName === 'Firefox'
-        ? settings.desiredCapabilities.browserName.toLowerCase()
-        : settings.desiredCapabilities.browserName
-    settings.selenium = {
-      host: settings.webdriver.host,
-      port: settings.webdriver.port,
-    }
-    const client = Nightwatch.createClient(Object.assign(settings, settings.desiredCapabilities))
-    const driver = await client.launchBrowser()
+    const driver = await Nightwatch.createClient(options).launchBrowser()
     return [driver, () => driver.end()]
   }
 }
