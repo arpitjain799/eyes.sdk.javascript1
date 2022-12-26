@@ -45,4 +45,4 @@ const configParams = [
   'dontCloseBatches',
 ];
 
-module.exports = {configParams};
+export default configParams

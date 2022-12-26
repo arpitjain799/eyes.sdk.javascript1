@@ -1,30 +1,33 @@
 'use strict';
-const connectSocket = require('./webSocket');
-const {makeServerProcess} = require('@applitools/eyes-universal');
-const handleTestResults = require('./handleTestResults');
-const path = require('path');
-const fs = require('fs');
-const semverLt = require('semver/functions/lt');
-const {Server: HttpsServer} = require('https');
-const {Server: WSServer} = require('ws');
-const which = require('which');
+import connectSocket from './webSocket';
+// @ts-ignore
+import {makeServerProcess} from '@applitools/eyes-universal';
+import handleTestResults from './handleTestResults';
+import path from 'path';
+import fs from 'fs';
+// @ts-ignore
+import semverLt from 'semver/functions/lt';
+import {Server as HttpsServer} from 'https';
+import {Server as WSServer} from 'ws';
+import which from 'which';
 
-function makeStartServer({logger}) {
+export default function makeStartServer({logger}: any) {
   return async function startServer() {
-    const key = fs.readFileSync(path.resolve(__dirname, '../pem/server.key'));
-    const cert = fs.readFileSync(path.resolve(__dirname, '../pem/server.cert'));
+    const key = fs.readFileSync(path.resolve(__dirname, '../../src/pem/server.key'));
+    const cert = fs.readFileSync(path.resolve(__dirname, '../../src/pem/server.cert'));
     let port;
 
     const https = new HttpsServer({
       key,
       cert,
     });
-    await https.listen(0, err => {
+    // @ts-ignore
+    await https.listen(0, (err: any) => {
       if (err) {
         logger.log('error starting plugin server', err);
       } else {
-        logger.log(`plugin server running at port: ${https.address().port}`);
-        port = https.address().port;
+        port = (https.address() as any).port;
+        logger.log(`plugin server running at port: ${port}`);
       }
     });
 
@@ -42,6 +45,7 @@ function makeStartServer({logger}) {
     // By passing `execPath` with the node process cwd it will switch the `node` process to be the like the OS have
     // and will not use the unsupported `Cypress Helper.app` with the not supported shell process Electron
     if (semverLt(cypressVersion, '7.0.0')) {
+      // @ts-ignore
       forkOptions.execPath = await which('node');
     }
 
@@ -53,13 +57,13 @@ function makeStartServer({logger}) {
       portResolutionMode: 'random',
     });
 
-    const managers = [];
-    let socketWithUniversal;
+    const managers: any[] = [];
+    let socketWithUniversal: any;
 
     wss.on('connection', socketWithClient => {
       socketWithUniversal = connectSocket(`ws://localhost:${universalPort}/eyes`);
 
-      socketWithUniversal.setPassthroughListener(message => {
+      socketWithUniversal.setPassthroughListener((message: any) => {
         logger.log('<== ', message.toString().slice(0, 1000));
         const {name, payload} = JSON.parse(message);
         if (name === 'Core.makeManager') {
@@ -69,7 +73,7 @@ function makeStartServer({logger}) {
         socketWithClient.send(message.toString());
       });
 
-      socketWithClient.on('message', message => {
+      socketWithClient.on('message', (message: string) => {
         const msg = JSON.parse(message);
         logger.log('==> ', message.toString().slice(0, 1000));
         if (msg.name === 'Core.makeSDK') {
@@ -137,13 +141,11 @@ function makeStartServer({logger}) {
         ),
       );
     }
-    function closeBatches(settings) {
+    function closeBatches(settings: any) {
       if (socketWithUniversal)
-        return socketWithUniversal.request('Core.closeBatches', {settings}).catch(err => {
+        return socketWithUniversal.request('Core.closeBatches', {settings}).catch((err: any) => {
           logger.log('@@@', err);
         });
     }
   };
 }
-
-module.exports = makeStartServer;

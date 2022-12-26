@@ -1,20 +1,19 @@
-'use strict';
-const handleTestResults = require('./handleTestResults');
+import handleTestResults from './handleTestResults';
 
-function makeGlobalRunHooks({closeManager, closeBatches, closeUniversalServer}) {
+export default function makeGlobalRunHooks({closeManager, closeBatches, closeUniversalServer}: any) {
   return {
-    'before:run': ({config}) => {
+    'before:run': ({config}: any) => {
       if (!config.isTextTerminal) return;
     },
 
-    'after:run': async ({config}) => {
+    'after:run': async ({config}: any) => {
       try {
         if (!config.isTextTerminal) return;
         const summaries = await closeManager();
 
         let testResults;
         for (const summary of summaries) {
-          testResults = summary.results.map(({testResults}) => testResults);
+          testResults = summary.results.map(({testResults}: any) => testResults);
         }
         if (!config.appliConfFile.dontCloseBatches) {
           await closeBatches({
@@ -37,5 +36,3 @@ function makeGlobalRunHooks({closeManager, closeBatches, closeUniversalServer}) 
     },
   };
 }
-
-module.exports = makeGlobalRunHooks;

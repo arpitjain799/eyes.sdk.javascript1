@@ -1,7 +1,6 @@
-'use strict';
-function getErrorsAndDiffs(testResultsArr) {
+export default function getErrorsAndDiffs(testResultsArr: any) {
   return testResultsArr.reduce(
-    ({failed, diffs, passed}, testResults) => {
+    ({failed, diffs, passed}: any, testResults: any) => {
       if (testResults instanceof Error || testResults.error) {
         failed.push(testResults);
       } else {
@@ -29,5 +28,3 @@ function getErrorsAndDiffs(testResultsArr) {
     {failed: [], diffs: [], passed: []},
   );
 }
-
-module.exports = getErrorsAndDiffs;

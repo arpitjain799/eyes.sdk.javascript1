@@ -1,10 +1,9 @@
-'use strict';
-const utils = require('@applitools/utils');
-const {configParams} = require('./configParams');
+import * as utils from '@applitools/utils';
+import configParams from './configParams';
 const DEFAULT_TEST_CONCURRENCY = 5;
-const uuid = require('uuid');
+import * as uuid from 'uuid';
 
-function makeConfig() {
+export default function makeConfig() {
   const config = utils.config.getConfig({
     params: [
       ...configParams,
@@ -52,5 +51,3 @@ function makeConfig() {
 
   return {config, eyesConfig};
 }
-
-module.exports = makeConfig;

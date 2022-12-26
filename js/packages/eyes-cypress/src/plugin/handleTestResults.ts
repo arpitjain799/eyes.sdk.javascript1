@@ -1,13 +1,12 @@
-const errorDigest = require('./errorDigest');
-const {makeLogger} = require('@applitools/logger');
-const getErrorsAndDiffs = require('./getErrorsAndDiffs');
-const {promisify} = require('util');
-const fs = require('fs');
-const writeFile = promisify(fs.writeFile);
-const {formatters} = require('@applitools/core');
-const {resolve} = require('path');
+import errorDigest from './errorDigest';
+import {makeLogger} from '@applitools/logger';
+import getErrorsAndDiffs from './getErrorsAndDiffs';
+import {promisify} from 'util';
+import fs from 'fs';
+import {formatters} from '@applitools/core';
+import {resolve} from 'path';
 
-function printTestResults(testResultsArr) {
+function printTestResults(testResultsArr: any) {
   const logger = makeLogger({
     level: testResultsArr.resultConfig.showLogs ? 'info' : 'silent',
     label: 'eyes',
@@ -26,13 +25,17 @@ function printTestResults(testResultsArr) {
     );
   }
 }
-function handleBatchResultsFile(results, tapFileConfig) {
+function handleBatchResultsFile(results: any, tapFileConfig: any) {
   const fileName = tapFileConfig.tapFileName || `${new Date().toISOString()}-eyes.tap`;
   const tapFile = resolve(tapFileConfig.tapDirPath, fileName);
-  return writeFile(
+  return fs.writeFile(
     tapFile,
     formatters.toHierarchicTAPString(results, {includeSubTests: false, markNewAsPassed: true}),
+    {},
+    (err: any) => {
+      if (err) throw err;
+    }
   );
 }
 
-module.exports = {printTestResults, handleBatchResultsFile};
+export default {printTestResults, handleBatchResultsFile};
