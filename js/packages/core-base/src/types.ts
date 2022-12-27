@@ -124,7 +124,6 @@ export interface OpenSettings extends ServerSettings {
   abortIdleTestTimeout?: number
   connectionTimeout?: number
   removeSession?: boolean
-  selfHealingEnabled?: boolean
 }
 
 export interface LocateSettings<TLocator extends string, TRegion = Region> extends ServerSettings, ImageSettings<TRegion> {
