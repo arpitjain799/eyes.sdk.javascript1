@@ -1,5 +1,4 @@
 import {defineConfig} from 'cypress'
-import {eyesPlugin} from '../../../'
 
 export default defineConfig({
   e2e: {

@@ -20,10 +20,10 @@ export default function makePluginExport({startServer, eyesConfig}: any) {
       pluginModuleExports = pluginExports
     }
 
-    const setupNodeEvents = async function ([origOn, cypressConfig]: [
-      Cypress.PluginEvents,
-      Cypress.PluginConfigOptions,
-    ]): Promise<EyesConfig> {
+    const setupNodeEvents = async function (
+      origOn: Cypress.PluginEvents,
+      cypressConfig: Cypress.PluginConfigOptions,
+    ): Promise<EyesConfig> {
       const {server, port, closeManager, closeBatches, closeUniversalServer} = await startServer()
       eyesServer = server
 
