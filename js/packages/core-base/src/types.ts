@@ -96,8 +96,7 @@ type Environment = {
     type?: 'web' | 'native'
     renderer?: Record<string, any>
   }
-  driverSessionId?: string
-  runningOnExecutionGrid?: boolean
+  egSessionId?: string
 }
 export interface OpenSettings extends ServerSettings {
   appName: string

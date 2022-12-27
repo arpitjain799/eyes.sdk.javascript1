@@ -134,7 +134,7 @@ export function makeCoreRequests({
           ignoreBaseline: settings.ignoreBaseline,
           saveDiffs: settings.saveDiffs,
           timeout: settings.abortIdleTestTimeout,
-          egSessionId: settings.environment.driverSessionId ?? null,
+          egSessionId: settings.environment.egSessionId ?? null,
         },
       },
       expected: [200, 201],
