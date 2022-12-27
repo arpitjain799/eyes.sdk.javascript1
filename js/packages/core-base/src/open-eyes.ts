@@ -62,6 +62,7 @@ export function makeOpenEyes({requests, cwd = process.cwd(), logger: defaultLogg
         aborted.reject(new Error('Command "check" was aborted due to possible error in previous step'))
         return abort(options)
       }),
+      reportSelfHealing: eyesRequests.reportSelfHealing,
     })
   }
 }

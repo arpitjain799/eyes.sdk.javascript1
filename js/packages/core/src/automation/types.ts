@@ -54,6 +54,7 @@ export interface Eyes<TDriver, TContext, TElement, TSelector, TTarget = DriverTa
     settings: MaybeArray<ExtractTextSettings<TElement, TSelector>>
     logger?: Logger
   }): Promise<string[]>
+  reportSelfHealing?(options: {report: any; logger?: Logger}): Promise<void>
 }
 
 type RegionReference<TElement, TSelector> = Region | ElementReference<TElement, TSelector>

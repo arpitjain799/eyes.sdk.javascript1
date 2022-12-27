@@ -103,4 +103,6 @@ export interface SpecDriver<TDriver, TContext, TElement, TSelector> {
   getWorlds?(driver: TDriver): Promise<string[]>
   switchWorld?(driver: TDriver, id: string): Promise<void>
   // #endregion
+
+  getSessionMetadata?(driver: TDriver): Promise<any>
 }

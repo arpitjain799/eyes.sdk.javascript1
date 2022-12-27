@@ -405,6 +405,10 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
   }
   // end world
 
+  async getSessionMetadata(): Promise<any> {
+    return await this._spec?.getSessionMetadata(this.target)
+  }
+
   async refreshContexts(): Promise<Context<TDriver, TContext, TElement, TSelector>> {
     if (this.isNative) return this.currentContext
 

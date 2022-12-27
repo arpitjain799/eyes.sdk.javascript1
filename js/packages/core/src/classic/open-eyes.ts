@@ -77,6 +77,7 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
     }
     const getBaseEyes = makeGetBaseEyes({settings, core, eyes, logger})
     const [baseEyes] = await getBaseEyes()
+
     return utils.general.extend(baseEyes, eyes => ({
       type: 'classic' as const,
       getBaseEyes,

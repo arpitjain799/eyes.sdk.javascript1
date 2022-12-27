@@ -55,6 +55,7 @@ export interface EyesRequests extends Eyes {
   extractText(options: {target: ImageTarget; settings: ExtractTextSettings; logger?: Logger}): Promise<string[]>
   close(options?: {settings?: CloseSettings; logger?: Logger}): Promise<TestResult[]>
   abort(options?: {logger?: Logger}): Promise<TestResult[]>
+  reportSelfHealing(options: {report: any; logger?: Logger}): Promise<void>
 }
 
 export function makeCoreRequests({
@@ -338,6 +339,21 @@ export function makeEyesRequests({
     extractText,
     close,
     abort,
+    reportSelfHealing,
+  }
+
+  async function reportSelfHealing({report, logger = defaultLogger}: {report: any, logger?: Logger}) { 
+    if (!test.account?.selfHealingEnabled) return
+    logger.log('Request "reportSelfHealing" called payload', report)
+    const response = await req(`/api/sessions/running/${encodeURIComponent(test.testId)}/selfhealdata`, {
+      name: 'reportSelfHealing',
+      method: 'PUT',
+      body: report,
+      expected: 200,
+      logger,
+    })
+    const result = await response.json()
+    logger.log('Request "reportSelfHealing" finished successfully with body', result)
   }
 
   async function check({
