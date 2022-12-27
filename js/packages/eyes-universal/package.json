@@ -1,6 +1,6 @@
 {
   "name": "@applitools/eyes-universal",
-  "version": "3.0.2",
+  "version": "3.1.0",
   "description": "Applitools Eyes Universal SDK",
   "keywords": [
     "applitools",
@@ -118,12 +118,6 @@
   "pkg": {
     "scripts": "./dist/cli.js",
     "outputPath": "./bin",
-    "targets": [
-      "node14-alpine-x64",
-      "node14-linux-x64",
-      "node14-macos-x64",
-      "node14-win-x64"
-    ],
     "compress": "GZip",
     "assets": [
       "./node_modules/vm2/lib/setup-sandbox.js"
