@@ -24,32 +24,33 @@ async function runCypress() {
 }
 
 async function updateConfigFile(pluginFileName, testName = 'global-hooks-overrides.js') {
-  const promise = new Promise(resolve => {
-    fs.readFile(path.resolve(targetTestAppPath, `./cypress.config.js`), 'utf-8', function(
-      err,
-      contents,
-    ) {
-      if (err) {
-        console.log(err);
-        return;
-      }
+  const promise = new Promise((resolve) => {
+    fs.readFile(
+      path.resolve(targetTestAppPath, `./cypress.config.js`),
+      'utf-8',
+      function (err, contents) {
+        if (err) {
+          console.log(err);
+          return;
+        }
 
-      const replaced = contents
-        .replace(/index-run.js/g, pluginFileName)
-        .replace(/integration-run/g, `integration-run/${testName}`);
+        const replaced = contents
+          .replace(/index-run.js/g, pluginFileName)
+          .replace(/integration-run/g, `integration-run/${testName}`);
 
-      fs.writeFile(
-        path.resolve(targetTestAppPath, `./cypress.config.js`),
-        replaced,
-        'utf-8',
-        function(err) {
-          if (err) {
-            console.log(err);
-          }
-          resolve();
-        },
-      );
-    });
+        fs.writeFile(
+          path.resolve(targetTestAppPath, `./cypress.config.js`),
+          replaced,
+          'utf-8',
+          function (err) {
+            if (err) {
+              console.log(err);
+            }
+            resolve();
+          },
+        );
+      },
+    );
   });
   await promise;
 }

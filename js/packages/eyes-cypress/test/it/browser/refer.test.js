@@ -19,7 +19,7 @@ describe('refer', () => {
   });
 
   it('works for refer.spec.js', async () => {
-    await runCypress('refer').then(results => {
+    await runCypress('refer').then((results) => {
       const tests = results.runs[0].tests;
       for (const res of tests) {
         if (res.state != 'passed') {

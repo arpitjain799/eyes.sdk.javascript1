@@ -16,7 +16,7 @@ module.exports = {
       : []),
     './test/coverage/overrides.js',
   ],
-  emitOnly: test => {
+  emitOnly: (test) => {
     if (
       test.api === 'classic' ||
       (test.name.toLowerCase().includes('shadow') && test.name.toLowerCase().includes('dom'))

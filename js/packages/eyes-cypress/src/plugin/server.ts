@@ -1,52 +1,44 @@
-'use strict';
-import connectSocket from './webSocket';
+import connectSocket, {type SocketWithUniversal} from './webSocket'
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import {makeServerProcess} from '@applitools/eyes-universal';
-import handleTestResults from './handleTestResults';
-import path from 'path';
-import fs from 'fs';
-// @ts-ignore
-import semverLt from 'semver/functions/lt';
-import {Server as HttpsServer} from 'https';
-import {Server as WSServer} from 'ws';
-import which from 'which';
+import {makeServerProcess} from '@applitools/eyes-universal'
+import handleTestResults from './handleTestResults'
+import path from 'path'
+import fs from 'fs'
+import {lt as semverLt} from 'semver'
+import {Server as HttpsServer} from 'https'
+import {Server as WSServer} from 'ws'
+import which from 'which'
+import {type Logger} from '@applitools/logger'
+import {AddressInfo} from 'net'
 
-export default function makeStartServer({logger}: any) {
+export default function makeStartServer({logger}: {logger: Logger}) {
   return async function startServer() {
-    const key = fs.readFileSync(path.resolve(__dirname, '../../src/pem/server.key'));
-    const cert = fs.readFileSync(path.resolve(__dirname, '../../src/pem/server.cert'));
-    let port;
-
+    const key = fs.readFileSync(path.resolve(__dirname, '../../src/pem/server.key'))
+    const cert = fs.readFileSync(path.resolve(__dirname, '../../src/pem/server.cert'))
     const https = new HttpsServer({
       key,
       cert,
-    });
-    // @ts-ignore
-    await https.listen(0, (err: any) => {
-      if (err) {
-        logger.log('error starting plugin server', err);
-      } else {
-        port = (https.address() as any).port;
-        logger.log(`plugin server running at port: ${port}`);
-      }
-    });
+    })
+    https.listen()
+    const port = (https.address() as AddressInfo).port
+    const wss = new WSServer({server: https, path: '/eyes', maxPayload: 254 * 1024 * 1024})
 
-    const wss = new WSServer({server: https, path: '/eyes', maxPayload: 254 * 1024 * 1024});
-
-    wss.on('close', () => https.close());
+    wss.on('close', () => https.close())
 
     const forkOptions = {
       detached: true,
-    };
+    }
 
-    const cypressVersion = require('cypress/package.json').version;
+    const cypressVersion = require('cypress/package.json').version
 
     // `cypress` version below `7.0.0` has an old Electron version which not support async shell process.
     // By passing `execPath` with the node process cwd it will switch the `node` process to be the like the OS have
     // and will not use the unsupported `Cypress Helper.app` with the not supported shell process Electron
     if (semverLt(cypressVersion, '7.0.0')) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      forkOptions.execPath = await which('node');
+      forkOptions.execPath = await which('node')
     }
 
     const {port: universalPort, close: closeUniversalServer} = await makeServerProcess({
@@ -55,27 +47,27 @@ export default function makeStartServer({logger}: any) {
       forkOptions,
       singleton: false,
       portResolutionMode: 'random',
-    });
+    })
 
-    const managers: any[] = [];
-    let socketWithUniversal: any;
+    const managers: {manager: string; socketWithUniversal: SocketWithUniversal}[] = []
+    let socketWithUniversal: SocketWithUniversal
 
     wss.on('connection', socketWithClient => {
-      socketWithUniversal = connectSocket(`ws://localhost:${universalPort}/eyes`);
+      socketWithUniversal = connectSocket(`ws://localhost:${universalPort}/eyes`)
 
-      socketWithUniversal.setPassthroughListener((message: any) => {
-        logger.log('<== ', message.toString().slice(0, 1000));
-        const {name, payload} = JSON.parse(message);
+      socketWithUniversal.setPassthroughListener((message: string) => {
+        logger.log('<== ', message.toString().slice(0, 1000))
+        const {name, payload} = JSON.parse(message)
         if (name === 'Core.makeManager') {
-          managers.push({manager: payload.result, socketWithUniversal});
+          managers.push({manager: payload.result, socketWithUniversal})
         }
 
-        socketWithClient.send(message.toString());
-      });
+        socketWithClient.send(message.toString())
+      })
 
       socketWithClient.on('message', (message: string) => {
-        const msg = JSON.parse(message);
-        logger.log('==> ', message.toString().slice(0, 1000));
+        const msg = JSON.parse(message)
+        logger.log('==> ', message.toString().slice(0, 1000))
         if (msg.name === 'Core.makeSDK') {
           const newMessage = Buffer.from(
             JSON.stringify({
@@ -84,30 +76,27 @@ export default function makeStartServer({logger}: any) {
               payload: Object.assign(msg.payload, {cwd: process.cwd()}),
             }),
             'utf-8',
-          );
-          socketWithUniversal.send(newMessage);
+          )
+          socketWithUniversal.send(newMessage)
         } else if (msg.name === 'Test.printTestResults') {
           try {
-            if (
-              msg.payload.resultConfig.tapDirPath &&
-              msg.payload.resultConfig.shouldCreateTapFile
-            ) {
+            if (msg.payload.resultConfig.tapDirPath && msg.payload.resultConfig.shouldCreateTapFile) {
               handleTestResults.handleBatchResultsFile(msg.payload.testResults, {
                 tapFileName: msg.payload.resultConfig.tapFileName,
                 tapDirPath: msg.payload.resultConfig.tapDirPath,
-              });
+              })
             }
             handleTestResults.printTestResults({
               testResults: msg.payload.testResults,
               resultConfig: msg.payload.resultConfig,
-            });
+            })
             socketWithClient.send(
               JSON.stringify({
                 name: 'Test.printTestResults',
                 key: msg.key,
                 payload: {result: 'success'},
               }),
-            );
+            )
           } catch (ex) {
             socketWithClient.send(
               JSON.stringify({
@@ -115,13 +104,13 @@ export default function makeStartServer({logger}: any) {
                 key: msg.key,
                 payload: {result: ex.message.toString()},
               }),
-            );
+            )
           }
         } else {
-          socketWithUniversal.send(message);
+          socketWithUniversal.send(message)
         }
-      });
-    });
+      })
+    })
 
     return {
       server: wss,
@@ -129,7 +118,7 @@ export default function makeStartServer({logger}: any) {
       closeManager,
       closeBatches,
       closeUniversalServer,
-    };
+    }
 
     function closeManager() {
       return Promise.all(
@@ -139,13 +128,13 @@ export default function makeStartServer({logger}: any) {
             throwErr: false,
           }),
         ),
-      );
+      )
     }
     function closeBatches(settings: any) {
       if (socketWithUniversal)
-        return socketWithUniversal.request('Core.closeBatches', {settings}).catch((err: any) => {
-          logger.log('@@@', err);
-        });
+        return socketWithUniversal.request('Core.closeBatches', {settings}).catch((err: Error) => {
+          logger.log('@@@', err)
+        })
     }
-  };
+  }
 }

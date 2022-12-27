@@ -209,7 +209,7 @@ describe('pluginExport', () => {
       exports: {
         default: {
           e2e: {
-            setupNodeEvents(on, config) {},
+            setupNodeEvents(_on, _config) {},
           },
         },
       },
@@ -237,7 +237,7 @@ describe('pluginExport', () => {
       exports: {
         default: {
           component: {
-            setupNodeEvents(on, config) {},
+            setupNodeEvents(_on, _config) {},
           },
         },
       },

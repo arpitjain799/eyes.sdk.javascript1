@@ -11,7 +11,7 @@ describe('Coverage tests', () => {
       viewportSize: {width: 700, height: 460},
     });
 
-    cy.get('#overflowing-div').then($el => {
+    cy.get('#overflowing-div').then(($el) => {
       cy.eyesCheckWindow({
         ignore: $el[0],
       });
@@ -19,7 +19,7 @@ describe('Coverage tests', () => {
 
     cy.eyesClose();
 
-    cy.eyesGetAllTestResults().then(async summary => {
+    cy.eyesGetAllTestResults().then(async (summary) => {
       const info = await getTestInfo(
         summary.getAllResults()[0].getTestResults(),
         Cypress.config('appliConfFile').apiKey,

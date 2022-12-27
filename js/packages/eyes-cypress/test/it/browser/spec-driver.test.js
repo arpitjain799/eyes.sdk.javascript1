@@ -19,7 +19,7 @@ describe('spec-driver', () => {
   });
 
   it('works for spec-driver.spec.js', async () => {
-    await runCypress('spec-driver').then(results => {
+    await runCypress('spec-driver').then((results) => {
       const tests = results.runs[0].tests;
       for (const res of tests) {
         if (res.state != 'passed') {

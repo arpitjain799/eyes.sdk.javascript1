@@ -12,8 +12,8 @@ describe('Coverage tests', () => {
       branchName: 'CypressUniversal',
     });
 
-    cy.get('#centered').then(el => {
-      cy.window().then(win => {
+    cy.get('#centered').then((el) => {
+      cy.window().then((win) => {
         const func = new win.Function(`function func(args) {
                      args[0].setAttribute("data-expected-target", "true");
                     }`);
@@ -28,7 +28,7 @@ describe('Coverage tests', () => {
     });
     cy.eyesClose();
 
-    cy.eyesGetAllTestResults().then(async summary => {
+    cy.eyesGetAllTestResults().then(async (summary) => {
       const info = await getTestInfo(
         summary.getAllResults()[0].getTestResults(),
         Cypress.config('appliConfFile').apiKey,

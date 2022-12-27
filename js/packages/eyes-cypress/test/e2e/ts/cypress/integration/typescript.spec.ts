@@ -20,7 +20,7 @@ describe(testName, () => {
   })
 
   after(() => {
-    cy.eyesGetAllTestResults().then((summary) => {
+    cy.eyesGetAllTestResults().then(summary => {
       console.log(summary.getAllResults()[0].toJSON())
       const testResults = summary.getAllResults()[0]
       expect(summary.getAllResults()).to.have.length(1)

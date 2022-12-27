@@ -1,5 +1,3 @@
-'use strict';
-
 const configParams = [
   'appName',
   'testName',
@@ -43,6 +41,6 @@ const configParams = [
   'notifyOnCompletion',
   'batchNotify',
   'dontCloseBatches',
-];
+]
 
 export default configParams

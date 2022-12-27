@@ -11,9 +11,9 @@ describe('Coverage tests', () => {
       viewportSize: {width: 700, height: 460},
       accessibilityValidation: {level: 'AAA', guidelinesVersion: 'WCAG_2_0'},
     });
-    cy.get('.ignore').then($el => {
+    cy.get('.ignore').then(($el) => {
       cy.eyesCheckWindow({
-        accessibility: $el.toArray().map(element => ({
+        accessibility: $el.toArray().map((element) => ({
           accessibilityType: 'LargeText',
           element,
         })),
@@ -22,7 +22,7 @@ describe('Coverage tests', () => {
 
     cy.eyesClose();
 
-    cy.eyesGetAllTestResults().then(async summary => {
+    cy.eyesGetAllTestResults().then(async (summary) => {
       const info = await getTestInfo(
         summary.getAllResults()[0].getTestResults(),
         Cypress.config('appliConfFile').apiKey,

@@ -11,12 +11,12 @@ describe('Coverage tests', () => {
       viewportSize: {width: 700, height: 460},
     });
 
-    cy.window().then(win => {
+    cy.window().then((win) => {
       const func = new win.Function('window.scrollBy(0, 350)');
       return func(...[]);
     });
 
-    cy.window().then(win => {
+    cy.window().then((win) => {
       const func = new win.Function(
         `document.documentElement.setAttribute("data-expected-target", "true");`,
       );
@@ -27,7 +27,7 @@ describe('Coverage tests', () => {
       fully: false,
     });
     cy.eyesClose();
-    cy.eyesGetAllTestResults().then(async summary => {
+    cy.eyesGetAllTestResults().then(async (summary) => {
       const info = await getTestInfo(
         summary.getAllResults()[0].getTestResults(),
         Cypress.config('appliConfFile').apiKey,

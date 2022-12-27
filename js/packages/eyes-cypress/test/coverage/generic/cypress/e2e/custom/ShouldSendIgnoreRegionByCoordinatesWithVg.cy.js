@@ -16,7 +16,7 @@ describe('Coverage tests', () => {
       fully: true,
     });
     cy.eyesClose();
-    cy.eyesGetAllTestResults().then(async summary => {
+    cy.eyesGetAllTestResults().then(async (summary) => {
       const info = await getTestInfo(
         summary.getAllResults()[0].getTestResults(),
         Cypress.config('appliConfFile').apiKey,

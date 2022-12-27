@@ -25,7 +25,7 @@ async function runCypress(pluginsFile, testFile = 'helloworld.js') {
   ).stdout;
 }
 
-const readTapFile = async tapFilePath => {
+const readTapFile = async (tapFilePath) => {
   return await readFile(tapFilePath, 'utf8');
 };
 
@@ -60,7 +60,7 @@ describe('tap file', () => {
     const [err] = await presult(runCypress('index-run.js', 'helloworld.js'));
     expect(err).to.be.undefined;
     const dirCont = fs.readdirSync(targetTestAppPath);
-    const files = dirCont.filter(function(elm) {
+    const files = dirCont.filter(function (elm) {
       return elm.match(/.*\.(tap?)/gi);
     });
     expect(files.length).to.equal(1, `Created ${files.length} .tap file(s)`);
@@ -97,7 +97,7 @@ describe('tap file', () => {
     );
     expect(err).to.be.undefined;
     const dirCont = fs.readdirSync(targetTestAppPath);
-    const files = dirCont.filter(function(elm) {
+    const files = dirCont.filter(function (elm) {
       return elm.match(/.*\.(tap?)/gi);
     });
     expect(files.length).to.equal(1, `Created ${files.length} .tap file(s)`);

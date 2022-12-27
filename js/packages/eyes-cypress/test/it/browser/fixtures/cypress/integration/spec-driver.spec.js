@@ -10,7 +10,7 @@ describe('spec: executeScript', () => {
   });
 
   it('executeScript no args', () => {
-    cy.document().then(doc => {
+    cy.document().then((doc) => {
       const userAgnet = spec.executeScript(doc, getUserAgent, {});
       expect(userAgnet).to.contain('Chrome');
     });
@@ -22,7 +22,7 @@ describe('spec: findElement', () => {
     cy.visit('https://www.applitools.com/helloworld');
   });
   it('works for findElement css selector', () => {
-    cy.document().then(doc => {
+    cy.document().then((doc) => {
       const selector = 'body > div > div.section.button-section > button';
       const button = spec.findElement(doc, {selector, type: 'css'});
       expect(button.outerText).to.equal('Click me!');
@@ -30,7 +30,7 @@ describe('spec: findElement', () => {
   });
 
   it('works for findElement xpath', () => {
-    cy.document().then(doc => {
+    cy.document().then((doc) => {
       const xpath = '/html/body/div/div[3]/button';
       const button = spec.findElement(doc, {selector: xpath, type: 'xpath'});
       expect(button.outerText).to.equal('Click me!');
@@ -38,7 +38,7 @@ describe('spec: findElement', () => {
   });
 
   it('works for findElements with css selector', () => {
-    cy.document().then(doc => {
+    cy.document().then((doc) => {
       const selector = 'div';
       const divs = spec.findElements(doc, {selector, type: 'css'});
       expect(divs.length).to.equal(7);
@@ -46,7 +46,7 @@ describe('spec: findElement', () => {
   });
 
   it('works for findElements with xpath', () => {
-    cy.document().then(doc => {
+    cy.document().then((doc) => {
       const xpath = '//div[contains(@class, "section")]';
       const actual = spec.findElements(doc, {selector: xpath, type: 'xpath'});
       const expected = [...doc.querySelectorAll('.section')];
@@ -75,7 +75,7 @@ describe('spec: getCookies', () => {
   });
 
   it('works for getCookies', () => {
-    cy.document().then(async doc => {
+    cy.document().then(async (doc) => {
       doc.cookie = 'value: test getCookies;';
       const returnedCookies = await spec.getCookies();
       expect(returnedCookies).to.deep.include({

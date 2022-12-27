@@ -13,7 +13,7 @@ describe('Coverage Tests - ShouldSendCoddedRegionByDomWithPaddingWithVg', () => 
       viewportSize: {width: 1100, height: 700},
     });
 
-    cy.get('#layoutRegions').then($el => {
+    cy.get('#layoutRegions').then(($el) => {
       cy.eyesCheckWindow({
         layout: {element: $el[0], padding: {top: 20, right: 20}},
       });
@@ -21,7 +21,7 @@ describe('Coverage Tests - ShouldSendCoddedRegionByDomWithPaddingWithVg', () => 
 
     cy.eyesClose();
 
-    cy.eyesGetAllTestResults().then(async summary => {
+    cy.eyesGetAllTestResults().then(async (summary) => {
       const info = await getTestInfo(
         summary.getAllResults()[0].getTestResults(),
         Cypress.config('appliConfFile').apiKey,

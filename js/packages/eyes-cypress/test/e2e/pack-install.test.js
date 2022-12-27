@@ -19,7 +19,7 @@ describe('package and install', () => {
     const {name, version} = rootPackageJson;
     const packageName = name
       .split('/')
-      .map(x => x.replace('@', ''))
+      .map((x) => x.replace('@', ''))
       .join('-');
     process.chdir(rootPath);
     packageFilePath = resolve(rootPath, `${packageName}-${version}.tgz`);

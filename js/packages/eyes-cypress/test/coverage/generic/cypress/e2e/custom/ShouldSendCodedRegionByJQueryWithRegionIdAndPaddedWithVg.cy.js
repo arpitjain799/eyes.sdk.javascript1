@@ -11,7 +11,7 @@ describe('Coverage Tests - ShouldSendCodedRegionByJQueryWithRegionIdAndPaddedWit
       displayName: 'should send codded regions by JQuery with region id and padding with vg',
       baselineName: 'ShouldSendCodedRegionByJQueryWithRegionIdAndPadded',
     });
-    cy.get('.region.two:nth-child(2)').then(el => {
+    cy.get('.region.two:nth-child(2)').then((el) => {
       cy.eyesCheckWindow({
         fully: false,
         ignore: [{element: el, regionId: 'my-region-id', padding: {top: 20}}],
@@ -20,7 +20,7 @@ describe('Coverage Tests - ShouldSendCodedRegionByJQueryWithRegionIdAndPaddedWit
 
     cy.eyesClose();
 
-    cy.eyesGetAllTestResults().then(async summary => {
+    cy.eyesGetAllTestResults().then(async (summary) => {
       const info = await getTestInfo(
         summary.getAllResults()[0].getTestResults(),
         Cypress.config('appliConfFile').apiKey,

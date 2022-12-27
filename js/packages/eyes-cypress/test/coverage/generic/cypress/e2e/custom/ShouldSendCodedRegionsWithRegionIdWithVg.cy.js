@@ -11,7 +11,7 @@ describe('Coverage Tests - ShouldSendCoddedRegionsWithRegionIdWithVg', () => {
       displayName: 'should send codded regions with region id with vg',
       baselineName: 'ShouldSendCoddedRegionsWithRegionIdWithVg',
     });
-    cy.get('.region.two:nth-child(2)').then(el => {
+    cy.get('.region.two:nth-child(2)').then((el) => {
       cy.eyesCheckWindow({
         fully: false,
         ignore: [
@@ -48,7 +48,7 @@ describe('Coverage Tests - ShouldSendCoddedRegionsWithRegionIdWithVg', () => {
 
     cy.eyesClose();
 
-    cy.eyesGetAllTestResults().then(async summary => {
+    cy.eyesGetAllTestResults().then(async (summary) => {
       const info = await getTestInfo(
         summary.getAllResults()[0].getTestResults(),
         Cypress.config('appliConfFile').apiKey,

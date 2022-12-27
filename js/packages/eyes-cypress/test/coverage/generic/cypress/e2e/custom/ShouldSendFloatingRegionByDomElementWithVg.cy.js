@@ -9,7 +9,7 @@ describe('Coverage tests', () => {
       testName: 'TestCheckWindowWithFloatingByDomElement_Fluent_VG',
       viewportSize: {width: 700, height: 460},
     });
-    cy.get('#overflowing-div').then($el => {
+    cy.get('#overflowing-div').then(($el) => {
       cy.eyesCheckWindow({
         floating: [
           {
@@ -23,7 +23,7 @@ describe('Coverage tests', () => {
       });
     });
     cy.eyesClose();
-    cy.eyesGetAllTestResults().then(async summary => {
+    cy.eyesGetAllTestResults().then(async (summary) => {
       const info = await getTestInfo(
         summary.getAllResults()[0].getTestResults(),
         Cypress.config('appliConfFile').apiKey,

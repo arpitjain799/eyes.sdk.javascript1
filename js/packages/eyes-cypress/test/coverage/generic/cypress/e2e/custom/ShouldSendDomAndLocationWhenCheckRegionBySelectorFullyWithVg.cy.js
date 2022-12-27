@@ -12,7 +12,7 @@ describe('Coverage tests', () => {
       branchName: 'CypressUniversal',
     });
 
-    cy.window().then(win => {
+    cy.window().then((win) => {
       const func = new win.Function(`window.scrollTo(0, 350)`);
       return func(...[]);
     });
@@ -24,7 +24,7 @@ describe('Coverage tests', () => {
     });
     cy.eyesClose();
 
-    cy.eyesGetAllTestResults().then(async summary => {
+    cy.eyesGetAllTestResults().then(async (summary) => {
       const info = await getTestInfo(
         summary.getAllResults()[0].getTestResults(),
         Cypress.config('appliConfFile').apiKey,
