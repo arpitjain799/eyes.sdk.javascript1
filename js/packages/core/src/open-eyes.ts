@@ -1,4 +1,4 @@
-import type {TypedCore, Eyes, Config, OpenSettings} from './types'
+import type {TypedCore, Batch, Eyes, Config, OpenSettings} from './types'
 import type {Core as BaseCore} from '@applitools/core-base'
 import {type Logger} from '@applitools/logger'
 import {type SpecDriver} from '@applitools/driver'
@@ -11,10 +11,12 @@ import {makeLocateText} from './locate-text'
 import {makeExtractText} from './extract-text'
 import {makeClose} from './close'
 import * as utils from '@applitools/utils'
+import {extractCIProvider} from './utils/extract-ci-provider'
 
 type Options<TDriver, TContext, TElement, TSelector, TType extends 'classic' | 'ufg'> = {
   type?: TType
   concurrency?: number
+  batch?: Batch
   core: BaseCore
   cores?: {[TKey in 'classic' | 'ufg']: TypedCore<TDriver, TContext, TElement, TSelector, TKey>}
   spec?: SpecDriver<TDriver, TContext, TElement, TSelector>
@@ -24,6 +26,7 @@ type Options<TDriver, TContext, TElement, TSelector, TType extends 'classic' | '
 export function makeOpenEyes<TDriver, TContext, TElement, TSelector, TDefaultType extends 'classic' | 'ufg' = 'classic'>({
   type: defaultType = 'classic' as TDefaultType,
   concurrency,
+  batch,
   core,
   cores,
   spec,
@@ -46,8 +49,8 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector, TDefaultTyp
     settings.userTestId ??= `${settings.testName}--${utils.general.guid()}`
     settings.serverUrl ??= utils.general.getEnvValue('SERVER_URL') ?? 'https://eyesapi.applitools.com'
     settings.apiKey ??= utils.general.getEnvValue('API_KEY')
-    settings.batch ??= {}
-    settings.batch.id ??= utils.general.getEnvValue('BATCH_ID') ?? utils.general.guid()
+    settings.batch = {...batch, ...settings.batch}
+    settings.batch.id ??= utils.general.getEnvValue('BATCH_ID') ?? `generated-${utils.general.guid()}`
     settings.batch.name ??= utils.general.getEnvValue('BATCH_NAME')
     settings.batch.sequenceName ??= utils.general.getEnvValue('BATCH_SEQUENCE')
     settings.batch.notifyOnCompletion ??= utils.general.getEnvValue('BATCH_NOTIFY', 'boolean')
@@ -74,6 +77,8 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector, TDefaultTyp
           testConcurrency: concurrency,
           concurrentRendersPerTest: (settings as OpenSettings<'ufg'>).renderConcurrency,
           node: {version: process.version, platform: process.platform, arch: process.arch},
+          driverUrl: target && spec?.extractHostName?.(target),
+          extractedCIProvider: extractCIProvider(),
         },
       },
       logger,
