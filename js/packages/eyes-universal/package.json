@@ -90,7 +90,7 @@
     "@applitools/sdk-coverage-tests": "^2.7.8",
     "@applitools/spec-driver-selenium": "^1.5.18",
     "@applitools/test-server": "^1.1.16",
-    "@applitools/test-utils": "^1.5.2",
+    "@applitools/test-utils": "^1.5.5",
     "@types/http-proxy": "^1.17.9",
     "@types/mocha": "^9.0.0",
     "@types/node": "12",
