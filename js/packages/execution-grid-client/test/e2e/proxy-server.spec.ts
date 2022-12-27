@@ -68,7 +68,6 @@ describe('proxy-server', () => {
       usingServer(proxy.url)
 
     driver = await builder.build()
-
     await driver.get('https://demo.applitools.com')
     await driver.findElement({css: '#log-in'})
     await driver.quit()

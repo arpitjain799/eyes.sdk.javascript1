@@ -70,7 +70,7 @@ export function makeServer({
         return await createSession({request, response, logger: requestLogger})
       } else if (request.method === 'DELETE' && /^\/session\/[^\/]+\/?$/.test(request.url)) {
         return await deleteSession({request, response, logger: requestLogger})
-      } else if (useSelfHealing && request.method === 'POST' && /element/.test(request.url)) {
+      } else if (useSelfHealing && request.method === 'POST' && /^\/session\/[^\/]+\/element\/?$/.test(request.url)) {
         requestLogger.log('Inspecting element lookup request to collect self-healing metadata')
         const proxyResponse = await proxyRequest({
           request,
@@ -87,7 +87,7 @@ export function makeServer({
         }
         proxyResponse.pipe(response)
         return
-      } else if (useSelfHealing && request.method === 'GET' && /metadata/.test(request.url)) {
+      } else if (useSelfHealing && request.method === 'GET' && /^\/session\/[^\/]+\/applitools\/metadata?$/.test(request.url)) {
         requestLogger.log('Session metadata requested, returning', metadata)
         response.writeHead(200).end(JSON.stringify({value: metadata}))
       } else {

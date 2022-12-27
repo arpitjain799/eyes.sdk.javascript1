@@ -287,7 +287,7 @@ describe('proxy-server', () => {
       })
 
     const driver = await new Builder().forBrowser('chrome').usingServer(proxy.url).build()
-    driver.getExecutor().defineCommand('getSessionMetadata', 'GET', '/session/:sessionId/metadata')
+    driver.getExecutor().defineCommand('getSessionMetadata', 'GET', '/session/:sessionId/applitools/metadata')
     await driver.findElement({css: 'blah'})
     const result = await driver.execute(new Command('getSessionMetadata'))
     assert.deepStrictEqual(result, [expected])
