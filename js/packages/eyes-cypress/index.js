@@ -1,2 +1,2 @@
 'use strict';
-module.exports = require('./dist/plugin/startPlugin').default;
+module.exports = require('./dist/plugin');

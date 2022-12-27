@@ -1,4 +1,3 @@
-/* global Node */
 const spec = require('../../dist/browser/spec-driver');
 
 function socketCommands(socket, refer) {
@@ -22,7 +21,7 @@ function socketCommands(socket, refer) {
   socket.command('Driver.getViewportSize', () => {
     return spec.getViewportSize();
   });
-  socket.command('Driver.setViewportSize', vs => {
+  socket.command('Driver.setViewportSize', (vs) => {
     spec.setViewportSize(vs);
   });
   socket.command('Driver.findElement', ({context, selector, parent}) => {
@@ -39,7 +38,7 @@ function socketCommands(socket, refer) {
       spec.transformSelector(selector),
       refer.deref(parent),
     );
-    return Array.prototype.map.call(elements, element =>
+    return Array.prototype.map.call(elements, (element) =>
       element === null ? element : refer.ref(element, context),
     );
   });

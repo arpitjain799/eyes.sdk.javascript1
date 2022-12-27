@@ -51,7 +51,7 @@ Cypress.Commands.add('eyesGetAllTestResults', () => {
         },
       });
     };
-    summary.results = summary.results.map(res => {
+    summary.results = summary.results.map((res) => {
       return {...res, result: res.testResults, error: res.exception, renderer: res.browserInfo};
     });
     return new TestResultsSummary({summary, deleteTest});
@@ -91,7 +91,7 @@ if (shouldUseBrowserHooks || Cypress.config('eyesFailCypressOnDiff')) {
 
 let isCurrentTestDisabled;
 
-Cypress.Commands.add('eyesOpen', function(args = {}) {
+Cypress.Commands.add('eyesOpen', function (args = {}) {
   Cypress.log({name: 'Eyes: open'});
   Cypress.config('eyesOpenArgs', args);
   const {title: testName} = this.currentTest || this.test || Cypress.currentTest;
@@ -175,7 +175,7 @@ Cypress.Commands.add('eyesClose', () => {
     }
 
     // intentionally not returning the result in order to not wait on the close promise
-    const p = socket.request('Eyes.close', {eyes, throwErr: false}).catch(err => {
+    const p = socket.request('Eyes.close', {eyes, throwErr: false}).catch((err) => {
       console.log('Error in cy.eyesClose', err);
     });
     closePromiseArr.push(p);

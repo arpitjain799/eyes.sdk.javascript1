@@ -14,21 +14,21 @@ class Socket {
     if (ws.readyState === WebSocket.CONNECTING) ws.addEventListener('open', () => this.attach(ws));
     else if (ws.readyState === WebSocket.OPEN) {
       this._socket = ws;
-      this._queue.forEach(command => command());
+      this._queue.forEach((command) => command());
       this._queue.clear();
 
-      this._socket.addEventListener('message', message => {
+      this._socket.addEventListener('message', (message) => {
         const {name, key, payload} = this.deserialize(message);
         const fns = this._listeners.get(name);
-        if (fns) fns.forEach(fn => fn(payload, key));
+        if (fns) fns.forEach((fn) => fn(payload, key));
         if (key) {
           const fns = this._listeners.get(`${name}/${key}`);
-          if (fns) fns.forEach(fn => fn(payload, key));
+          if (fns) fns.forEach((fn) => fn(payload, key));
         }
       });
       this._socket.addEventListener('close', () => {
         const fns = this._listeners.get('close');
-        if (fns) fns.forEach(fn => fn());
+        if (fns) fns.forEach((fn) => fn());
       });
     }
   }
@@ -60,7 +60,7 @@ class Socket {
       try {
         const key = uuid.v4();
         this.emit({name, key}, payload);
-        this.once({name, key}, response => {
+        this.once({name, key}, (response) => {
           if (response.error) return reject(response.error);
           return resolve(response.result);
         });

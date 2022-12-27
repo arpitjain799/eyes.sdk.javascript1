@@ -39,7 +39,7 @@ class Refer {
       }
       return {[REF_ID]: ref, type: refType};
     } else if (Array.isArray(value)) {
-      return value.map(value => this.ref(value, parentRef));
+      return value.map((value) => this.ref(value, parentRef));
     } else if (typeof value === 'object' && value !== null) {
       return Object.entries(value).reduce((obj, [key, value]) => {
         return Object.assign(obj, {[key]: this.ref(value, parentRef)});
@@ -61,7 +61,7 @@ class Refer {
     if (!this.isRef(ref)) return;
     const childRefs = this.relation.get(ref[REF_ID]);
     if (childRefs) {
-      childRefs.forEach(childRef => this.destroy(childRef));
+      childRefs.forEach((childRef) => this.destroy(childRef));
     }
     this.store.delete(ref[REF_ID]);
   }

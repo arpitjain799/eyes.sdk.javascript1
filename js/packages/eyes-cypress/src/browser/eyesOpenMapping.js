@@ -1,5 +1,5 @@
 const batchPropertiesRetriever = (args, appliConfFile) => {
-  return function(prop, nestedProp) {
+  return function (prop, nestedProp) {
     nestedProp = nestedProp || prop;
     if (args.hasOwnProperty(prop)) {
       return args[prop];

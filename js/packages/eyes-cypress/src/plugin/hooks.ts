@@ -1,5 +1,8 @@
 import handleTestResults from './handleTestResults';
 
+
+
+
 export default function makeGlobalRunHooks({closeManager, closeBatches, closeUniversalServer}: any) {
   return {
     'before:run': ({config}: any) => {

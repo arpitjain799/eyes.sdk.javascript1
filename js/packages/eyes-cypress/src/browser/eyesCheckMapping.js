@@ -133,7 +133,7 @@ function eyesCheckMapValues({args, refer}) {
     if (!accessibilityRegions) return accessibilityRegions;
     const accessibility = [];
 
-    accessibilityRegions.map(region => {
+    accessibilityRegions.map((region) => {
       const accessabilityRegion = {
         type: region.accessibilityType,
       };
@@ -205,7 +205,7 @@ function eyesCheckMapValues({args, refer}) {
       if (isHTMLElement(region)) {
         elements.push(Object.assign(refer.ref(region), {type: 'element'}));
       } else if (region.jquery) {
-        region.each(function() {
+        region.each(function () {
           // there's a small chance that `this` is not an HTML element. So we just verify it.
           elements.push(
             isHTMLElement(this) ? Object.assign(refer.ref(this), {type: 'element'}) : this,
