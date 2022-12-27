@@ -9,6 +9,12 @@
 
 
 
+## 3.2.0 - 2022/12/27
+
+### Features
+- add support for "node14-linux-arm64"
+### Bug fixes
+
 ## 3.0.0 - 2022/11/2
 
 ### Features
