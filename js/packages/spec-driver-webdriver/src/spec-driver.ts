@@ -10,7 +10,7 @@ import https from 'https'
 
 type ApplitoolsBrand = {__applitoolsBrand?: never}
 
-export type Driver = WD.Client & ApplitoolsBrand
+export type Driver = WD.Client & {original?: any} & ApplitoolsBrand
 export type Element = ({'element-6066-11e4-a52e-4f735466cecf': string} | {ELEMENT: string}) & ApplitoolsBrand
 export type ShadowRoot = {'shadow-6066-11e4-a52e-4f735466cecf': string} & ApplitoolsBrand
 export type Selector = {using: string; value: string} & ApplitoolsBrand
@@ -183,14 +183,14 @@ export function transformSelector(selector: CommonSelector<Selector>): Selector 
     return selector
   }
 }
-export function extractHostName(driver: Driver): string | null {
-  return driver.options?.hostname ?? null
-}
 export function untransformSelector(selector: Selector): CommonSelector {
   if (utils.types.has(selector, ['using', 'value'])) {
     return {type: selector.using === 'css selector' ? 'css' : selector.using, selector: selector.value}
   }
   return selector
+}
+export function extractHostName(driver: Driver): string | null {
+  return driver.options?.hostname ?? null
 }
 export function isStaleElementError(error: any): boolean {
   if (!error) return false
@@ -230,12 +230,20 @@ export async function findElement(
   parent?: Element | ShadowRoot,
 ): Promise<Element | null> {
   const parentId = parent ? (isShadowRoot(parent) ? extractShadowRootId(parent) : extractElementId(parent)) : null
-  const element = parentId
-    ? await driver.findElementFromElement(parentId, selector.using, selector.value)
-    : await driver.findElement(selector.using, selector.value)
-  return isElement(element) ? element : null
+  try {
+    const element = parentId
+      ? await driver.findElementFromElement(parentId, selector.using, selector.value)
+      : await driver.findElement(selector.using, selector.value)
+    return isElement(element) ? element : null
+  } catch {
+    return null
+  }
 }
-export async function findElements(driver: Driver, selector: Selector, parent?: Element): Promise<Element[]> {
+export async function findElements(
+  driver: Driver,
+  selector: Selector,
+  parent?: Element | ShadowRoot,
+): Promise<Element[]> {
   const parentId = parent ? (isShadowRoot(parent) ? extractShadowRootId(parent) : extractElementId(parent)) : null
   return parentId
     ? await driver.findElementsFromElement(parentId, selector.using, selector.value)
@@ -309,6 +317,27 @@ export async function takeScreenshot(driver: Driver): Promise<string> {
 export async function click(driver: Driver, element: Element | Selector): Promise<void> {
   const resolvedElement = isSelector(element) ? await findElement(driver, element) : element
   if (resolvedElement) await driver.elementClick(extractElementId(resolvedElement))
+}
+export async function hover(driver: Driver, element: Element): Promise<any> {
+  if (!driver.isW3C) return await driver.moveToElement(extractElementId(element))
+  const {x, y, width, height} = await driver.getElementRect(extractElementId(element))
+  const {scrollX, scrollY} = await driver.executeScript(
+    'return {scrollX:window.pageXOffset,scrollY:window.pageYOffset}',
+    [],
+  )
+  const offsetX = Math.floor(x - scrollX + width / 2)
+  const offsetY = Math.floor(y - scrollY + height / 2)
+  await driver.performActions([
+    {
+      type: 'pointer',
+      id: 'mouse',
+      parameters: {pointerType: 'mouse'},
+      actions: [{type: 'pointerMove', duration: 0, x: offsetX, y: offsetY}],
+    },
+  ])
+}
+export async function scrollIntoView(driver: Driver, element: Element, align = false): Promise<void> {
+  await driver.executeScript('arguments[0].scrollIntoView(arguments[1])', [element, align])
 }
 
 // #endregion
