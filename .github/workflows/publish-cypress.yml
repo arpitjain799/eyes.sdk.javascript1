@@ -73,12 +73,13 @@ jobs:
           else
             ENVIRONMENTS="[{\"node-version\":16}]"
           fi
+          echo "environments=${ENVIRONMENTS}" >> $GITHUB_OUTPUT
 
           if [${{github.event.inputs.multiversion}} = true]
           then
-            VERSIONS="[{\"cypress-version\":9},{\"cypress-version\":10},{\"cypress-version\":11},{\"cypress-version\":12}]"
+            VERSIONS="[{\"cypress-version\":12},{\"cypress-version\":11},{\"cypress-version\":10},{\"cypress-version\":9}]"
           else
-            VERSIONS="[{\"cypress-version\":9}]"
+            VERSIONS="[{\"cypress-version\":12}]"
           fi
           echo "versions=${VERSIONS}" >> $GITHUB_OUTPUT
   test:
