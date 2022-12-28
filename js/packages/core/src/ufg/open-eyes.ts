@@ -41,6 +41,7 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
       eyes ? 'predefined eyes' : '',
     )
     const driver = target && (await makeDriver({spec, driver: target, logger, customConfig: {disableHelper: true}}))
+
     if (driver && !eyes) {
       const currentContext = driver.currentContext
       if (settings.environment?.viewportSize) {
@@ -93,7 +94,7 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
         ),
         checkAndClose: makeCheckAndClose({eyes, client, target: driver, spec, signal: controller.signal, logger}),
         // close only once
-        close: utils.general.wrap(makeClose({storage, logger}), async (close, options) => {
+        close: utils.general.wrap(makeClose({storage, target: driver, logger}), async (close, options) => {
           if (closed || aborted) return []
           closed = true
           return close(options)

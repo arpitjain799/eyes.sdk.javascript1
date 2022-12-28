@@ -7,6 +7,7 @@ import {makeCheck} from './check'
 import {makeCheckAndClose} from './check-and-close'
 import {makeLocateText} from './locate-text'
 import {makeExtractText} from './extract-text'
+import {makeClose} from './close'
 import * as utils from '@applitools/utils'
 
 type Options<TDriver, TContext, TElement, TSelector> = {
@@ -85,6 +86,7 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
       checkAndClose: makeCheckAndClose({eyes, target: driver, spec, logger}),
       locateText: makeLocateText({eyes, target: driver, spec, logger}),
       extractText: makeExtractText({eyes, target: driver, spec, logger}),
+      close: makeClose({eyes, target: driver, spec, logger})
     }))
   }
 }

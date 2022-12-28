@@ -2,13 +2,22 @@ import type {CloseSettings, TestResult} from './types'
 import type {Eyes as BaseEyes} from '@applitools/core-base'
 import {type Logger} from '@applitools/logger'
 import {type Renderer} from '@applitools/ufg-client'
+import type {DriverTarget} from './types'
+import {makeDriver, type SpecDriver} from '@applitools/driver'
 
-type Options = {
+type Options<TDriver, TContext, TElement, TSelector> = {
   storage: {renderer: Renderer; promise: Promise<{eyes: BaseEyes; renderer: Renderer}>}[]
+  target?: DriverTarget<TDriver, TContext, TElement, TSelector>
+  spec?: SpecDriver<TDriver, TContext, TElement, TSelector>
   logger: Logger
 }
 
-export function makeClose({storage, logger: defaultLogger}: Options) {
+export function makeClose<TDriver, TContext, TElement, TSelector>({
+  storage,
+  target,
+  spec,
+  logger: defaultLogger
+}: Options<TDriver, TContext, TElement, TSelector>) {
   return async function ({
     settings,
     logger = defaultLogger,
@@ -26,7 +35,12 @@ export function makeClose({storage, logger: defaultLogger}: Options) {
       Array.from(tests.values(), async promises => {
         try {
           const [{eyes, renderer}] = await Promise.all(promises)
-          const [result] = await eyes.close({settings, logger})
+
+          const driver = await makeDriver({spec, driver: target, logger})
+          const sessionMetadata = await driver.getSessionMetadata()
+          const selfHealingReport = sessionMetadata // TODO: write transform for selfHealingReport
+
+          const [result] = await eyes.close({settings: {...settings, selfHealingReport}, logger})
           return {...result, renderer}
         } catch (error) {
           await error.info?.eyes?.abort({logger})

@@ -19,6 +19,7 @@ import type {
   LocateTextResult,
   TestResult,
   OpenSettings,
+  AbortSettings,
 } from '../types'
 import {type Fetch} from '@applitools/req'
 import {makeLogger, type Logger} from '@applitools/logger'
@@ -55,7 +56,6 @@ export interface EyesRequests extends Eyes {
   extractText(options: {target: ImageTarget; settings: ExtractTextSettings; logger?: Logger}): Promise<string[]>
   close(options?: {settings?: CloseSettings; logger?: Logger}): Promise<TestResult[]>
   abort(options?: {logger?: Logger}): Promise<TestResult[]>
-  reportSelfHealing(options: {report: any; logger?: Logger}): Promise<void>
 }
 
 export function makeCoreRequests({
@@ -339,21 +339,6 @@ export function makeEyesRequests({
     extractText,
     close,
     abort,
-    reportSelfHealing,
-  }
-
-  async function reportSelfHealing({report, logger = defaultLogger}: {report: any, logger?: Logger}) { 
-    if (!test.account?.selfHealingEnabled) return
-    logger.log('Request "reportSelfHealing" called payload', report)
-    const response = await req(`/api/sessions/running/${encodeURIComponent(test.testId)}/selfhealdata`, {
-      name: 'reportSelfHealing',
-      method: 'PUT',
-      body: report,
-      expected: 200,
-      logger,
-    })
-    const result = await response.json()
-    logger.log('Request "reportSelfHealing" finished successfully with body', result)
   }
 
   async function check({
@@ -520,6 +505,7 @@ export function makeEyesRequests({
       logger.log(`Request "close" called for test ${test.testId} that was already stopped`)
       return null
     }
+    if (settings?.selfHealingReport) await reportSelfHealing({report: settings.selfHealingReport})
     closed = true
     const response = await req(`/api/sessions/running/${encodeURIComponent(test.testId)}`, {
       name: 'close',
@@ -541,12 +527,13 @@ export function makeEyesRequests({
     return [result]
   }
 
-  async function abort({logger = defaultLogger}: {logger?: Logger} = {}): Promise<TestResult[]> {
+  async function abort({settings, logger = defaultLogger}: {settings?: AbortSettings, logger?: Logger} = {}): Promise<TestResult[]> {
     logger.log(`Request "abort" called for test ${test.testId}`)
     if (aborted || closed) {
       logger.log(`Request "abort" called for test ${test.testId} that was already stopped`)
       return null
     }
+    if (settings?.selfHealingReport) await reportSelfHealing({report: settings.selfHealingReport})
     aborted = true
     const response = await req(`/api/sessions/running/${encodeURIComponent(test.testId)}`, {
       name: 'abort',
@@ -561,6 +548,19 @@ export function makeEyesRequests({
     result.userTestId = test.userTestId
     logger.log('Request "abort" finished successfully with body', result)
     return [result]
+  }
+
+  async function reportSelfHealing({report, logger = defaultLogger}: {report: any, logger?: Logger}) { 
+    logger.log('Request "reportSelfHealing" called payload', report)
+    const response = await req(`/api/sessions/running/${encodeURIComponent(test.testId)}/selfhealdata`, {
+      name: 'reportSelfHealing',
+      method: 'PUT',
+      body: report,
+      expected: 200,
+      logger,
+    })
+    const result = await response.json()
+    logger.log('Request "reportSelfHealing" finished successfully with body', result)
   }
 }
 

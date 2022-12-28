@@ -1,19 +1,14 @@
-import type {Target, Eyes, Config, CloseSettings, TestResult} from './types'
+import type {Eyes, Config, CloseSettings, TestResult} from './types'
 import {type Logger} from '@applitools/logger'
 import {TestError} from './errors/test-error'
-import {makeDriver, isDriver, type SpecDriver} from '@applitools/driver'
 
 type Options<TDriver, TContext, TElement, TSelector, TType extends 'classic' | 'ufg'> = {
   eyes: Eyes<TDriver, TContext, TElement, TSelector, TType>
-  target?: Target<TDriver, TContext, TElement, TSelector, TType>
-  spec?: SpecDriver<TDriver, TContext, TElement, TSelector>
   logger: Logger
 }
 
 export function makeClose<TDriver, TContext, TElement, TSelector, TType extends 'classic' | 'ufg'>({
   eyes,
-  target,
-  spec,
   logger: defaultLogger,
 }: Options<TDriver, TContext, TElement, TSelector, TType>) {
   return async function close({
@@ -28,10 +23,6 @@ export function makeClose<TDriver, TContext, TElement, TSelector, TType extends 
     settings = {...config?.close, ...settings}
     settings.updateBaselineIfNew ??= true
     const typedEyes = await eyes.getTypedEyes({logger})
-
-    const driver = isDriver(target, spec) ? await makeDriver({spec, driver: target, logger}) : null
-    const report = await driver.getSessionMetadata()
-    await typedEyes.reportSelfHealing(report)
 
     const results = await typedEyes.close({settings, logger})
     if (settings.throwErr) {

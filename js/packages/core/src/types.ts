@@ -107,10 +107,6 @@ export interface ClassicEyes<
     config?: Config<TElement, TSelector, 'classic'>
     logger?: Logger
   }): Promise<TestResult<'classic'>[]>
-  reportSelfHealing(options?: {
-    report: any,
-    logger?: Logger
-  }): Promise<void>
 }
 
 export interface UFGEyes<TDriver, TContext, TElement, TSelector, TTarget = Target<TDriver, TContext, TElement, TSelector, 'ufg'>>
@@ -144,10 +140,6 @@ export interface UFGEyes<TDriver, TContext, TElement, TSelector, TTarget = Targe
     config?: Config<TElement, TSelector, 'ufg'>
     logger?: Logger
   }): Promise<TestResult<'ufg'>[]>
-  reportSelfHealing(options?: {
-    report: any,
-    logger?: Logger
-  }): Promise<void>
 }
 
 export type Eyes<

@@ -100,7 +100,7 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector, TDefaultTyp
       checkAndClose: makeCheckAndClose({type, eyes, target, spec, logger}),
       locateText: makeLocateText({eyes, logger}),
       extractText: makeExtractText({eyes, logger}),
-      close: makeClose({eyes, target, logger}),
+      close: makeClose({eyes, logger}),
     })) as Eyes<TDriver, TContext, TElement, TSelector, TType>
   }
 }

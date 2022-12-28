@@ -249,16 +249,26 @@ export interface ExtractTextSettings<TRegion = Region> extends ImageSettings<TRe
   userCommandId?: string
 }
 
+export type SelfHealingReport = {
+  operations: [
+    timestamp: string,
+    old: string,
+    new: string
+  ]
+}
+
 export interface CloseSettings {
   updateBaselineIfNew?: boolean
   updateBaselineIfDifferent?: boolean
   /** @internal */
   userCommandId?: string
+  selfHealingReport?: SelfHealingReport
 }
 
 export interface AbortSettings {
   /** @internal */
   userCommandId?: string
+  selfHealingReport?: SelfHealingReport
 }
 
 type TestResultsStatus = 'Passed' | 'Unresolved' | 'Failed'
