@@ -262,13 +262,13 @@ export interface CloseSettings {
   updateBaselineIfDifferent?: boolean
   /** @internal */
   userCommandId?: string
-  selfHealingReport?: SelfHealingReport
+  driverSessionMetadata?: []
 }
 
 export interface AbortSettings {
   /** @internal */
   userCommandId?: string
-  selfHealingReport?: SelfHealingReport
+  driverSessionMetadata?: []
 }
 
 type TestResultsStatus = 'Passed' | 'Unresolved' | 'Failed'

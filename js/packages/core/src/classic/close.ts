@@ -25,10 +25,9 @@ export function makeClose<TDriver, TContext, TElement, TSelector>({
     logger?: Logger
   } = {}): Promise<TestResult[]> {
     const driver = await makeDriver({spec, driver: target, logger})
-    const sessionMetadata = await driver.getSessionMetadata()
-    const selfHealingReport = sessionMetadata // TODO: write transform for selfHealingReport
+    const driverSessionMetadata = await driver.getSessionMetadata()
 
-    const result = await eyes.close({settings: {...settings, selfHealingReport}, logger})
+    const result = await eyes.close({settings: {...settings, driverSessionMetadata}, logger})
     return result
   }
 }
