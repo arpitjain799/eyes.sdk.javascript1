@@ -10,11 +10,11 @@ const RETRY_BACKOFF = [].concat(
   10000, // all next tries with delay 10s
 )
 
-export function makeTunnelManager({egTunnelUrl, logger}: {egTunnelUrl?: string; logger: Logger}) {
+export function makeTunnelManager({tunnelUrl, logger}: {tunnelUrl?: string; logger: Logger}) {
   return {createTunnel, deleteTunnel}
 
   async function createTunnel({eyesServerUrl, apiKey}: {eyesServerUrl?: string; apiKey: string}): Promise<string> {
-    const request = new Request(`${egTunnelUrl}/tunnels`, {
+    const request = new Request(`${tunnelUrl}/tunnels`, {
       method: 'POST',
       headers: new Headers({
         'x-eyes-api-key': apiKey,
@@ -52,7 +52,7 @@ export function makeTunnelManager({egTunnelUrl, logger}: {egTunnelUrl?: string; 
     eyesServerUrl?: string
     apiKey: string
   }): Promise<void> {
-    const request = new Request(`${egTunnelUrl}/tunnels/${tunnelId}`, {
+    const request = new Request(`${tunnelUrl}/tunnels/${tunnelId}`, {
       method: 'DELETE',
       headers: new Headers({
         'x-eyes-api-key': apiKey,

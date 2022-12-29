@@ -1,3 +1,4 @@
+import type {EGClient, EGClientSettings} from './types'
 import {type AddressInfo} from 'net'
 import {type AbortSignal} from 'abort-controller'
 import {createServer, type ServerResponse, type Server} from 'http'
@@ -8,19 +9,6 @@ import {makeProxy} from './proxy'
 import {modifyIncomingMessage, type ModifiedIncomingMessage} from './incoming-message'
 import * as utils from '@applitools/utils'
 
-export type ServerOptions = {
-  egServerUrl?: string
-  egTunnelUrl?: string
-  egTimeout?: number | string
-  egInactivityTimeout?: number | string
-  proxyUrl?: string
-  eyesServerUrl?: string
-  apiKey?: string
-  port?: number
-  resolveUrls?: boolean
-  logger?: Logger
-}
-
 const RETRY_BACKOFF = [].concat(
   Array(5).fill(2000), // 5 tries with delay 2s (total 10s)
   Array(4).fill(5000), // 4 tries with delay 5s (total 20s)
@@ -29,29 +17,18 @@ const RETRY_BACKOFF = [].concat(
 
 const RETRY_ERROR_CODES = ['CONCURRENCY_LIMIT_REACHED', 'NO_AVAILABLE_DRIVER_POD']
 
-export function makeServer({
-  egServerUrl = 'https://exec-wus.applitools.com',
-  egTunnelUrl = process.env.APPLITOOLS_EG_TUNNEL_URL,
-  egTimeout = process.env.APPLITOOLS_EG_TIMEOUT,
-  egInactivityTimeout = process.env.APPLITOOLS_EG_INACTIVITY_TIMEOUT,
-  proxyUrl = process.env.APPLITOOLS_PROXY,
-  eyesServerUrl = process.env.APPLITOOLS_SERVER_URL,
-  apiKey = process.env.APPLITOOLS_API_KEY,
-  port = 0,
-  resolveUrls = true,
-  logger,
-}: ServerOptions = {}): Promise<{url: string; port: number; server: Server}> {
+export function makeServer({settings, logger}: {settings?: EGClientSettings; logger?: Logger} = {}): Promise<EGClient> {
   logger = logger ? logger.extend({label: 'eg-client'}) : makeLogger({label: 'eg-client', colors: true})
 
   const proxyRequest = makeProxy({
-    url: egServerUrl,
-    resolveUrls,
-    proxy: proxyUrl,
+    url: settings.serverUrl,
+    resolveUrls: settings.resolveUrls,
+    proxy: settings.proxy,
     shouldRetry: async proxyResponse => {
       return proxyResponse.statusCode >= 500 && !utils.types.has(await proxyResponse.json(), 'value')
     },
   })
-  const {createTunnel, deleteTunnel} = makeTunnelManager({egTunnelUrl, logger})
+  const {createTunnel, deleteTunnel} = makeTunnelManager({tunnelUrl: settings.tunnelUrl, logger})
 
   const sessions = new Map()
   const queues = new Map<string, Queue>()
@@ -84,7 +61,7 @@ export function makeServer({
     }
   })
 
-  server.listen(port)
+  server.listen(settings.port ?? 0)
 
   return new Promise<{url: string; port: number; server: Server}>((resolve, reject) => {
     server.on('listening', () => {
@@ -112,8 +89,9 @@ export function makeServer({
     logger.log(`Request was intercepted with body:`, requestBody)
 
     const session = {} as any
-    session.eyesServerUrl = extractCapability(requestBody, 'applitools:eyesServerUrl') ?? eyesServerUrl
-    session.apiKey = extractCapability(requestBody, 'applitools:apiKey') ?? apiKey
+    session.eyesServerUrl =
+      extractCapability(requestBody, 'applitools:eyesServerUrl') ?? settings.capabilities?.eyesServerUrl
+    session.apiKey = extractCapability(requestBody, 'applitools:apiKey') ?? settings.capabilities?.apiKey
     session.tunnelId = extractCapability(requestBody, 'applitools:tunnel') ? await createTunnel(session) : undefined
     session.key = `${session.eyesServerUrl ?? 'default'}:${session.apiKey}`
 
@@ -121,9 +99,9 @@ export function makeServer({
       'applitools:eyesServerUrl': session.eyesServerUrl,
       'applitools:apiKey': session.apiKey,
       'applitools:x-tunnel-id-0': session.tunnelId,
-      'applitools:timeout': extractCapability(requestBody, 'applitools:timeout') ?? egTimeout,
+      'applitools:timeout': extractCapability(requestBody, 'applitools:timeout') ?? settings.capabilities?.timeout,
       'applitools:inactivityTimeout':
-        extractCapability(requestBody, 'applitools:inactivityTimeout') ?? egInactivityTimeout,
+        extractCapability(requestBody, 'applitools:inactivityTimeout') ?? settings.capabilities?.inactivityTimeout,
     }
 
     if (requestBody.capabilities) {

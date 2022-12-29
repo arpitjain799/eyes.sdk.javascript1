@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 
+import type {EGClientSettings} from './types'
 import yargs, {type CommandBuilder, type ArgumentsCamelCase} from 'yargs'
-import {makeServer, type ServerOptions} from './proxy-server'
+import {makeEGClient} from './client'
 
-export const builder: CommandBuilder<ServerOptions> = yargs =>
+export const builder: CommandBuilder<EGClientSettings> = yargs =>
   yargs
     .example([
       ['eg-client', 'Run EG client server on random port'],
@@ -15,41 +16,51 @@ export const builder: CommandBuilder<ServerOptions> = yargs =>
         alias: 'p',
         type: 'number',
       },
-      egTunnelUrl: {
+      tunnelUrl: {
         description: 'run server with specific eg tunnel url.',
+        alias: 'egTunnelUrl',
         type: 'string',
       },
-      egTimeout: {
-        description: 'run server with specific default eg timeout.',
-        alias: 'timeout',
-        type: 'number',
-      },
-      egInactivityTimeout: {
-        description: 'run server with specific default eg inactivity timeout.',
-        alias: 'inactivityTimeout',
-        type: 'number',
-      },
-      proxyUrl: {
-        description: 'run server with specific default proxy url.',
-        alias: 'proxy',
+      'proxy.url': {
+        description: 'run server with specific proxy url.',
+        alias: 'proxyUrl',
         type: 'string',
       },
-      eyesServerUrl: {
+      'proxy.username': {
+        description: 'run server with specific proxy url username.',
+        type: 'string',
+      },
+      'proxy.password': {
+        description: 'run server with specific proxy url password.',
+        type: 'string',
+      },
+      'capabilities.serverUrl': {
         description: 'run server with specific default eyes server url.',
-        alias: 'serverUrl',
+        alias: 'eyesServerUrl',
         type: 'string',
       },
-      apiKey: {
+      'capabilities.apiKey': {
         description: 'run server with specific default api key.',
+        alias: 'apiKey',
         type: 'string',
+      },
+      'capabilities.timeout': {
+        description: 'run server with specific default eg timeout.',
+        alias: ['egTimeout', 'timeout'],
+        type: 'number',
+      },
+      'capabilities.inactivityTimeout': {
+        description: 'run server with specific default eg inactivity timeout.',
+        alias: ['egInactivityTimeout', 'inactivityTimeout'],
+        type: 'number',
       },
     })
 
-export const handler = async (args: ArgumentsCamelCase<ServerOptions>) => {
-  const proxy = await makeServer(args)
-  console.log(proxy.url)
+export const handler = async (settings: ArgumentsCamelCase<EGClientSettings>) => {
+  const client = await makeEGClient({settings})
+  console.log(client.url)
 }
 
 if (require.main === module) {
-  yargs.command({command: '*', builder, handler}).argv
+  yargs.command({command: '*', builder, handler}).wrap(yargs.terminalWidth()).argv
 }
