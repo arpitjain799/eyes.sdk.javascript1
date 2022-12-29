@@ -505,7 +505,7 @@ export function makeEyesRequests({
       logger.log(`Request "close" called for test ${test.testId} that was already stopped`)
       return null
     }
-    await reportSelfHealing(settings)
+    await reportSelfHealing({settings, logger})
     closed = true
     const response = await req(`/api/sessions/running/${encodeURIComponent(test.testId)}`, {
       name: 'close',
@@ -533,7 +533,7 @@ export function makeEyesRequests({
       logger.log(`Request "abort" called for test ${test.testId} that was already stopped`)
       return null
     }
-    await reportSelfHealing(settings)
+    await reportSelfHealing({settings, logger})
     aborted = true
     const response = await req(`/api/sessions/running/${encodeURIComponent(test.testId)}`, {
       name: 'abort',
@@ -550,10 +550,10 @@ export function makeEyesRequests({
     return [result]
   }
 
-  async function reportSelfHealing({driverSessionMetadata, logger = defaultLogger}: {driverSessionMetadata?: [], logger?: Logger}): Promise<void> { 
-    if (utils.types.isNull(driverSessionMetadata) || utils.types.isEmpty(driverSessionMetadata)) return
+  async function reportSelfHealing({settings, logger = defaultLogger}: {settings: {driverSessionMetadata?: []}, logger?: Logger}): Promise<void> { 
+    if (utils.types.isNull(settings.driverSessionMetadata) || utils.types.isEmpty(settings.driverSessionMetadata)) return
     logger.log('Request "reportSelfHealing" called')
-    const selfHealingReport = driverSessionMetadata // TODO: transform session metadata into required shape (re: core-base/src/types -> SelfHealingReport)
+    const selfHealingReport = settings.driverSessionMetadata // TODO: transform session metadata into required shape (re: core-base/src/types -> SelfHealingReport)
     const response = await req(`/api/sessions/running/${encodeURIComponent(test.testId)}/selfhealdata`, {
       name: 'reportSelfHealing',
       method: 'PUT',
