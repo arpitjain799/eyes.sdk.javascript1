@@ -250,13 +250,7 @@ export interface ExtractTextSettings<TRegion = Region> extends ImageSettings<TRe
 }
 
 export type SelfHealingReport = {
-  operations: [
-    {
-      timestamp: string,
-      old: string,
-      new: string
-    }
-  ]
+  operations: {timestamp: string; old: string; new: string}[]
 }
 
 export interface CloseSettings {
