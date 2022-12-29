@@ -3,7 +3,7 @@ import type {Eyes as BaseEyes} from '@applitools/core-base'
 import {type Logger} from '@applitools/logger'
 import {type Renderer} from '@applitools/ufg-client'
 import type {DriverTarget} from './types'
-import {makeDriver, type SpecDriver} from '@applitools/driver'
+import {isDriver, makeDriver, type SpecDriver} from '@applitools/driver'
 
 type Options<TDriver, TContext, TElement, TSelector> = {
   storage: {renderer: Renderer; promise: Promise<{eyes: BaseEyes; renderer: Renderer}>}[]
@@ -36,8 +36,8 @@ export function makeClose<TDriver, TContext, TElement, TSelector>({
         try {
           const [{eyes, renderer}] = await Promise.all(promises)
 
-          const driver = await makeDriver({spec, driver: target, logger})
-          const driverSessionMetadata = await driver.getSessionMetadata()
+          const driver = isDriver(target, spec) ? await makeDriver({spec, driver: target, logger}) : null
+          const driverSessionMetadata = await driver?.getSessionMetadata()
 
           const [result] = await eyes.close({settings: {...settings, driverSessionMetadata}, logger})
           return {...result, renderer}

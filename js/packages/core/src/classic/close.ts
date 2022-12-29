@@ -2,7 +2,7 @@ import type {CloseSettings, TestResult} from './types'
 import type {Eyes} from './types'
 import {type Logger} from '@applitools/logger'
 import type {DriverTarget} from './types'
-import {makeDriver, type SpecDriver} from '@applitools/driver'
+import {isDriver, makeDriver, type SpecDriver} from '@applitools/driver'
 
 type Options<TDriver, TContext, TElement, TSelector> = {
   eyes: Eyes<TDriver, TContext, TElement, TSelector>
@@ -24,8 +24,8 @@ export function makeClose<TDriver, TContext, TElement, TSelector>({
     settings?: CloseSettings
     logger?: Logger
   } = {}): Promise<TestResult[]> {
-    const driver = await makeDriver({spec, driver: target, logger})
-    const driverSessionMetadata = await driver.getSessionMetadata()
+    const driver = isDriver(target, spec) ? await makeDriver({spec, driver: target, logger}) : null
+    const driverSessionMetadata = await driver?.getSessionMetadata()
 
     const result = await eyes.close({settings: {...settings, driverSessionMetadata}, logger})
     return result
