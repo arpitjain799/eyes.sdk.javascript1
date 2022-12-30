@@ -70,6 +70,7 @@ export function transformDriver(driver: Driver): Driver {
   driver.getExecutor().defineCommand('getCurrentContext', 'GET', '/session/:sessionId/context')
   driver.getExecutor().defineCommand('getContexts', 'GET', '/session/:sessionId/contexts')
   driver.getExecutor().defineCommand('switchToContext', 'POST', '/session/:sessionId/context')
+  driver.getExecutor().defineCommand('getSessionMetadata', 'GET', '/session/:sessionId/applitools/metadata')
 
   if (process.env.APPLITOOLS_SELENIUM_MAJOR_VERSION === '3') {
     driver.getExecutor().defineCommand('switchToParentFrame', 'POST', '/session/:sessionId/frame/parent')
@@ -190,6 +191,14 @@ export async function setWindowSize(driver: Driver, size: Size) {
     else await executeCustomCommand(driver, new Command('setWindowPosition').setParameters({x: 0, y: 0}))
     if (driver.manage().window().setSize) await driver.manage().window().setSize(size.width, size.height)
     else await executeCustomCommand(driver, new Command('setWindowSize').setParameters({...size}))
+  }
+}
+export async function getSessionMetadata(driver: Driver): Promise<[] | void> {
+  try {
+    return await executeCustomCommand(driver, new Command('getSessionMetadata'))
+  } catch (error) {
+    if (/unknown command/.test(error.message)) return
+    throw error
   }
 }
 export async function getCookies(driver: Driver, context?: boolean): Promise<Cookie[]> {
