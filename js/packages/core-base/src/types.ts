@@ -253,7 +253,7 @@ export type SelfHealingReport = {
   operations: {timestamp: string; old: string; new: string}[]
 }
 
-type DriverSessionMetadata = []
+export type DriverSessionMetadata = any[]
 
 export interface CloseSettings {
   updateBaselineIfNew?: boolean

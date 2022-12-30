@@ -27,6 +27,7 @@ import {makeLogger, type Logger} from '@applitools/logger'
 import {makeReqEyes, type ReqEyes} from './req-eyes'
 import {makeUpload, type Upload} from './upload'
 import * as utils from '@applitools/utils'
+import {toSelfHealingReport} from '../utils/to-self-healing-report'
 
 export interface CoreRequests extends Core {
   openEyes(options: {settings: OpenSettings; logger?: Logger}): Promise<EyesRequests>
@@ -555,12 +556,10 @@ export function makeEyesRequests({
     try {
       if (utils.types.isNull(settings.driverSessionMetadata) || utils.types.isEmpty(settings.driverSessionMetadata)) return
       logger.log('Request "reportSelfHealing" called')
-      // TODO: transform session metadata into required shape (re: core-base/src/types -> SelfHealingReport)
-      const selfHealingReport = settings.driverSessionMetadata
       const response = await req(`/api/sessions/running/${encodeURIComponent(test.testId)}/selfhealdata`, {
         name: 'reportSelfHealing',
         method: 'PUT',
-        body: selfHealingReport,
+        body: toSelfHealingReport(settings.driverSessionMetadata),
         expected: 200,
         logger,
       })
