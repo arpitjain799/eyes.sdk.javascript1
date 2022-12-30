@@ -567,7 +567,7 @@ export function makeEyesRequests({
       const result = await response.json()
       logger.log('Request "reportSelfHealing" finished successfully with body', result)
     } catch (error) {
-      logger.error(error)
+      logger.warn(error)
     }
   }
 }
