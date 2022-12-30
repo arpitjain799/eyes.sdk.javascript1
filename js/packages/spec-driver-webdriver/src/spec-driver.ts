@@ -272,6 +272,21 @@ export async function setWindowSize(driver: Driver, size: Size) {
     await driver._setWindowSize(size.width, size.height)
   }
 }
+export async function getSessionMetadata(driver: Driver): Promise<[] | void> {
+  try {
+    const cmd = command('GET', '/session/:sessionId/applitools/metadata', {
+      command: 'getSessionMetadata',
+      description: '',
+      ref: '',
+      parameters: [],
+    })
+    const result = await cmd.call(driver)
+    return result as unknown as [] | void
+  } catch (error: any) {
+    if (/unknown command/.test(error.message)) return
+    throw error
+  }
+}
 export async function getCookies(driver: Driver, context?: boolean): Promise<Cookie[]> {
   if (context) return driver.getAllCookies()
 
