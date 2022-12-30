@@ -1,5 +1,5 @@
 {
-  "extends": "./tsconfig.json",
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",
@@ -7,12 +7,12 @@
     "declaration": true,
     "declarationMap": false,
     "sourceMap": false,
-    "removeComments": false,
+    "removeComments": true,
     "plugins": [{
       "transform": "@applitools/api-extractor",
       "afterDeclarations": true,
       "rootFile": "./index.ts",
-      "allowModules": ["nightwatch"],
+      "allowGlobalNamespaces": ["Applitools"],
       "stripPrivate": true,
       "stripProtected": true,
       "stripInternal": true
