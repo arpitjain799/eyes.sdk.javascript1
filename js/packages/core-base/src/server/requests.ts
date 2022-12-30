@@ -20,6 +20,7 @@ import type {
   TestResult,
   OpenSettings,
   AbortSettings,
+  ReportSelfHealingSettings,
 } from '../types'
 import {type Fetch} from '@applitools/req'
 import {makeLogger, type Logger} from '@applitools/logger'
@@ -550,19 +551,24 @@ export function makeEyesRequests({
     return [result]
   }
 
-  async function reportSelfHealing({settings, logger = defaultLogger}: {settings: {driverSessionMetadata?: []}, logger?: Logger}): Promise<void> { 
-    if (utils.types.isNull(settings.driverSessionMetadata) || utils.types.isEmpty(settings.driverSessionMetadata)) return
-    logger.log('Request "reportSelfHealing" called')
-    const selfHealingReport = settings.driverSessionMetadata // TODO: transform session metadata into required shape (re: core-base/src/types -> SelfHealingReport)
-    const response = await req(`/api/sessions/running/${encodeURIComponent(test.testId)}/selfhealdata`, {
-      name: 'reportSelfHealing',
-      method: 'PUT',
-      body: selfHealingReport,
-      expected: 200,
-      logger,
-    })
-    const result = await response.json()
-    logger.log('Request "reportSelfHealing" finished successfully with body', result)
+  async function reportSelfHealing({settings, logger = defaultLogger}: {settings: ReportSelfHealingSettings, logger?: Logger}): Promise<void> { 
+    try {
+      if (utils.types.isNull(settings.driverSessionMetadata) || utils.types.isEmpty(settings.driverSessionMetadata)) return
+      logger.log('Request "reportSelfHealing" called')
+      // TODO: transform session metadata into required shape (re: core-base/src/types -> SelfHealingReport)
+      const selfHealingReport = settings.driverSessionMetadata
+      const response = await req(`/api/sessions/running/${encodeURIComponent(test.testId)}/selfhealdata`, {
+        name: 'reportSelfHealing',
+        method: 'PUT',
+        body: selfHealingReport,
+        expected: 200,
+        logger,
+      })
+      const result = await response.json()
+      logger.log('Request "reportSelfHealing" finished successfully with body', result)
+    } catch (error) {
+      logger.error(error)
+    }
   }
 }
 
