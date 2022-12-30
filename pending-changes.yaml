@@ -10,9 +10,9 @@ Apollo SDK:
       An example of how to inline `markdown code highlights`
 "@applitools/eyes-universal":
   feature:
-    - 
+    - Filter styles and resources with non-screen media queries
   bug-fix:
-    - 
+    - Fixed issue with parsing capabilities for iOS with native app
 "@applitools/eyes-selenium":
   feature:
     - 
