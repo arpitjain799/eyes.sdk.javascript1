@@ -4,13 +4,13 @@ import {toSelfHealingReport} from '../../src/utils/to-self-healing-report'
 describe('transform', () => {
   it('driver-session-metadata to self-healing-report', async () => {
     const input = [
-      {'a': 'b'},
-      {'b': 'c'},
-      {'c': 'd'},
+      {successfulSelector: 'a', unsuccessfulSelector: 'b'},
+      {successfulSelector: 'b', unsuccessfulSelector: 'c'},
+      {successfulSelector: 'c', unsuccessfulSelector: 'd'},
     ]
     toSelfHealingReport(input).operations.forEach((result, index) => {
-      assert.deepStrictEqual(result.old, Object.keys(input[index])[0])
-      assert.deepStrictEqual(result.new, Object.values(input[index])[0])
+      assert.deepStrictEqual(result.old, input[index].unsuccessfulSelector)
+      assert.deepStrictEqual(result.new, input[index].successfulSelector)
       assert(Date.parse(result.timestamp))
     })
   })
