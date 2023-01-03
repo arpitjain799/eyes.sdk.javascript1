@@ -22,7 +22,7 @@ describe.skip('self-healing classic', () => {
     await proxy.server.close()
   })
 
-  it.only('works', async () => {
+  it('works', async () => {
     const core = makeCore<spec.Driver, spec.Driver, spec.Element, spec.Selector>({spec})
 
     await driver.get('https://demo.applitools.com')
