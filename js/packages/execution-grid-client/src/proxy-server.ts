@@ -79,9 +79,10 @@ export function makeServer({
           logger,
         })
         const {appliCustomData} = await proxyResponse.json()
-        if (appliCustomData?.selfHealing) {
-          requestLogger.log('Self-healed locators detected', appliCustomData.selfHealing)
-          metadata.push(appliCustomData.selfHealing)
+        if (appliCustomData?.SelfHealing?.successfulSelector) {
+          requestLogger.log('Self-healed locators detected', appliCustomData.SelfHealing)
+          const unsuccessfulSelector = await request.json()
+          metadata.push({...appliCustomData.SelfHealing, unsuccessfulSelector})
         } else {
           requestLogger.log('No self-healing metadata found')
         }

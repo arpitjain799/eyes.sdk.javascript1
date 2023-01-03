@@ -57,30 +57,31 @@ describe('proxy-server', () => {
     }
   })
 
-  it.skip('works with self healing', async () => {
+  it('works with self healing', async () => {
     let driver: any
-    proxy = await makeServer({
-      eyesServerUrl,
-      useSelfHealing: true,
-    })
-    const builder = new Builder().
-      withCapabilities({browserName: 'chrome', browserVersion: 'canary-debug', 'applitools:useSelfHealing': true}).
-      usingServer(proxy.url)
+    try {
+      proxy = await makeServer({
+        eyesServerUrl,
+        useSelfHealing: true,
+      })
+      const builder = new Builder().
+        withCapabilities({browserName: 'chrome', 'applitools:useSelfHealing': true}).
+        usingServer(proxy.url)
 
-    driver = await builder.build()
-    await driver.get('https://demo.applitools.com')
-    await driver.findElement({css: '#log-in'})
-    await driver.quit()
+      driver = await builder.build()
+      await driver.get('https://demo.applitools.com')
+      await driver.findElement({css: '#log-in'})
+      await driver.executeScript("document.querySelector('#log-in').id = 'log-inn'")
+      await driver.findElement({css: '#log-in'})
 
-    driver = await builder.build()
-    await driver.get('https://demo.applitools.com')
-    await driver.executeScript("document.querySelector('#log-in').id = 'log-inn'")
-    await driver.findElement({css: '#log-in'})
-    await driver.quit()
-
-    driver.getExecutor().defineCommand('getSessionMetadata', 'GET', '/session/:sessionId/metadata')
-    const result = await driver.execute(new Command('getSessionMetadata'))
-    console.log(result)
-    //assert.strictEqual(title, 'ACME demo app')
+      driver.getExecutor().defineCommand('getSessionMetadata', 'GET', '/session/:sessionId/applitools/metadata')
+      const result = await driver.execute(new Command('getSessionMetadata'))
+      assert.ok(result.length)
+      console.log('HERE', result)
+      assert.ok(result[0].successfulSelector)
+      assert.deepStrictEqual(result[0].unsuccessfulSelector, {using: 'css selector', value: '#log-in'})
+    } finally {
+      await driver.quit()
+    }
   })
 })

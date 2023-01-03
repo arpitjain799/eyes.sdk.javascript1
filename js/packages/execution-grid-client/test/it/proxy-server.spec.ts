@@ -269,8 +269,6 @@ describe('proxy-server', () => {
   it('find element works with self healing', async () => {
     proxy = await makeServer({resolveUrls: false, useSelfHealing: true})
     const sessionId = 'session-guid'
-    const expected = {'original-selector': 'actual-selector'}
-
     nock('https://exec-wus.applitools.com')
       .persist()
       .post('/session')
@@ -282,7 +280,7 @@ describe('proxy-server', () => {
       .reply(200, {
         value: {'element-12345': 'blahblahblah'},
         appliCustomData: {
-          selfHealing: expected
+          SelfHealing: {successfulSelector: {using: 'css selector', value: 'actual-selector'}}
         }
       })
 
@@ -290,6 +288,9 @@ describe('proxy-server', () => {
     driver.getExecutor().defineCommand('getSessionMetadata', 'GET', '/session/:sessionId/applitools/metadata')
     await driver.findElement({css: 'blah'})
     const result = await driver.execute(new Command('getSessionMetadata'))
-    assert.deepStrictEqual(result, [expected])
+    assert.deepStrictEqual(result, [{
+      unsuccessfulSelector: {using: 'css selector', value: 'blah'},
+      successfulSelector: {using: 'css selector', value: 'actual-selector'}
+    }])
   })
 })
