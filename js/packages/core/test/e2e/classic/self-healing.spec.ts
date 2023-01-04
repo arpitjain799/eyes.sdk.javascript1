@@ -44,15 +44,10 @@ describe('self-healing classic', () => {
 
     const [result] = await eyes.close({settings: {updateBaselineIfNew: false}})
     const testInfo = await getTestInfo(result)
-    console.log(JSON.stringify(testInfo, null, 2))
-    //assert.deepStrictEqual(testInfo.actualAppOutput[0].imageMatchSettings.layout, [
-    //  {
-    //    left: 1,
-    //    top: 519,
-    //    width: 200,
-    //    height: 200,
-    //    regionId: '#inner',
-    //  },
-    //])
+    testInfo.selfHealingInfo.operations.forEach((result: any) => {
+      assert.deepStrictEqual(result.old, '#log-in')
+      assert.deepStrictEqual(result.new, '//*[@href="/app.html" ]')
+      assert(Date.parse(result.timeStamp))
+    })
   })
 })
