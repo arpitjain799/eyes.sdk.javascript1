@@ -7,7 +7,7 @@ export function toSelfHealingReport(input: DriverSessionMetadata): SelfHealingRe
   input.forEach(item => {
     const date = new Date 
     result.operations.push({
-      old: item.unsuccessfulSelector,
+      old: item.originalSelector,
       new: item.successfulSelector,
       timestamp: date.toISOString(),
     })
