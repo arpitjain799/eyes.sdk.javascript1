@@ -5,7 +5,7 @@ import assert from 'assert'
 import {getTestInfo} from '@applitools/test-utils'
 import {makeServer} from '@applitools/execution-grid-client'
 
-describe.skip('self-healing classic', () => {
+describe('self-healing classic', () => {
   let driver, destroyDriver, proxy
   const serverUrl = 'https://eyesapi.applitools.com'
 
@@ -42,7 +42,7 @@ describe.skip('self-healing classic', () => {
     })
     await eyes.check({})
 
-    const result = await eyes.close({})
+    const [result] = await eyes.close({settings: {updateBaselineIfNew: false}})
     const testInfo = await getTestInfo(result)
     console.log(JSON.stringify(testInfo, null, 2))
     //assert.deepStrictEqual(testInfo.actualAppOutput[0].imageMatchSettings.layout, [
