@@ -57,7 +57,6 @@ export interface EyesRequests extends Eyes {
   }): Promise<LocateTextResult<TPattern>>
   extractText(options: {target: ImageTarget; settings: ExtractTextSettings; logger?: Logger}): Promise<string[]>
   close(options?: {settings?: CloseSettings; logger?: Logger}): Promise<TestResult[]>
-  abort(options?: {logger?: Logger}): Promise<TestResult[]>
 }
 
 export function makeCoreRequests({
@@ -507,7 +506,7 @@ export function makeEyesRequests({
       logger.log(`Request "close" called for test ${test.testId} that was already stopped`)
       return null
     }
-    await reportSelfHealing({settings, logger})
+    const sendSelfHealingReport = reportSelfHealing({settings, logger})
     closed = true
     const response = await req(`/api/sessions/running/${encodeURIComponent(test.testId)}`, {
       name: 'close',
@@ -526,6 +525,7 @@ export function makeEyesRequests({
     // for backwards compatibility with outdated servers
     result.status ??= result.missing === 0 && result.mismatches === 0 ? 'Passed' : 'Unresolved'
     logger.log('Request "close" finished successfully with body', result)
+    await sendSelfHealingReport
     return [result]
   }
 
@@ -535,7 +535,7 @@ export function makeEyesRequests({
       logger.log(`Request "abort" called for test ${test.testId} that was already stopped`)
       return null
     }
-    await reportSelfHealing({settings, logger})
+    const sendSelfHealingReport = reportSelfHealing({settings, logger})
     aborted = true
     const response = await req(`/api/sessions/running/${encodeURIComponent(test.testId)}`, {
       name: 'abort',
@@ -549,12 +549,13 @@ export function makeEyesRequests({
     const result: Mutable<TestResult> = await response.json()
     result.userTestId = test.userTestId
     logger.log('Request "abort" finished successfully with body', result)
+    await sendSelfHealingReport
     return [result]
   }
 
   async function reportSelfHealing({settings, logger = defaultLogger}: {settings: ReportSelfHealingSettings, logger?: Logger}): Promise<void> { 
     try {
-      if (utils.types.isNull(settings.driverSessionMetadata) || utils.types.isEmpty(settings.driverSessionMetadata)) return
+      if (utils.types.isNull(settings?.driverSessionMetadata) || utils.types.isEmpty(settings?.driverSessionMetadata)) return
       logger.log('Request "reportSelfHealing" called')
       await req(`/api/sessions/running/${encodeURIComponent(test.testId)}/selfhealdata`, {
         name: 'reportSelfHealing',
