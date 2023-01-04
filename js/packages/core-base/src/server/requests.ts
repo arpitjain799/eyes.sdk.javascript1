@@ -556,15 +556,13 @@ export function makeEyesRequests({
     try {
       if (utils.types.isNull(settings.driverSessionMetadata) || utils.types.isEmpty(settings.driverSessionMetadata)) return
       logger.log('Request "reportSelfHealing" called')
-      const response = await req(`/api/sessions/running/${encodeURIComponent(test.testId)}/selfhealdata`, {
+      await req(`/api/sessions/running/${encodeURIComponent(test.testId)}/selfhealdata`, {
         name: 'reportSelfHealing',
         method: 'PUT',
         body: toSelfHealingReport(settings.driverSessionMetadata),
         expected: 200,
         logger,
       })
-      const result = await response.json()
-      logger.log('Request "reportSelfHealing" finished successfully with body', result)
     } catch (error) {
       logger.warn(error)
     }
