@@ -76,10 +76,9 @@ describe('proxy-server', () => {
 
       driver.getExecutor().defineCommand('getSessionMetadata', 'GET', '/session/:sessionId/applitools/metadata')
       const result = await driver.execute(new Command('getSessionMetadata'))
-      assert.ok(result.length)
-      console.log('HERE', result)
+      assert.deepStrictEqual(result.length, 1)
       assert.ok(result[0].successfulSelector)
-      assert.deepStrictEqual(result[0].unsuccessfulSelector, {using: 'css selector', value: '#log-in'})
+      assert.deepStrictEqual(result[0].originalSelector, {using: 'css selector', value: '#log-in'})
     } finally {
       await driver.quit()
     }

@@ -17,7 +17,7 @@ export function makeAbort({requests, logger: defaultLogger}: Options) {
     logger?: Logger
   } = {}): Promise<TestResult[]> {
     logger.log('Command "close" is called with settings', settings)
-    results ??= await requests.abort({logger})
+    results ??= await requests.abort({settings, logger})
     return results
   }
 }

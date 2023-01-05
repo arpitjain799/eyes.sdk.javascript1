@@ -6,7 +6,7 @@ import {getTestInfo} from '@applitools/test-utils'
 import {makeServer} from '@applitools/execution-grid-client'
 
 describe('self-healing classic', () => {
-  let driver, destroyDriver, proxy
+  let driver, destroyDriver, proxy, core
   const serverUrl = 'https://testeyesapi.applitools.com' // TODO amit
   const apiKey = process.env.EYES_FUNCTIONAL_API_KEY // TODO amit
 
@@ -20,6 +20,12 @@ describe('self-healing classic', () => {
       url: proxy.url,
       capabilities: {'applitools:apiKey': apiKey, 'applitools:eyesServerUrl': serverUrl},
     })
+    core = makeCore<spec.Driver, spec.Driver, spec.Element, spec.Selector>({spec})
+
+    await driver.get('https://demo.applitools.com')
+    await driver.findElement({css: '#log-in'})
+    await driver.executeScript("document.querySelector('#log-in').id = 'log-inn'")
+    await driver.findElement({css: '#log-in'})
   })
 
   after(async () => {
@@ -27,14 +33,29 @@ describe('self-healing classic', () => {
     await proxy.server.close()
   })
 
-  it('works', async () => {
-    const core = makeCore<spec.Driver, spec.Driver, spec.Element, spec.Selector>({spec})
+  it('sends report on close', async () => {
+    const eyes = await core.openEyes({
+      target: driver,
+      settings: {
+        serverUrl,
+        apiKey: process.env.APPLITOOLS_API_KEY,
+        appName: 'core e2e',
+        testName: 'classic - self-healing',
+        environment: {viewportSize: {width: 700, height: 460}},
+      },
+    })
+    await eyes.check({})
 
-    await driver.get('https://demo.applitools.com')
-    await driver.findElement({css: '#log-in'})
-    await driver.executeScript("document.querySelector('#log-in').id = 'log-inn'")
-    await driver.findElement({css: '#log-in'})
+    const [result] = await eyes.close({settings: {updateBaselineIfNew: false}})
+    const testInfo = await getTestInfo(result)
+    testInfo.selfHealingInfo.operations.forEach((result: any) => {
+      assert.deepStrictEqual(result.old, '#log-in')
+      assert.deepStrictEqual(result.new, '//*[@href="/app.html" ]')
+      assert(Date.parse(result.timeStamp))
+    })
+  })
 
+  it('sends report on abort', async () => {
     const eyes = await core.openEyes({
       target: driver,
       settings: {
@@ -47,17 +68,12 @@ describe('self-healing classic', () => {
     })
     await eyes.check({})
 
-    const result = await eyes.close({})
+    const [result] = await eyes.abort()
     const testInfo = await getTestInfo(result)
-    console.log(JSON.stringify(testInfo, null, 2))
-    //assert.deepStrictEqual(testInfo.actualAppOutput[0].imageMatchSettings.layout, [
-    //  {
-    //    left: 1,
-    //    top: 519,
-    //    width: 200,
-    //    height: 200,
-    //    regionId: '#inner',
-    //  },
-    //])
+    testInfo.selfHealingInfo.operations.forEach((result: any) => {
+      assert.deepStrictEqual(result.old, '#log-in')
+      assert.deepStrictEqual(result.new, '//*[@href="/app.html" ]')
+      assert(Date.parse(result.timeStamp))
+    })
   })
 })
