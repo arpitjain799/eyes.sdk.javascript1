@@ -154,8 +154,8 @@ export async function makeServer({
       return refer.deref(manager)?.closeManager({settings, logger})
     })
 
-    socket.command('Eyes.check', async ({eyes, target, settings, config}) => {
-      return refer.deref(eyes)?.check({target, settings, config, logger})
+    socket.command('Eyes.check', async ({eyes, target, settings, config, type}) => {
+      return refer.deref(eyes)?.check({target, settings, config, logger, type})
     })
     socket.command('Eyes.locateText', async ({eyes, target, settings, config}) => {
       return refer.deref(eyes)?.locateText({target, settings, config, logger})
