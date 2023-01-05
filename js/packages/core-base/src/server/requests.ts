@@ -136,7 +136,7 @@ export function makeCoreRequests({
           ignoreBaseline: settings.ignoreBaseline,
           saveDiffs: settings.saveDiffs,
           timeout: settings.abortIdleTestTimeout,
-          egSessionId: settings.environment.egSessionId ?? null,
+          egSessionId: settings.egSessionId,
         },
       },
       expected: [200, 201],
@@ -514,6 +514,9 @@ export function makeEyesRequests({
       query: {
         aborted: false,
         updateBaseline: test.isNew ? settings?.updateBaselineIfNew : settings?.updateBaselineIfDifferent,
+        sessionConsoleLogId: settings.driverSessionMetadata.sessionId,
+        sessionDriverLogId: settings.driverSessionMetadata.sessionId,
+        sessionVideoId: settings.driverSessionMetadata.sessionId,
       },
       expected: 200,
       logger,
@@ -529,7 +532,9 @@ export function makeEyesRequests({
     return [result]
   }
 
-  async function abort({settings, logger = defaultLogger}: {settings?: AbortSettings, logger?: Logger} = {}): Promise<TestResult[]> {
+  async function abort({settings, logger = defaultLogger}: {settings?: AbortSettings; logger?: Logger} = {}): Promise<
+    TestResult[]
+  > {
     logger.log(`Request "abort" called for test ${test.testId}`)
     if (aborted || closed) {
       logger.log(`Request "abort" called for test ${test.testId} that was already stopped`)
@@ -553,14 +558,20 @@ export function makeEyesRequests({
     return [result]
   }
 
-  async function reportSelfHealing({settings, logger = defaultLogger}: {settings: ReportSelfHealingSettings, logger?: Logger}): Promise<void> { 
+  async function reportSelfHealing({
+    settings,
+    logger = defaultLogger,
+  }: {
+    settings: ReportSelfHealingSettings
+    logger?: Logger
+  }): Promise<void> {
     try {
       if (utils.types.isNull(settings?.driverSessionMetadata) || utils.types.isEmpty(settings?.driverSessionMetadata)) return
       logger.log('Request "reportSelfHealing" called')
       await req(`/api/sessions/running/${encodeURIComponent(test.testId)}/selfhealdata`, {
         name: 'reportSelfHealing',
         method: 'PUT',
-        body: toSelfHealingReport(settings.driverSessionMetadata),
+        body: toSelfHealingReport(settings.driverSessionMetadata.selfHealingEvents),
         expected: 200,
         logger,
       })

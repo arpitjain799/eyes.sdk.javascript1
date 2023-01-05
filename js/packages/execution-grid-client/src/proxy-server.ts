@@ -7,6 +7,7 @@ import {makeTunnelManager} from './tunnel'
 import {makeProxy} from './proxy'
 import {modifyIncomingMessage, type ModifiedIncomingMessage} from './incoming-message'
 import * as utils from '@applitools/utils'
+import fetch from 'node-fetch'
 
 export type ServerOptions = {
   egServerUrl?: string
@@ -30,6 +31,11 @@ const RETRY_BACKOFF = [].concat(
 
 const RETRY_ERROR_CODES = ['CONCURRENCY_LIMIT_REACHED', 'NO_AVAILABLE_DRIVER_POD']
 
+interface DriverSessionMetadata {
+  selfHealingEvents: unknown[]
+  sessionId: string
+}
+
 export function makeServer({
   egServerUrl = 'https://exec-wus.applitools.com',
   egTunnelUrl = process.env.APPLITOOLS_EG_TUNNEL_URL,
@@ -44,7 +50,6 @@ export function makeServer({
   logger,
 }: ServerOptions = {}): Promise<{url: string; port: number; server: Server}> {
   logger = logger ? logger.extend({label: 'eg-client'}) : makeLogger({label: 'eg-client', colors: true})
-  const metadata: any[] = []
 
   const proxyRequest = makeProxy({
     url: egServerUrl,
@@ -81,13 +86,22 @@ export function makeServer({
         const {appliCustomData} = await proxyResponse.json()
         if (appliCustomData?.selfHealing?.successfulSelector) {
           requestLogger.log('Self-healed locators detected', appliCustomData.selfHealing)
-          metadata.push(appliCustomData.selfHealing)
+          const sessionId = request.url.match(/^\/session\/([^\/]+)\/element\/?$/)[1]
+          const session = sessions.get(sessionId)
+          session.selfHealingEvents.push(appliCustomData.selfHealing)
         } else {
           requestLogger.log('No self-healing metadata found')
         }
         proxyResponse.pipe(response)
         return
-      } else if (useSelfHealing && request.method === 'GET' && /^\/session\/[^\/]+\/applitools\/metadata?$/.test(request.url)) {
+      } else if (
+        useSelfHealing &&
+        request.method === 'GET' &&
+        /^\/session\/[^\/]+\/applitools\/metadata?$/.test(request.url)
+      ) {
+        const sessionId = request.url.match(/^\/session\/([^\/]+)\/applitools\/metadata?$/)[1]
+        const session = sessions.get(sessionId)
+        const metadata: DriverSessionMetadata = {sessionId, selfHealingEvents: session.selfHealingEvents}
         requestLogger.log('Session metadata requested, returning', metadata)
         response.writeHead(200).end(JSON.stringify({value: metadata}))
       } else {
@@ -139,6 +153,13 @@ export function makeServer({
     session.apiKey = extractCapability(requestBody, 'applitools:apiKey') ?? apiKey
     session.tunnelId = extractCapability(requestBody, 'applitools:tunnel') ? await createTunnel(session) : undefined
     session.key = `${session.eyesServerUrl ?? 'default'}:${session.apiKey}`
+    session.selfHealingEvents = []
+
+    const {videoResultsUrl, consoleLogResultsUrl, driverLogResultsUrl} = await fetch(
+      `https://testeyes.applitools.com/api/sessions/renderinfo?apiKey=${session.apiKey}`,
+    ).then(r => r.json())
+
+    logger.log('renderinfo', {videoResultsUrl, consoleLogResultsUrl, driverLogResultsUrl})
 
     const applitoolsCapabilities = {
       'applitools:eyesServerUrl': session.eyesServerUrl,
@@ -147,8 +168,10 @@ export function makeServer({
       'applitools:timeout': extractCapability(requestBody, 'applitools:timeout') ?? egTimeout,
       'applitools:inactivityTimeout':
         extractCapability(requestBody, 'applitools:inactivityTimeout') ?? egInactivityTimeout,
-      'applitools:useSelfHealing':
-        extractCapability(requestBody, 'applitools:useSelfHealing') ?? useSelfHealing,
+      'applitools:useSelfHealing': extractCapability(requestBody, 'applitools:useSelfHealing') ?? useSelfHealing,
+      'applitools:driverLogsUploadLinkTemplate': driverLogResultsUrl,
+      'applitools:consoleLogsUploadLinkTemplate': consoleLogResultsUrl,
+      'applitools:videoUploadLinkTemplate': videoResultsUrl,
     }
 
     if (requestBody.capabilities) {
@@ -197,7 +220,10 @@ export function makeServer({
         return task(signal, attempt + 1)
       } else {
         queue.uncork()
-        if (responseBody.value?.sessionId) sessions.set(responseBody.value.sessionId, session)
+        if (responseBody.value?.sessionId) {
+          session.id = responseBody.value.sessionId
+          sessions.set(session.id, session)
+        }
         proxyResponse.pipe(response)
         return
       }

@@ -1,14 +1,14 @@
-import type {DriverSessionMetadata, SelfHealingReport} from '../types'
+import type {SelfHealingEvent, SelfHealingReport} from '../types'
 
-export function toSelfHealingReport(input: DriverSessionMetadata): SelfHealingReport {
+export function toSelfHealingReport(input: SelfHealingEvent[]): SelfHealingReport {
   const result = {
-    operations: []
+    operations: [],
   }
   input.forEach(item => {
-    const date = new Date 
+    const date = new Date()
     result.operations.push({
-      old: item?.originalSelector?.value,
-      new: item?.successfulSelector?.value,
+      old: item?.originalSelector,
+      new: item?.successfulSelector,
       timestamp: date.toISOString(),
     })
   })

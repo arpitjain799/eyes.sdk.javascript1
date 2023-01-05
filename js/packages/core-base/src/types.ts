@@ -96,7 +96,6 @@ type Environment = {
     type?: 'web' | 'native'
     renderer?: Record<string, any>
   }
-  egSessionId?: string
 }
 export interface OpenSettings extends ServerSettings {
   appName: string
@@ -123,6 +122,7 @@ export interface OpenSettings extends ServerSettings {
   abortIdleTestTimeout?: number
   connectionTimeout?: number
   removeSession?: boolean
+  egSessionId?: string
 }
 
 export interface LocateSettings<TLocator extends string, TRegion = Region> extends ServerSettings, ImageSettings<TRegion> {
@@ -253,7 +253,18 @@ export type SelfHealingReport = {
   operations: {timestamp: string; old: string; new: string}[]
 }
 
-export type DriverSessionMetadata = any[]
+export type SelfHealingSelector = {using: string; value: string}
+
+export type SelfHealingEvent = {
+  originalSelector: SelfHealingSelector
+  successfulSelector: SelfHealingSelector
+  timestamp: string
+}
+
+export type DriverSessionMetadata = {
+  selfHealingEvents: SelfHealingEvent[]
+  sessionId: string
+}
 
 export interface CloseSettings {
   updateBaselineIfNew?: boolean
@@ -261,6 +272,9 @@ export interface CloseSettings {
   /** @internal */
   userCommandId?: string
   driverSessionMetadata?: DriverSessionMetadata
+  sessionConsoleLogId: string
+  sessionDriverLogId: string
+  sessionVideoId: string
 }
 
 export interface AbortSettings {

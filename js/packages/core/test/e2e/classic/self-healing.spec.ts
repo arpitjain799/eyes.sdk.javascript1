@@ -1,5 +1,4 @@
 import {makeCore} from '../../../src/classic/core'
-import {By} from 'selenium-webdriver'
 import * as spec from '@applitools/spec-driver-selenium'
 import assert from 'assert'
 import {getTestInfo} from '@applitools/test-utils'
@@ -8,7 +7,13 @@ import {makeServer} from '@applitools/execution-grid-client'
 describe('self-healing classic', () => {
   let driver, destroyDriver, proxy, core
   const serverUrl = 'https://testeyesapi.applitools.com' // TODO amit
-  const apiKey = process.env.EYES_FUNCTIONAL_API_KEY // TODO amit
+  const apiKey = 'Iq33oRynu106lER36rmKN4NiftXWVzlHxWou0R3iBA7JI110' // TODO amit
+  // const apiKey = '97DiFenDxLq39sj11153yEegGNF9lT0w0L92TOukKaigm0110' // TODO amit
+
+  const batch = {
+    id: `${Math.random()}`,
+    name: 'EG and self healing (amit)',
+  }
 
   before(async () => {
     proxy = await makeServer({
@@ -33,21 +38,38 @@ describe('self-healing classic', () => {
     await proxy.server.close()
   })
 
-  it('sends report on close', async () => {
+  it.only('sends report on close', async () => {
     const eyes = await core.openEyes({
       target: driver,
       settings: {
         serverUrl,
-        apiKey: process.env.APPLITOOLS_API_KEY,
+        apiKey,
         appName: 'core e2e',
         testName: 'classic - self-healing',
-        environment: {viewportSize: {width: 700, height: 460}},
+        environment: {viewportSize: {width: 800, height: 600}},
+        batch,
       },
     })
     await eyes.check({})
 
     const [result] = await eyes.close({settings: {updateBaselineIfNew: false}})
-    const testInfo = await getTestInfo(result)
+
+    // const eyes2 = await core.openEyes({
+    //   target: driver,
+    //   settings: {
+    //     serverUrl,
+    //     apiKey,
+    //     appName: 'core e2e',
+    //     testName: 'classic - self-healing',
+    //     environment: {viewportSize: {width: 700, height: 460}},
+    //     batch,
+    //   },
+    // })
+    // await eyes2.check({})
+
+    // const [result2] = await eyes2.close({settings: {updateBaselineIfNew: false}})
+
+    const testInfo = await getTestInfo(result, apiKey)
     testInfo.selfHealingInfo.operations.forEach((result: any) => {
       assert.deepStrictEqual(result.old, '#log-in')
       assert.deepStrictEqual(result.new, '//*[@href="/app.html" ]')
@@ -71,8 +93,8 @@ describe('self-healing classic', () => {
     const [result] = await eyes.abort()
     const testInfo = await getTestInfo(result)
     testInfo.selfHealingInfo.operations.forEach((result: any) => {
-      assert.deepStrictEqual(result.old, '#log-in')
-      assert.deepStrictEqual(result.new, '//*[@href="/app.html" ]')
+      assert.deepStrictEqual(result.old, {using: 'css selector', value: '#log-in'})
+      assert.deepStrictEqual(result.new, {using: 'xpath', value: '//*[@href="/app.html" ]'})
       assert(Date.parse(result.timeStamp))
     })
   })

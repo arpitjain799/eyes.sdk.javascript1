@@ -75,6 +75,8 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
           settings.environment.os += ` ${driver.platformVersion}`
         }
       }
+      const driverSessionMetadata = await driver?.getSessionMetadata()
+      settings.egSessionId = driverSessionMetadata?.sessionId
       await currentContext.focus()
     }
     const getBaseEyes = makeGetBaseEyes({settings, core, eyes, logger})
