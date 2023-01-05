@@ -9,6 +9,13 @@
 
 
 
+## 3.2.2 - 2023/1/5
+
+### Features
+- Filter styles and resources with non-screen media queries
+### Bug fixes
+- Fixed issue with parsing capabilities for iOS with native app
+
 ## 3.2.0 - 2022/12/27
 
 ### Features
