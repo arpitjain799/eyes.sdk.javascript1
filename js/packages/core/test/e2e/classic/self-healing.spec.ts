@@ -38,7 +38,7 @@ describe('self-healing classic', () => {
     await proxy.server.close()
   })
 
-  it.only('sends report on close', async () => {
+  it('sends report on close', async () => {
     const eyes = await core.openEyes({
       target: driver,
       settings: {
