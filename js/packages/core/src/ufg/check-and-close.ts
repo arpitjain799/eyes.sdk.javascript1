@@ -32,7 +32,7 @@ export function makeCheckAndClose<TDriver, TContext, TElement, TSelector>({
 }: Options<TDriver, TContext, TElement, TSelector>) {
   return async function checkAndClose({
     target = defaultTarget,
-    settings = {},
+    settings = {} as any,
     logger = defaultLogger,
     snapshots,
   }: {
@@ -208,7 +208,7 @@ export function makeCheckAndClose<TDriver, TContext, TElement, TSelector>({
 
           const [result] = await baseEyes.checkAndClose({
             target: {...baseTarget, isTransformed: true},
-            settings: baseSettings,
+            settings: baseSettings as any,
             logger,
           })
 

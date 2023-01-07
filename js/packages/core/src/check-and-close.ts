@@ -20,7 +20,7 @@ export function makeCheckAndClose<TDriver, TContext, TElement, TSelector, TDefau
   return async function checkAndClose<TType extends 'classic' | 'ufg' = TDefaultType>({
     type = defaultType as any,
     target = defaultTarget as any,
-    settings = {},
+    settings = {} as any,
     config,
     logger = defaultLogger,
   }: {

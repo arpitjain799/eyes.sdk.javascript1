@@ -51,13 +51,13 @@ export function makeServer({settings, logger}: {settings?: EGClientSettings; log
       } else if (request.method === 'DELETE' && /^\/session\/[^\/]+\/?$/.test(request.url)) {
         return await deleteSession({request, response, logger: requestLogger})
       } else if (
-        settings.useSelfHealing &&
+        settings.capabilities?.useSelfHealing &&
         request.method === 'POST' &&
         /^\/session\/[^\/]+\/element\/?$/.test(request.url)
       ) {
         return await findElement({request, response, logger: requestLogger})
       } else if (
-        settings.useSelfHealing &&
+        settings.capabilities?.useSelfHealing &&
         request.method === 'GET' &&
         /^\/session\/[^\/]+\/applitools\/metadata?$/.test(request.url)
       ) {
@@ -85,6 +85,7 @@ export function makeServer({settings, logger}: {settings?: EGClientSettings; log
   })
 
   server.listen(settings.port ?? 0)
+  server.unref()
 
   return new Promise<{url: string; port: number; server: Server}>((resolve, reject) => {
     server.on('listening', () => {

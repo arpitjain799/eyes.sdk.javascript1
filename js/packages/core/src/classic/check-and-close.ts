@@ -23,7 +23,7 @@ export function makeCheckAndClose<TDriver, TContext, TElement, TSelector>({
 }: Options<TDriver, TContext, TElement, TSelector>) {
   return async function checkAndClose({
     target = defaultTarget,
-    settings = {},
+    settings = {} as any,
     logger = defaultLogger,
   }: {
     target?: ClassicTarget<TDriver, TContext, TElement, TSelector>
@@ -74,7 +74,9 @@ export function makeCheckAndClose<TDriver, TContext, TElement, TSelector>({
     await screenshot.restoreState()
 
     return (
-      await Promise.all(baseEyes.map(baseEyes => baseEyes.checkAndClose({target: baseTarget, settings: baseSettings, logger})))
+      await Promise.all(
+        baseEyes.map(baseEyes => baseEyes.checkAndClose({target: baseTarget, settings: baseSettings as any, logger})),
+      )
     ).flat()
   }
 }

@@ -2,7 +2,7 @@ import {makeCore} from '../../src/core'
 import * as spec from '@applitools/spec-driver-selenium'
 import assert from 'assert'
 import {getTestInfo} from '@applitools/test-utils'
-import {makeServer} from '@applitools/execution-grid-client'
+import {makeEGClient} from '@applitools/execution-grid-client'
 
 describe('playground', () => {
   let driver, destroyDriver, proxy, core
@@ -16,9 +16,10 @@ describe('playground', () => {
   }
 
   before(async () => {
-    proxy = await makeServer({
-      eyesServerUrl: serverUrl,
-      useSelfHealing: true,
+    proxy = await makeEGClient({
+      settings: {
+        capabilities: {eyesServerUrl: serverUrl, useSelfHealing: true},
+      },
     })
     ;[driver, destroyDriver] = await spec.build({
       browser: 'chrome',
@@ -69,13 +70,15 @@ describe('playground', () => {
     })
     await eyes2.check({})
 
-    const [_result2] = await eyes2.close({settings: {updateBaselineIfNew: false}})
+    const [result2] = await eyes2.close({settings: {updateBaselineIfNew: false}})
 
     const testInfo = await getTestInfo(result, apiKey)
     testInfo.selfHealingInfo.operations.forEach((result: any) => {
-      assert.deepStrictEqual(result.old, '#log-in')
-      assert.deepStrictEqual(result.new, '//*[@href="/app.html" ]')
+      assert.deepStrictEqual(result.old, {using: 'css selector', value: '#log-in'})
+      assert.deepStrictEqual(result.new, {using: 'xpath', value: '//*[@href="/app.html" ]'})
       assert(Date.parse(result.timeStamp))
     })
+    const testInfo2 = await getTestInfo(result2, apiKey)
+    assert.ok(!testInfo2.selfHealingInfo)
   })
 })

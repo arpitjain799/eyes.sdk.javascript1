@@ -40,6 +40,7 @@ import {ValidationResult} from './output/ValidationResult'
 import {SessionEventHandler, SessionEventHandlers, RemoteSessionEventHandler} from './SessionEventHandlers'
 import {EyesRunner, ClassicRunner} from './Runners'
 import {Logger} from './Logger'
+import {EGClientSettings} from '@applitools/execution-grid-client'
 
 export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   protected static readonly _spec: CoreSpec
@@ -56,10 +57,8 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   private _events: Map<string, Set<(...args: any[]) => any>> = new Map()
   private _handlers: SessionEventHandlers = new SessionEventHandlers()
 
-  static async getExecutionCloudUrl(config?: Configuration<unknown, unknown>): Promise<string> {
-    const client = await this._spec.makeEGClient({
-      settings: {serverUrl: config?.serverUrl, apiKey: config?.apiKey, proxy: config?.proxy},
-    })
+  static async getExecutionCloudUrl(settings: EGClientSettings): Promise<string> {
+    const client = await this._spec.makeEGClient({settings})
     return client.url
   }
 
@@ -176,7 +175,7 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   }
 
   async getExecutionCloudUrl(): Promise<string> {
-    return (this.constructor as typeof Eyes).getExecutionCloudUrl(this._config)
+    return (this.constructor as typeof Eyes).getExecutionCloudUrl({} as EGClientSettings)
   }
 
   async open(driver: TDriver, config?: Configuration<TElement, TSelector>): Promise<TDriver>

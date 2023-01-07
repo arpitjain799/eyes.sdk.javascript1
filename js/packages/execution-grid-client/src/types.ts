@@ -14,7 +14,6 @@ export interface EGClientSettings {
   port?: number
   capabilities?: EGCapabilities
   resolveUrls?: boolean
-  useSelfHealing: boolean
 }
 
 export interface EGCapabilities {

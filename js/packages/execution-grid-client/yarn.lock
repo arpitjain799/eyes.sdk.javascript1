@@ -59,7 +59,7 @@
     "@applitools/utils" "1.3.10"
     chalk "4.1.2"
 
-"@applitools/req@^1.1.23":
+"@applitools/req@1.1.23":
   version "1.1.23"
   resolved "https://registry.yarnpkg.com/@applitools/req/-/req-1.1.23.tgz#cc38566bc86b59ed2e109b15e29c2e6620d8a3e1"
   integrity sha512-iy2XEtUXNM5YQJbS3pXijiBC+tKpIJjU8nQNHBlGaVbd4r/cxYCEmKPC0lLKVYRbxk7Qi4Lfbh2cmAEQ6Ncf3A==

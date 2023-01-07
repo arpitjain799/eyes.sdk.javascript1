@@ -43,8 +43,6 @@ export function makeOpenEyes({requests, cwd = process.cwd(), logger: defaultLogg
       settings.gitBranchingTimestamp = undefined
     }
 
-    settin
-
     const eyesRequests = await requests.openEyes({settings, logger})
 
     const aborted = utils.promises.makeControlledPromise<never>()

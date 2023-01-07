@@ -92,7 +92,7 @@ export function makeProxy(defaultOptions?: Partial<ProxyOptions> & {resolveUrls?
       return new Promise((resolve, reject) => {
         const request = sendRequest(requestOptions.url, {
           ...requestOptions,
-          agent: new ProxyAgent(requestOptions.proxy.url),
+          agent: new ProxyAgent(requestOptions.proxy?.url),
         })
 
         request.on('error', reject)
