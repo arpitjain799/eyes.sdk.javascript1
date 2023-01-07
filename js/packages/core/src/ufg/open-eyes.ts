@@ -57,6 +57,8 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
       logger,
     })
 
+    settings.egSessionId = driver.sessionId
+
     const getBaseEyes = makeGetBaseEyes({settings, eyes, core, client, logger})
 
     return utils.general.extend({}, eyes => {

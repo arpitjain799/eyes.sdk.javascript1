@@ -75,8 +75,7 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
           settings.environment.os += ` ${driver.platformVersion}`
         }
       }
-      const driverSessionMetadata = await driver?.getSessionMetadata()
-      settings.egSessionId = driverSessionMetadata?.sessionId
+      settings.egSessionId = driver.sessionId
       await currentContext.focus()
     }
     const getBaseEyes = makeGetBaseEyes({settings, core, eyes, logger})
@@ -90,7 +89,7 @@ export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
       locateText: makeLocateText({eyes, target: driver, spec, logger}),
       extractText: makeExtractText({eyes, target: driver, spec, logger}),
       close: makeClose({eyes, target: driver, spec, logger}),
-      abort: makeAbort({eyes, target: driver, spec, logger})
+      abort: makeAbort({eyes, target: driver, spec, logger}),
     }))
   }
 }

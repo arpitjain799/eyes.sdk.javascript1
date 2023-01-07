@@ -566,7 +566,11 @@ export function makeEyesRequests({
     logger?: Logger
   }): Promise<void> {
     try {
-      if (utils.types.isNull(settings?.driverSessionMetadata) || utils.types.isEmpty(settings?.driverSessionMetadata)) return
+      if (
+        utils.types.isNull(settings?.driverSessionMetadata?.selfHealingEvents) ||
+        utils.types.isEmpty(settings?.driverSessionMetadata?.selfHealingEvents)
+      )
+        return
       logger.log('Request "reportSelfHealing" called')
       await req(`/api/sessions/running/${encodeURIComponent(test.testId)}/selfhealdata`, {
         name: 'reportSelfHealing',

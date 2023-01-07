@@ -73,6 +73,9 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
   get helper() {
     return this._helper
   }
+  get sessionId() {
+    return this._driverInfo?.sessionId
+  }
   get features() {
     return this._driverInfo?.features
   }
