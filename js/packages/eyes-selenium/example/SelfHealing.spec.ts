@@ -1,3 +1,35 @@
+/**
+ * Instructions:
+ *
+ * Prerequisites:
+ * ==============
+ * 1. Node.js (preferrably 18, but 14 or 16 should work as well)
+ * 2. Yarn 1 (not 2) - https://classic.yarnpkg.com/en/docs/install
+ * 3. Git
+ *
+ * Setup local env:
+ * ================
+ * git clone git@github.com:applitools/eyes.sdk.javascript1.git
+ * git checkout feat/self-healing-support-amit
+ * cd js/packages/eyes-selenium
+ * yarn
+ * npx -p "@applitools/scripts" link "core api egc spec-selenium driver core-base test-utils" --build --install
+ *
+ * Execute
+ * =======
+ * Run this by executing the following command line:
+ * DEBUG=demo APPLITOOLS_SERVER_URL=https://testeyes.applitools.com APPLITOOLS_API_KEY=<YOUR_API_KEY> npx mocha --no-timeouts -r ts-node/register example/SelfHealing.spec.ts
+ *
+ * Explanation:
+ * DEBUG - for nice logs
+ * APPLITOOLS_SERVER_URL - since it should be on testeyes
+ * APPLITOOLS_API_KEY - for your team on testeyes
+ * npx mocha - runs the Mocha test runner
+ * --no-timeouts - so that Mocha doesn't exit on timeout
+ * -r ts-node/register - in order to run TypeScript
+ * example/SelfHealing.spec.ts - this file
+ */
+
 import {describe, it, before, after} from 'mocha'
 import {Eyes, VisualGridRunner, FileLogHandler} from '../src'
 import assert from 'assert'
@@ -14,7 +46,7 @@ describe('EG and Self healing', () => {
 
   const batch = {
     id: `${Math.random()}`,
-    name: 'EG and self healing (amit)',
+    name: 'EG and self healing',
   }
 
   before(async () => {
@@ -91,6 +123,8 @@ describe('EG and Self healing', () => {
     log('Waiting for results')
     const summary = await eyes.getRunner().getAllTestResults()
     const results = summary.getAllResults().map(({testResults}) => testResults)
+
+    log('Results at', results[0].appUrls.batch)
 
     log("Asserting that first test had self healing events, and second one didn't")
     const testInfo = await getTestInfo(results[0], apiKey)
