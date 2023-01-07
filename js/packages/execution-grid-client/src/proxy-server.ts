@@ -76,24 +76,7 @@ export function makeServer({
       } else if (request.method === 'DELETE' && /^\/session\/[^\/]+\/?$/.test(request.url)) {
         return await deleteSession({request, response, logger: requestLogger})
       } else if (useSelfHealing && request.method === 'POST' && /^\/session\/[^\/]+\/element\/?$/.test(request.url)) {
-        requestLogger.log('Inspecting element lookup request to collect self-healing metadata')
-        const proxyResponse = await proxyRequest({
-          request,
-          response,
-          options: {handle: false},
-          logger,
-        })
-        const {appliCustomData} = await proxyResponse.json()
-        if (appliCustomData?.selfHealing?.successfulSelector) {
-          requestLogger.log('Self-healed locators detected', appliCustomData.selfHealing)
-          const sessionId = request.url.match(/^\/session\/([^\/]+)\/element\/?$/)[1]
-          const session = sessions.get(sessionId)
-          session.selfHealingEvents.push(appliCustomData.selfHealing)
-        } else {
-          requestLogger.log('No self-healing metadata found')
-        }
-        proxyResponse.pipe(response)
-        return
+        return await findElement({request, response, logger: requestLogger})
       } else if (
         useSelfHealing &&
         request.method === 'GET' &&
@@ -102,6 +85,7 @@ export function makeServer({
         const sessionId = request.url.match(/^\/session\/([^\/]+)\/applitools\/metadata?$/)[1]
         const session = sessions.get(sessionId)
         const metadata: DriverSessionMetadata = {sessionId, selfHealingEvents: session.selfHealingEvents}
+        session.selfHealingEvents = []
         requestLogger.log('Session metadata requested, returning', metadata)
         response.writeHead(200).end(JSON.stringify({value: metadata}))
       } else {
@@ -250,6 +234,34 @@ export function makeServer({
       logger.log(`Tunnel with id ${session.tunnelId} was deleted for session with id ${sessionId}`)
     }
     sessions.delete(sessionId)
+  }
+
+  async function findElement({
+    request,
+    response,
+    logger,
+  }: {
+    request: ModifiedIncomingMessage
+    response: ServerResponse
+    logger: Logger
+  }): Promise<void> {
+    logger.log('Inspecting element lookup request to collect self-healing metadata')
+    const proxyResponse = await proxyRequest({
+      request,
+      response,
+      options: {handle: false},
+      logger,
+    })
+    const {appliCustomData} = await proxyResponse.json()
+    if (appliCustomData?.selfHealing?.successfulSelector) {
+      logger.log('Self-healed locators detected', appliCustomData.selfHealing)
+      const sessionId = request.url.match(/^\/session\/([^\/]+)\/element\/?$/)[1]
+      const session = sessions.get(sessionId)
+      session.selfHealingEvents.push(appliCustomData.selfHealing)
+    } else {
+      logger.log('No self-healing metadata found')
+    }
+    proxyResponse.pipe(response)
   }
 
   function extractCapability(
