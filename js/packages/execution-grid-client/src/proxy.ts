@@ -1,6 +1,7 @@
 import {type Readable} from 'stream'
 import {type AbortSignal} from 'abort-controller'
 import {type Logger} from '@applitools/logger'
+import {type Proxy} from '@applitools/req'
 import {modifyIncomingMessage, type ModifiedIncomingMessage} from './incoming-message'
 import {request as sendHttp, type ServerResponse} from 'http'
 import {request as sendHttps} from 'https'
@@ -13,7 +14,7 @@ type RequestOptions = {
   method: string
   headers?: Record<string, string | string[]>
   body?: string | Buffer | Readable
-  proxy?: string
+  proxy?: Proxy
   signal?: AbortSignal
 }
 
@@ -91,7 +92,7 @@ export function makeProxy(defaultOptions?: Partial<ProxyOptions> & {resolveUrls?
       return new Promise((resolve, reject) => {
         const request = sendRequest(requestOptions.url, {
           ...requestOptions,
-          agent: new ProxyAgent(requestOptions.proxy),
+          agent: new ProxyAgent(requestOptions.proxy.url),
         })
 
         request.on('error', reject)
