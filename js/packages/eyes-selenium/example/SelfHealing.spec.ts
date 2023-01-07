@@ -1,8 +1,11 @@
 import {describe, it, before, after} from 'mocha'
-import {Eyes, VisualGridRunner} from '../src'
+import {Eyes, VisualGridRunner, FileLogHandler} from '../src'
 import assert from 'assert'
 import {getTestInfo} from '@applitools/test-utils'
 import {Builder} from 'selenium-webdriver'
+import debug from 'debug'
+
+const log = debug('demo')
 
 describe('EG and Self healing', () => {
   let driver, eyes
@@ -15,6 +18,7 @@ describe('EG and Self healing', () => {
   }
 
   before(async () => {
+    log('Getting Execution Cloud URL')
     const executionCloudUrl = await Eyes.getExecutionCloudUrl({
       capabilities: {
         eyesServerUrl: serverUrl,
@@ -22,6 +26,8 @@ describe('EG and Self healing', () => {
         useSelfHealing: true,
       },
     })
+
+    log('Building driver for Execution Cloud')
     driver = await new Builder()
       .withCapabilities({
         browserName: 'chrome',
@@ -30,6 +36,7 @@ describe('EG and Self healing', () => {
       .build()
 
     eyes = new Eyes(new VisualGridRunner({testConcurrency: 5}))
+    eyes.setLogHandler(new FileLogHandler(true, 'demo.log', false))
   })
 
   after(async () => {
@@ -38,16 +45,16 @@ describe('EG and Self healing', () => {
 
   it('creates sessions on execution cloud with self healing', async () => {
     const url = 'https://demo.applitools.com'
-    console.log(`Accessing ${url}`)
+    log(`Accessing ${url}`)
     await driver.get(url)
-    console.log('Finding the log in button')
+    log('Finding the log in button')
     await driver.findElement({css: '#log-in'})
-    console.log('Modifying button properties')
+    log('Modifying button properties')
     await driver.executeScript("document.querySelector('#log-in').id = 'log-inn'")
-    console.log('Finding button again')
+    log('Finding button again')
     await driver.findElement({css: '#log-in'})
 
-    console.log('Opening Eyes')
+    log('Opening Eyes')
     await eyes.open(driver, {
       serverUrl,
       apiKey,
@@ -58,13 +65,13 @@ describe('EG and Self healing', () => {
       saveNewTests: false,
     })
 
-    console.log('Performing check')
+    log('Performing check')
     await eyes.check({})
 
-    console.log('Closing Eyes')
-    const result = await eyes.close(false)
+    log('Closing Eyes')
+    eyes.close(false).catch(log)
 
-    console.log('Opening Eyes again')
+    log('Opening Eyes again')
     await eyes.open(driver, {
       serverUrl,
       apiKey,
@@ -75,20 +82,24 @@ describe('EG and Self healing', () => {
       saveNewTests: false,
     })
 
-    console.log('Performing check')
+    log('Performing check')
     await eyes.check({})
 
-    console.log('Closing Eyes')
-    const result2 = await eyes.close(false)
+    log('Closing Eyes')
+    eyes.close(false).catch(log)
 
-    console.log("Asserting that first test had self healing events, and second one didn't")
-    const testInfo = await getTestInfo(result, apiKey)
+    log('Waiting for results')
+    const summary = await eyes.getRunner().getAllTestResults()
+    const results = summary.getAllResults().map(({testResults}) => testResults)
+
+    log("Asserting that first test had self healing events, and second one didn't")
+    const testInfo = await getTestInfo(results[0], apiKey)
     testInfo.selfHealingInfo.operations.forEach((result: any) => {
       assert.deepStrictEqual(result.old, {using: 'css selector', value: '#log-in'})
       assert.deepStrictEqual(result.new, {using: 'xpath', value: '//*[@href="/app.html" ]'})
       assert(Date.parse(result.timeStamp))
     })
-    const testInfo2 = await getTestInfo(result2, apiKey)
+    const testInfo2 = await getTestInfo(results[1], apiKey)
     assert.ok(!testInfo2.selfHealingInfo)
   })
 })
