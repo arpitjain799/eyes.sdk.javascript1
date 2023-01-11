@@ -1,10 +1,12 @@
+const {isShadowRoot} = require('@applitools/dom-shared')
+
 function addElementIds([elements, ids]) {
   return elements.map((element, index) => {
     const path = [element]
     if (element.getRootNode) {
       for (
         let root = element.getRootNode();
-        root !== document && root.constructor && root.constructor.name === 'ShadowRoot';
+        root !== document && isShadowRoot(root);
         root = root.host.getRootNode()
       ) {
         path.push(root.host)

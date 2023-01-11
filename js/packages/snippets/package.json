@@ -28,7 +28,9 @@
     "version": "bongo version",
     "postversion": "bongo postversion --skip-release-notification"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@applitools/dom-shared": "^1.0.9"
+  },
   "devDependencies": {
     "@applitools/bongo": "^2.2.0",
     "@babel/core": "^7.11.6",
