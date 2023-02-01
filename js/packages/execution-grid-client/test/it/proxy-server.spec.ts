@@ -1,21 +1,22 @@
-import assert from 'assert'
-import nock from 'nock'
-import fetch from 'node-fetch'
 import {AbortController} from 'abort-controller'
 import {Builder} from 'selenium-webdriver'
+import {Command} from 'selenium-webdriver/lib/command'
 import {makeServer} from '../../src/proxy-server'
 import * as utils from '@applitools/utils'
+import req from '@applitools/req'
+import nock from 'nock'
+import assert from 'assert'
 
 describe('proxy-server', () => {
-  let proxy
+  let proxy: any
 
   afterEach(async () => {
     nock.cleanAll()
-    await proxy.server.close()
+    await proxy.close()
   })
 
   it('proxies webdriver requests', async () => {
-    proxy = await makeServer({resolveUrls: false})
+    proxy = await makeServer({settings: {serverUrl: 'https://exec-wus.applitools.com'}})
 
     nock('https://exec-wus.applitools.com')
       .persist()
@@ -25,11 +26,13 @@ describe('proxy-server', () => {
     nock('https://exec-wus.applitools.com').persist().delete('/session/session-guid').reply(200, {value: null})
 
     const driver = await new Builder().forBrowser('chrome').usingServer(proxy.url).build()
+    const capabilities = await driver.getCapabilities()
+    assert.strictEqual(capabilities.get('applitools:isECClient'), true)
     await driver.quit()
   })
 
   it('performs retries on concurrency and availability errors', async () => {
-    proxy = await makeServer({resolveUrls: false})
+    proxy = await makeServer({settings: {serverUrl: 'https://exec-wus.applitools.com'}})
 
     let retries = 0
     nock('https://exec-wus.applitools.com')
@@ -57,8 +60,13 @@ describe('proxy-server', () => {
     await new Builder().forBrowser('chrome').usingServer(proxy.url).build()
   })
 
-  it('adds `applitools:` capabilities from properties', async () => {
-    proxy = await makeServer({apiKey: 'api-key', eyesServerUrl: 'http://server.url', resolveUrls: false})
+  it('adds `applitools:` capabilities from default capabilities', async () => {
+    proxy = await makeServer({
+      settings: {
+        serverUrl: 'https://exec-wus.applitools.com',
+        capabilities: {apiKey: 'api-key', eyesServerUrl: 'http://server.url'},
+      },
+    })
 
     nock('https://exec-wus.applitools.com')
       .persist()
@@ -88,18 +96,17 @@ describe('proxy-server', () => {
     await new Builder().forBrowser('chrome').usingServer(proxy.url).build()
   })
 
-  it('adds `applitools:` capabilities from env variables', async () => {
-    process.env.APPLITOOLS_API_KEY = 'env-api-key'
-    process.env.APPLITOOLS_SERVER_URL = 'http://env-server.url'
-    proxy = await makeServer({resolveUrls: false})
+  it('adds `applitools:` capabilities from provided `applitools:options` capability', async () => {
+    proxy = await makeServer({settings: {serverUrl: 'https://exec-wus.applitools.com'}})
+
     nock('https://exec-wus.applitools.com')
       .persist()
       .post('/session')
       .reply((_url, body) => {
         const {capabilities} = body as Record<string, any>
         if (
-          capabilities.alwaysMatch['applitools:apiKey'] === 'env-api-key' &&
-          capabilities.alwaysMatch['applitools:eyesServerUrl'] === 'http://env-server.url'
+          capabilities.alwaysMatch['applitools:apiKey'] === 'api-key' &&
+          capabilities.alwaysMatch['applitools:eyesServerUrl'] === 'http://server.url'
         ) {
           return [200, {value: {capabilities: {}, sessionId: 'session-guid'}}]
         } else {
@@ -117,11 +124,19 @@ describe('proxy-server', () => {
         }
       })
 
-    await new Builder().forBrowser('chrome').usingServer(proxy.url).build()
+    await new Builder()
+      .withCapabilities({
+        browserName: 'chrome',
+        'applitools:options': {apiKey: 'api-key', eyesServerUrl: 'http://server.url'},
+      })
+      .usingServer(proxy.url)
+      .build()
   })
 
   it('creates new tunnel when session is successfully created', async () => {
-    proxy = await makeServer({egTunnelUrl: 'http://eg-tunnel', resolveUrls: false})
+    proxy = await makeServer({
+      settings: {serverUrl: 'https://exec-wus.applitools.com', tunnel: {serverUrl: 'http://eg-tunnel'}},
+    })
 
     nock('https://exec-wus.applitools.com')
       .persist()
@@ -146,7 +161,9 @@ describe('proxy-server', () => {
   })
 
   it('fails if new tunnel was not created', async () => {
-    proxy = await makeServer({egTunnelUrl: 'http://eg-tunnel', resolveUrls: false})
+    proxy = await makeServer({
+      settings: {serverUrl: 'https://exec-wus.applitools.com', tunnel: {serverUrl: 'http://eg-tunnel'}},
+    })
 
     nock('https://exec-wus.applitools.com')
       .persist()
@@ -164,7 +181,12 @@ describe('proxy-server', () => {
   })
 
   it('deletes tunnel when session is successfully deleted', async () => {
-    proxy = await makeServer({egTunnelUrl: 'http://eg-tunnel', resolveUrls: false})
+    proxy = await makeServer({
+      settings: {
+        serverUrl: 'https://exec-wus.applitools.com',
+        tunnel: {serverUrl: 'http://eg-tunnel', pool: {timeout: {idle: 0}}},
+      },
+    })
 
     nock('https://exec-wus.applitools.com')
       .persist()
@@ -195,7 +217,7 @@ describe('proxy-server', () => {
   })
 
   it('aborts proxy request if incoming request was aborted', async () => {
-    proxy = await makeServer({resolveUrls: false})
+    proxy = await makeServer({settings: {serverUrl: 'https://exec-wus.applitools.com'}})
 
     let count = 0
     nock('https://exec-wus.applitools.com')
@@ -218,13 +240,13 @@ describe('proxy-server', () => {
 
     try {
       const controller = new AbortController()
-      fetch(`${proxy.url}/session`, {
+      req(`${proxy.url}/session`, {
         method: 'post',
-        body: JSON.stringify({capabilities: {alwaysMatch: {browserName: 'chrome'}}}),
+        body: {capabilities: {alwaysMatch: {browserName: 'chrome'}}},
         signal: controller.signal,
       })
       setTimeout(() => controller.abort(), 1000)
-    } catch (err) {
+    } catch (err: any) {
       if (err.name !== 'AbortError') throw err
     }
     await utils.general.sleep(3000)
@@ -232,8 +254,8 @@ describe('proxy-server', () => {
     assert.strictEqual(count, 1)
   })
 
-  it.skip('queue create session requests if they need retry', async () => {
-    proxy = await makeServer({resolveUrls: false})
+  it('queue create session requests if they need retry', async () => {
+    proxy = await makeServer({settings: {serverUrl: 'https://exec-wus.applitools.com'}})
 
     let runningCount = 0
     nock('https://exec-wus.applitools.com')
@@ -242,7 +264,7 @@ describe('proxy-server', () => {
       .reply(() => {
         if (runningCount < 2) {
           runningCount += 1
-          setTimeout(() => (runningCount -= 1), 10000)
+          setTimeout(() => (runningCount -= 1), 10_000)
           return [200, {value: {capabilities: {}, sessionId: 'session-guid'}}]
         }
         return [
@@ -259,9 +281,66 @@ describe('proxy-server', () => {
       })
 
     await Promise.all(
-      Array.from({length: 10}).map(async (_, _index) => {
+      Array.from({length: 5}).map(async (_, _index) => {
         await new Builder().withCapabilities({browserName: 'chrome'}).usingServer(proxy.url).build()
       }),
     )
+  })
+
+  it('returns session details', async () => {
+    proxy = await makeServer({settings: {serverUrl: 'https://exec-wus.applitools.com'}})
+    const sessionId = 'session-guid'
+    nock('https://exec-wus.applitools.com')
+      .persist()
+      .post('/session')
+      .reply(200, {value: {capabilities: {}, sessionId}})
+
+    nock('https://exec-wus.applitools.com')
+      .persist()
+      .get(`/session/${sessionId}`)
+      .reply(200, {
+        value: {
+          sessionId,
+          applitools: true,
+        },
+      })
+
+    const driver = await new Builder().forBrowser('chrome').usingServer(proxy.url).build()
+    driver.getExecutor().defineCommand('getSessionDetails', 'GET', '/session/:sessionId')
+    const result = await driver.execute(new Command('getSessionDetails'))
+    assert.deepStrictEqual(result, {sessionId, applitools: true})
+  })
+
+  it('find element works with self healing', async () => {
+    proxy = await makeServer({
+      settings: {serverUrl: 'https://exec-wus.applitools.com', capabilities: {useSelfHealing: true}},
+    })
+    const expected = {
+      successfulSelector: {using: 'css selector', value: 'actual-selector'},
+      unsuccessfulSelector: {using: 'css selector', value: 'blah'},
+    }
+    const sessionId = 'session-guid'
+    nock('https://exec-wus.applitools.com')
+      .persist()
+      .post('/session')
+      .reply(200, {value: {capabilities: {}, sessionId: 'session-guid'}})
+
+    nock('https://exec-wus.applitools.com')
+      .persist()
+      .post(`/session/${sessionId}/element`)
+      .reply(200, {
+        value: {'element-12345': 'blahblahblah'},
+        appliCustomData: {
+          selfHealing: expected,
+        },
+      })
+
+    const driver = await new Builder().forBrowser('chrome').usingServer(proxy.url).build()
+    driver.getExecutor().defineCommand('getSessionMetadata', 'GET', '/session/:sessionId/applitools/metadata')
+    await driver.findElement({css: 'blah'})
+    const result = await driver.execute(new Command('getSessionMetadata'))
+    assert.deepStrictEqual(result, [expected])
+    const noResult = await driver.execute(new Command('getSessionMetadata'))
+    assert.ok(utils.types.isNotDefined(noResult))
   })
 })

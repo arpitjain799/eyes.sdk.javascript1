@@ -148,6 +148,18 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
   get isEdgeLegacy(): boolean {
     return /edge/i.test(this.browserName) && Number(this.browserVersion) <= 44
   }
+  get isECClient(): boolean {
+    return !!this._driverInfo?.isECClient
+  }
+  get isEC(): boolean {
+    return this.isECClient || (!!this.remoteHostname && /exec-wus.applitools.com/.test(this.remoteHostname))
+  }
+  get sessionId(): string {
+    return this._driverInfo?.sessionId
+  }
+  get remoteHostname(): string | undefined {
+    return this._driverInfo?.remoteHostname
+  }
 
   updateCurrentContext(context: Context<TDriver, TContext, TElement, TSelector>): void {
     this._currentContext = context
@@ -163,6 +175,7 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
     const driverInfo = await this._spec.getDriverInfo?.(this.target)
 
     this._driverInfo = {...capabilitiesInfo, ...driverInfo}
+    this._driverInfo.remoteHostname ??= this._spec.extractHostName?.(this.target)
 
     if (this.isMobile) {
       this._driverInfo.orientation =
@@ -404,6 +417,10 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
     return result
   }
   // end world
+
+  async getSessionMetadata(): Promise<any> {
+    if (this.isECClient) return await this._spec?.getSessionMetadata(this.target)
+  }
 
   async refreshContexts(): Promise<Context<TDriver, TContext, TElement, TSelector>> {
     if (this.isNative) return this.currentContext

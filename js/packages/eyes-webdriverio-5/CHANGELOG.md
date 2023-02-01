@@ -10,6 +10,38 @@
 
 
 
+## 5.41.0 - 2023/2/1
+
+### Features
+- Add NML support for Android
+### Bug fixes
+
+## 5.40.2 - 2023/1/27
+
+### Features
+- Added new android devices Sony Xperia 1 II, Sony Xperia Ace II, Huawei P30 Lite, Xiaomi Redmi Note 10 JE
+### Bug fixes
+- Fixed issue with sessionId on ufg
+
+## 5.40.1 - 2023/1/23
+
+### Features
+### Bug fixes
+- Fixed dependency issue on windows
+
+## 5.40.0 - 2023/1/18
+
+### Features
+- No new features
+### Bug fixes
+
+## 5.39.1 - 2023/1/5
+
+### Features
+- Upgrade to wdio@8
+### Bug fixes
+- Additional internal event logs
+
 ## 5.39.0 - 2022/12/21
 
 ### Features

@@ -3,6 +3,7 @@ import {type Cookie} from '@applitools/driver'
 import * as spec from '../../src/spec-driver'
 import * as utils from '@applitools/utils'
 import assert from 'assert'
+import nock from 'nock'
 
 function extractElementId(element: any) {
   return (
@@ -174,23 +175,18 @@ describe('spec driver', async () => {
     it('visit()', async () => {
       await visit()
     })
-  })
+    it('getSessionMetadata()', async () => {
+      // when driver doens't respond to the command route
+      await assert.rejects(async () => await spec.getSessionMetadata(driver), {message: /unknown command/})
 
-  describe('onscreen desktop (@webdriver)', async () => {
-    before(async () => {
-      ;[driver, destroyDriver] = await spec.build({browser: 'chrome', headless: false})
-    })
-
-    after(async () => {
-      await destroyDriver?.()
-      destroyDriver = null
-    })
-
-    it('getWindowSize()', async () => {
-      await getWindowSize()
-    })
-    it('setWindowSize({width, height})', async () => {
-      await setWindowSize({input: {width: 551, height: 552}})
+      // when the driver does
+      // TODO: replace w/ a proper e2e test
+      const sessionId = driver.sessionId
+      nock('http://localhost:4444/wd/hub').persist().get(`/session/${sessionId}/applitools/metadata`).reply(200, {
+        value: [],
+      })
+      nock('http://localhost:4444/wd/hub').persist().delete(`/session/${sessionId}`).reply(200, {value: null})
+      assert.deepStrictEqual(await spec.getSessionMetadata(driver), [])
     })
   })
 

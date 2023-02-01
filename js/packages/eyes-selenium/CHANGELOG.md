@@ -8,6 +8,24 @@
 
 
 
+## 4.63.1 - 2023/1/23
+
+### Features
+### Bug fixes
+- Fixed issue with sessionId on ufg
+
+## 4.63.0 - 2023/1/23
+
+### Features
+- No new features
+### Bug fixes
+
+## 4.62.1 - 2022/12/31
+
+### Features
+### Bug fixes
+- Additional internal event logs
+
 ## 4.62.0 - 2022/12/21
 
 ### Features

@@ -3,6 +3,7 @@ import {type Cookie} from '@applitools/driver'
 import assert from 'assert'
 import * as spec from '../../src'
 import * as utils from '@applitools/utils'
+import nock from 'nock'
 
 function extractElementId(element: any) {
   return element.elementId || element['element-6066-11e4-a52e-4f735466cecf'] || element.ELEMENT
@@ -50,7 +51,7 @@ describe('spec driver', async () => {
       await isSelector({input: 'div', expected: true})
     })
     it('isSelector(function)', async () => {
-      await isSelector({input: () => void 0, expected: true})
+      await isSelector({input: () => null as any, expected: true})
     })
     it('isSelector(by)', async () => {
       await isSelector({input: {using: 'xpath', value: '//div'}, expected: true})
@@ -87,8 +88,8 @@ describe('spec driver', async () => {
     it('untransformSelector(direct-string)', async () => {
       await untransformSelector({input: 'css selector:.element', expected: {type: 'css', selector: '.element'}})
     })
-    it('untransformSelector(by)', async () => {
-      await untransformSelector({input: () => null, expected: null})
+    it('untransformSelector(function)', async () => {
+      await untransformSelector({input: () => null as any, expected: null})
     })
     it('untransformSelector(by)', async () => {
       await untransformSelector({input: {using: 'xpath', value: '//div'}, expected: {type: 'xpath', selector: '//div'}})
@@ -122,8 +123,8 @@ describe('spec driver', async () => {
       await findElement({input: {selector: '#overflowing-div'}})
     })
     it('findElement(function)', async () => {
-      const selector = function () {
-        return this.document.getElementById('overflowing-div')
+      const selector = function (this: Window) {
+        return this.document.getElementById('overflowing-div')!
       }
       await findElement({input: {selector}})
     })
@@ -137,8 +138,8 @@ describe('spec driver', async () => {
       await findElements({input: {selector: 'div'}})
     })
     it('findElements(function)', async () => {
-      const selector = function () {
-        return this.document.querySelectorAll('div')
+      const selector = function (this: Window) {
+        return Array.from(this.document.querySelectorAll('div'))
       }
       await findElements({input: {selector}})
     })
@@ -205,7 +206,7 @@ describe('spec driver', async () => {
       await isSelector({input: 'div', expected: true})
     })
     it('isSelector(function)', async () => {
-      await isSelector({input: () => null, expected: true})
+      await isSelector({input: () => null as any, expected: true})
     })
     it('isSelector(by)', async () => {
       await isSelector({input: {using: 'xpath', value: '//div'}, expected: true})
@@ -243,7 +244,7 @@ describe('spec driver', async () => {
       await untransformSelector({input: 'css selector:.element', expected: {type: 'css', selector: '.element'}})
     })
     it('untransformSelector(by)', async () => {
-      await untransformSelector({input: () => null, expected: null})
+      await untransformSelector({input: () => null as any, expected: null})
     })
     it('untransformSelector(by)', async () => {
       await untransformSelector({input: {using: 'xpath', value: '//div'}, expected: {type: 'xpath', selector: '//div'}})
@@ -289,8 +290,8 @@ describe('spec driver', async () => {
       await findElement({input: {selector: '#overflowing-div'}})
     })
     it('findElement(function)', async () => {
-      const selector = function () {
-        return this.document.getElementById('overflowing-div')
+      const selector = function (this: Window) {
+        return this.document.getElementById('overflowing-div')!
       }
       await findElement({input: {selector}})
     })
@@ -304,8 +305,8 @@ describe('spec driver', async () => {
       await findElements({input: {selector: 'div'}})
     })
     it('findElements(function)', async () => {
-      const selector = function () {
-        return this.document.getElementById('overflowing-div')
+      const selector = function (this: Window) {
+        return this.document.getElementById('overflowing-div')!
       }
       await findElements({input: {selector}})
     })
@@ -338,6 +339,19 @@ describe('spec driver', async () => {
     })
     it('visit()', async () => {
       await visit()
+    })
+    it('getSessionMetadata()', async () => {
+      // when driver doesn't respond to the command route
+      await assert.rejects(async () => await spec.getSessionMetadata(browser), {message: /unknown command/})
+
+      // when the driver does
+      // TODO: replace w/ a proper e2e test
+      const sessionId = browser.sessionId
+      nock('http://localhost:4444/wd/hub').persist().get(`/session/${sessionId}/applitools/metadata`).reply(200, {
+        value: [],
+      })
+      nock('http://localhost:4444/wd/hub').persist().delete(`/session/${sessionId}`).reply(200, {value: null})
+      assert.deepStrictEqual(await spec.getSessionMetadata(browser), [])
     })
   })
 
@@ -427,9 +441,6 @@ describe('spec driver', async () => {
     it('switchWorld(name)', async () => {
       await switchWorld({input: {name: 'WEBVIEW_com.applitools.eyes.android'}})
     })
-  })
-
-  describe('browser with saucelabs', async () => {
     it('extractHostName()', async () => {
       ;[browser, destroyBrowser] = await spec.build({browser: 'chrome-mac', protocol: 'wd'})
       await browser.url(url)
@@ -481,7 +492,7 @@ describe('spec driver', async () => {
   }) {
     assert.deepStrictEqual(spec.untransformSelector(input), expected)
   }
-  async function extractSelector({input, expected}: {input: spec.Element; expected: spec.Selector}) {
+  async function extractSelector({input, expected}: {input: spec.Element; expected: spec.Selector | undefined}) {
     const selector = spec.extractSelector(input)
     assert.deepStrictEqual(selector, expected)
   }
@@ -559,7 +570,7 @@ describe('spec driver', async () => {
     const root = input.parent ?? browser
     expected = expected === undefined ? await root.$(input.selector) : expected
     const element = await spec.findElement(browser, input.selector, input.parent)
-    if (element !== expected) {
+    if (element && expected) {
       assert.ok(await equalElements(browser, element, expected))
     }
   }

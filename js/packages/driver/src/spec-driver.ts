@@ -4,6 +4,7 @@ import {type Selector} from './selector'
 
 export type DriverInfo = {
   sessionId?: string
+  remoteHostname?: string
   browserName?: string
   browserVersion?: string
   platformName?: string
@@ -30,6 +31,7 @@ export type DriverInfo = {
   isMac?: boolean
   isWindows?: boolean
   isWebView?: boolean
+  isECClient?: boolean
   features?: {
     shadowSelector?: boolean
     allCookies?: boolean
@@ -103,4 +105,6 @@ export interface SpecDriver<TDriver, TContext, TElement, TSelector> {
   getWorlds?(driver: TDriver): Promise<string[]>
   switchWorld?(driver: TDriver, id: string): Promise<void>
   // #endregion
+
+  getSessionMetadata?(driver: TDriver): Promise<any>
 }

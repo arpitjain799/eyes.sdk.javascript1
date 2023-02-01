@@ -282,4 +282,42 @@ describe('check', () => {
     const resultDocument = await driver.findElement('html')
     assert.deepStrictEqual(originalDocument, resultDocument)
   })
+
+  it('adds unique id to duplicated renderers', async function () {
+    const core = makeCore({core: makeFakeCore(), client: makeFakeClient(), concurrency: 10})
+
+    const eyes = await core.openEyes({
+      settings: {
+        serverUrl: 'server-url',
+        apiKey: 'api-key',
+        appName: 'app-name',
+        testName: 'test-name',
+      },
+    })
+
+    await eyes.check({
+      target: {cdt: []},
+      settings: {
+        name: 'good',
+        renderers: [
+          {name: 'firefox', width: 100, height: 100},
+          {name: 'firefox', width: 100, height: 100},
+        ],
+      },
+    })
+
+    const results = await eyes.close()
+
+    assert.deepStrictEqual(
+      results.map(result => result.renderer),
+      [
+        {name: 'firefox', width: 100, height: 100},
+        {name: 'firefox', id: '1', width: 100, height: 100},
+      ],
+    )
+    assert.deepStrictEqual(
+      results.map(result => result.stepsInfo.map((step: any) => step.asExpected)),
+      [[true], [true]],
+    )
+  })
 })

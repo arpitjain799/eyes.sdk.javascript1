@@ -10,26 +10,25 @@ Apollo SDK:
       An example of how to inline `markdown code highlights`
 "@applitools/eyes-universal":
   feature:
-    - 
+    - Add NML support for Android
   bug-fix:
     - 
 "@applitools/eyes-selenium":
   feature:
-    - 
+    - Added new android devices Sony Xperia 1 II, Sony Xperia Ace II, Huawei P30 Lite, Xiaomi Redmi Note 10 JE
+    - Add NML support for Android
   bug-fix:
-    - Additional internal event logs
+    - 
 "@applitools/eyes-webdriverio":
   feature:
     - Upgrade to wdio@8
   bug-fix:
-    - Additional internal event logs
+    - 
 "@applitools/eyes-playwright":
   feature:
     - 
   bug-fix:
-    - Handle fake shadowRoot with UFG
-    - Handed error during polling in long requests to eyes server
-    - Additional internal event logs
+    - 
 "@applitools/eyes-protractor":
   feature:
     - Added new selector extensions `child` and `fallback`
@@ -46,6 +45,7 @@ Apollo SDK:
     - Added `ignoreColors` method to `CheckSettings` to set a match level
     - Added `nmgOptions` to `CheckSettings`
     - Additional internal event logs
+    - Add support for NML Android
   bug-fix:
     - Fixed incorrect calculation of the target element position.
     - Fixed the issue with screenshots being taken on chrome-emulated devices
@@ -70,23 +70,25 @@ Apollo SDK:
     - Use APPLITOOLS_CONCURRENCY env variable to specify concurrency
     - Added `ignoreColors` method to `CheckSettings` to set a match level
     - Additional internal event logs
+    - Add NML support for Android
   bug-fix:
     - Fixed incorrect calculation of the target element position.
     - Handle fake shadowRoot with UFG
     - Handed error during polling in long requests to eyes server
 "@applitools/eyes-nightwatch":
   feature:
-    - 
+    - Added new android devices Sony Xperia 1 II, Sony Xperia Ace II, Huawei P30 Lite, Xiaomi Redmi Note 10 JE
+    - Add NML support for Android
   bug-fix:
-    - 
+    - Fixed issue with sessionId on ufg
 "@applitools/eyes-cypress":
   feature:
-    - 
+    - Support ESM and TypeScript in Applitools' config file
   bug-fix:
     - 
 "@applitools/eyes-storybook":
   feature:
-    - Additional internal event logs
+    - 
   bug-fix:
     - 
 "@applitools/eyes-webdriverio5-service":

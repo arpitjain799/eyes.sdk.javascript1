@@ -111,10 +111,7 @@ export function transformDriver(driver: Driver | StaticDriver): Driver {
   }
 
   if (driver.proxy?.url) {
-    const agent = new ProxyAgent(<any>{
-      ...urlToHttpOptions(driver.proxy.url),
-      rejectUnauthorized: false,
-    })
+    const agent = new ProxyAgent({...urlToHttpOptions(driver.proxy.url), rejectUnauthorized: false} as any)
     agent.callback = utils.general.wrap(agent.callback.bind(agent), (fn, request, options, ...rest) => {
       return fn(request, {...options, rejectUnauthorized: false} as typeof options, ...rest)
     })
@@ -271,6 +268,18 @@ export async function setWindowSize(driver: Driver, size: Size) {
     await driver.setWindowPosition(0, 0)
     await driver._setWindowSize(size.width, size.height)
   }
+}
+// NOTE: this command is meant to be called when running with the eg-client
+// otherwise it will not be implemented on the driver and throw
+export async function getSessionMetadata(driver: Driver): Promise<[] | void> {
+  const cmd = command('GET', '/session/:sessionId/applitools/metadata', {
+    command: 'getSessionMetadata',
+    description: '',
+    ref: '',
+    parameters: [],
+  })
+  const result = await cmd.call(driver)
+  return result as unknown as [] | void
 }
 export async function getCookies(driver: Driver, context?: boolean): Promise<Cookie[]> {
   if (context) return driver.getAllCookies()

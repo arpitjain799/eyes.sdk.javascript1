@@ -133,6 +133,8 @@ export type ChromeEmulationDevice =
   | 'Pixel 4 XL'
   | 'Pixel 5'
   | 'Sony Xperia 10 II'
+  | 'Huawei Mate 50 Pro'
+  | 'Huawei Matepad 11'
 export type ChromeEmulationDeviceRenderer = {
   chromeEmulationInfo: {
     deviceName: ChromeEmulationDevice
@@ -194,9 +196,13 @@ export type AndroidDevice =
   | 'Galaxy S22 Plus'
   | 'Galaxy Tab S7'
   | 'Galaxy Tab S8'
+  | 'Xiaomi Redmi Note 10 JE'
   | 'Xiaomi Redmi Note 11'
   | 'Xiaomi Redmi Note 11 Pro'
+  | 'Sony Xperia 1 II'
   | 'Sony Xperia 10 II'
+  | 'Sony Xperia Ace II'
+  | 'Huawei P30 Lite'
 export type AndroidVersion = 'latest' | 'latest-1'
 export type AndroidDeviceRenderer = {
   androidDeviceInfo: {
@@ -206,7 +212,14 @@ export type AndroidDeviceRenderer = {
   }
 }
 
-export type Renderer = DesktopBrowserRenderer | ChromeEmulationDeviceRenderer | IOSDeviceRenderer | AndroidDeviceRenderer
+export type Renderer = (DesktopBrowserRenderer | ChromeEmulationDeviceRenderer | IOSDeviceRenderer | AndroidDeviceRenderer) & {
+  /**
+   * The id of the renderer
+   * Used to identify the renderer if the same renderer is used multiple times
+   * @internal
+   **/
+  id?: string
+}
 
 export interface UFGClient {
   createRenderTarget(options: {snapshot: Snapshot; settings?: ProcessResourcesSettings}): Promise<RenderTarget>
