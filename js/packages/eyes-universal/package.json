@@ -63,7 +63,7 @@
     "docker:teardown": "docker-compose down",
     "deps": "bongo deps",
     "gh:publish": "gh workflow run publish-universal.yml --ref $(git rev-parse --abbrev-ref HEAD)",
-    "preversion": "bongo preversion --verify-pending-changes --skip-deps",
+    "preversion": "bongo preversion --verify-pending-changes --skip-deps --skip-verify-installed-versions",
     "version": "bongo version --with-pending-changes",
     "postversion": "bongo postversion --skip-release-notification"
   },
