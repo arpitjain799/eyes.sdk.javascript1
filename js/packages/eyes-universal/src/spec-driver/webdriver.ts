@@ -256,7 +256,7 @@ export async function setWindowSize(driver: Driver, size: Size) {
 }
 // NOTE: this command is meant to be called when running with the eg-client
 // otherwise it will not be implemented on the driver and throw
-export async function getSessionMetadata(driver: Driver): Promise<any[] | void> {
+export async function getSessionMetadata(driver: Driver): Promise<any[] | null> {
   const cmd = command('GET', '/session/:sessionId/applitools/metadata', {
     command: 'getSessionMetadata',
     description: '',
@@ -264,7 +264,7 @@ export async function getSessionMetadata(driver: Driver): Promise<any[] | void> 
     parameters: [],
   })
   const result = await cmd.call(driver)
-  return result as unknown as [] | void
+  return result
 }
 export async function getCookies(driver: Driver, context?: boolean): Promise<Cookie[]> {
   if (context) return driver.getAllCookies()

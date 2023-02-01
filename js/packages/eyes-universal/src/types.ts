@@ -88,6 +88,7 @@ export interface UniversalSpecDriver<TDriver, TContext, TElement, TSelector> {
   getCookies?(options: {driver: TDriver | TContext; context?: boolean}): Promise<Cookie[]>
   getDriverInfo?(options: {driver: TDriver}): Promise<DriverInfo>
   getCapabilities?(options: {driver: TDriver}): Promise<Record<string, any>>
+  getSessionMetadata?(options: {driver: TDriver}): Promise<any[] | null>
   getTitle(options: {driver: TDriver}): Promise<string>
   getUrl(options: {driver: TDriver}): Promise<string>
   takeScreenshot(options: {driver: TDriver}): Promise<string>
