@@ -9,6 +9,12 @@
 
 
 
+## 3.2.3 - 2023/2/1
+
+### Features
+- Add NML support for Android
+### Bug fixes
+
 ## 3.2.2 - 2023/1/5
 
 ### Features
