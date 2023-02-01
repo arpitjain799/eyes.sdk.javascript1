@@ -3,7 +3,6 @@
 import yargs from 'yargs'
 import {makeServerProcess} from './universal-server-process'
 import {makeServer} from './universal-server'
-import * as egCli from '@applitools/execution-grid-client/dist/cli'
 
 yargs
   .example([
@@ -84,10 +83,5 @@ yargs
         makeServer({...args, ...args.config})
       }
     },
-  })
-  .command({
-    command: 'eg-client',
-    describe: 'Run EG Client',
-    ...(egCli as any),
   })
   .wrap(yargs.terminalWidth()).argv

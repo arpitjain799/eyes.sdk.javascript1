@@ -163,9 +163,7 @@ describe('webdriver spec driver', async () => {
       nock('http://localhost:4444/wd/hub')
         .persist()
         .get(`/session/${sessionId}/applitools/metadata`)
-        .reply(200, {
-          value: []
-        })
+        .reply(200, {value: []})
       nock('http://localhost:4444/wd/hub').persist().delete(`/session/${sessionId}`).reply(200, {value: null})
       assert.deepStrictEqual(await spec.getSessionMetadata(driver), [])
     })
