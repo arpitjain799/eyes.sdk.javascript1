@@ -9,6 +9,12 @@
 
 
 
+## 3.2.4 - 2023/2/2
+
+### Features
+### Bug fixes
+- Add makeECClient api
+
 ## 3.2.3 - 2023/2/1
 
 ### Features
