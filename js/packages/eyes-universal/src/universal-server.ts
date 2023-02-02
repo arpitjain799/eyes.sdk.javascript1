@@ -119,6 +119,11 @@ export async function makeServer({
       })
     })
 
+    socket.command('Core.makeECClient', async options => {
+      const sdk = await sdkPromise
+      const client = await sdk.makeECClient(options)
+      return {url: client.url} as any
+    })
     socket.command('Core.makeManager', async options => {
       const sdk = await sdkPromise
       const managerRef = refer.ref(await sdk.makeManager(options))
