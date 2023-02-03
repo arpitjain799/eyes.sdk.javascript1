@@ -23,7 +23,7 @@ Apollo SDK:
   feature:
     - Upgrade to wdio@8
   bug-fix:
-    - 
+    - Fix instability when getting information to connect to the NML
 "@applitools/eyes-playwright":
   feature:
     - 
@@ -83,7 +83,7 @@ Apollo SDK:
     - Fixed issue with sessionId on ufg
 "@applitools/eyes-cypress":
   feature:
-    - Support ESM and TypeScript in Applitools' config file
+    - 
   bug-fix:
     - 
 "@applitools/eyes-storybook":

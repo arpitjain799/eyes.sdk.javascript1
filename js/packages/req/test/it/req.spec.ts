@@ -31,10 +31,35 @@ describe('req', () => {
   })
 
   it('merges headers', async () => {
-    nock('https://eyesapi.applitools.com').get('/api/hello').matchHeader('Custom-Header', 'true').reply(200, {hello: 'world'})
+    nock('https://eyesapi.applitools.com')
+      .get('/api/hello')
+      .matchHeader('Custom-Header', 'true')
+      .reply(200, {hello: 'world'})
 
-    const response = await req(new Request('https://eyesapi.applitools.com/api/hello', {headers: {'custom-header': 'false'}}), {
-      headers: {'Custom-Header': 'true'},
+    const response = await req(
+      new Request('https://eyesapi.applitools.com/api/hello', {headers: {'custom-header': 'false'}}),
+      {
+        headers: {'Custom-Header': 'true'},
+      },
+    )
+
+    assert.strictEqual(response.status, 200)
+    assert.deepStrictEqual(await response.json(), {hello: 'world'})
+  })
+
+  it('serializes body of null', async () => {
+    nock('https://eyesapi.applitools.com')
+      .post('/api/hello')
+      .matchHeader('content-type', 'application/json')
+      .reply((_url, body) => {
+        if (body === null) return [200, {hello: 'world'}]
+        else return [500]
+      })
+
+    const response = await req('https://eyesapi.applitools.com/api/hello', {
+      method: 'post',
+      headers: {'content-type': 'application/json'},
+      body: null,
     })
 
     assert.strictEqual(response.status, 200)
@@ -140,7 +165,10 @@ describe('req', () => {
   })
 
   it('executes hooks', async () => {
-    nock('https://eyesapi.applitools.com').get('/api/hello').matchHeader('before-request', 'true').reply(200, {hello: 'world'})
+    nock('https://eyesapi.applitools.com')
+      .get('/api/hello')
+      .matchHeader('before-request', 'true')
+      .reply(200, {hello: 'world'})
     const response = await req('https://eyesapi.applitools.com/api/hello', {
       hooks: {
         beforeRequest: ({request}) => request.headers.set('before-request', 'true'),

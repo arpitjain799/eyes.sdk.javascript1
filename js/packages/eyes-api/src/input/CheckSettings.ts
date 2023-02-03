@@ -343,7 +343,6 @@ export class CheckSettingsBaseFluent<TRegion = never> {
 }
 
 export class CheckSettingsImageFluent extends CheckSettingsBaseFluent {
-  protected _settings: CheckSettingsImage
   protected _target: Image
 
   constructor(settings?: CheckSettingsImage | CheckSettingsImageFluent, target?: Image) {
@@ -412,30 +411,29 @@ export class CheckSettingsImageFluent extends CheckSettingsBaseFluent {
 }
 
 type CheckSettingsAutomationSpec<TElement = unknown, TSelector = unknown> = {
-  isElement(value: any): value is TElement
-  isSelector(value: any): value is TSelector
+  isElement?(value: any): value is TElement
+  isSelector?(value: any): value is TSelector
 }
 
 export class CheckSettingsAutomationFluent<TElement = unknown, TSelector = unknown> extends CheckSettingsBaseFluent<
   RegionReference<TElement, TSelector>
 > {
   protected _settings: CheckSettingsAutomation<TElement, TSelector>
-
   protected static readonly _spec: CheckSettingsAutomationSpec<any, any>
   protected _spec: CheckSettingsAutomationSpec<TElement, TSelector>
 
   protected _isElementReference(value: any): value is ElementReference<TSelector, TElement> {
     const spec = this._spec ?? ((this.constructor as typeof CheckSettingsAutomationFluent)._spec as typeof this._spec)
-    return spec.isElement(value) || this._isSelectorReference(value)
+    return !!spec.isElement?.(value) || this._isSelectorReference(value)
   }
   protected _isSelectorReference(selector: any): selector is SelectorReference<TSelector> {
     const spec = this._spec ?? ((this.constructor as typeof CheckSettingsAutomationFluent)._spec as typeof this._spec)
     return (
-      spec.isSelector(selector) ||
+      !!spec.isSelector?.(selector) ||
       utils.types.isString(selector) ||
       (utils.types.isPlainObject(selector) &&
         utils.types.has(selector, 'selector') &&
-        (utils.types.isString(selector.selector) || spec.isSelector(selector.selector)))
+        (utils.types.isString(selector.selector) || !!spec.isSelector?.(selector.selector)))
     )
   }
   protected _isFrameReference(value: any): value is FrameReference<TSelector, TElement> {
@@ -447,7 +445,8 @@ export class CheckSettingsAutomationFluent<TElement = unknown, TSelector = unkno
     spec?: CheckSettingsAutomationSpec<TElement, TSelector>,
   ) {
     super(settings)
-    this._spec = spec
+    this._spec = spec!
+    this._settings ??= {}
   }
 
   region(region: RegionReference<TElement, TSelector>) {
@@ -538,7 +537,7 @@ export class CheckSettingsAutomationFluent<TElement = unknown, TSelector = unkno
   }
 
   hook(name: string, script: string): this {
-    this._settings.hooks = {...this._settings.hooks, [name]: script}
+    this._settings.hooks = {...this._settings.hooks!, [name]: script}
     return this
   }
   beforeRenderScreenshotHook(script: string): this {
@@ -670,7 +669,7 @@ export type TargetAutomation<TElement, TSelector> = {
 export type Target<TElement, TSelector> = TargetImage & TargetAutomation<TElement, TSelector>
 
 export const Target: Target<unknown, unknown> & {spec?: CheckSettingsAutomationSpec} = {
-  spec: null as CheckSettingsAutomationSpec,
+  spec: null as never,
 
   image(image: Buffer | URL | string): CheckSettingsImageFluent {
     return new CheckSettingsImageFluent().image(image)
@@ -699,7 +698,7 @@ export const Target: Target<unknown, unknown> & {spec?: CheckSettingsAutomationS
   shadow(selector: unknown): CheckSettingsAutomationFluent {
     return new CheckSettingsAutomationFluent({}, this.spec).shadow(selector)
   },
-  webview(webview: string | boolean | null): CheckSettingsAutomationFluent {
+  webview(webview?: string | boolean): CheckSettingsAutomationFluent {
     return new CheckSettingsAutomationFluent({}, this.spec).webview(webview)
   },
 }

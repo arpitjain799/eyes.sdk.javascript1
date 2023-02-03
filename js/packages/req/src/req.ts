@@ -37,12 +37,12 @@ export interface Options {
    * @example {data: true}
    * @example Buffer.from('S3lyeWxv', 'base64')
    */
-  body?: NodeJS.ReadableStream | ArrayBufferView | string | Record<string, any> | any[]
+  body?: NodeJS.ReadableStream | ArrayBufferView | string | Record<string, any> | any[] | null
   /**
    * Proxy settings for the request. Auth credentials specified in the object will override ones specified in url
    * @example {url: 'http://localhost:2107', username: 'kyrylo', password: 'pass'}
    */
-  proxy?: Proxy | ((url: URL) => Proxy)
+  proxy?: Proxy | ((url: URL) => Proxy | undefined)
   /**
    * Connection timeout in ms
    * @example 7000
@@ -160,7 +160,11 @@ export interface Hooks<TOptions extends Options = Options> {
    * }
    * ```
    */
-  afterResponse?(options: {request: Request; response: Response; options?: TOptions}): Response | void | Promise<Response | void>
+  afterResponse?(options: {
+    request: Request
+    response: Response
+    options?: TOptions
+  }): Response | void | Promise<Response | void>
   /**
    * Hook that will be executed after request will throw an error
    * @example
@@ -175,7 +179,10 @@ export interface Hooks<TOptions extends Options = Options> {
   afterError?(options: {request: Request; error: Error; options?: TOptions}): Error | void | Promise<Error | void>
 }
 
-export type Req<TOptions extends Options = Options> = (input: string | URL | Request, options?: TOptions) => Promise<Response>
+export type Req<TOptions extends Options = Options> = (
+  input: string | URL | Request,
+  options?: TOptions,
+) => Promise<Response>
 
 /**
  * Helper function that will properly merge two {@link Options} objects
@@ -262,7 +269,7 @@ export async function req(input: string | URL | Request, options?: Options): Pro
       ...Object.fromEntries(new Headers(options?.headers as Record<string, string>).entries()),
     },
     body:
-      utils.types.isPlainObject(options?.body) || utils.types.isArray(options?.body)
+      utils.types.isPlainObject(options?.body) || utils.types.isArray(options?.body) || options?.body === null
         ? JSON.stringify(options?.body)
         : options?.body ?? (input as Request).body,
     agent: url => {
