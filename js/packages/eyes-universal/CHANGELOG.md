@@ -9,6 +9,13 @@
 
 
 
+## 3.2.5 - 2023/2/3
+
+### Features
+### Bug fixes
+- Fixed issues with EC client
+- Fix instability when getting information to connect to the NML
+
 ## 3.2.4 - 2023/2/2
 
 ### Features
