@@ -1,4 +1,6 @@
 #!/usr/bin/env sh
 . "$(dirname "$0")/_/husky.sh"
 
-yarn --cwd ./js lint $(git --no-pager diff --line-prefix="$PWD/" --name-only --relative --diff-filter=d --cached -- "*.ts" "*.js")
+# No need for colors in `git commit`
+FORCE_COLOR=0 \
+  yarn --emoji=false --cwd ./js lint:staged
