@@ -9,6 +9,12 @@
 
 
 
+## 4.0.0 - 2023/2/8
+
+### Features
+- Major v4 update
+### Bug fixes
+
 ## 3.2.5 - 2023/2/3
 
 ### Features
