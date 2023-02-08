@@ -1,5 +1,4 @@
 #!/usr/bin/env sh
 . "$(dirname "$0")/_/husky.sh"
 
-cd ./js
-yarn lint:staged
+yarn --cwd ./js lint $(git --no-pager diff --line-prefix="$PWD/" --name-only --relative --diff-filter=d --cached -- "*.ts" "*.js")

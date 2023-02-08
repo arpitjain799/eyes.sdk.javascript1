@@ -10,6 +10,7 @@
     "link": "node ./scripts/link.js",
     "lint:changed": "eslint $(git --no-pager diff --name-only --relative --diff-filter=d -- \"*.ts\" \"*.js\")",
     "lint:staged": "eslint $(git --no-pager diff --name-only --relative --diff-filter=d --cached -- \"*.ts\" \"*.js\")",
+    "lint": "eslint",
     "prepare": "cd .. && husky install ./js/.husky"
   },
   "devDependencies": {
