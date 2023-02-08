@@ -6,6 +6,7 @@ import type {
   Selector as CustomSelector,
 } from './spec-driver/custom'
 import type {Driver as WDDriver, Element as WDElement, Selector as WDSelector} from './spec-driver/webdriver'
+import {type SpecType} from '@applitools/driver'
 import os from 'os'
 import path from 'path'
 import {makeCore, checkSpecDriver} from '@applitools/core'
@@ -108,10 +109,12 @@ export async function makeServer({
 
     const sdkPromise = socket.create('Core.makeCore', ({name, version, cwd, commands, protocol}) => {
       return makeCore<
-        CustomDriver | WDDriver,
-        CustomContext | WDDriver,
-        CustomElement | WDElement,
-        CustomSelector | WDSelector
+        SpecType<
+          CustomDriver | WDDriver,
+          CustomContext | WDDriver,
+          CustomElement | WDElement,
+          CustomSelector | WDSelector
+        >
       >({
         spec: protocol === 'webdriver' ? webdriverSpec : makeSpec({socket, commands}),
         agentId: `eyes-universal/${name}/${require('../package.json').version}/${version}`,

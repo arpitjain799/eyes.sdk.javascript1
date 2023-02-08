@@ -1,6 +1,7 @@
 import type {Region, Size} from '@applitools/utils'
 import type {Ref, ServerSocket, UniversalSpecDriver} from '../types'
 import {
+  type SpecType,
   type SpecDriver,
   type Selector as DriverSelector,
   type Cookie,
@@ -12,17 +13,17 @@ import * as utils from '@applitools/utils'
 export type Driver = Ref
 export type Context = Ref
 export type Element = Ref
-export type Selector = DriverSelector<Ref>
+export type Selector = DriverSelector<SpecType<unknown, unknown, unknown, Ref>>
 
 export function makeSpec(options: {
   socket: ServerSocket<Driver, Context, Element, Selector>
   commands: (keyof UniversalSpecDriver<Driver, Context, Element, Selector>)[]
-}): SpecDriver<Driver, Context, Element, Selector> {
+}): SpecDriver<SpecType<Driver, Context, Element, Selector>> {
   const {socket, commands} = options
 
   const spec: Required<
     Omit<
-      SpecDriver<Driver, Context, Element, Selector>,
+      SpecDriver<SpecType<Driver, Context, Element, Selector>>,
       'transformDriver' | 'transformElement' | 'transformSelector' | 'untransformSelector' | 'extractHostName'
     >
   > = {
@@ -175,5 +176,5 @@ export function makeSpec(options: {
 
   return commands.reduce((commands, name) => {
     return Object.assign(commands, {[name]: spec[name]})
-  }, {} as SpecDriver<Driver, Context, Element, Selector>)
+  }, {} as SpecDriver<SpecType<Driver, Context, Element, Selector>>)
 }
