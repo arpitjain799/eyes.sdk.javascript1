@@ -133,6 +133,14 @@ export async function makeServer({
       const sdk = await sdkPromise
       return sdk.locate({target, settings, config, logger})
     })
+    socket.command('Core.locateText', async ({target, settings, config}) => {
+      const sdk = await sdkPromise
+      return sdk.locateText({target, settings, config, logger})
+    })
+    socket.command('Core.extractText', async ({target, settings, config}) => {
+      const sdk = await sdkPromise
+      return sdk.extractText({target, settings, config, logger})
+    })
     socket.command('Core.getViewportSize', async ({target}) => {
       const sdk = await sdkPromise
       return sdk.getViewportSize({target, logger})
@@ -155,26 +163,21 @@ export async function makeServer({
       const eyesRef = refer.ref(eyes, manager)
       return eyesRef
     })
-    socket.command('EyesManager.closeManager', async ({manager, settings}) => {
-      return refer.deref(manager)?.closeManager({settings, logger})
+    socket.command('EyesManager.getResults', async ({manager, settings}) => {
+      return refer.deref(manager)?.getResults({settings, logger})
     })
 
     socket.command('Eyes.check', async ({eyes, target, settings, config, type}) => {
       return refer.deref(eyes)?.check({target, settings, config, logger, type})
     })
-    socket.command('Eyes.locateText', async ({eyes, target, settings, config}) => {
-      return refer.deref(eyes)?.locateText({target, settings, config, logger})
-    })
-    socket.command('Eyes.extractText', async ({eyes, target, settings, config}) => {
-      return refer.deref(eyes)?.extractText({target, settings, config, logger})
-    })
     socket.command('Eyes.close', async ({eyes, settings, config}) => {
-      const results = await refer.deref(eyes)?.close({settings, config, logger})
-      refer.destroy(eyes)
-      return results
+      await refer.deref(eyes)?.close({settings, config, logger})
     })
     socket.command('Eyes.abort', async ({eyes}) => {
-      const results = refer.deref(eyes)?.abort()
+      await refer.deref(eyes)?.abort()
+    })
+    socket.command('Eyes.getResults', async ({eyes, ...options}) => {
+      const results = refer.deref(eyes)?.getResults(options)
       refer.destroy(eyes)
       return results
     })
