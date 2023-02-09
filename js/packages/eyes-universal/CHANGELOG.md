@@ -9,6 +9,13 @@
 
 
 
+## 4.0.1 - 2023/2/9
+
+### Features
+### Bug fixes
+- Fixed test error type issue
+- Handled driver being dead on close/abort
+
 ## 4.0.0 - 2023/2/8
 
 ### Features
