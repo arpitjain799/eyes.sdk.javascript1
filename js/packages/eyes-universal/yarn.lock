@@ -59,10 +59,10 @@
   optionalDependencies:
     "@applitools/ec-client" "1.2.6"
 
-"@applitools/core@2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@applitools/core/-/core-2.0.0.tgz#395faeb31b66f6e936011dbd659728a7ef450548"
-  integrity sha512-tGhXCneM4nGsSpDV78ubVx1AsGnjCT6/SwK1UikAYI89eqJxb/c/BMVIx/bl//XgrlpaWW7B9JYZbbtCK3PvsQ==
+"@applitools/core@2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@applitools/core/-/core-2.0.1.tgz#5a9bd4a51f53c3013917d5cf8382aaf39110ddf1"
+  integrity sha512-7xO9z+8VBe/P1y5IQ5a1XO8VYky6O5Nqhafehmc68hezN/MBqrvbUz6xR4ZqYyAIqUWJq2jICiMpsTSdCvrL2w==
   dependencies:
     "@applitools/core-base" "1.1.34"
     "@applitools/dom-capture" "11.2.1"
