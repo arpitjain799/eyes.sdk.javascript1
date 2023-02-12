@@ -51,9 +51,7 @@
     "docker:setup": "node ../../scripts/generate-docker-compose-config.js && docker-compose up -d",
     "docker:teardown": "docker-compose down",
     "deps": "bongo deps",
-    "preversion": "bongo preversion",
-    "version": "bongo version",
-    "postversion": "bongo postversion --skip-release-notification"
+    "version": "bongo version"
   },
   "dependencies": {
     "@applitools/core-base": "1.1.33",
