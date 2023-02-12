@@ -1,21 +1,19 @@
 import type {Core} from './types'
 import type {Core as BaseCore} from '@applitools/core-base'
 import {type UFGClient} from '@applitools/ufg-client'
-import {type SpecType, type SpecDriver} from '@applitools/driver'
+import {type SpecDriver} from '@applitools/driver'
 import {makeLogger, type Logger} from '@applitools/logger'
 import {makeCore as makeBaseCore} from '@applitools/core-base'
 import {makeGetViewportSize} from '../automation/get-viewport-size'
 import {makeSetViewportSize} from '../automation/set-viewport-size'
 import {makeLocate} from '../automation/locate'
-import {makeLocateText} from '../automation/locate-text'
-import {makeExtractText} from '../automation/extract-text'
 import {makeOpenEyes} from './open-eyes'
 import * as utils from '@applitools/utils'
 import throat from 'throat'
 
-type Options<TSpec extends SpecType> = {
+type Options<TDriver, TContext, TElement, TSelector> = {
   concurrency: number
-  spec?: SpecDriver<TSpec>
+  spec?: SpecDriver<TDriver, TContext, TElement, TSelector>
   client?: UFGClient
   core?: BaseCore
   agentId?: string
@@ -23,7 +21,7 @@ type Options<TSpec extends SpecType> = {
   logger?: Logger
 }
 
-export function makeCore<TSpec extends SpecType>({
+export function makeCore<TDriver, TContext, TElement, TSelector>({
   concurrency,
   spec,
   client,
@@ -31,7 +29,7 @@ export function makeCore<TSpec extends SpecType>({
   agentId = 'core-ufg',
   cwd = process.cwd(),
   logger,
-}: Options<TSpec>): Core<TSpec> {
+}: Options<TDriver, TContext, TElement, TSelector>): Core<TDriver, TContext, TElement, TSelector> {
   logger = logger?.extend({label: 'core-ufg'}) ?? makeLogger({label: 'core-ufg'})
   logger.log(`Core ufg is initialized ${core ? 'with' : 'without'} custom base core`)
 
@@ -75,8 +73,6 @@ export function makeCore<TSpec extends SpecType>({
     getViewportSize: spec && makeGetViewportSize({spec, logger}),
     setViewportSize: spec && makeSetViewportSize({spec, logger}),
     locate: makeLocate({spec, core, logger}),
-    locateText: makeLocateText({spec, core, logger}),
-    extractText: makeExtractText({spec, core, logger}),
     openEyes: makeOpenEyes({spec, client, core, logger}),
   })
 }

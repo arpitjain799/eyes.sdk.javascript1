@@ -37,8 +37,7 @@ describe('wait before capture', () => {
         renderers: [{name: 'chrome', width: 1000, height: 600}],
       },
     })
-    await eyes.close({settings: {updateBaselineIfNew: false}})
-    const [result] = await eyes.getResults()
+    const [result] = await eyes.close({settings: {updateBaselineIfNew: false}})
     assert.strictEqual(result.status, 'Passed')
   })
 
@@ -66,8 +65,7 @@ describe('wait before capture', () => {
         renderers: [{name: 'chrome', width: 390, height: 400}],
       },
     })
-    await eyes.close({settings: {updateBaselineIfNew: false}})
-    const [result] = await eyes.getResults()
+    const [result] = await eyes.close({settings: {updateBaselineIfNew: false}})
     assert.strictEqual(result.status, 'Passed')
   })
 })

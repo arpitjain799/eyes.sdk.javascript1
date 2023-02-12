@@ -1,10 +1,10 @@
 import type {Region} from '@applitools/utils'
-import type {DriverTarget, Target, Eyes, CheckSettings, CheckResult} from './types'
+import type {DriverTarget, UFGTarget, Eyes, CheckSettings, CheckResult} from './types'
 import {type DomSnapshot, type AndroidSnapshot, type IOSSnapshot} from '@applitools/ufg-client'
 import {type AbortSignal} from 'abort-controller'
 import {type Logger} from '@applitools/logger'
 import {type UFGClient} from '@applitools/ufg-client'
-import {makeDriver, isDriver, type SpecType, type SpecDriver, type Selector, type Cookie} from '@applitools/driver'
+import {makeDriver, isDriver, type SpecDriver, type Selector, type Cookie} from '@applitools/driver'
 import {takeSnapshots} from './utils/take-snapshots'
 import {waitForLazyLoad} from '../automation/utils/wait-for-lazy-load'
 import {toBaseCheckSettings} from '../automation/utils/to-base-check-settings'
@@ -14,36 +14,36 @@ import {AbortError} from '../errors/abort-error'
 import * as utils from '@applitools/utils'
 import chalk from 'chalk'
 
-type Options<TSpec extends SpecType> = {
-  eyes: Eyes<TSpec>
+type Options<TDriver, TContext, TElement, TSelector> = {
+  eyes: Eyes<TDriver, TContext, TElement, TSelector>
   client: UFGClient
-  target?: DriverTarget<TSpec>
-  spec?: SpecDriver<TSpec>
+  target?: DriverTarget<TDriver, TContext, TElement, TSelector>
+  spec?: SpecDriver<TDriver, TContext, TElement, TSelector>
   signal?: AbortSignal
   logger: Logger
 }
 
-export function makeCheck<TSpec extends SpecType>({
+export function makeCheck<TDriver, TContext, TElement, TSelector>({
   eyes,
   client,
   target: defaultTarget,
   spec,
   signal,
   logger: defaultLogger,
-}: Options<TSpec>) {
+}: Options<TDriver, TContext, TElement, TSelector>) {
   return async function check({
     target = defaultTarget,
     settings = {},
     logger = defaultLogger,
   }: {
-    settings?: CheckSettings<TSpec>
-    target?: Target<TSpec>
+    settings?: CheckSettings<TElement, TSelector>
+    target?: UFGTarget<TDriver, TContext, TElement, TSelector>
     logger?: Logger
   }): Promise<CheckResult[]> {
-    logger.log('Command "check" is called with settings', settings)
+    logger?.log('Command "check" is called with settings', settings)
 
     if (signal?.aborted) {
-      logger.warn('Command "check" was called after test was already aborted')
+      logger?.warn('Command "check" was called after test was already aborted')
       throw new AbortError('Command "check" was called after test was already aborted')
     }
 
@@ -137,12 +137,12 @@ export function makeCheck<TSpec extends SpecType>({
         const message = chalk.yellow(
           `The 'edge' option that is being used in your browsers' configuration will soon be deprecated. Please change it to either 'edgelegacy' for the legacy version or to 'edgechromium' for the new Chromium-based version. Please note, when using the built-in BrowserType enum, then the values are BrowserType.EDGE_LEGACY and BrowserType.EDGE_CHROMIUM, respectively.`,
         )
-        logger.console.log(message)
+        logger?.console.log(message)
       }
 
       try {
         if (signal?.aborted) {
-          logger.warn('Command "check" was aborted before rendering')
+          logger?.warn('Command "check" was aborted before rendering')
           throw new AbortError('Command "check" was aborted before rendering')
         }
 
@@ -166,7 +166,7 @@ export function makeCheck<TSpec extends SpecType>({
           if (signal?.aborted) {
             logger.warn('Command "check" was aborted before rendering')
             throw new AbortError('Command "check" was aborted before rendering')
-          } else if (!baseEyes.running) {
+          } else if (baseEyes.aborted) {
             logger.warn(`Renderer with id ${baseEyes.test.rendererId} was aborted during one of the previous steps`)
             throw new AbortError(
               `Renderer with id "${baseEyes.test.rendererId}" was aborted during one of the previous steps`,
@@ -178,7 +178,7 @@ export function makeCheck<TSpec extends SpecType>({
           if (signal?.aborted) {
             logger.warn('Command "check" was aborted before rendering')
             throw new AbortError('Command "check" was aborted before rendering')
-          } else if (!baseEyes.running) {
+          } else if (baseEyes.aborted) {
             logger.warn(`Renderer with id ${baseEyes.test.rendererId} was aborted during one of the previous steps`)
             throw new AbortError(
               `Renderer with id "${baseEyes.test.rendererId}" was aborted during one of the previous steps`,
@@ -212,7 +212,7 @@ export function makeCheck<TSpec extends SpecType>({
           if (signal?.aborted) {
             logger.warn('Command "check" was aborted after rendering')
             throw new AbortError('Command "check" was aborted after rendering')
-          } else if (!baseEyes.running) {
+          } else if (baseEyes.aborted) {
             logger.warn(`Renderer with id ${baseEyes.test.rendererId} was aborted during one of the previous steps`)
             throw new AbortError(
               `Renderer with id "${baseEyes.test.rendererId}" was aborted during one of the previous steps`,
@@ -225,7 +225,7 @@ export function makeCheck<TSpec extends SpecType>({
             logger,
           })
 
-          if (!baseEyes.running) {
+          if (baseEyes.aborted) {
             logger.warn(`Renderer with id ${baseEyes.test.rendererId} was aborted during one of the previous steps`)
             throw new AbortError(
               `Renderer with id "${baseEyes.test.rendererId}" was aborted during one of the previous steps`,
@@ -234,9 +234,7 @@ export function makeCheck<TSpec extends SpecType>({
 
           return {...result, eyes: baseEyes, renderer}
         } catch (error: any) {
-          if (baseEyes.running && !signal?.aborted) {
-            await baseEyes.abort({settings: {testMetadata: await driver?.getSessionMetadata()}})
-          }
+          await baseEyes.abort({settings: {testMetadata: await driver?.getSessionMetadata()}})
           error.info = {eyes: baseEyes}
           throw error
         }

@@ -1,35 +1,40 @@
 import type * as BaseCore from '@applitools/core-base/types'
 import type * as AutomationCore from '../automation/types'
-import {type SpecType} from '@applitools/driver'
 import {type Logger} from '@applitools/logger'
 
 export * from '../automation/types'
 
-export interface Core<
-  TSpec extends SpecType,
-  TTarget = AutomationCore.Target<TSpec>,
-  TEyes extends Eyes<TSpec, TTarget> = Eyes<TSpec, TTarget>,
-> extends AutomationCore.Core<TSpec, TTarget, TEyes> {
+export type ClassicTarget<TDriver, TContext, TElement, TSelector> =
+  | AutomationCore.DriverTarget<TDriver, TContext, TElement, TSelector>
+  | AutomationCore.ImageTarget
+
+export interface Core<TDriver, TContext, TElement, TSelector, TEyes = Eyes<TDriver, TContext, TElement, TSelector>>
+  extends AutomationCore.Core<TDriver, TContext, TElement, TSelector, TEyes> {
   readonly type: 'classic'
   openEyes(options: {
-    target?: AutomationCore.DriverTarget<TSpec>
+    target?: AutomationCore.DriverTarget<TDriver, TContext, TElement, TSelector>
     settings: OpenSettings
     eyes?: BaseCore.Eyes[]
     logger?: Logger
   }): Promise<TEyes>
 }
 
-export interface Eyes<TSpec extends SpecType, TTarget = AutomationCore.Target<TSpec>>
-  extends AutomationCore.Eyes<TSpec, TTarget> {
+export interface Eyes<
+  TDriver,
+  TContext,
+  TElement,
+  TSelector,
+  TTarget = ClassicTarget<TDriver, TContext, TElement, TSelector>,
+> extends AutomationCore.Eyes<TDriver, TContext, TElement, TSelector, TTarget> {
   readonly type: 'classic'
   check(options?: {
     target?: TTarget
-    settings?: CheckSettings<TSpec>
+    settings?: CheckSettings<TElement, TSelector>
     logger?: Logger
   }): Promise<AutomationCore.CheckResult[]>
   checkAndClose(options?: {
     target?: TTarget
-    settings?: CheckSettings<TSpec> & AutomationCore.CloseSettings
+    settings?: CheckSettings<TElement, TSelector> & AutomationCore.CloseSettings
     logger?: Logger
   }): Promise<AutomationCore.TestResult[]>
 }
@@ -39,6 +44,6 @@ export type OpenSettings = AutomationCore.OpenSettings & {
   useCeilForViewportSize?: boolean
 }
 
-export type CheckSettings<TSpec extends SpecType> = AutomationCore.CheckSettings<TSpec> & {
+export type CheckSettings<TElement, TSelector> = AutomationCore.CheckSettings<TElement, TSelector> & {
   retryTimeout?: number
 }

@@ -53,8 +53,7 @@ describe('works', () => {
       },
     })
 
-    await eyes.close()
-    const results = await eyes.getResults()
+    const results = await eyes.close()
 
     assert.strictEqual(results.length, 3)
     results.forEach(result => assert.strictEqual(result.status, 'Passed'))
@@ -161,8 +160,7 @@ describe('works', () => {
       },
     })
 
-    await eyes.close()
-    const results = await eyes.getResults()
+    const results = await eyes.close()
 
     assert.strictEqual(results.length, 3)
     results.forEach(result => assert.strictEqual(result.status, 'Unresolved'))
@@ -202,8 +200,7 @@ describe('works', () => {
       },
     })
 
-    await eyes.close()
-    const results = await eyes.getResults()
+    const results = await eyes.close()
 
     assert.strictEqual(results.length, 3)
     results.forEach(result => assert.strictEqual(result.status, 'Passed'))
@@ -246,8 +243,7 @@ describe('works', () => {
       },
     })
 
-    await eyes.close()
-    const results = await eyes.getResults()
+    const results = await eyes.close()
 
     assert.strictEqual(results.length, 3)
     results.forEach(result => assert.strictEqual(result.status, 'Unresolved'))

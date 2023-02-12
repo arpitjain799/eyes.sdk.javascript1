@@ -34,8 +34,7 @@ describe('vhs - ios', () => {
         renderers: [{iosDeviceInfo: {deviceName: 'iPhone 12', version: 'latest-1'}}],
       },
     })
-    await eyes.close({settings: {updateBaselineIfNew: false}})
-    const [result] = await eyes.getResults()
+    const [result] = await eyes.close({settings: {updateBaselineIfNew: false}})
     assert.strictEqual(result.status, 'Passed')
   })
 })

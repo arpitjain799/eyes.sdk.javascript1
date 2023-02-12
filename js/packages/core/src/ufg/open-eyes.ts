@@ -1,36 +1,40 @@
-import type {CheckResult, DriverTarget, Eyes, OpenSettings, TestInfo} from './types'
+import type {DriverTarget, Eyes, OpenSettings, TestInfo} from './types'
 import type {Core as BaseCore, Eyes as BaseEyes} from '@applitools/core-base'
 import {type Logger} from '@applitools/logger'
-import {makeDriver, type SpecType, type SpecDriver} from '@applitools/driver'
+import {makeDriver, type SpecDriver} from '@applitools/driver'
 import {makeUFGClient, type UFGClient} from '@applitools/ufg-client'
 import {makeGetBaseEyes} from './get-base-eyes'
 import {makeCheck} from './check'
 import {makeCheckAndClose} from './check-and-close'
 import {makeClose} from './close'
 import {makeAbort} from './abort'
-import {makeGetResults} from './get-results'
 import {AbortController} from 'abort-controller'
 import * as utils from '@applitools/utils'
 
-type Options<TSpec extends SpecType> = {
+type Options<TDriver, TContext, TElement, TSelector> = {
   core: BaseCore
   client?: UFGClient
-  spec?: SpecDriver<TSpec>
+  spec?: SpecDriver<TDriver, TContext, TElement, TSelector>
   logger: Logger
 }
 
-export function makeOpenEyes<TSpec extends SpecType>({core, client, spec, logger: defaultLogger}: Options<TSpec>) {
+export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
+  core,
+  client,
+  spec,
+  logger: defaultLogger,
+}: Options<TDriver, TContext, TElement, TSelector>) {
   return async function openEyes({
     target,
     settings,
     eyes,
     logger = defaultLogger,
   }: {
-    target?: DriverTarget<TSpec>
+    target?: DriverTarget<TDriver, TContext, TElement, TSelector>
     settings: OpenSettings
     eyes?: BaseEyes[]
     logger?: Logger
-  }): Promise<Eyes<TSpec>> {
+  }): Promise<Eyes<TDriver, TContext, TElement, TSelector>> {
     logger.log(
       `Command "openEyes" is called with ${target ? 'default driver and' : ''}`,
       ...(settings ? ['settings', settings] : []),
@@ -58,8 +62,9 @@ export function makeOpenEyes<TSpec extends SpecType>({core, client, spec, logger
 
     const getBaseEyes = makeGetBaseEyes({settings, eyes, core, client, logger})
     return utils.general.extend({}, eyes => {
-      const storage = new Map<string, CheckResult['promise'][]>()
-      let running = true
+      const storage = [] as any[]
+      let closed = false
+      let aborted = false
 
       return {
         type: 'ufg' as const,
@@ -71,7 +76,13 @@ export function makeOpenEyes<TSpec extends SpecType>({core, client, spec, logger
           account,
         },
         get running() {
-          return running
+          return !closed && !aborted
+        },
+        get closed() {
+          return closed
+        },
+        get aborted() {
+          return aborted
         },
         getBaseEyes,
         // check with indexing and storage
@@ -79,10 +90,12 @@ export function makeOpenEyes<TSpec extends SpecType>({core, client, spec, logger
           makeCheck({eyes, client: client!, target: driver, spec, signal: controller.signal, logger}),
           async (check, options = {}) => {
             const results = await check(options)
-            results.forEach(result => {
-              const key = JSON.stringify(result.renderer)
-              storage.set(key, [...(storage.get(key) ?? ([] as any[])), result.promise])
-            })
+            storage.push(
+              ...results.map(result => ({
+                promise: result.promise,
+                renderer: result.renderer,
+              })),
+            )
             return results
           },
         ),
@@ -94,18 +107,23 @@ export function makeOpenEyes<TSpec extends SpecType>({core, client, spec, logger
           signal: controller.signal,
           logger,
         }),
+        locateText: null as never,
+        extractText: null as never,
+        // close only once
         close: utils.general.wrap(makeClose({storage, target: driver, logger}), async (close, options) => {
-          running = false
+          if (closed || aborted) return []
+          closed = true
           return close(options)
         }),
+        // abort only once
         abort: utils.general.wrap(
           makeAbort({storage, target: driver, spec, controller, logger}),
           async (abort, options) => {
-            running = false
+            if (aborted || closed) return []
+            aborted = true
             return abort(options)
           },
         ),
-        getResults: makeGetResults({storage, logger}),
       }
     })
   }

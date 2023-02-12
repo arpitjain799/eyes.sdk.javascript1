@@ -39,8 +39,7 @@ describe('google fonts', () => {
       },
     })
 
-    await eyes.close()
-    const results = await eyes.getResults()
+    const results = await eyes.close()
 
     results.forEach(result => assert.strictEqual(result.status, 'Passed'))
   })
@@ -69,8 +68,7 @@ describe('google fonts', () => {
       },
     })
 
-    await eyes.close()
-    const results = await eyes.getResults()
+    const results = await eyes.close()
 
     results.forEach(result => assert.strictEqual(result.status, 'Passed'))
   })

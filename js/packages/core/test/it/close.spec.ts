@@ -1,18 +1,12 @@
 import type {Core} from '../../src/types'
-import {type SpecType} from '@applitools/driver'
 import {makeCore} from '../../src/core'
 import {generateScreenshot} from '../utils/generate-screenshot'
 import {MockDriver, spec} from '@applitools/driver/fake'
 import {makeFakeCore} from '../utils/fake-base-core'
+import assert from 'assert'
 
-describe('get results', async () => {
-  let driver: MockDriver, core: Core<SpecType<MockDriver>, 'classic' | 'ufg'>
-
-  async function destroyDriver(driver: MockDriver) {
-    driver.wrapMethod('executeScript', async () => {
-      throw new Error('The driver is destroyed')
-    })
-  }
+describe('close', async () => {
+  let driver: MockDriver, core: Core<MockDriver, unknown, unknown, unknown>
 
   before(async () => {
     driver = new MockDriver()
@@ -29,10 +23,16 @@ describe('get results', async () => {
     core = makeCore({spec, core: fakeCore})
   })
 
-  it.skip('should not throw if driver is destroyed before close', async () => {
+  it('should not throw on close', async () => {
     const eyes = await core.openEyes({target: driver, settings: {appName: 'App', testName: 'Test'}})
-    await eyes.check()
-    await destroyDriver(driver)
-    await eyes.close()
+    await eyes.check({settings: {name: 'diff'}})
+    const results = await eyes.close({settings: {throwErr: false}})
+    assert.ok(Array.isArray(results))
+  })
+
+  it('should throw on close', async () => {
+    const eyes = await core.openEyes({target: driver, settings: {appName: 'App', testName: 'Test'}})
+    await eyes.check({settings: {name: 'diff'}})
+    await assert.rejects(eyes.close({settings: {throwErr: true}}))
   })
 })

@@ -35,9 +35,10 @@ describe('proxy', () => {
           environment: {viewportSize: {width: 800, height: 600}},
         },
       })
+
       await eyes.check({target: {image: 'https://picsum.photos/500'}})
-      await eyes.close({settings: {updateBaselineIfNew: false}})
-      await eyes.getResults({settings: {throwErr: false}})
+
+      await eyes.close({settings: {throwErr: false, updateBaselineIfNew: false}})
     })
   })
 
@@ -75,9 +76,10 @@ describe('proxy', () => {
           environment: {viewportSize: {width: 800, height: 600}},
         },
       })
+
       await eyes.check({settings: {fully: false}})
-      await eyes.close({settings: {updateBaselineIfNew: false}})
-      await eyes.getResults({settings: {throwErr: true}})
+
+      await eyes.close({settings: {throwErr: true, updateBaselineIfNew: false}})
     })
 
     it('classic works with proxy', async () => {
@@ -94,9 +96,10 @@ describe('proxy', () => {
           environment: {viewportSize: {width: 800, height: 600}},
         },
       })
+
       await eyes.check({settings: {fully: false}})
-      await eyes.close({settings: {updateBaselineIfNew: false}})
-      await eyes.getResults({settings: {throwErr: true}})
+
+      await eyes.close({settings: {throwErr: true, updateBaselineIfNew: false}})
     })
   })
 
@@ -144,8 +147,8 @@ describe('proxy', () => {
           fully: false,
         },
       })
-      await eyes.close({settings: {updateBaselineIfNew: false}})
-      await eyes.getResults({settings: {throwErr: true}})
+
+      await eyes.close({settings: {throwErr: true, updateBaselineIfNew: false}})
     })
   })
 
@@ -194,8 +197,7 @@ describe('proxy', () => {
           renderers: [{iosDeviceInfo: {deviceName: 'iPhone 12', version: 'latest-1'}}],
         },
       })
-      await eyes.close({settings: {updateBaselineIfNew: false}})
-      await eyes.getResults({settings: {throwErr: true}})
+      await eyes.close({settings: {throwErr: true, updateBaselineIfNew: false}})
     })
   })
 })

@@ -64,8 +64,7 @@ describe('typed check', () => {
       },
     })
 
-    await eyes.close()
-    await eyes.getResults({settings: {throwErr: true}})
+    await eyes.close({settings: {throwErr: true}})
   })
 
   it.skip('performs ufg check during classic test', async () => {
@@ -90,7 +89,6 @@ describe('typed check', () => {
       settings: {name: 'classic step', fully: false},
     })
 
-    await eyes.close()
-    await eyes.getResults({settings: {throwErr: true}})
+    await eyes.close({settings: {throwErr: true}})
   })
 })

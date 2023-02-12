@@ -14,21 +14,27 @@ describe('extract-text', () => {
   })
 
   it('works', async () => {
-    const core = makeCore({spec})
-    const serverSettings = {
-      serverUrl: 'https://eyesapi.applitools.com',
-      apiKey: process.env.APPLITOOLS_API_KEY!,
-    }
-    await core.setViewportSize!({target: driver, size: {width: 700, height: 460}})
-    await driver.url('https://applitools.github.io/demo/TestPages/OCRPage')
-    const strings = await core.extractText({
+    const core = makeCore<spec.Driver, spec.Driver, spec.Element, spec.Selector>({spec})
+    const eyes = await core.openEyes({
       target: driver,
+      settings: {
+        serverUrl: 'https://eyesapi.applitools.com',
+        apiKey: process.env.APPLITOOLS_API_KEY!,
+        appName: 'core e2e',
+        testName: 'extractText e2e test',
+        environment: {viewportSize: {width: 700, height: 460}},
+      },
+    })
+    await driver.url('https://applitools.github.io/demo/TestPages/OCRPage')
+    const strings = await eyes.extractText({
       settings: [
-        {...serverSettings, region: 'body > h1'},
-        {...serverSettings, region: {type: 'css', selector: 'body > h1'}},
-        {...serverSettings, region: {type: 'css selector', selector: 'body > h1'}},
+        {region: 'body > h1'},
+        {region: {type: 'css', selector: 'body > h1'}},
+        {region: {type: 'css selector', selector: 'body > h1'}},
       ],
     })
     assert.deepStrictEqual(strings, ['Header 1: Hello world!', 'Header 1: Hello world!', 'Header 1: Hello world!'])
+    const [result] = await eyes.close()
+    assert.strictEqual(result.status, 'Passed')
   })
 })

@@ -1,34 +1,32 @@
-import type {Target, Config, LocateTextSettings, LocateTextResult} from './types'
-import type {Core as BaseCore} from '@applitools/core-base'
+import type {DriverTarget, Target, Eyes, Config, LocateTextSettings, LocateTextResult} from './types'
 import {type Logger} from '@applitools/logger'
-import {type SpecType, type SpecDriver} from '@applitools/driver'
-import {makeCore as makeClassicCore} from './classic/core'
-import * as utils from '@applitools/utils'
 
-type Options<TSpec extends SpecType> = {
-  spec?: SpecDriver<TSpec>
-  core: BaseCore
+type Options<TDriver, TContext, TElement, TSelector, TType extends 'classic' | 'ufg'> = {
+  eyes: Eyes<TDriver, TContext, TElement, TSelector, TType>
+  target?: DriverTarget<TDriver, TContext, TElement, TSelector>
   logger: Logger
 }
 
-export function makeLocateText<TSpec extends SpecType>({spec, core, logger: defaultLogger}: Options<TSpec>) {
+export function makeLocateText<TDriver, TContext, TElement, TSelector, TType extends 'classic' | 'ufg' = 'classic'>({
+  eyes,
+  target: defaultTarget,
+  logger: defaultLogger,
+}: Options<TDriver, TContext, TElement, TSelector, TType>) {
   return async function locateText<TPattern extends string>({
-    target,
+    target = defaultTarget,
     settings,
     config,
     logger = defaultLogger,
   }: {
-    target: Target<TSpec, 'classic'>
-    settings: LocateTextSettings<TPattern, TSpec>
-    config?: Config<TSpec, 'classic'>
+    target?: Target<TDriver, TContext, TElement, TSelector, 'classic'>
+    settings: LocateTextSettings<TPattern, TElement, TSelector, 'classic'>
+    config?: Config<TElement, TSelector, 'classic'>
     logger?: Logger
   }): Promise<LocateTextResult<TPattern>> {
-    settings = {...config?.open, ...config?.screenshot, ...settings}
-    settings.serverUrl ??= utils.general.getEnvValue('SERVER_URL') ?? 'https://eyesapi.applitools.com'
-    settings.apiKey ??= utils.general.getEnvValue('API_KEY')
-
-    const classicCore = makeClassicCore({spec, core, logger})
-    const results = await classicCore.locateText({target, settings, logger})
+    settings = {...config?.screenshot, ...settings}
+    settings.autProxy ??= eyes.test.server.proxy
+    const classicEyes = await eyes.getTypedEyes({type: 'classic', logger})
+    const results = await classicEyes.locateText({target, settings, logger})
     return results
   }
 }

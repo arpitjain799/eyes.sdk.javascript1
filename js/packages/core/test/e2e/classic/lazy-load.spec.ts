@@ -47,8 +47,7 @@ describe('lazy load', () => {
       },
     })
 
-    await eyes.close({settings: {updateBaselineIfNew: false}})
-    const [result] = await eyes.getResults()
+    const [result] = await eyes.close({settings: {updateBaselineIfNew: false}})
     assert.strictEqual(result.status, 'Passed')
   })
 })

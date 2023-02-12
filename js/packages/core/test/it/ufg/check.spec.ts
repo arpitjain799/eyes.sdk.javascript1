@@ -29,8 +29,7 @@ describe('check', () => {
       },
     })
 
-    await eyes.close()
-    const results = await eyes.getResults()
+    const results = await eyes.close()
 
     assert.deepStrictEqual(
       results.map(result => result.stepsInfo!.map((step: any) => step.asExpected)),
@@ -59,8 +58,7 @@ describe('check', () => {
       },
     })
 
-    await eyes.close()
-    const results = await eyes.getResults()
+    const results = await eyes.close()
 
     assert.deepStrictEqual(
       results.map(result => result.renderer),
@@ -85,8 +83,7 @@ describe('check', () => {
       settings: {name: 'good', region: 'sel1', renderers: [{width: 100, height: 100}]},
     })
 
-    await eyes.close()
-    const results = await eyes.getResults()
+    const results = await eyes.close()
 
     assert.deepStrictEqual(
       results.map(result =>
@@ -120,8 +117,7 @@ describe('check', () => {
       },
     })
 
-    await eyes.close()
-    const results = await eyes.getResults()
+    const results = await eyes.close()
 
     assert.deepStrictEqual(
       results.map(result =>
@@ -245,8 +241,7 @@ describe('check', () => {
       },
     })
 
-    await eyes.close()
-    const results = await eyes.getResults()
+    const results = await eyes.close()
 
     assert.deepStrictEqual(
       results.map(result => result.renderer),

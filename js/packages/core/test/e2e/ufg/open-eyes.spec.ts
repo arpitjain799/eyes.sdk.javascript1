@@ -43,6 +43,5 @@ describe('open eyes ufg', () => {
     )
 
     await eyes.close()
-    await eyes.getResults()
   })
 })

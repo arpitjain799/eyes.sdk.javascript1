@@ -1,3 +1,4 @@
+import type {TestResult} from '../../../src/ufg/types'
 import {makeCore} from '../../../src/ufg/core'
 import {makeFakeClient} from '../../utils/fake-ufg-client'
 import {makeFakeCore} from '../../utils/fake-base-core'
@@ -16,8 +17,7 @@ describe('abort', () => {
     let aborted = false
     fakeCore.emitter.on('abort', () => (aborted = true))
 
-    await eyes.abort()
-    const results = await eyes.getResults()
+    const results = await eyes.abort()
     assert.strictEqual(aborted, false)
     assert.deepStrictEqual(results.length, 0)
   })
@@ -39,11 +39,9 @@ describe('abort', () => {
     let aborted = false
     fakeCore.emitter.on('afterAbort', () => (aborted = true))
 
-    await new Promise<void>(resolve => {
+    const results = await new Promise<TestResult[]>(resolve => {
       fakeClient.emitter.on('afterBookRenderer', () => resolve(eyes.abort()))
     })
-
-    const results = await eyes.getResults()
 
     assert.strictEqual(rendering, false)
     assert.strictEqual(aborted, true)
@@ -81,11 +79,9 @@ describe('abort', () => {
     let aborted = false
     fakeCore.emitter.on('afterAbort', () => (aborted = true))
 
-    await new Promise<void>(resolve => {
+    const results = await new Promise<TestResult[]>(resolve => {
       fakeCore.emitter.on('beforeOpenEyes', () => resolve(eyes.abort()))
     })
-
-    const results = await eyes.getResults()
 
     assert.strictEqual(opened, true)
     assert.strictEqual(checking, false)
@@ -123,11 +119,9 @@ describe('abort', () => {
     let aborted = false
     fakeCore.emitter.on('afterAbort', () => (aborted = true))
 
-    await new Promise<void>(resolve => {
+    const results = await new Promise<TestResult[]>(resolve => {
       fakeCore.emitter.on('beforeCheck', () => resolve(eyes.abort()))
     })
-
-    const results = await eyes.getResults()
 
     assert.strictEqual(checked, true)
     assert.strictEqual(aborted, true)

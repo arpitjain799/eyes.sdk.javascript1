@@ -1,24 +1,23 @@
 import type {DriverTarget, TypedCore, TypedEyes, OpenSettings} from './types'
-import {type SpecType} from '@applitools/driver'
 import {type Renderer} from '@applitools/ufg-client'
 import {type Logger} from '@applitools/logger'
 
-type Options<TSpec extends SpecType, TType extends 'classic' | 'ufg'> = {
+type Options<TDriver, TContext, TElement, TSelector, TType extends 'classic' | 'ufg'> = {
   type: TType
   settings: OpenSettings<TType>
-  target?: DriverTarget<TSpec>
-  cores: {[TKey in 'classic' | 'ufg']: TypedCore<TSpec, TKey>}
+  target?: DriverTarget<TDriver, TContext, TElement, TSelector>
+  cores: {[TKey in 'classic' | 'ufg']: TypedCore<TDriver, TContext, TElement, TSelector, TKey>}
   logger?: Logger
 }
 
-export function makeGetTypedEyes<TSpec extends SpecType, TDefaultType extends 'classic' | 'ufg'>({
+export function makeGetTypedEyes<TDriver, TContext, TElement, TSelector, TDefaultType extends 'classic' | 'ufg'>({
   type: defaultType,
   settings: defaultSettings,
   target,
   cores,
   logger: defaultLogger,
-}: Options<TSpec, TDefaultType>) {
-  let eyes: TypedEyes<TSpec, 'classic' | 'ufg'>
+}: Options<TDriver, TContext, TElement, TSelector, TDefaultType>) {
+  let eyes: TypedEyes<TDriver, TContext, TElement, TSelector, 'classic' | 'ufg'>
   return async function getTypesEyes<TType extends 'classic' | 'ufg' = TDefaultType>({
     type = defaultType as unknown as TType,
     settings,
@@ -27,24 +26,22 @@ export function makeGetTypedEyes<TSpec extends SpecType, TDefaultType extends 'c
     type?: TType
     settings?: {type: 'web' | 'native'; renderers: Renderer[]}
     logger?: Logger
-  } = {}): Promise<TypedEyes<TSpec, TType>> {
+  } = {}): Promise<TypedEyes<TDriver, TContext, TElement, TSelector, TType>> {
     if (!eyes) {
       eyes = await cores[type].openEyes({target, settings: defaultSettings, logger})
-      return eyes as TypedEyes<TSpec, TType>
+      return eyes as any
     } else if (eyes.type === type) {
-      return eyes as TypedEyes<TSpec, TType>
+      return eyes as any
     } else if (type === 'ufg') {
       const baseEyes = await eyes.getBaseEyes()
-      const typedEyes = await cores.ufg.openEyes({target, settings: defaultSettings, eyes: baseEyes, logger})
-      return typedEyes as TypedEyes<TSpec, TType>
+      return cores.ufg.openEyes({target, settings: defaultSettings, eyes: baseEyes, logger}) as any
     } else {
       const baseEyes = (
         await Promise.all(
           settings!.renderers.map(renderer => eyes.getBaseEyes({settings: {type: settings!.type, renderer}})),
         )
       ).flat()
-      const typedEyes = await cores.classic.openEyes({target, settings: defaultSettings, eyes: baseEyes, logger})
-      return typedEyes as TypedEyes<TSpec, TType>
+      return cores.classic.openEyes({target, settings: defaultSettings, eyes: baseEyes, logger}) as any
     }
   }
 }

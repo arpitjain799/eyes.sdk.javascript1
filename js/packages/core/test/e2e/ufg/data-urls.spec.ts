@@ -34,8 +34,7 @@ describe('data urls', () => {
 
     await eyes.check({settings: {fully: true}})
 
-    await eyes.close()
-    const [result] = await eyes.getResults()
+    const [result] = await eyes.close()
 
     assert.strictEqual(result.status, 'Passed')
   })
@@ -57,8 +56,7 @@ describe('data urls', () => {
 
     await eyes.check({settings: {fully: true}})
 
-    await eyes.close()
-    const [result] = await eyes.getResults()
+    const [result] = await eyes.close()
 
     assert.strictEqual(result.status, 'Passed')
   })

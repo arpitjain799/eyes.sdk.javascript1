@@ -1,5 +1,4 @@
 import {makeCore, type Core, type ECClient} from '../../src/index'
-import {type SpecType} from '@applitools/driver'
 import {getTestInfo} from '@applitools/test-utils'
 import * as spec from '@applitools/spec-driver-webdriverio'
 import assert from 'assert'
@@ -8,10 +7,10 @@ describe('ecSessionId', () => {
   let driver: spec.Driver,
     destroyDriver: () => Promise<void>,
     client: ECClient,
-    core: Core<SpecType<spec.Driver, spec.Driver, spec.Element, spec.Selector>, 'classic' | 'ufg'>
+    core: Core<spec.Driver, spec.Driver, spec.Element, spec.Selector>
 
   before(async () => {
-    core = makeCore({spec})
+    core = makeCore<spec.Driver, spec.Driver, spec.Element, spec.Selector>({spec})
     client = await core.makeECClient({
       settings: {capabilities: {useSelfHealing: true}},
     })
@@ -30,8 +29,7 @@ describe('ecSessionId', () => {
       settings: {appName: 'core e2e', testName: 'classic - ecSessionId'},
     })
     await eyes.check()
-    await eyes.close({settings: {updateBaselineIfNew: false}})
-    const [result] = await eyes.getResults()
+    const [result] = await eyes.close({settings: {updateBaselineIfNew: false}})
     const {sessionId} = await spec.getDriverInfo(driver)
     const info = await getTestInfo(result)
     assert.deepStrictEqual(info.egSessionId, sessionId)
@@ -44,8 +42,7 @@ describe('ecSessionId', () => {
       settings: {appName: 'core e2e', testName: 'ufg - ecSessionId'},
     })
     await eyes.check()
-    await eyes.close({settings: {updateBaselineIfNew: false}})
-    const [result] = await eyes.getResults()
+    const [result] = await eyes.close({settings: {updateBaselineIfNew: false}})
     const {sessionId} = await spec.getDriverInfo(driver)
     const info = await getTestInfo(result)
     assert.deepStrictEqual(info.egSessionId, sessionId)

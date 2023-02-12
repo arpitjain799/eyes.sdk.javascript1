@@ -1,32 +1,38 @@
 import type {DriverTarget, Eyes, OpenSettings} from './types'
 import type {Core as BaseCore, Eyes as BaseEyes} from '@applitools/core-base'
 import {type Logger} from '@applitools/logger'
-import {makeDriver, type SpecType, type SpecDriver} from '@applitools/driver'
+import {makeDriver, type SpecDriver} from '@applitools/driver'
 import {makeGetBaseEyes} from './get-base-eyes'
 import {makeCheck} from './check'
 import {makeCheckAndClose} from './check-and-close'
+import {makeLocateText} from './locate-text'
+import {makeExtractText} from './extract-text'
 import {makeClose} from './close'
 import {makeAbort} from './abort'
 import * as utils from '@applitools/utils'
 
-type Options<TSpec extends SpecType> = {
+type Options<TDriver, TContext, TElement, TSelector> = {
   core: BaseCore
-  spec?: SpecDriver<TSpec>
+  spec?: SpecDriver<TDriver, TContext, TElement, TSelector>
   logger: Logger
 }
 
-export function makeOpenEyes<TSpec extends SpecType>({core, spec, logger: defaultLogger}: Options<TSpec>) {
+export function makeOpenEyes<TDriver, TContext, TElement, TSelector>({
+  core,
+  spec,
+  logger: defaultLogger,
+}: Options<TDriver, TContext, TElement, TSelector>) {
   return async function openEyes({
     target,
     settings,
     eyes,
     logger = defaultLogger,
   }: {
-    target?: DriverTarget<TSpec>
+    target?: DriverTarget<TDriver, TContext, TElement, TSelector>
     settings: OpenSettings
     eyes?: BaseEyes[]
     logger?: Logger
-  }): Promise<Eyes<TSpec>> {
+  }): Promise<Eyes<TDriver, TContext, TElement, TSelector>> {
     logger.log(
       `Command "openEyes" is called with ${target ? 'default driver and' : ''}`,
       ...(settings ? ['settings', settings] : []),
@@ -83,6 +89,8 @@ export function makeOpenEyes<TSpec extends SpecType>({core, spec, logger: defaul
       getBaseEyes,
       check: makeCheck({eyes, target: driver, spec, logger}),
       checkAndClose: makeCheckAndClose({eyes, target: driver, spec, logger}),
+      locateText: makeLocateText({eyes, target: driver, spec, logger}),
+      extractText: makeExtractText({eyes, target: driver, spec, logger}),
       close: makeClose({eyes, target: driver, spec, logger}),
       abort: makeAbort({eyes, target: driver, spec, logger}),
     }))

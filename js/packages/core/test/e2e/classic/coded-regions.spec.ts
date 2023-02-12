@@ -1,5 +1,4 @@
 import type {Core} from '../../../src/classic/types'
-import {type SpecType} from '@applitools/driver'
 import {makeCore} from '../../../src/classic/core'
 import {getTestInfo} from '@applitools/test-utils'
 import * as spec from '@applitools/spec-driver-webdriverio'
@@ -8,11 +7,11 @@ import assert from 'assert'
 describe('coded regions', () => {
   let driver: spec.Driver,
     destroyDriver: () => Promise<void>,
-    core: Core<SpecType<spec.Driver, spec.Driver, spec.Element, spec.Selector>>
+    core: Core<spec.Driver, spec.Driver, spec.Element, spec.Selector>
 
   before(async () => {
     ;[driver, destroyDriver] = await spec.build({browser: 'chrome'})
-    core = makeCore({spec})
+    core = makeCore<spec.Driver, spec.Driver, spec.Element, spec.Selector>({spec})
     const page = `data:text/html,
       <div id='outer' style='margin-left: 50px; width:600px; height: 2000px; border: 1px solid;'>
         Outer
@@ -46,8 +45,7 @@ describe('coded regions', () => {
         matchLevel: 'Strict',
       },
     })
-    await eyes.close({settings: {updateBaselineIfNew: false}})
-    const [result] = await eyes.getResults()
+    const [result] = await eyes.close({settings: {updateBaselineIfNew: false}})
     assert.strictEqual(result.status, 'Passed')
   })
 
@@ -73,8 +71,7 @@ describe('coded regions', () => {
           stitchMode,
         },
       })
-      await eyes.close({settings: {updateBaselineIfNew: false}})
-      const [result] = await eyes.getResults()
+      const [result] = await eyes.close({settings: {updateBaselineIfNew: false}})
       const testInfo = await getTestInfo(result)
       assert.deepStrictEqual(testInfo.actualAppOutput[0].imageMatchSettings.layout, [
         {

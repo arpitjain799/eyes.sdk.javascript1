@@ -1,39 +1,42 @@
 import type {MaybeArray} from '@applitools/utils'
-import type {Target, Config, ExtractTextSettings} from './types'
-import type {Core as BaseCore} from '@applitools/core-base'
+import type {Target, DriverTarget, Eyes, Config, ExtractTextSettings} from './types'
 import {type Logger} from '@applitools/logger'
-import {type SpecType, type SpecDriver} from '@applitools/driver'
-import {makeCore as makeClassicCore} from './classic/core'
 import * as utils from '@applitools/utils'
 
-type Options<TSpec extends SpecType> = {
-  spec?: SpecDriver<TSpec>
-  core: BaseCore
+type Options<TDriver, TContext, TElement, TSelector, TType extends 'classic' | 'ufg'> = {
+  eyes: Eyes<TDriver, TContext, TElement, TSelector, TType>
+  target?: DriverTarget<TDriver, TContext, TElement, TSelector>
   logger: Logger
 }
 
-export function makeExtractText<TSpec extends SpecType>({spec, core, logger: defaultLogger}: Options<TSpec>) {
+export function makeExtractText<TDriver, TContext, TElement, TSelector, TType extends 'classic' | 'ufg' = 'classic'>({
+  eyes,
+  target: defaultTarget,
+  logger: defaultLogger,
+}: Options<TDriver, TContext, TElement, TSelector, TType>) {
   return async function extractText({
-    target,
+    target = defaultTarget,
     settings,
     config,
     logger = defaultLogger,
   }: {
-    target: Target<TSpec, 'classic'>
-    settings: MaybeArray<ExtractTextSettings<TSpec>>
-    config?: Config<TSpec, 'classic'>
+    target?: Target<TDriver, TContext, TElement, TSelector, 'classic'>
+    settings: MaybeArray<ExtractTextSettings<TElement, TSelector, 'classic'>>
+    config?: Config<TElement, TSelector, 'classic'>
     logger?: Logger
   }): Promise<string[]> {
-    settings = utils.types.isArray(settings) ? settings : [settings]
-    settings = settings.map(settings => {
-      settings = {...config?.open, ...config?.screenshot, ...settings}
-      settings.serverUrl ??= utils.general.getEnvValue('SERVER_URL') ?? 'https://eyesapi.applitools.com'
-      settings.apiKey ??= utils.general.getEnvValue('API_KEY')
-      return settings
-    })
-
-    const classicCore = makeClassicCore({spec, core, logger})
-    const results = await classicCore.extractText({target, settings, logger})
+    if (utils.types.isArray(settings)) {
+      settings = settings.map(settings => {
+        settings = {...config?.screenshot, ...settings}
+        settings.autProxy ??= eyes.test.server.proxy
+        return settings
+      })
+    } else {
+      settings = {...config?.screenshot, ...settings}
+      settings.autProxy ??= eyes.test.server.proxy
+    }
+    const classicEyes = await eyes.getTypedEyes({type: 'classic', logger})
+    const results = await classicEyes.extractText({target, settings, logger})
     return results
   }
 }

@@ -1,12 +1,12 @@
-import {type SpecType, type Driver} from '@applitools/driver'
+import {type Driver} from '@applitools/driver'
 import {type Logger} from '@applitools/logger'
 import * as utils from '@applitools/utils'
 
-export async function extractBrokerUrl<TSpec extends SpecType>({
+export async function extractBrokerUrl({
   driver,
   logger,
 }: {
-  driver: Driver<TSpec>
+  driver: Driver<unknown, unknown, unknown, unknown>
   logger: Logger
 }): Promise<string | null> {
   if (!driver.isNative) return null

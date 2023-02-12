@@ -1,28 +1,35 @@
-import type {TypedCore, Batch, Eyes, Config, OpenSettings, DriverTarget} from './types'
+import type {TypedCore, Batch, Eyes, Config, OpenSettings} from './types'
 import type {Core as BaseCore} from '@applitools/core-base'
 import {type Logger} from '@applitools/logger'
-import {makeDriver, type SpecType, type SpecDriver} from '@applitools/driver'
+import {makeDriver, type SpecDriver} from '@applitools/driver'
 import {makeCore as makeClassicCore} from './classic/core'
 import {makeCore as makeUFGCore} from './ufg/core'
 import {makeGetTypedEyes} from './get-typed-eyes'
 import {makeCheck} from './check'
 import {makeCheckAndClose} from './check-and-close'
+import {makeLocateText} from './locate-text'
+import {makeExtractText} from './extract-text'
 import {makeClose} from './close'
-import {makeGetEyesResults} from './get-eyes-results'
 import {extractCIProvider} from './utils/extract-ci-provider'
 import * as utils from '@applitools/utils'
 
-type Options<TSpec extends SpecType, TType extends 'classic' | 'ufg'> = {
+type Options<TDriver, TContext, TElement, TSelector, TType extends 'classic' | 'ufg'> = {
   type?: TType
   concurrency?: number
   batch?: Batch
   core: BaseCore
-  cores?: {[TKey in 'classic' | 'ufg']: TypedCore<TSpec, TKey>}
-  spec?: SpecDriver<TSpec>
+  cores?: {[TKey in 'classic' | 'ufg']: TypedCore<TDriver, TContext, TElement, TSelector, TKey>}
+  spec?: SpecDriver<TDriver, TContext, TElement, TSelector>
   logger: Logger
 }
 
-export function makeOpenEyes<TSpec extends SpecType, TDefaultType extends 'classic' | 'ufg' = 'classic'>({
+export function makeOpenEyes<
+  TDriver,
+  TContext,
+  TElement,
+  TSelector,
+  TDefaultType extends 'classic' | 'ufg' = 'classic',
+>({
   type: defaultType = 'classic' as TDefaultType,
   concurrency,
   batch,
@@ -30,7 +37,7 @@ export function makeOpenEyes<TSpec extends SpecType, TDefaultType extends 'class
   cores,
   spec,
   logger: defaultLogger,
-}: Options<TSpec, TDefaultType>) {
+}: Options<TDriver, TContext, TElement, TSelector, TDefaultType>) {
   return async function openEyes<TType extends 'classic' | 'ufg' = TDefaultType>({
     type = defaultType as unknown as TType,
     settings,
@@ -40,10 +47,10 @@ export function makeOpenEyes<TSpec extends SpecType, TDefaultType extends 'class
   }: {
     type?: TType
     settings?: Partial<OpenSettings<TDefaultType> & OpenSettings<TType>>
-    config?: Config<TSpec, TDefaultType> & Config<TSpec, TType>
-    target?: DriverTarget<TSpec>
+    config?: Config<TElement, TSelector, TDefaultType> & Config<TElement, TSelector, TType>
+    target?: TDriver
     logger?: Logger
-  }): Promise<Eyes<TSpec, TType>> {
+  }): Promise<Eyes<TDriver, TContext, TElement, TSelector, TType>> {
     settings = {...config?.open, ...settings} as Partial<OpenSettings<TDefaultType> & OpenSettings<TType>>
     settings.userTestId ??= `${settings.testName}--${utils.general.guid()}`
     settings.serverUrl ??= utils.general.getEnvValue('SERVER_URL') ?? 'https://eyesapi.applitools.com'
@@ -61,7 +68,7 @@ export function makeOpenEyes<TSpec extends SpecType, TDefaultType extends 'class
     settings.compareWithParentBranch ??= false
     if (type === 'ufg') {
       const ufgSettings = settings as OpenSettings<'ufg'>
-      const ufgConfig = config as Config<TSpec, 'ufg'>
+      const ufgConfig = config as Config<TElement, TSelector, 'ufg'>
       ufgSettings.renderConcurrency ??= ufgConfig?.check?.renderers?.length
     }
 
@@ -90,7 +97,6 @@ export function makeOpenEyes<TSpec extends SpecType, TDefaultType extends 'class
       },
       logger,
     })
-
     const getTypedEyes = makeGetTypedEyes({
       type,
       settings: settings as OpenSettings<TType>,
@@ -106,8 +112,9 @@ export function makeOpenEyes<TSpec extends SpecType, TDefaultType extends 'class
       getTypedEyes,
       check: makeCheck({type, eyes, target: driver, spec, logger}),
       checkAndClose: makeCheckAndClose({type, eyes, target: driver, spec, logger}),
+      locateText: makeLocateText({eyes, target: driver, logger}),
+      extractText: makeExtractText({eyes, target: driver, logger}),
       close: makeClose({eyes, logger}),
-      getResults: makeGetEyesResults({eyes, logger}),
-    })) as unknown as Eyes<TSpec, TType> // TODO solve the types issue
+    })) as Eyes<TDriver, TContext, TElement, TSelector, TType>
   }
 }
