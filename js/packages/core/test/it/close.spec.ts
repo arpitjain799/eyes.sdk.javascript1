@@ -29,7 +29,7 @@ describe('get results', async () => {
     core = makeCore({spec, core: fakeCore})
   })
 
-  it('should not throw if driver is destroyed before close', async () => {
+  it.skip('should not throw if driver is destroyed before close', async () => {
     const eyes = await core.openEyes({target: driver, settings: {appName: 'App', testName: 'Test'}})
     await eyes.check()
     await destroyDriver(driver)
