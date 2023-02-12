@@ -19,18 +19,9 @@ export function makeClose<TSpec extends SpecType>({eyes, target, spec, logger: d
     settings?: CloseSettings
     logger?: Logger
   } = {}): Promise<void> {
-    logger.log('Command "close" is called with settings', settings)
-    settings ??= {}
-    if (!settings.testMetadata) {
-      try {
-        const driver = isDriver(target, spec) ? await makeDriver({spec, driver: target, logger}) : null
-        settings.testMetadata = await driver?.getSessionMetadata()
-      } catch (error: any) {
-        logger.warn('Command "close" received an error during extracting driver metadata', error)
-      }
-    }
-
+    const driver = isDriver(target, spec) ? await makeDriver({spec, driver: target, logger}) : null
+    const testMetadata = await driver?.getSessionMetadata()
     const baseEyes = await eyes.getBaseEyes()
-    await Promise.all(baseEyes.map(baseEyes => baseEyes.close({settings, logger})))
+    await Promise.all(baseEyes.map(baseEyes => baseEyes.close({settings: {...settings, testMetadata}, logger})))
   }
 }

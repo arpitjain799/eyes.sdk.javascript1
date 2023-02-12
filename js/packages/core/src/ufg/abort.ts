@@ -1,12 +1,10 @@
-import type {DriverTarget, AbortSettings} from './types'
+import type {DriverTarget, AbortSettings, CheckResult} from './types'
 import {type Logger} from '@applitools/logger'
 import {type AbortController} from 'abort-controller'
 import {isDriver, makeDriver, type SpecType, type SpecDriver} from '@applitools/driver'
-import {Renderer} from '@applitools/ufg-client'
-import {Eyes as baseEyes} from '@applitools/core-base'
 
 type Options<TSpec extends SpecType> = {
-  storage: Map<string, Promise<{renderer: Renderer; eyes: baseEyes}>[]>
+  storage: Map<string, CheckResult['promise'][]>
   controller: AbortController
   target?: DriverTarget<TSpec>
   spec?: SpecDriver<TSpec>
@@ -29,23 +27,17 @@ export function makeAbort<TSpec extends SpecType>({
   } = {}): Promise<void> {
     logger.log('Command "abort" is called with settings', settings)
     controller.abort()
-    settings ??= {}
-    if (!settings.testMetadata) {
-      try {
-        const driver = isDriver(target, spec) ? await makeDriver({spec, driver: target, logger}) : null
-        settings.testMetadata = await driver?.getSessionMetadata()
-      } catch (error: any) {
-        logger.warn('Command "abort" received an error during extracting driver metadata', error)
-      }
-    }
+
+    const driver = isDriver(target, spec) ? await makeDriver({spec, driver: target, logger}) : null
+    const testMetadata = await driver?.getSessionMetadata()
 
     storage.forEach(async promises => {
       try {
         const {eyes} = await Promise.race(promises)
-        await eyes.abort({settings, logger})
+        await eyes.abort({settings: {...settings, testMetadata}, logger})
       } catch (error: any) {
         logger.warn('Command "abort" received an error during waiting for eyes instances in background', error)
-        await error?.info?.eyes?.abort({settings, logger})
+        await error?.info?.eyes?.abort({settings: {...settings, testMetadata}, logger})
       }
     })
   }

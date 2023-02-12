@@ -19,17 +19,9 @@ export function makeAbort<TSpec extends SpecType>({eyes, target, spec, logger: d
     settings?: AbortSettings
     logger?: Logger
   } = {}): Promise<void> {
-    logger.log('Command "abort" is called with settings', settings)
-    settings ??= {}
-    if (!settings.testMetadata) {
-      try {
-        const driver = isDriver(target, spec) ? await makeDriver({spec, driver: target, logger}) : null
-        settings.testMetadata = await driver?.getSessionMetadata()
-      } catch (error: any) {
-        logger.warn('Command "abort" received an error during extracting driver metadata', error)
-      }
-    }
+    const driver = isDriver(target, spec) ? await makeDriver({spec, driver: target, logger}) : null
+    const testMetadata = await driver?.getSessionMetadata()
     const baseEyes = await eyes.getBaseEyes()
-    await Promise.all(baseEyes.map(baseEyes => baseEyes.abort({settings, logger})))
+    await Promise.all(baseEyes.map(baseEyes => baseEyes.abort({settings: {...settings, testMetadata}, logger})))
   }
 }

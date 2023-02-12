@@ -1,11 +1,9 @@
-import type {DriverTarget, CloseSettings} from './types'
+import type {DriverTarget, CloseSettings, CheckResult} from './types'
 import {type Logger} from '@applitools/logger'
 import {isDriver, makeDriver, type SpecType, type SpecDriver} from '@applitools/driver'
-import {Renderer} from '@applitools/ufg-client'
-import {Eyes as baseEyes} from '@applitools/core-base'
 
 type Options<TSpec extends SpecType> = {
-  storage: Map<string, Promise<{renderer: Renderer; eyes: baseEyes}>[]>
+  storage: Map<string, CheckResult['promise'][]>
   target?: DriverTarget<TSpec>
   spec?: SpecDriver<TSpec>
   logger: Logger
@@ -20,28 +18,21 @@ export function makeClose<TSpec extends SpecType>({storage, target, spec, logger
     logger?: Logger
   } = {}): Promise<void> {
     logger.log('Command "close" is called with settings', settings)
-    settings ??= {}
-    if (!settings.testMetadata) {
-      try {
-        const driver = isDriver(target, spec) ? await makeDriver({spec, driver: target, logger}) : null
-        settings.testMetadata = await driver?.getSessionMetadata()
-      } catch (error: any) {
-        logger.warn('Command "close" received an error during extracting driver metadata', error)
-      }
-    }
+    const driver = isDriver(target, spec) ? await makeDriver({spec, driver: target, logger}) : null
+    const testMetadata = await driver?.getSessionMetadata()
 
     storage.forEach(async promises => {
       try {
         const [{eyes}] = await Promise.all(promises)
         try {
-          await eyes.close({settings, logger})
+          await eyes.close({settings: {...settings, testMetadata}, logger})
         } catch (error) {
           logger.warn('Command "close" received an error during performing, trying to perform abort instead', error)
-          await eyes.abort({settings, logger})
+          await eyes.abort({settings: {...settings, testMetadata}, logger})
         }
       } catch (error: any) {
         logger.warn('Command "close" received an error during waiting for eyes instances in background', error)
-        await error.info?.eyes?.abort({settings, logger})
+        await error.info?.eyes?.abort({settings: {...settings, testMetadata}, logger})
       }
     })
   }
