@@ -204,23 +204,26 @@ exports.makeDriver = async function makeDriver({
     'ios-sauce': {
       url: 'https://ondemand.saucelabs.com:443/wd/hub',
       capabilities: {
-        name: 'IOS screenshoter',
-        appiumVersion: '1.20.0',
-        username: process.env.SAUCE_USERNAME,
-        accessKey: process.env.SAUCE_ACCESS_KEY,
         browserName: app === 'safari' ? app : '',
-        app: apps[app || type] || (app !== 'safari' ? app : undefined),
-        deviceName: deviceName || 'iPhone 12 Simulator',
+        'appium:app': apps[app || type] || (app !== 'safari' ? app : undefined),
+        'appium:deviceName': deviceName || 'iPhone 12',
         platformName: 'iOS',
-        platformVersion: platformVersion || '14.5',
-        deviceOrientation: orientation ? orientation.toUpperCase() : 'PORTRAIT',
-        processArguments: {
+        'appium:platformVersion': platformVersion || '16.0',
+        'appium:automationName': 'XCUITest',
+        'appium:orientation': orientation ? orientation.toUpperCase() : 'PORTRAIT',
+        'appium:processArguments': {
           args: [],
           env: {
             DYLD_INSERT_LIBRARIES:
               '@executable_path/Frameworks/UFG_lib.xcframework/ios-arm64_x86_64-simulator/UFG_lib.framework/UFG_lib',
           },
         },
+        ...rest,
+        'sauce:name': 'IOS screenshoter',
+        // appiumVersion: '1.20.0',
+        'sauce:username': process.env.SAUCE_USERNAME,
+        'sauce:accessKey': process.env.SAUCE_ACCESS_KEY,
+        'sauce:deviceName': deviceName || 'iPhone 12 Simulator',
       },
     },
     'ios-bs': {
