@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 2.1.0 - 2023/2/14
+
+### Features
+- Integrate universal protocol to run core via transport
+### Bug fixes
+
 ## 2.0.2 - 2022/12/27
 
 ### Features
