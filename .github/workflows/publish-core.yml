@@ -69,6 +69,29 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        include:
+          - name: alpine
+            os: ubuntu-latest
+            container: node:lts-alpine
+            shell: ash -eo pipefail {0}
+            arch: x64
+          - name: linux
+            os: ubuntu-latest
+            shell: bash
+            arch: x64
+          - name: linux-arm64
+            os: ubuntu-latest
+            container: arm64v8/node:lts
+            shell: bash
+            arch: arm64
+          - name: windows
+            os: windows-latest
+            shell: bash
+            arch: x64
+          - name: macos
+            os: macos-latest
+            shell: bash
+            arch: x64
         arch: [x64, arm64]
     runs-on: ubuntu-latest
     steps:
@@ -77,15 +100,13 @@ jobs:
         with:
           ref: ${{needs.prepare.outputs.branch}}
       - name: Setup Node.js
-        if: ${{matrix.arch == 'x64'}}
         uses: actions/setup-node@v3
         with:
           node-version: lts/*
           registry-url: https://registry.npmjs.org/
           always-auth: true
-      - name: Build x64
-        if: ${{matrix.arch == 'x64'}}
-        shell: bash
+      - name: Build
+        shell: ${{matrix.shell}}
         working-directory: ./js/packages/core
         run: |
           echo //registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}} > $HOME/.npmrc
@@ -94,30 +115,6 @@ jobs:
           yarn deps
           rm -rf $HOME/.npmrc
           yarn build:${{matrix.arch}}
-      - name: Build arm64
-        if: ${{matrix.arch == 'arm64'}}
-        uses: uraimo/run-on-arch-action@v2
-        with:
-          githubToken: ${{github.token}}
-          arch: aarch64
-          distro: ubuntu18.04
-          dockerRunArgs: |
-            --volume "${PWD}/js/:/js"
-          shell: /bin/sh
-          install: |
-            apt-get update -q -y
-            apt-get install -q -y curl zip tar
-            curl -sL https://deb.nodesource.com/setup_18.x | bash -
-            apt-get install -q -y nodejs
-            npm install -g yarn
-          run: |
-            cd /js/packages/core
-            echo //registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}} > $HOME/.npmrc
-            yarn --cwd ../../ install
-            yarn install
-            yarn deps
-            rm -rf $HOME/.npmrc
-            yarn build:${{matrix.arch}}
       - name: Upload building artifacts
         uses: actions/upload-artifact@v3
         with:
