@@ -65,11 +65,11 @@ jobs:
           version: ${{inputs.version || github.event.inputs.version}}
   build:
     needs: [prepare]
-    name: Build
     strategy:
       fail-fast: false
       matrix:
         arch: [x64, arm64]
+    name: 'Build (arch: ${{matrix.arch}})'
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
@@ -158,28 +158,28 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: alpine
-            os: ubuntu-latest
+          - os: alpine
+            arch: x64
+            runner: ubuntu-latest
             container: node:lts-alpine # not just "alpine" because it is not possible to setup nodejs in a regular way
             shell: ash -eo pipefail {0}
+          - os: linux
             arch: x64
-          - name: linux
-            os: ubuntu-latest
+            runner: ubuntu-latest
             shell: bash
-            arch: x64
-          - name: linux-arm64
-            os: ubuntu-latest
-            shell: bash
+          - os: linux
             arch: arm64
-          - name: windows
-            os: windows-latest
+            runner: ubuntu-latest
             shell: bash
+          - os: windows
             arch: x64
-          - name: macos
-            os: macos-latest
+            runner: windows-latest
             shell: bash
+          - os: macos
             arch: x64
-    name: 'Test bin (os: ${{matrix.name}})'
+            runner: macos-latest
+            shell: bash
+    name: 'Test bin (os: ${{matrix.name}} arch: ${{matrix.arch}})'
     runs-on: ${{matrix.os}}
     container: ${{matrix.container}}
     steps:
