@@ -16,10 +16,10 @@
     node-fetch "2.6.1"
     yargs "15.0.2"
 
-"@applitools/core-base@1.1.36":
-  version "1.1.36"
-  resolved "https://registry.npmjs.org/@applitools/core-base/-/core-base-1.1.36.tgz"
-  integrity sha512-L+sagCh3aXqmwuoerM2kS9iFar520veajIlyhO+9FfDSbfaK5scNA+sA+aVnt8tSkpzqM/t95/dNkCyPMCp9jA==
+"@applitools/core-base@1.1.37":
+  version "1.1.37"
+  resolved "https://registry.yarnpkg.com/@applitools/core-base/-/core-base-1.1.37.tgz#3209b3debbd403c0e9105c4ffed730f72ce87620"
+  integrity sha512-MKHWhQXCknqMQ3uQFTLc3reBTC6PFOwbSnbHCrgkjobFmM86pvuAwE6JMR1Xc1sxcXDJFvba1GypEKrs9sDYJg==
   dependencies:
     "@applitools/image" "1.0.26"
     "@applitools/logger" "1.1.45"
