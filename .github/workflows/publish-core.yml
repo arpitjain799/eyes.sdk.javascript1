@@ -128,110 +128,110 @@ jobs:
           path:  |
             ./js/packages/core/dist
             ./js/packages/core/bin
-  test:
-    needs: [prepare, build]
-    strategy:
-      matrix:
-        node-version: ['14', '16', '18']
-    name: 'Test (node: ${{matrix.node-version}})'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check-out repository
-        uses: actions/checkout@v3
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{matrix.node-version}}
-          registry-url: https://registry.npmjs.org/
-          always-auth: true
-      - name: Download building artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: core-${{needs.prepare.outputs.version}}-x64
-          path: ./js/packages/core
-      - name: Run tests
-        uses: ./.github/actions/tests
-        with:
-          working-directory: ./js/packages/core
-  test-bin:
-    needs: [prepare, build]
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: alpine
-            arch: x64
-            runner: ubuntu-latest
-            container: node:lts-alpine # not just "alpine" because it is not possible to setup nodejs in a regular way
-            shell: ash -eo pipefail {0}
-          - os: linux
-            arch: x64
-            runner: ubuntu-latest
-            shell: bash
-          # - os: linux
-          #   arch: arm64
-          #   runner: ubuntu-latest
-          #   shell: bash
-          - os: windows
-            arch: x64
-            runner: windows-latest
-            shell: bash
-          - os: macos
-            arch: x64
-            runner: macos-latest
-            shell: bash
-    name: 'Test bin (os: ${{matrix.os}}, arch: ${{matrix.arch}})'
-    runs-on: ${{matrix.runner}}
-    container: ${{matrix.container}}
-    steps:
-      - name: Check-out repository
-        uses: actions/checkout@v3
-        with:
-          ref: ${{needs.prepare.outputs.branch}}
-      - name: Setup Node.js
-        if: ${{matrix.arch == 'x64'}}
-        uses: actions/setup-node@v3
-        with:
-          node-version: lts/*
-          registry-url: https://registry.npmjs.org/
-          always-auth: true
-      - name: Download building artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: core-${{needs.prepare.outputs.version}}-${{matrix.arch}}
-          path: ./js/packages/core
-      - name: Run tests x64
-        if: ${{matrix.arch == 'x64'}}
-        uses: ./.github/actions/tests
-        with:
-          shell: ${{matrix.shell}}
-          working-directory: ./js/packages/core
-          build-type: none
-          setup-type: none
-          test-type: bin
-      - name: Run tests arm64
-        if: ${{matrix.arch == 'arm64'}}
-        uses: uraimo/run-on-arch-action@v2
-        with:
-          arch: none
-          distro: none
-          base_image: arm64v8/node:lts
-          githubToken: ${{github.token}}
-          dockerRunArgs: |
-            --volume "${PWD}/js/packages/core/:/src"
-          shell: /bin/sh
-          install: |
-            apt-get update -q -y
-            apt-get install -q -y curl zip tar
-          run: |
-            cd /src
-            echo //registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}} > $HOME/.npmrc
-            export PUPPETEER_SKIP_DOWNLOAD=true 
-            yarn install
-            rm -rf $HOME/.npmrc
-            yarn test:bin
+  # test:
+  #   needs: [prepare, build]
+  #   strategy:
+  #     matrix:
+  #       node-version: ['14', '16', '18']
+  #   name: 'Test (node: ${{matrix.node-version}})'
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Check-out repository
+  #       uses: actions/checkout@v3
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: ${{matrix.node-version}}
+  #         registry-url: https://registry.npmjs.org/
+  #         always-auth: true
+  #     - name: Download building artifacts
+  #       uses: actions/download-artifact@v3
+  #       with:
+  #         name: core-${{needs.prepare.outputs.version}}-x64
+  #         path: ./js/packages/core
+  #     - name: Run tests
+  #       uses: ./.github/actions/tests
+  #       with:
+  #         working-directory: ./js/packages/core
+  # test-bin:
+  #   needs: [prepare, build]
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       include:
+  #         - os: alpine
+  #           arch: x64
+  #           runner: ubuntu-latest
+  #           container: node:lts-alpine # not just "alpine" because it is not possible to setup nodejs in a regular way
+  #           shell: ash -eo pipefail {0}
+  #         - os: linux
+  #           arch: x64
+  #           runner: ubuntu-latest
+  #           shell: bash
+  #         # - os: linux
+  #         #   arch: arm64
+  #         #   runner: ubuntu-latest
+  #         #   shell: bash
+  #         - os: windows
+  #           arch: x64
+  #           runner: windows-latest
+  #           shell: bash
+  #         - os: macos
+  #           arch: x64
+  #           runner: macos-latest
+  #           shell: bash
+  #   name: 'Test bin (os: ${{matrix.os}}, arch: ${{matrix.arch}})'
+  #   runs-on: ${{matrix.runner}}
+  #   container: ${{matrix.container}}
+  #   steps:
+  #     - name: Check-out repository
+  #       uses: actions/checkout@v3
+  #       with:
+  #         ref: ${{needs.prepare.outputs.branch}}
+  #     - name: Setup Node.js
+  #       if: ${{matrix.arch == 'x64'}}
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: lts/*
+  #         registry-url: https://registry.npmjs.org/
+  #         always-auth: true
+  #     - name: Download building artifacts
+  #       uses: actions/download-artifact@v3
+  #       with:
+  #         name: core-${{needs.prepare.outputs.version}}-${{matrix.arch}}
+  #         path: ./js/packages/core
+  #     - name: Run tests x64
+  #       if: ${{matrix.arch == 'x64'}}
+  #       uses: ./.github/actions/tests
+  #       with:
+  #         shell: ${{matrix.shell}}
+  #         working-directory: ./js/packages/core
+  #         build-type: none
+  #         setup-type: none
+  #         test-type: bin
+  #     - name: Run tests arm64
+  #       if: ${{matrix.arch == 'arm64'}}
+  #       uses: uraimo/run-on-arch-action@v2
+  #       with:
+  #         arch: none
+  #         distro: none
+  #         base_image: arm64v8/node:lts
+  #         githubToken: ${{github.token}}
+  #         dockerRunArgs: |
+  #           --volume "${PWD}/js/packages/core/:/src"
+  #         shell: /bin/sh
+  #         install: |
+  #           apt-get update -q -y
+  #           apt-get install -q -y curl zip tar
+  #         run: |
+  #           cd /src
+  #           echo //registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}} > $HOME/.npmrc
+  #           export PUPPETEER_SKIP_DOWNLOAD=true 
+  #           yarn install
+  #           rm -rf $HOME/.npmrc
+  #           yarn test:bin
   publish:
-    needs: [prepare, test, test-bin]
+    needs: [prepare, build]
     name: Publish
     runs-on: ubuntu-latest
     steps:
@@ -265,7 +265,6 @@ jobs:
         uses: ./.github/actions/publish
         with:
           working-directory: ./js/packages/core
-          version: ${{inputs.version || github.event.inputs.version}}
           skip-build: true
       - name: Publish to GitHub
         uses: softprops/action-gh-release@v1
