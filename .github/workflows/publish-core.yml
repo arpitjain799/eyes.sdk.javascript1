@@ -89,6 +89,7 @@ jobs:
         working-directory: ./js/packages/core
         run: |
           echo //registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}} > $HOME/.npmrc
+          export PUPPETEER_SKIP_DOWNLOAD=true
           yarn --cwd ../../ install
           yarn install
           yarn deps
@@ -98,23 +99,21 @@ jobs:
         if: ${{matrix.arch == 'arm64'}}
         uses: uraimo/run-on-arch-action@v2
         with:
+          arch: none
+          distro: none
+          base_image: arm64v8/node:lts
           githubToken: ${{github.token}}
-          arch: aarch64
-          distro: ubuntu18.04
           dockerRunArgs: |
             --volume "${PWD}/js/:/js"
-          shell: /bin/sh
           install: |
             apt-get update -q -y
             apt-get install -q -y curl zip tar
-            curl -sL https://deb.nodesource.com/setup_16.x | bash -
-            apt-get install -q -y nodejs
-            npm install -g yarn
           run: |
             cd /js/packages/core
             echo //registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}} > $HOME/.npmrc
+            export PUPPETEER_SKIP_DOWNLOAD=true
             yarn --cwd ../../ install
-            PUPPETEER_SKIP_DOWNLOAD=true yarn install
+            yarn install
             yarn deps
             rm -rf $HOME/.npmrc
             yarn build:${{matrix.arch}}
@@ -212,22 +211,21 @@ jobs:
         if: ${{matrix.arch == 'arm64'}}
         uses: uraimo/run-on-arch-action@v2
         with:
+          arch: none
+          distro: none
+          base_image: arm64v8/node:lts
           githubToken: ${{github.token}}
-          arch: aarch64
-          distro: ubuntu18.04
           dockerRunArgs: |
             --volume "${PWD}/js/packages/core/:/src"
           shell: /bin/sh
           install: |
             apt-get update -q -y
             apt-get install -q -y curl zip tar
-            curl -sL https://deb.nodesource.com/setup_14.x | bash -
-            apt-get install -q -y nodejs
-            npm install -g yarn
           run: |
             cd /src
             echo //registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}} > $HOME/.npmrc
-            PUPPETEER_SKIP_DOWNLOAD=true yarn install
+            export PUPPETEER_SKIP_DOWNLOAD=true 
+            yarn install
             rm -rf $HOME/.npmrc
             yarn test:bin
   publish:
