@@ -69,14 +69,16 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - arch: x64
-            os: ubuntu-latest
+          # - arch: x64
+          #   os: ubuntu-latest
           - arch: arm64
             os: ubuntu-latest
-            container: arm64v8/node:lts-buster
+            container: arm64v8/node:lts
     name: 'Build (arch: ${{matrix.arch}})'
     runs-on: ${{matrix.os}}
-    container: ${{matrix.container}}
+    container: 
+      image: ${{matrix.container}}
+      options: --platform linux/arm64/v8
     steps:
       - name: Check-out repository
         uses: actions/checkout@v3
