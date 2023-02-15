@@ -73,7 +73,7 @@ jobs:
             os: ubuntu-latest
           - arch: arm64
             os: ubuntu-latest
-            container: arm64v8/node:lts
+            container: arm64v8/node:lts-buster
     name: 'Build (arch: ${{matrix.arch}})'
     runs-on: ${{matrix.os}}
     container: ${{matrix.container}}
