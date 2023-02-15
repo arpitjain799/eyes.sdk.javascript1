@@ -68,7 +68,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        arch: [x64, arm64]
+        include:
+          arch: x64
+          # arch: arm64
     name: 'Build (arch: ${{matrix.arch}})'
     runs-on: ubuntu-latest
     steps:
@@ -166,10 +168,10 @@ jobs:
             arch: x64
             runner: ubuntu-latest
             shell: bash
-          - os: linux
-            arch: arm64
-            runner: ubuntu-latest
-            shell: bash
+          # - os: linux
+          #   arch: arm64
+          #   runner: ubuntu-latest
+          #   shell: bash
           - os: windows
             arch: x64
             runner: windows-latest
