@@ -65,7 +65,6 @@ jobs:
           version: ${{inputs.version || github.event.inputs.version}}
   build:
     needs: [prepare]
-    name: Build
     strategy:
       fail-fast: false
       matrix:
