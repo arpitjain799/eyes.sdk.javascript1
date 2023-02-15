@@ -92,7 +92,6 @@ jobs:
             os: macos-latest
             shell: bash
             arch: x64
-        arch: [x64, arm64]
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
