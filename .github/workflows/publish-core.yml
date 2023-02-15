@@ -246,11 +246,11 @@ jobs:
           node-version: lts/*
           registry-url: https://registry.npmjs.org/
           always-auth: true
-      - name: Download building artifacts arm64
-        uses: actions/download-artifact@v3
-        with:
-          name: core-${{needs.prepare.outputs.version}}-arm64
-          path: ./js/packages/core
+      # - name: Download building artifacts arm64
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: core-${{needs.prepare.outputs.version}}-arm64
+      #     path: ./js/packages/core
       - name: Download building artifacts x64
         uses: actions/download-artifact@v3
         with:
