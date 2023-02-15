@@ -74,8 +74,9 @@ jobs:
     name: 'Build (arch: ${{matrix.arch}})'
     runs-on: ubuntu-latest
     steps:
-      - run: |
-        echo "::notice::Branch ${{needs.prepare.outputs.branch}}"
+      - name: Echo
+        run: |
+          echo "::notice::Branch ${{needs.prepare.outputs.branch}}"
       - name: Check-out repository
         uses: actions/checkout@v3
         with:
@@ -237,8 +238,9 @@ jobs:
     name: Publish
     runs-on: ubuntu-latest
     steps:
-      - run: |
-        echo "::notice::Branch ${{needs.prepare.outputs.branch}}"
+      - name: Echo
+        run: |
+          echo "::notice::Branch ${{needs.prepare.outputs.branch}}"
       - name: Check-out repository
         uses: actions/checkout@v3
         with:
