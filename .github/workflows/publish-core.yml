@@ -69,8 +69,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          arch: x64
-          # arch: arm64
+          - arch: x64
+          # - arch: arm64
     name: 'Build (arch: ${{matrix.arch}})'
     runs-on: ubuntu-latest
     steps:
