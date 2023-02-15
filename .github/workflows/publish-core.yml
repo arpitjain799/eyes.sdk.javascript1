@@ -179,8 +179,8 @@ jobs:
             arch: x64
             runner: macos-latest
             shell: bash
-    name: 'Test bin (os: ${{matrix.name}} arch: ${{matrix.arch}})'
-    runs-on: ${{matrix.os}}
+    name: 'Test bin (os: ${{matrix.os}} arch: ${{matrix.arch}})'
+    runs-on: ${{matrix.runner}}
     container: ${{matrix.container}}
     steps:
       - name: Check-out repository
