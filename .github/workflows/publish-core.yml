@@ -70,29 +70,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: alpine
+          - arch: x64
             os: ubuntu-latest
-            container: node:lts-alpine
-            shell: ash -eo pipefail {0}
-            arch: x64
-          - name: linux
-            os: ubuntu-latest
-            shell: bash
-            arch: x64
-          - name: linux-arm64
+          - arch: arm64
             os: ubuntu-latest
             container: arm64v8/node:lts
-            shell: bash
-            arch: arm64
-          - name: windows
-            os: windows-latest
-            shell: bash
-            arch: x64
-          - name: macos
-            os: macos-latest
-            shell: bash
-            arch: x64
-    runs-on: ubuntu-latest
+    name: 'Build (arch: ${{matrix.arch}})'
+    runs-on: ${{matrix.os}}
+    container: ${{matrix.container}}
     steps:
       - name: Check-out repository
         uses: actions/checkout@v3
@@ -105,7 +90,6 @@ jobs:
           registry-url: https://registry.npmjs.org/
           always-auth: true
       - name: Build
-        shell: ${{matrix.shell}}
         working-directory: ./js/packages/core
         run: |
           echo //registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}} > $HOME/.npmrc
@@ -163,7 +147,7 @@ jobs:
             os: ubuntu-latest
             shell: bash
             arch: x64
-          - name: linux-arm64
+          - name: linux
             os: ubuntu-latest
             shell: bash
             arch: arm64
@@ -175,7 +159,7 @@ jobs:
             os: macos-latest
             shell: bash
             arch: x64
-    name: 'Test bin (os: ${{matrix.name}})'
+    name: 'Test bin (os: ${{matrix.name}} arch: ${{matrix.arch}})'
     runs-on: ${{matrix.os}}
     container: ${{matrix.container}}
     steps:
