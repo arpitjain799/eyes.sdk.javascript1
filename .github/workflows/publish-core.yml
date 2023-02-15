@@ -114,7 +114,7 @@ jobs:
             cd /js/packages/core
             echo //registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}} > $HOME/.npmrc
             yarn --cwd ../../ install
-            yarn install
+            PUPPETEER_SKIP_DOWNLOAD=true yarn install
             yarn deps
             rm -rf $HOME/.npmrc
             yarn build:${{matrix.arch}}
@@ -227,7 +227,7 @@ jobs:
           run: |
             cd /src
             echo //registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}} > $HOME/.npmrc
-            yarn install
+            PUPPETEER_SKIP_DOWNLOAD=true yarn install
             rm -rf $HOME/.npmrc
             yarn test:bin
   publish:
