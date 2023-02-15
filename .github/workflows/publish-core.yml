@@ -65,32 +65,27 @@ jobs:
           version: ${{inputs.version || github.event.inputs.version}}
   build:
     needs: [prepare]
+    name: Build
     strategy:
       fail-fast: false
       matrix:
-        include:
-          # - arch: x64
-          #   os: ubuntu-latest
-          - arch: arm64
-            os: ubuntu-latest
-            container: arm64v8/node:lts
-    name: 'Build (arch: ${{matrix.arch}})'
-    runs-on: ${{matrix.os}}
-    container: 
-      image: ${{matrix.container}}
-      options: --platform linux/arm64/v8
+        arch: [x64, arm64]
+    runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
         uses: actions/checkout@v3
         with:
           ref: ${{needs.prepare.outputs.branch}}
       - name: Setup Node.js
+        if: ${{matrix.arch == 'x64'}}
         uses: actions/setup-node@v3
         with:
           node-version: lts/*
           registry-url: https://registry.npmjs.org/
           always-auth: true
-      - name: Build
+      - name: Build x64
+        if: ${{matrix.arch == 'x64'}}
+        shell: bash
         working-directory: ./js/packages/core
         run: |
           echo //registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}} > $HOME/.npmrc
@@ -99,6 +94,30 @@ jobs:
           yarn deps
           rm -rf $HOME/.npmrc
           yarn build:${{matrix.arch}}
+      - name: Build arm64
+        if: ${{matrix.arch == 'arm64'}}
+        uses: uraimo/run-on-arch-action@v2
+        with:
+          githubToken: ${{github.token}}
+          arch: aarch64
+          distro: ubuntu18.04
+          dockerRunArgs: |
+            --volume "${PWD}/js/:/js"
+          shell: /bin/sh
+          install: |
+            apt-get update -q -y
+            apt-get install -q -y curl zip tar
+            curl -sL https://deb.nodesource.com/setup_16.x | bash -
+            apt-get install -q -y nodejs
+            npm install -g yarn
+          run: |
+            cd /js/packages/core
+            echo //registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}} > $HOME/.npmrc
+            yarn --cwd ../../ install
+            yarn install
+            yarn deps
+            rm -rf $HOME/.npmrc
+            yarn build:${{matrix.arch}}
       - name: Upload building artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -148,7 +167,7 @@ jobs:
             os: ubuntu-latest
             shell: bash
             arch: x64
-          - name: linux
+          - name: linux-arm64
             os: ubuntu-latest
             shell: bash
             arch: arm64
@@ -160,7 +179,7 @@ jobs:
             os: macos-latest
             shell: bash
             arch: x64
-    name: 'Test bin (os: ${{matrix.name}} arch: ${{matrix.arch}})'
+    name: 'Test bin (os: ${{matrix.name}})'
     runs-on: ${{matrix.os}}
     container: ${{matrix.container}}
     steps:
