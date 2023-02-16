@@ -31,7 +31,16 @@ export class HelperIOS<T extends SpecType> {
   }
 
   async getContentRegion(element: Element<T>): Promise<Region | null> {
-    await this._element.click()
+    if (this._spec.getElementRegion && this._spec.performAction) {
+      const {x, y} = await this._spec.getElementRegion(this._driver.target, this._element.target)
+      await this._spec.performAction(this._driver.target, [
+        {action: 'press', x, y},
+        {action: 'wait', ms: 300},
+        {action: 'release'},
+      ])
+    } else {
+      await this._element.click()
+    }
 
     const sizeLabel = await this._driver.element({type: 'name', selector: 'applitools_content_size_label'})
     const sizeString = await sizeLabel?.getText()
