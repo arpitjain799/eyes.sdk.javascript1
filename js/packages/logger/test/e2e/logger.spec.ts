@@ -120,6 +120,15 @@ describe('logger', () => {
     ])
   })
 
+  it('masks', () => {
+    const logger = makeLogger({handler: {type: 'console'}, level: 'info', masks: ['VerySecretValue'], timestamp: false})
+    const output = track(() => {
+      logger.log('secret = VerySecretValue')
+    })
+
+    assert.deepStrictEqual(output.stdout, ['[INFO ] secret = ***\n'])
+  })
+
   it('handler file', async () => {
     const filename = path.resolve(__dirname, './test.log')
     const logger = makeLogger({

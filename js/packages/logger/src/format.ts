@@ -63,11 +63,12 @@ export type FormatOptions = {
   tags?: Record<string, unknown>
   color?: Style | Style[]
   colors?: ColoringOptions
+  masks?: string[]
 }
 
 export function format(
   chunks: any[],
-  {prelude = true, label, timestamp = new Date(), level = 'info', tags, colors}: FormatOptions = {},
+  {prelude = true, label, timestamp = new Date(), level = 'info', tags, colors, masks}: FormatOptions = {},
 ) {
   const message = []
   if (prelude) {
@@ -96,10 +97,12 @@ export function format(
 
   if (chunks && chunks.length > 0) {
     const color = colors?.message
+    const replacer = masks && masks.length > 0 ? new RegExp(`(${masks.join('|')})`, 'g') : null
     const strings = chunks.map(chunk => {
-      return utils.types.isString(chunk)
+      const string = utils.types.isString(chunk)
         ? colorize(chunk, {color})
-        : inspect?.(chunk, {colors: Boolean(colors), compact: 5, depth: 5})
+        : inspect?.(chunk, {colors: !!colors, compact: 5, depth: 5})
+      return replacer ? string.replace(replacer, '***') : string
     })
     message.push(strings.join(' '))
   }

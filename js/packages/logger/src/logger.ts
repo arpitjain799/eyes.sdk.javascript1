@@ -36,6 +36,7 @@ export function makeLogger({
   format = defaultFormat,
   console = true,
   extended = false,
+  masks,
 }: LoggerOptions & {extended?: boolean} = {}): Logger {
   let forceInitHandler: boolean
   if (!handler) {
@@ -101,7 +102,7 @@ export function makeLogger({
   return {
     isLogger: true,
     console: makePrinter({handler: consoleHandler, format, level: LogLevel.all, prelude: false}),
-    ...makePrinter({handler, format, label, tags, timestamp, level, colors: colors as ColoringOptions}),
+    ...makePrinter({handler, format, label, tags, timestamp, level, colors: colors as ColoringOptions, masks}),
     tag(name, value) {
       tags ??= {}
       tags[name] = value

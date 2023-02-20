@@ -12,6 +12,7 @@ export type PrinterOptions = {
   timestamp?: boolean
   level: number
   colors?: ColoringOptions
+  masks?: string[]
 }
 
 export interface Printer {
