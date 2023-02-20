@@ -256,10 +256,10 @@ describe('logger', () => {
     logger.fatal('fatal')
 
     assert.deepStrictEqual(output, [
-      {chunks: ['info'], label, level: 'info', tags: undefined, timestamp, colors: undefined},
-      {chunks: ['warn'], label, level: 'warn', tags: undefined, timestamp, colors: undefined},
-      {chunks: ['error'], label, level: 'error', tags: undefined, timestamp, colors: undefined},
-      {chunks: ['fatal'], label, level: 'fatal', tags: undefined, timestamp, colors: undefined},
+      {chunks: ['info'], label, level: 'info', tags: undefined, timestamp, colors: undefined, masks: undefined},
+      {chunks: ['warn'], label, level: 'warn', tags: undefined, timestamp, colors: undefined, masks: undefined},
+      {chunks: ['error'], label, level: 'error', tags: undefined, timestamp, colors: undefined, masks: undefined},
+      {chunks: ['fatal'], label, level: 'fatal', tags: undefined, timestamp, colors: undefined, masks: undefined},
     ])
   })
 

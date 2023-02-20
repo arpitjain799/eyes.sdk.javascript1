@@ -1,18 +1,11 @@
 import {type Handler} from './handler'
-import {type ColoringOptions} from './format'
+import {format, type FormatOptions} from './format'
 import {LogLevel} from './log-level'
-import {format} from './format'
 
-export type PrinterOptions = {
+export type PrinterOptions = Omit<FormatOptions, 'level' | 'color'> & {
   handler: Handler
   format: typeof format
-  prelude?: boolean
-  label?: string
-  tags?: Record<string, unknown>
-  timestamp?: boolean
   level: number
-  colors?: ColoringOptions
-  masks?: string[]
 }
 
 export interface Printer {
