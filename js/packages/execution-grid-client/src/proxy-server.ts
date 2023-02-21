@@ -45,7 +45,7 @@ export async function makeServer({settings, logger}: {settings: ECClientSettings
 
   const tunnelManager = settings.tunnel?.serverUrl
     ? await makeTunnelManager({settings: settings.tunnel, logger: serverLogger})
-    : await makeTunnelManagerClient({settings: settings.tunnel})
+    : await makeTunnelManagerClient({settings: settings.tunnel, logger: serverLogger})
 
   const sessions = new Map<string, Session>()
   const queues = new Map<string, Queue>()
@@ -146,7 +146,7 @@ export async function makeServer({settings, logger}: {settings: ECClientSettings
       credentials: {eyesServerUrl: options.eyesServerUrl, apiKey: options.apiKey},
     } as Session
     if (options.tunnel) {
-      session.tunnels = await tunnelManager.acquire(session.credentials)
+      session.tunnels = await tunnelManager.acquire({credentials: session.credentials})
       session.tunnels.forEach((tunnel, index) => {
         options[`x-tunnel-id-${index}`] = tunnel.tunnelId
       })
@@ -237,7 +237,7 @@ export async function makeServer({settings, logger}: {settings: ECClientSettings
 
     const session = sessions.get(sessionId)!
     if (session.tunnels) {
-      await tunnelManager.release(session.tunnels)
+      await tunnelManager.release({tunnels: session.tunnels})
       logger.log(
         `Tunnels with id ${session.tunnels.map(
           tunnel => tunnel.tunnelId,

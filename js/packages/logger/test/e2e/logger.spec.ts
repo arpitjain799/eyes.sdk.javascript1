@@ -121,12 +121,21 @@ describe('logger', () => {
   })
 
   it('masks', () => {
-    const logger = makeLogger({handler: {type: 'console'}, level: 'info', masks: ['VerySecretValue'], timestamp: false})
+    const logger = makeLogger({handler: {type: 'console'}, level: 'info', timestamp: false})
+    logger.mask('VerySecretValue')
+    logger.mask('ValueWithSpecialChars$[-]^')
+    logger.mask(/\d{4}\s?\d{4}\s?\d{4}\s?\d{4}/g)
     const output = track(() => {
       logger.log('secret = VerySecretValue')
+      logger.log('secret = ValueWithSpecialChars$[-]^')
+      logger.log('creditcard = 1234 4321 5678 8765')
     })
 
-    assert.deepStrictEqual(output.stdout, ['[INFO ] secret = ***\n'])
+    assert.deepStrictEqual(output.stdout, [
+      '[INFO ] secret = ***\n',
+      '[INFO ] secret = ***\n',
+      '[INFO ] creditcard = ***\n',
+    ])
   })
 
   it('handler file', async () => {
@@ -244,7 +253,8 @@ describe('logger', () => {
 
   it('format', () => {
     const output = [] as string[]
-    const format = (chunks: any[], options?: Record<string, any>) => ({chunks, ...options} as any)
+    const format = (chunks: any[], options?: Record<string, any>) =>
+      ({chunks, label: options?.label, level: options?.level, timestamp: options?.timestamp} as any)
     const handler = {log: (message: string) => output.push(message)}
     const timestamp = new Date('2021-03-19T16:49:00.000Z') as any
     const label = 'Test'
@@ -256,10 +266,10 @@ describe('logger', () => {
     logger.fatal('fatal')
 
     assert.deepStrictEqual(output, [
-      {chunks: ['info'], label, level: 'info', tags: undefined, timestamp, colors: undefined, masks: undefined},
-      {chunks: ['warn'], label, level: 'warn', tags: undefined, timestamp, colors: undefined, masks: undefined},
-      {chunks: ['error'], label, level: 'error', tags: undefined, timestamp, colors: undefined, masks: undefined},
-      {chunks: ['fatal'], label, level: 'fatal', tags: undefined, timestamp, colors: undefined, masks: undefined},
+      {chunks: ['info'], label, level: 'info', timestamp},
+      {chunks: ['warn'], label, level: 'warn', timestamp},
+      {chunks: ['error'], label, level: 'error', timestamp},
+      {chunks: ['fatal'], label, level: 'fatal', timestamp},
     ])
   })
 

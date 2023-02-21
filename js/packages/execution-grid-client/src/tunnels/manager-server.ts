@@ -5,9 +5,6 @@ import {makeTunnelManager, type TunnelManagerSettings} from './manager'
 import {fork} from 'child_process'
 import {promises as fs} from 'fs'
 import * as path from 'path'
-import * as os from 'os'
-
-const LOG_DIRNAME = process.env.APPLITOOLS_LOG_DIR ?? path.resolve(os.tmpdir(), `applitools-tunnel-logs`)
 
 export type TunnelManagerServerOptions = {
   settings?: TunnelManagerSettings
@@ -28,14 +25,7 @@ export async function makeTunnelManagerServer({
     server.on('error', error => reject(error))
     server.on('listening', () => resolve(server))
   })
-  const logger = makeLogger({
-    handler: {type: 'rolling file', name: 'ec-tunnel-manager', dirname: LOG_DIRNAME},
-    label: 'ec-tunnel-manager',
-    level: 'info',
-    colors: false,
-  })
-  logger.log('Server is started')
-  const manager = await makeTunnelManager({settings, logger})
+  const manager = await makeTunnelManager({settings})
 
   process.send?.({name: 'started', payload: {path}}) // NOTE: this is a part of the js specific protocol
 
@@ -50,7 +40,21 @@ export async function makeTunnelManagerServer({
 
   const sockets = new Set<Socket>()
   server.on('connection', client => {
+    const loggerSocket = makeSocket(client, {transport: 'ipc'})
+    const logger = makeLogger({
+      handler: {
+        log: (message: string) => loggerSocket.emit('Logger.log', {level: 'info', message}),
+        warn: (message: string) => loggerSocket.emit('Logger.log', {level: 'warn', message}),
+        error: (message: string) => loggerSocket.emit('Logger.log', {level: 'error', message}),
+        fatal: (message: string) => loggerSocket.emit('Logger.log', {level: 'fatal', message}),
+      },
+      level: 'info',
+      prelude: false,
+      colors: false,
+    })
+
     const socket = makeSocket(client, {transport: 'ipc', logger})
+
     sockets.add(socket)
     socket.on('close', () => sockets.delete(socket))
 

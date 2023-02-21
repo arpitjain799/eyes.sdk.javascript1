@@ -1,12 +1,12 @@
-import * as utils from '@applitools/utils'
 import {type Handler} from './handler'
-import {type ConsoleHandler, makeConsoleHandler} from './handler-console'
-import {type FileHandler, makeFileHandler} from './handler-file'
-import {type RollingFileHandler, makeRollingFileHandler} from './handler-rolling-file'
-import {type DebugHandler, makeDebugHandler} from './handler-debug'
-import {type Printer, type PrinterOptions, makePrinter} from './printer'
-import {type LogLevelName, LogLevel} from './log-level'
-import {type ColoringOptions, format as defaultFormat} from './format'
+import {makeConsoleHandler, type ConsoleHandler} from './handler-console'
+import {makeFileHandler, type FileHandler} from './handler-file'
+import {makeRollingFileHandler, type RollingFileHandler} from './handler-rolling-file'
+import {makeDebugHandler, type DebugHandler} from './handler-debug'
+import {makePrinter, type Printer, type PrinterOptions} from './printer'
+import {LogLevel, type LogLevelName} from './log-level'
+import {format as defaultFormat, type ColoringOptions} from './format'
+import * as utils from '@applitools/utils'
 
 export type LoggerOptions = Omit<Partial<PrinterOptions>, 'handler' | 'level' | 'colors'> & {
   handler?: ConsoleHandler | FileHandler | RollingFileHandler | DebugHandler | Handler
@@ -21,53 +21,48 @@ export interface Logger extends Printer {
   isLogger: true
   console: Printer
   tag(name: string, value: any): void
+  mask(value: string): void
+  mask(regexp: RegExp): void
   extend(options?: ExtendOptions): Logger
   open(): void
   close(): void
 }
 
-export function makeLogger({
-  handler,
-  label,
-  tags,
-  timestamp,
-  level,
-  colors,
-  format = defaultFormat,
-  console = true,
-  extended = false,
-  masks,
-}: LoggerOptions & {extended?: boolean} = {}): Logger {
+export function makeLogger(options: LoggerOptions & {extended?: boolean} = {}): Logger {
   let forceInitHandler: boolean
-  if (!handler) {
-    if (process.env.APPLITOOLS_LOG_FILE) {
-      handler = {type: 'file', filename: process.env.APPLITOOLS_LOG_FILE}
-    } else if (process.env.APPLITOOLS_LOG_DIR) {
-      handler = {type: 'rolling file', dirname: process.env.APPLITOOLS_LOG_DIR}
-    } else if (process.env.APPLITOOLS_SHOW_LOGS === 'true') {
-      handler = {type: 'console'}
+  if (!options.handler) {
+    if (utils.general.getEnvValue('LOG_FILE')) {
+      options.handler = {type: 'file', filename: utils.general.getEnvValue('LOG_FILE')}
+    } else if (utils.general.getEnvValue('LOG_DIR')) {
+      options.handler = {type: 'rolling file', dirname: utils.general.getEnvValue('LOG_DIR')}
+    } else if (utils.general.getEnvValue('SHOW_LOGS', 'boolean')) {
+      options.handler = {type: 'console'}
     } else if (process.env.DEBUG) {
-      handler = {type: 'debug', label}
-      level = LogLevel.all
-      label = undefined
-      timestamp = false
+      options.handler = {type: 'debug', label: options.label}
+      options.level = LogLevel.all
+      options.label = undefined
+      options.timestamp = false
       forceInitHandler = true
     } else {
-      handler = {type: 'console'}
+      options.handler = {type: 'console'}
     }
   }
 
-  if (!utils.types.isNumber(level)) {
-    level =
-      level ??
-      (process.env.APPLITOOLS_LOG_LEVEL as LogLevelName) ??
-      (process.env.APPLITOOLS_SHOW_LOGS === 'true' ? 'all' : 'silent')
-    level = LogLevel[level] ?? LogLevel.silent
+  let level: number
+  if (!utils.types.isNumber(options.level)) {
+    const levelName =
+      options.level ??
+      (utils.general.getEnvValue('LOG_LEVEL') as LogLevelName) ??
+      (utils.general.getEnvValue('SHOW_LOGS', 'boolean') ? 'all' : 'silent')
+    level = LogLevel[levelName] ?? LogLevel.silent
+  } else {
+    level = options.level
   }
 
-  if (colors === false) {
+  let colors: ColoringOptions | undefined
+  if (options.colors === false) {
     colors = undefined
-  } else if (colors === true || process.env.APPLITOOLS_LOG_COLORS === 'true') {
+  } else if (options.colors === true || utils.general.getEnvValue('LOG_COLORS', 'boolean')) {
     colors = {
       label: 'cyan',
       timestamp: 'greenBright',
@@ -81,57 +76,79 @@ export function makeLogger({
     }
   }
 
-  if (utils.types.has(handler, 'type')) {
-    if (handler.type === 'console') {
+  let handler: Handler
+  if (utils.types.has(options.handler, 'type')) {
+    if (options.handler.type === 'console') {
       handler = makeConsoleHandler()
-    } else if (handler.type === 'debug') {
-      handler = makeDebugHandler({label, ...handler})
-    } else if (handler.type === 'file') {
-      handler = makeFileHandler(handler)
-      colors = undefined
-    } else if (handler.type === 'rolling file') {
-      handler = makeRollingFileHandler(handler)
-      colors = undefined
+    } else if (options.handler.type === 'debug') {
+      handler = makeDebugHandler({label: options.label, ...options.handler})
+    } else if (options.handler.type === 'file') {
+      handler = makeFileHandler(options.handler)
+      options.colors = undefined
+    } else if (options.handler.type === 'rolling file') {
+      handler = makeRollingFileHandler(options.handler)
+      options.colors = undefined
+    } else {
+      throw new Error(`Unknown type of the handler "${(options.handler as any).type}"`)
     }
-  } else if (!utils.types.isFunction(handler, 'log')) {
-    throw new Error('Handler have to implement `log` method or use one of the built-in handler names under `type` prop')
+  } else if (utils.types.isFunction(options.handler, 'log')) {
+    handler = options.handler
+  } else {
+    throw new Error('Handler have to implement "log" method or use one of the built-in handler names under "type" prop')
   }
 
-  const consoleHandler = console ? (utils.types.isObject(console) ? console : makeConsoleHandler()) : handler
+  let consoleHandler: Handler
+  if (options.console !== false) {
+    consoleHandler = utils.types.isObject(options.console) ? options.console : makeConsoleHandler()
+  } else {
+    consoleHandler = handler
+  }
+
+  const format = options.format ?? defaultFormat
+  const tags = {...options.tags}
+  const masks = new Set(options.masks)
 
   return {
     isLogger: true,
     console: makePrinter({handler: consoleHandler, format, level: LogLevel.all, prelude: false}),
-    ...makePrinter({handler, format, label, tags, timestamp, level, colors: colors as ColoringOptions, masks}),
+    ...makePrinter({...options, format, level, colors, handler, tags, masks}),
     tag(name, value) {
-      tags ??= {}
       tags[name] = value
     },
-    extend(options?: ExtendOptions) {
-      if (options) {
-        if (!options.colors) {
-          options.colors = options?.colors ?? colors ?? false
+    mask(valueOrRegexp) {
+      masks.add(valueOrRegexp)
+    },
+    extend(extendOptions?: ExtendOptions) {
+      if (extendOptions) {
+        if (!extendOptions.colors) {
+          extendOptions.colors = extendOptions.colors ?? colors ?? false
         } else if (colors) {
-          options.colors = {...(colors as ColoringOptions), ...(options?.colors as ColoringOptions)}
+          extendOptions.colors = {...colors, ...(extendOptions.colors as ColoringOptions)}
+        }
+        if (extendOptions.tags) {
+          extendOptions.tags = {...tags, ...extendOptions.tags}
+        }
+        if (extendOptions.masks) {
+          extendOptions.masks = new Set([...masks, ...extendOptions.masks])
         }
       }
       return makeLogger({
-        format,
-        label,
-        tags,
-        timestamp,
-        level,
-        console: consoleHandler,
         ...options,
+        format,
+        tags,
+        level,
+        masks,
+        console: consoleHandler,
+        ...extendOptions,
         handler: forceInitHandler ? undefined : handler,
         extended: true,
       })
     },
     open() {
-      if (!extended) (handler as Handler).open?.()
+      if (!options.extended) (options.handler as Handler).open?.()
     },
     close() {
-      if (!extended) (handler as Handler).close?.()
+      if (!options.extended) (options.handler as Handler).close?.()
     },
   }
 }

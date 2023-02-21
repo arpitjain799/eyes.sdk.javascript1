@@ -1,4 +1,4 @@
-import {type Logger} from '@applitools/logger'
+import {makeLogger, type Logger} from '@applitools/logger'
 import {makeReq} from '@applitools/req'
 //@ts-ignore
 import makeTunnelServer from '@applitools/execution-grid-tunnel'
@@ -6,11 +6,11 @@ import makeTunnelServer from '@applitools/execution-grid-tunnel'
 import * as utils from '@applitools/utils'
 
 export interface TunnelManager {
-  create(credentials: TunnelCredentials): Promise<Tunnel>
-  destroy(tunnel: Tunnel): Promise<void>
+  create(options: {credentials: TunnelCredentials; logger?: Logger}): Promise<Tunnel>
+  destroy(options: {tunnel: Tunnel; logger?: Logger}): Promise<void>
 
-  acquire(credentials: TunnelCredentials): Promise<Tunnel[]>
-  release(tunnels: Tunnel[]): Promise<void>
+  acquire(options: {credentials: TunnelCredentials; logger?: Logger}): Promise<Tunnel[]>
+  release(options: {tunnels: Tunnel[]; logger?: Logger}): Promise<void>
 }
 
 export interface Tunnel {
@@ -37,8 +37,9 @@ export async function makeTunnelManager({
   logger,
 }: {
   settings?: TunnelManagerSettings
-  logger: Logger
-}): Promise<TunnelManager & {cleanup(): Promise<void>}> {
+  logger?: Logger
+} = {}): Promise<TunnelManager & {cleanup(): Promise<void>}> {
+  const defaultLogger = logger?.extend({label: 'tunnel-manager'}) ?? makeLogger({label: 'tunnel-manager'})
   let server: {port: number; close: () => Promise<void>} | undefined
 
   const req = makeReq({
@@ -63,13 +64,19 @@ export async function makeTunnelManager({
 
   return {create, destroy, acquire, release, cleanup}
 
-  async function acquire(credentials: TunnelCredentials): Promise<Tunnel[]> {
+  async function acquire({
+    credentials,
+    logger = defaultLogger,
+  }: {
+    credentials: TunnelCredentials
+    logger?: Logger
+  }): Promise<Tunnel[]> {
     const key = JSON.stringify(credentials)
     let pool = pools.get(key)!
     if (!pool) {
       pool = makePool({
-        create: () => Promise.all(Array.from({length: settings?.groupSize ?? 1}, () => create(credentials))),
-        destroy: tunnels => Promise.all(tunnels.map(destroy)).then(() => undefined),
+        create: () => Promise.all(Array.from({length: settings?.groupSize ?? 1}, () => create({credentials, logger}))),
+        destroy: tunnels => Promise.all(tunnels.map(tunnel => destroy({tunnel, logger}))).then(() => undefined),
         ...settings?.pool,
       })
       pools.set(key, pool)
@@ -78,14 +85,20 @@ export async function makeTunnelManager({
     return pool.acquire(credentials)
   }
 
-  async function release(tunnels: Tunnel[]): Promise<void> {
+  async function release({tunnels}: {tunnels: Tunnel[]; logger?: Logger}): Promise<void> {
     const key = JSON.stringify(tunnels[0].credentials)
     const pool = pools.get(key)!
     if (!pool) return
     await pool.release(tunnels)
   }
 
-  async function create(credentials: TunnelCredentials): Promise<Tunnel> {
+  async function create({
+    credentials,
+    logger = defaultLogger,
+  }: {
+    credentials: TunnelCredentials
+    logger?: Logger
+  }): Promise<Tunnel> {
     if (!settings?.serverUrl) {
       settings ??= {}
       settings.serverUrl = await open()
@@ -107,7 +120,7 @@ export async function makeTunnelManager({
     throw new Error(`Failed to create tunnel with code ${body?.message ?? 'UNKNOWN_ERROR'}`)
   }
 
-  async function destroy(tunnel: Tunnel): Promise<void> {
+  async function destroy({tunnel, logger = defaultLogger}: {tunnel: Tunnel; logger?: Logger}): Promise<void> {
     if (!settings?.serverUrl) {
       settings ??= {}
       settings.serverUrl = await open()
@@ -132,7 +145,7 @@ export async function makeTunnelManager({
   async function open(): Promise<string> {
     const {port, cleanupFunction} = await makeTunnelServer({logger})
     server = {port, close: cleanupFunction}
-    return `http://0.0.0.0:${port}`
+    return `http://localhost:${port}`
   }
 
   async function cleanup() {

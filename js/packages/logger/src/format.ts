@@ -63,48 +63,48 @@ export type FormatOptions = {
   tags?: Record<string, unknown>
   color?: Style | Style[]
   colors?: ColoringOptions
-  masks?: string[]
+  masks?: Iterable<string | RegExp>
 }
 
-export function format(
-  chunks: any[],
-  {prelude = true, label, timestamp = new Date(), level = 'info', tags, colors, masks}: FormatOptions = {},
-) {
+export function format(chunks: any[], options: FormatOptions = {}) {
+  options.prelude ??= true
+  options.timestamp ??= true
+  options.level ??= 'info'
   const message = []
-  if (prelude) {
-    if (label) {
-      const text = label.padEnd(10)
-      const color = colors?.label
+  if (options.prelude) {
+    if (options.label) {
+      const text = options.label.padEnd(10)
+      const color = options.colors?.label
       message.push(color ? colorize(text, {color}) : `${text}|`)
     }
-    if (timestamp) {
-      timestamp = timestamp === true ? new Date() : timestamp
+    if (options.timestamp) {
+      const timestamp = options.timestamp === true ? new Date() : options.timestamp
       const text = timestamp.toISOString()
-      const color = colors?.timestamp
+      const color = options.colors?.timestamp
       message.push(color ? colorize(text, {color}) : text)
     }
-    if (level) {
-      const text = level.toUpperCase().padEnd(5)
-      const color = colors?.level?.[level]
+    if (options.level) {
+      const text = options.level.toUpperCase().padEnd(5)
+      const color = options.colors?.level?.[options.level]
       message.push(color ? colorize(` ${text} `, {color}) : `[${text}]`)
     }
-    if (!utils.types.isEmpty(tags)) {
-      const text = JSON.stringify(tags)
-      const color = colors?.tags
+    if (!utils.types.isEmpty(options.tags)) {
+      const text = JSON.stringify(options.tags)
+      const color = options.colors?.tags
       message.push(color ? colorize(text, {color}) : text)
     }
   }
 
   if (chunks && chunks.length > 0) {
-    const color = colors?.message
-    const replacer = masks && masks.length > 0 ? new RegExp(`(${masks.join('|')})`, 'g') : null
-    const strings = chunks.map(chunk => {
-      const string = utils.types.isString(chunk)
+    const color = options.colors?.message
+    const regexps = options.masks && regexpify(options.masks)
+    const text = chunks.map(chunk => {
+      const text = utils.types.isString(chunk)
         ? colorize(chunk, {color})
-        : inspect?.(chunk, {colors: !!colors, compact: 5, depth: 5})
-      return replacer ? string.replace(replacer, '***') : string
+        : inspect?.(chunk, {colors: !!options.colors, compact: 5, depth: 5})
+      return regexps ? regexps.reduce((text, regexp) => text.replace(regexp, '***'), text) : text
     })
-    message.push(strings.join(' '))
+    message.push(text.join(' '))
   }
 
   return message.join(' ')
@@ -114,4 +114,19 @@ function colorize(string: string, {color}: {color?: Style | Style[]} = {}) {
   if (!color) return string
   if (!utils.types.isArray(color)) color = [color]
   return color.reduce<chalk.Chalk>((chalk, color) => chalk[color] ?? chalk, chalk)(string)
+}
+
+function regexpify(masks: Iterable<string | RegExp>): RegExp[] {
+  const [strings, regexps] = Array.from(masks).reduce(
+    ([strings, regexps], mask) => {
+      if (utils.types.isString(mask)) strings.push(mask.replace(/[#-.]|[[-^]|[?|{}]/g, '\\$&'))
+      else regexps.push(mask)
+      return [strings, regexps]
+    },
+    [[] as string[], [] as RegExp[]],
+  )
+  if (strings.length > 0) {
+    regexps.unshift(new RegExp(`(${strings.join('|')})`, 'g'))
+  }
+  return regexps
 }
