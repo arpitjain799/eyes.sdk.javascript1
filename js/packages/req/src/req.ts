@@ -288,6 +288,7 @@ export async function req(input: string | URL | Request, options?: Options): Pro
       }
     },
     signal: controller.signal,
+    timeout: options?.timeout,
   })
 
   request = await beforeRequest({request, options})

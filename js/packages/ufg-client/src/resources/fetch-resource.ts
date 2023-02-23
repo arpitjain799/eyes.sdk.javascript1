@@ -13,6 +13,7 @@ import {
 import {makeResource, type UrlResource, type ContentfulResource, FailedResource} from './resource'
 import {createCookieHeader} from '../utils/create-cookie-header'
 import {createUserAgentHeader} from '../utils/create-user-agent-header'
+const FETCH_TIMEOUT = 20 * 1000
 
 export type FetchResourceSettings = {
   referer?: string
@@ -20,6 +21,7 @@ export type FetchResourceSettings = {
   autProxy?: Proxy & {mode?: 'Allow' | 'Block'; domains?: string[]}
   cookies?: Cookie[]
   userAgent?: string
+  timeout?: number
 }
 
 export type FetchResource = (options: {
@@ -74,6 +76,7 @@ export function makeFetchResource({
         return proxy
       },
       hooks: [handleLogs({logger}), handleStreaming({timeout: streamingTimeout, logger})],
+      timeout: settings.timeout || FETCH_TIMEOUT,
     })
       .then(async response => {
         return response.ok
