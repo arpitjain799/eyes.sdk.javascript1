@@ -12,22 +12,22 @@ Apollo SDK:
   feature:
     - 
   bug-fix:
-    - 
+    - Add a timeout for fetching resources
 "@applitools/eyes-selenium":
   feature:
     - 
   bug-fix:
-    - 
+    - Add a timeout for fetching resources
 "@applitools/eyes-webdriverio":
   feature:
     - 
   bug-fix:
-    - 
+    - Add a timeout for fetching resources
 "@applitools/eyes-playwright":
   feature:
     - 
   bug-fix:
-    - 
+    - Add a timeout for fetching resources
 "@applitools/eyes-protractor":
   feature:
     - Added new selector extensions `child` and `fallback`
@@ -53,11 +53,12 @@ Apollo SDK:
     - Fixed issue with element scroll position not being restored after screenshot is taken on native platforms
     - Handle fake shadowRoot with UFG
     - Handed error during polling in long requests to eyes server
+    - Add a timeout for fetching resources
 "@applitools/eyes-puppeteer":
   feature:
     - 
   bug-fix:
-    - 
+    - Add a timeout for fetching resources
 "@applitools/eyes-testcafe":
   feature:
     - Added new selector extensions `child` and `fallback`
@@ -76,6 +77,7 @@ Apollo SDK:
     - Fixed incorrect calculation of the target element position.
     - Handle fake shadowRoot with UFG
     - Handed error during polling in long requests to eyes server
+    - Add a timeout for fetching resources
 "@applitools/eyes-nightwatch":
   feature:
     - Added new android devices Sony Xperia 1 II, Sony Xperia Ace II, Huawei P30 Lite, Xiaomi Redmi Note 10 JE
@@ -83,16 +85,17 @@ Apollo SDK:
     - Crop screenshot image base on account info
   bug-fix:
     - Fixed issue with sessionId on ufg
+    - Add a timeout for fetching resources
 "@applitools/eyes-cypress":
   feature:
     - Crop screenshot image base on account info
   bug-fix:
-    - 
+    - Add a timeout for fetching resources
 "@applitools/eyes-storybook":
   feature:
     - 
   bug-fix:
-    - 
+    - Add a timeout for fetching resources
 "@applitools/eyes-webdriverio5-service":
   feature:
     - Added new selector extensions `child` and `fallback`
@@ -141,6 +144,7 @@ Apollo SDK:
     - Fixed some issues with helper library usage
     - Fixed the issue with screenshots being taken on chrome-emulated devices
     - Handle fake shadowRoot with UFG
+    - Add a timeout for fetching resources
 eyes-browser-extension:
   feature:
     - Added new selector extensions `child` and `fallback`
