@@ -61,6 +61,7 @@ export interface Options {
   hooks?: Hooks<this> | Hooks<this>[]
   signal?: AbortSignal
   fetch?: Fetch
+  fetchTimeout?: number
 }
 
 export interface Retry {
@@ -288,7 +289,7 @@ export async function req(input: string | URL | Request, options?: Options): Pro
       }
     },
     signal: controller.signal,
-    timeout: options?.timeout,
+    timeout: options?.fetchTimeout,
   })
 
   request = await beforeRequest({request, options})

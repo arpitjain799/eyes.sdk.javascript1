@@ -15,7 +15,7 @@ describe('fetch-resource', () => {
   })
 
   it('works with a self-signed certificate', async () => {
-    server = await makeTestServer({...authority, port: 12345})
+    server = await makeTestServer({...authority})
     const fetchResource = makeFetchResource({retryLimit: 0})
     const resource = await fetchResource({
       resource: makeResource({url: `https://localhost:${server.port}/page/smurfs.jpg`}),
@@ -25,7 +25,6 @@ describe('fetch-resource', () => {
 
   it('does not hang for unresponsive resource', async () => {
     server = await makeTestServer({
-      port: 9000,
       ...authority,
       middlewares: [
         async (_req: any, _res: any, next: any) => {
@@ -35,18 +34,15 @@ describe('fetch-resource', () => {
       ],
     })
 
-    const fetchResource = makeFetchResource({retryLimit: 1})
-    try {
-      await fetchResource({
-        settings: {timeout: 1000},
+    const fetchResource = makeFetchResource({retryLimit: 1, fetchTimeout: 1000})
+    await assert.rejects(
+      fetchResource({
         resource: makeResource({url: `https://localhost:${server.port}/page/smurfs.jpg`}),
-      })
-    } catch (ex: any) {
-      if (ex.message.includes('AbortError: The user aborted a request')) {
-        assert.ok
-      } else {
-        assert.fail
-      }
-    }
+      }),
+      err => {
+        assert.ok(err.message.includes('network timeout'))
+        return true
+      },
+    )
   })
 })
