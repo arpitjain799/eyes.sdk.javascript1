@@ -25,21 +25,15 @@ describe('fetch-resource', () => {
 
   it('does not hang for unresponsive resource', async () => {
     server = await makeTestServer({
-      ...authority,
-      middlewares: [
-        async (_req: any, _res: any, next: any) => {
-          await new Promise(resolve => setTimeout(resolve, 1200))
-          next()
-        },
-      ],
+      middlewares: ['slow'],
     })
 
     const fetchResource = makeFetchResource({retryLimit: 1, fetchTimeout: 1000})
     await assert.rejects(
       fetchResource({
-        resource: makeResource({url: `https://localhost:${server.port}/page/smurfs.jpg`}),
+        resource: makeResource({url: `http://localhost:${server.port}/page/smurfs.jpg`}),
       }),
-      err => err.message.includes('network timeout')),
+      err => err.message.includes('network timeout'),
     )
   })
 })
