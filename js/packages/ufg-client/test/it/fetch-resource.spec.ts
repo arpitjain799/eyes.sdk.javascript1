@@ -39,10 +39,7 @@ describe('fetch-resource', () => {
       fetchResource({
         resource: makeResource({url: `https://localhost:${server.port}/page/smurfs.jpg`}),
       }),
-      err => {
-        assert.ok(err.message.includes('network timeout'))
-        return true
-      },
+      err => err.message.includes('network timeout')),
     )
   })
 })
