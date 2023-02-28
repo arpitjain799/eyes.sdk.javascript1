@@ -1,28 +1,24 @@
-import {makeCore} from '@applitools/core'
-import * as api from '@applitools/eyes-api'
+import * as eyes from '@applitools/eyes'
 
-const core = makeCore({
-  agentId: `eyes.images.javascript/${require('../package.json').version}`,
-})
+export * from '@applitools/eyes'
 
-export * from '@applitools/eyes-api'
+const sdk = {agentId: `eyes.images.javascript/${require('../package.json').version}`}
 
-export class Eyes extends api.Eyes<never> {
-  protected static readonly _spec = core
+export class Eyes extends eyes.Eyes<never> {
+  protected static readonly _sdk = sdk
 }
 
-export type ConfigurationPlain = api.ConfigurationPlain<never>
+export type ConfigurationPlain = eyes.ConfigurationPlain<never>
+export class Configuration extends eyes.Configuration<never> {}
 
-export class Configuration extends api.Configuration<never> {}
+export type OCRRegion = eyes.OCRRegion<never>
 
-export type OCRRegion = api.OCRRegion<never>
+export class CheckSettings extends eyes.CheckSettingsImage {}
 
-export class CheckSettings extends api.CheckSettingsImage {}
+export const Target: eyes.TargetImage = eyes.CheckSettingsImage as any
 
-export const Target: api.TargetImage = api.CheckSettingsImage as any
-
-export class BatchClose extends api.BatchClose {
-  protected static readonly _spec = core
+export class BatchClose extends eyes.BatchClose {
+  protected static readonly _sdk = sdk
 }
 
-export const closeBatch = api.closeBatch(core)
+export const closeBatch = eyes.closeBatch(sdk)

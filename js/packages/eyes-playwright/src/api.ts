@@ -1,7 +1,7 @@
-import * as eyes from '@applitools/eyes-api'
+import * as eyes from '@applitools/eyes'
 import * as spec from '@applitools/spec-driver-playwright'
 
-export * from '@applitools/eyes-api'
+export * from '@applitools/eyes'
 
 export type Driver = spec.Driver
 export type Context = spec.Context
