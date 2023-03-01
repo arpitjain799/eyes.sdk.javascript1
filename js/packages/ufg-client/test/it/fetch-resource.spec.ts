@@ -4,17 +4,14 @@ import {makeTestServer, generateCertificate} from '@applitools/test-server'
 import assert from 'assert'
 
 describe('fetch-resource', () => {
-  let server: any, authority: any
-
-  before(async () => {
-    authority = await generateCertificate({days: 1})
-  })
+  let server: any
 
   afterEach(async () => {
     await server.close()
   })
 
   it('works with a self-signed certificate', async () => {
+    const authority = await generateCertificate({days: 1})
     server = await makeTestServer({...authority})
     const fetchResource = makeFetchResource({retryLimit: 0})
     const resource = await fetchResource({
