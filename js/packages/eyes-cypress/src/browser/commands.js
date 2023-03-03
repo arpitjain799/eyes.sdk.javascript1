@@ -25,7 +25,9 @@ function getGlobalConfigProperty(prop) {
 
 const shouldUseBrowserHooks =
   !getGlobalConfigProperty('eyesIsDisabled') &&
-  (getGlobalConfigProperty('isInteractive') || !getGlobalConfigProperty('eyesIsGlobalHooksSupported'))
+  (getGlobalConfigProperty('isInteractive') ||
+    !getGlobalConfigProperty('eyesIsGlobalHooksSupported') ||
+    Cypress.config('eyesFailCypressOnDiff'))
 
 Cypress.Commands.add('eyesGetAllTestResults', () => {
   Cypress.log({name: 'Eyes: getAllTestResults'})
@@ -57,7 +59,7 @@ Cypress.Commands.add('eyesGetAllTestResults', () => {
   })
 })
 
-if (shouldUseBrowserHooks || Cypress.config('eyesFailCypressOnDiff')) {
+if (shouldUseBrowserHooks) {
   after(() => {
     if (!manager) return
     return cy.then({timeout: 86400000}, async () => {
