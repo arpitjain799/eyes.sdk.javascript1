@@ -189,7 +189,8 @@ module Applitools::Connectivity
       #   missing: number
       #   matches: number
       # }
-      command_with_result(EYES_MANAGER_CLOSE_ALL_EYES, {manager: manager, config: commands_config})
+      settings = {throwErr: false}
+      command_with_result(EYES_MANAGER_CLOSE_ALL_EYES, {manager: manager, settings: settings})
     end
 
     def eyes_get_results(eyes)
@@ -264,19 +265,32 @@ module Applitools::Connectivity
       #   config?: Config
       # }
       #
-      # type CloseResponsePayload = TestResult[]
-      settings = {throwErr: false}
-
+      # type CloseResponsePayload = void
+      settings = commands_config[:close]
+      # CloseSettings
+      #
+      # {
+      #   "updateBaselineIfNew": true,
+      #   "updateBaselineIfDifferent": true
+      # }
       command_with_result(EYES_CLOSE, {eyes: eyes, settings: settings, config: commands_config})
     end
 
     def eyes_abort(eyes)
       # interface AbortPayload {
       #   eyes: Ref<Eyes>
+      #   settings?: CloseSettings
       # }
       #
-      # type AbortResponsePayload = TestResult[]
-      command_with_result(EYES_ABORT, {eyes: eyes})
+      # type AbortResponsePayload = void
+      settings = commands_config[:close]
+      # CloseSettings
+      #
+      # {
+      #   "updateBaselineIfNew": true,
+      #   "updateBaselineIfDifferent": true
+      # }
+      command_with_result(EYES_ABORT, {eyes: eyes, settings: settings})
     end
 
     def core_get_viewport_size(driver)
