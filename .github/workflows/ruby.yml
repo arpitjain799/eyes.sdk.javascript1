@@ -4,6 +4,10 @@ on:
   push:
     paths:
       - 'ruby/**'
+  pull_request:
+    paths:
+      - 'ruby/**'
+
   workflow_dispatch:
     inputs:
       basic-tests:
