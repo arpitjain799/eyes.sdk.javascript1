@@ -27,7 +27,7 @@ module Applitools
       private
 
       def base_url
-        "https://github.com/applitools/eyes.sdk.javascript1/releases/download/%40applitools/eyes-universal%40#{Applitools::UNIVERSAL_VERSION}/"
+        "https://github.com/applitools/eyes.sdk.javascript1/releases/download/%40applitools/core%40#{Applitools::UNIVERSAL_CORE_VERSION}/"
       end
 
       def full_url
@@ -35,36 +35,36 @@ module Applitools
       end
 
       def expected_binary_sha
-        return 'f47b89a30a0216ee0df0057186737099f81947044e0d13b7af85a75a724e015c' if Gem.win_platform?
+        return '9f790b0731e620ddf39f80a7193585ecb99058a86a0eab89de70b5dc34dbcc7b' if Gem.win_platform?
         case RUBY_PLATFORM
           when /darwin/i
-            'c01045a0257f1d854a7adc5dd43c964a6e441b0f556278c785d895946f423677'
+            '5489be902fdc79b2d5c271c5c4a639db829a3f652280ab979759ff4a2d3675a4'
           when /arm/i
-            'bd37853385220c455caa106a3540d9784b894c5d1ca63c8eefc2b514389bb474'
+            '217cd833752547b4fe74e178e8526a87f4020974a4719bf032a0d818587e8651'
           when /mswin|windows|mingw/i
-            'f47b89a30a0216ee0df0057186737099f81947044e0d13b7af85a75a724e015c'
+            '9f790b0731e620ddf39f80a7193585ecb99058a86a0eab89de70b5dc34dbcc7b'
           when /musl/i
-            'e981cd393f71118844ceb8ddd66e7d45201551f1b71553113453e78690a3bdd6'
+            '5408a87369445f0d9a571e55b8e86755710ce59d1f3fac0df7bdcbc5243b11c8'
           when /linux|arch/i
-            '1571977a28b0080d9a51a5fde5e0969a2ee6cce09793e03023c59db955136f37'
+            '7fa0b5ad01e7ac55e0574f40d80400404540f00f5ea92a852bd48299f600b787'
           else
             raise 'Unsupported platform'
         end
       end
 
       def filename
-        return 'eyes-universal-win.exe' if Gem.win_platform?
+        return 'core-win.exe' if Gem.win_platform?
         case RUBY_PLATFORM
           when /darwin/i
-            'eyes-universal-macos'
+            'core-macos'
           when /arm/i
-            'eyes-universal-linux-arm64'
+            'core-linux-arm64'
           when /mswin|windows|mingw/i
-            'eyes-universal-win.exe'
+            'core-win.exe'
           when /musl/i
-            'eyes-universal-alpine'
+            'core-alpine'
           when /linux|arch/i
-            'eyes-universal-linux'
+            'core-linux'
           else
             raise "Unsupported platform #{RUBY_PLATFORM}"
         end

@@ -24,18 +24,18 @@ module Applitools::Connectivity
     end
 
     def filename
-      return 'eyes-universal-win.exe' if Gem.win_platform?
+      return 'core-win.exe' if Gem.win_platform?
       case RUBY_PLATFORM
         when /darwin/i
-          'eyes-universal-macos'
+          'core-macos'
         when /arm/i
-          'eyes-universal-linux-arm64'
+          'core-linux-arm64'
         when /mswin|windows|mingw/i
-          'eyes-universal-win.exe'
+          'core-win.exe'
         when /musl/i
-          'eyes-universal-alpine'
+          'core-alpine'
         when /linux|arch/i
-          'eyes-universal-linux'
+          'core-linux'
         else
           raise 'Unsupported platform'
       end
