@@ -355,7 +355,7 @@ jobs:
       - universal-server-test
       - generic-test
     runs-on: ubuntu-latest
-    if: github.ref_type == 'tag'
+    if: github.ref_type == 'tag' && startsWith(github.ref_name, '@applitools/ruby/eyes_selenium')
     env:
       ALLOWED_RELEASE_COMMITERS: ${{ secrets.ALLOWED_RELEASE_COMMITERS }}
       TEST_REPORT_SANDBOX: False
@@ -368,13 +368,13 @@ jobs:
         working-directory: ruby
         run: |
           export GITHUB_TAG_VERSION=${{ github.ref_name }}
-          export TAG_VERSION="${GITHUB_TAG_VERSION%-eyes-images}"
+          export TAG_VERSION="${GITHUB_TAG_VERSION}"
           echo $TAG_VERSION
-          if [[ ! ($TAG_VERSION =~ ^v[0-9]+\.[0-9]+\.[0-9]+(\.[0-9a-z]+)?$) ]]; then
+          if [[ ! ($TAG_VERSION =~ ^@applitools/ruby/eyes_selenium@[0-9]+\.[0-9]+\.[0-9]+(\.[0-9a-z]+)?$) ]]; then
             echo 'Tag Version check Failed'
             exit 1
           fi
-          export SDK_VERSION=$(echo $GITHUB_TAG_VERSION | sed 's/v[^.0-9a-z]*//g')
+          export SDK_VERSION=$(echo $GITHUB_TAG_VERSION | sed 's/@applitools\/ruby\/eyes_selenium@[^.0-9a-z]*//g')
           echo $SDK_VERSION
 
           export TMP_CHANGELOG=$(bash ./extractChangeLog.sh "$SDK_VERSION" "CHANGELOG.md")
@@ -390,7 +390,7 @@ jobs:
 
           COMMITTER_EMAIL="$(git log -1 ${{ github.sha }} --pretty="%cE")"
 
-          if [[ ("$ALLOWED_RELEASE_COMMITERS" =~ .*"$COMMITTER_EMAIL".*) && $TMP_CHANGELOG ]]; then
+          if [[ ("$ALLOWED_RUBY_RELEASE_COMMITERS" =~ .*"$COMMITTER_EMAIL".*) && $TMP_CHANGELOG ]]; then
             echo "DEPLOY";
             SDK='ruby'
             TEST_COVERAGE_GAP=$(cat testCoverageGap.txt);
