@@ -1,4 +1,4 @@
-## [vNext] - 2023-03-06
+## [4.6.0] - 2023-03-06
 ### Changed
 - change server package to @applitools/core
 ### Updated
