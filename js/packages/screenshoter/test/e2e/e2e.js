@@ -219,11 +219,13 @@ exports.makeDriver = async function makeDriver({
           },
         },
         ...rest,
-        'sauce:name': 'IOS screenshoter',
-        // appiumVersion: '1.20.0',
-        'sauce:username': process.env.SAUCE_USERNAME,
-        'sauce:accessKey': process.env.SAUCE_ACCESS_KEY,
-        'sauce:deviceName': deviceName || 'iPhone 12 Simulator',
+        'sauce:options': {
+          name: 'IOS screenshoter',
+          // appiumVersion: '1.20.0',
+          username: process.env.SAUCE_USERNAME,
+          accessKey: process.env.SAUCE_ACCESS_KEY,
+          deviceName: deviceName || 'iPhone 12 Simulator',
+        },
       },
     },
     'ios-bs': {
