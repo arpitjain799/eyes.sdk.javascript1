@@ -357,7 +357,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref_type == 'tag' && startsWith(github.ref_name, '@applitools/ruby/eyes_selenium')
     env:
-      ALLOWED_RELEASE_COMMITERS: ${{ secrets.ALLOWED_RELEASE_COMMITERS }}
+      ALLOWED_RUBY_RELEASE_COMMITERS: ${{ secrets.ALLOWED_RUBY_RELEASE_COMMITERS }}
       TEST_REPORT_SANDBOX: False
 
     steps:
