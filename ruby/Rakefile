@@ -12,8 +12,12 @@ module Bundler
   class GemHelper
 
     def version_tag
-      return "v#{version}-eyes-images" if gemspec.name === 'eyes_images'
-      "v#{version}"
+      if ALL_GEMS.include?(gemspec.name.to_sym)
+        ruby_tag = "@applitools/ruby"
+        "#{ruby_tag}/#{gemspec.name}@#{version}"
+      else
+        raise "Unsupported gemspec.name, please update version_tag for #{gemspec.name}"
+      end
     end
 
   end

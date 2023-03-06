@@ -1,3 +1,18 @@
+## [vNext] - 2023-03-06
+### Changed
+- change server package to @applitools/core
+### Updated
+- Improve logging in core server
+- Passing density metric for PPI support in the sdk
+### Added
+- Integrate universal protocol to run core via transport
+- Added Resize stitch mode value
+- Add NML support for Android
+- Add makeECClient api
+### Bug fixes
+- upgrade dom-snapshot with a fix to CSP
+- Fixed issue when .visualgrid was not added to agent id
+- Fixed issue with aborting ufg tests
 ## [4.5.5] - 2023-01-06
 ### Updated
 - Update version of Universal SDK to 3.2.2
