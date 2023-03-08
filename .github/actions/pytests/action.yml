@@ -6,7 +6,18 @@ inputs:
     type: string
     required: true
   test-type:
-    description: type of the testing (unit, it, e2e, coverage)
+    # Can be one of:
+    # eyes_images_functional_tests
+    # eyes_playwright_functional_tests
+    # eyes_playwright_generated_tests
+    # eyes_robotframework_functional_tests
+    # eyes_robotframework_sauce_functional_tests
+    # eyes_selenium_functional_tests
+    # eyes_selenium_generated_tests
+    # eyes_selenium_installation_tests
+    # eyes_selenium_sauce_functional_tests
+    # unit_tests
+    description: type of the testing
     type: string
   build-type:
     description: type of the build script
@@ -99,5 +110,5 @@ runs:
 
         echo "::group::Running tests"
         USDK_BUILD_DIR=`realpath bin`
-        make --directory=${{github.workspace}}/python eyes_selenium_generated_tests
+        make --directory=${{github.workspace}}/python ${{inputs.test-type}}
         echo "::endgroup::"
