@@ -15,7 +15,7 @@ Apollo SDK:
     - 
 "@applitools/eyes-selenium":
   feature:
-    - 
+    - Added `Resize` value to `StitchMode` enum
   bug-fix:
     - 
 "@applitools/eyes-webdriverio":
@@ -28,31 +28,6 @@ Apollo SDK:
     - 
   bug-fix:
     - 
-"@applitools/eyes-protractor":
-  feature:
-    - Added new selector extensions `child` and `fallback`
-    - Don't fail `eyes.open` when there is a failure to set viewport size in `UFG`.
-    - Added support for lazy loading views in android native apps
-    - Using `lazyLoad.waitingTime` as a delay between stitches by default
-    - Added `Sony Xperia 10 II` emulation device
-    - Added `iPhone 14`  and `iPhone 14 Pro Max` ios devices
-    - Deprecated "Content" match level value in favor of "IgnoreColors"
-    - Drop support for Android 9 and Android 10 specific devices
-    - Added new iOS device - 'iPad Pro (11-inch) (4th generation)'
-    - Use user agent metadata to improve browser environment detection logic
-    - Use APPLITOOLS_CONCURRENCY env variable to specify concurrency
-    - Added `ignoreColors` method to `CheckSettings` to set a match level
-    - Added `nmgOptions` to `CheckSettings`
-    - Additional internal event logs
-    - Add support for NML Android
-    - Crop screenshot image base on account info
-  bug-fix:
-    - Fixed incorrect calculation of the target element position.
-    - Fixed the issue with screenshots being taken on chrome-emulated devices
-    - Fixed issue when current context is not being preserved in ufg mode
-    - Fixed issue with element scroll position not being restored after screenshot is taken on native platforms
-    - Handle fake shadowRoot with UFG
-    - Handed error during polling in long requests to eyes server
 "@applitools/eyes-puppeteer":
   feature:
     - 
@@ -78,7 +53,7 @@ Apollo SDK:
     - Handed error during polling in long requests to eyes server
 "@applitools/eyes-nightwatch":
   feature:
-    - 
+    - Added `Resize` value to `StitchMode` enum
   bug-fix:
     - 
 "@applitools/eyes-cypress":
@@ -139,7 +114,7 @@ Apollo SDK:
     - Fixed some issues with helper library usage
     - Fixed the issue with screenshots being taken on chrome-emulated devices
     - Handle fake shadowRoot with UFG
-eyes-browser-extension:
+"@applitools/eyes-browser-extension":
   feature:
     - Added new selector extensions `child` and `fallback`
     - Don't fail `eyes.open` when there is a failure to set viewport size in `UFG`.
@@ -172,8 +147,3 @@ eyes-browser-extension:
     - Passing density metric for PPI support in the sdk
   bug-fix:
     - 
-applitools-for-selenium-ide:
-  feature:
-    - Don't fail `eyes.open` when there is a failure to set viewport size in `UFG`.
-  bug-fix:
-    - Better support in DOM slot element

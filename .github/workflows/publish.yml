@@ -49,7 +49,7 @@ jobs:
   utils:
     needs: [ setup ]
     if: ${{fromJSON(needs.setup.outputs.packages).utils && !failure() && !cancelled()}}
-    name: ${{fromJSON(needs.setup.outputs.packages).utils.displayName || 'utils'}}
+    name: utils
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
@@ -62,7 +62,7 @@ jobs:
   logger:
     needs: [ setup, utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).logger && !failure() && !cancelled()}}
-    name: ${{fromJSON(needs.setup.outputs.packages).logger.displayName || 'logger'}}
+    name: logger
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
@@ -75,7 +75,7 @@ jobs:
   socket:
     needs: [ setup, logger, utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).socket && !failure() && !cancelled()}}
-    name: ${{fromJSON(needs.setup.outputs.packages).socket.displayName || 'socket'}}
+    name: socket
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
@@ -88,7 +88,7 @@ jobs:
   req:
     needs: [ setup, utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).req && !failure() && !cancelled()}}
-    name: ${{fromJSON(needs.setup.outputs.packages).req.displayName || 'req'}}
+    name: req
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
@@ -101,7 +101,7 @@ jobs:
   snippets:
     needs: [ setup ]
     if: ${{fromJSON(needs.setup.outputs.packages).snippets && !failure() && !cancelled()}}
-    name: ${{fromJSON(needs.setup.outputs.packages).snippets.displayName || 'snippets'}}
+    name: snippets
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
@@ -114,7 +114,7 @@ jobs:
   image:
     needs: [ setup, utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).image && !failure() && !cancelled()}}
-    name: ${{fromJSON(needs.setup.outputs.packages).image.displayName || 'image'}}
+    name: image
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
@@ -137,7 +137,7 @@ jobs:
         test-utils
       ]
     if: ${{fromJSON(needs.setup.outputs.packages).screenshoter && !failure() && !cancelled()}}
-    name: ${{fromJSON(needs.setup.outputs.packages).screenshoter.displayName || 'screenshoter'}}
+    name: screenshoter
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
@@ -150,7 +150,7 @@ jobs:
   driver:
     needs: [ setup, logger, snippets, utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).driver && !failure() && !cancelled()}}
-    name: ${{fromJSON(needs.setup.outputs.packages).driver.displayName || 'driver'}}
+    name: driver
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
@@ -165,7 +165,7 @@ jobs:
   test-utils:
     needs: [ setup ]
     if: ${{fromJSON(needs.setup.outputs.packages).test-utils && !failure() && !cancelled()}}
-    name: ${{fromJSON(needs.setup.outputs.packages).test-utils.displayName || 'test-utils'}}
+    name: test-utils
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
@@ -178,7 +178,7 @@ jobs:
   test-server:
     needs: [ setup, logger, utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).test-server && !failure() && !cancelled()}}
-    name: ${{fromJSON(needs.setup.outputs.packages).test-server.displayName || 'test-server'}}
+    name: test-server
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
@@ -202,7 +202,7 @@ jobs:
         test-utils
       ]
     if: ${{fromJSON(needs.setup.outputs.packages).core-base && !failure() && !cancelled()}}
-    name: ${{fromJSON(needs.setup.outputs.packages).core-base.displayName || 'core-base'}}
+    name: core-base
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
@@ -235,7 +235,7 @@ jobs:
         test-utils
       ]
     if: ${{fromJSON(needs.setup.outputs.packages).core && !failure() && !cancelled()}}
-    name: ${{fromJSON(needs.setup.outputs.packages).core.displayName || 'core'}}
+    name: core
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
@@ -248,7 +248,7 @@ jobs:
   ufg-client:
     needs: [ setup, logger, req, utils, test-server, test-utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).ufg-client && !failure() && !cancelled()}}
-    name: ${{fromJSON(needs.setup.outputs.packages).ufg-client.displayName || 'ufg-client'}}
+    name: ufg-client
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
@@ -261,7 +261,7 @@ jobs:
   ec-client:
     needs: [ setup, logger, req, socket, utils, test-server ]
     if: ${{fromJSON(needs.setup.outputs.packages).ec-client && !failure() && !cancelled()}}
-    name: ${{fromJSON(needs.setup.outputs.packages).ec-client.displayName || 'ec-client'}}
+    name: ec-client
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
@@ -283,7 +283,7 @@ jobs:
         test-utils
       ]
     if: ${{fromJSON(needs.setup.outputs.packages).nml-client && !failure() && !cancelled()}}
-    name: ${{fromJSON(needs.setup.outputs.packages).nml-client.displayName || 'nml-client'}}
+    name: nml-client
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
@@ -293,10 +293,10 @@ jobs:
         with:
           workflow: publish-nml-client.yml
           inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).nml-client.params.version}}"}'
-  api:
+  eyes:
     needs: [ setup, core, logger, utils, req ]
-    if: ${{fromJSON(needs.setup.outputs.packages).api && !failure() && !cancelled()}}
-    name: ${{fromJSON(needs.setup.outputs.packages).api.displayName || 'api'}}
+    if: ${{fromJSON(needs.setup.outputs.packages).eyes && !failure() && !cancelled()}}
+    name: eyes
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
@@ -304,14 +304,14 @@ jobs:
       - name: Run remote workflow
         uses: ./.github/actions/run
         with:
-          workflow: publish-api.yml
-          inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).api.params.version}}"}'
+          workflow: publish-eyes.yml
+          inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).eyes.params.version}}"}'
 
   # SPEC DRIVERS
   spec-playwright:
     needs: [ setup, driver, utils, test-utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).spec-playwright && !failure() && !cancelled()}}
-    name: ${{fromJSON(needs.setup.outputs.packages).spec-playwright.displayName || 'spec-playwright'}}
+    name: spec-playwright
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
@@ -324,7 +324,7 @@ jobs:
   spec-puppeteer:
     needs: [ setup, driver, utils, test-utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).spec-puppeteer && !failure() && !cancelled()}}
-    name: ${{fromJSON(needs.setup.outputs.packages).spec-puppeteer.displayName || 'spec-puppeteer'}}
+    name: spec-puppeteer
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
@@ -337,7 +337,7 @@ jobs:
   spec-webdriver:
     needs: [ setup, driver, utils, test-server, test-utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).spec-webdriver && !failure() && !cancelled()}}
-    name: ${{fromJSON(needs.setup.outputs.packages).spec-webdriver.displayName || 'spec-webdriver'}}
+    name: spec-webdriver
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
@@ -350,7 +350,7 @@ jobs:
   spec-webdriverio:
     needs: [ setup, driver, utils, test-utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).spec-webdriverio && !failure() && !cancelled()}}
-    name: ${{fromJSON(needs.setup.outputs.packages).spec-webdriverio.displayName || 'spec-webdriverio'}}
+    name: spec-webdriverio
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
@@ -363,7 +363,7 @@ jobs:
   spec-selenium:
     needs: [ setup, driver, utils, test-utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).spec-selenium && !failure() && !cancelled()}}
-    name: ${{fromJSON(needs.setup.outputs.packages).spec-selenium.displayName || 'spec-selenium'}}
+    name: spec-selenium
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
@@ -376,9 +376,9 @@ jobs:
 
   # JS SDKS
   images:
-    needs: [ setup, core, api, test-utils ]
+    needs: [ setup, eyes, test-utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).images && !failure() && !cancelled()}}
-    name: ${{fromJSON(needs.setup.outputs.packages).images.displayName || 'images'}}
+    name: images
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
@@ -389,9 +389,9 @@ jobs:
           workflow: publish-images.yml
           inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).images.params.version}}"}'
   playwright:
-    needs: [ setup, core, api, spec-playwright, test-utils ]
+    needs: [ setup, eyes, spec-playwright, test-utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).playwright && !failure() && !cancelled()}}
-    name: ${{fromJSON(needs.setup.outputs.packages).playwright.displayName || 'playwright'}}
+    name: playwright
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
@@ -402,9 +402,9 @@ jobs:
           workflow: publish-playwright.yml
           inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).playwright.params.version}}"}'
   puppeteer:
-    needs: [ setup, core, api, spec-puppeteer, test-utils ]
+    needs: [ setup, eyes, spec-puppeteer, test-utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).puppeteer && !failure() && !cancelled()}}
-    name: ${{fromJSON(needs.setup.outputs.packages).puppeteer.displayName || 'puppeteer'}}
+    name: puppeteer
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
@@ -415,9 +415,9 @@ jobs:
           workflow: publish-puppeteer.yml
           inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).puppeteer.params.version}}"}'
   webdriverio:
-    needs: [ setup, core, api, spec-webdriverio, test-utils ]
+    needs: [ setup, eyes, spec-webdriverio, test-utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).webdriverio && !failure() && !cancelled()}}
-    name: ${{fromJSON(needs.setup.outputs.packages).webdriverio.displayName || 'webdriverio'}}
+    name: webdriverio
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
@@ -428,9 +428,9 @@ jobs:
           workflow: publish-webdriverio.yml
           inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).webdriverio.params.version}}"}'
   selenium:
-    needs: [ setup, core, api, spec-selenium, test-utils ]
+    needs: [ setup, eyes, spec-selenium, test-utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).selenium && !failure() && !cancelled()}}
-    name: ${{fromJSON(needs.setup.outputs.packages).selenium.displayName || 'selenium'}}
+    name: selenium
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
@@ -444,15 +444,14 @@ jobs:
     needs:
       [
         setup,
-        core,
         driver,
-        api,
+        eyes,
         spec-webdriver,
         utils,
         test-utils
       ]
     if: ${{fromJSON(needs.setup.outputs.packages).nightwatch && !failure() && !cancelled()}}
-    name: ${{fromJSON(needs.setup.outputs.packages).nightwatch.displayName || 'nightwatch'}}
+    name: nightwatch
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
@@ -463,9 +462,9 @@ jobs:
           workflow: publish-nightwatch.yml
           inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).nightwatch.params.version}}"}'
   testcafe:
-    needs: [ setup, core, api, utils, test-server, test-utils ]
+    needs: [ setup, core, utils, test-server, test-utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).testcafe && !failure() && !cancelled()}}
-    name: ${{fromJSON(needs.setup.outputs.packages).testcafe.displayName || 'testcafe'}}
+    name: testcafe
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
@@ -476,18 +475,9 @@ jobs:
           workflow: publish-testcafe.yml
           inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).testcafe.params.version}}"}'
   cypress:
-    needs:
-      [
-        setup,
-        core,
-        api,
-        logger,
-        utils,
-        test-server,
-        test-utils
-      ]
+    needs: [ setup, core, logger, utils, test-server, test-utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).cypress && !failure() && !cancelled()}}
-    name: ${{fromJSON(needs.setup.outputs.packages).cypress.displayName || 'cypress'}}
+    name: cypress
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
@@ -498,19 +488,9 @@ jobs:
           workflow: publish-cypress.yml
           inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).cypress.params.version}}"}'
   browser-extension:
-    needs:
-      [
-        setup,
-        core,
-        driver,
-        logger,
-        screenshoter,
-        utils,
-        spec-playwright,
-        test-utils
-      ]
+    needs: [ setup, utils, spec-playwright, test-utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).browser-extension && !failure() && !cancelled()}}
-    name: ${{fromJSON(needs.setup.outputs.packages).browser-extension.displayName || 'browser-extension'}}
+    name: browser-extension
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
@@ -533,7 +513,7 @@ jobs:
         utils
       ]
     if: ${{fromJSON(needs.setup.outputs.packages).storybook && !failure() && !cancelled()}}
-    name: ${{fromJSON(needs.setup.outputs.packages).storybook.displayName || 'storybook'}}
+    name: storybook
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository

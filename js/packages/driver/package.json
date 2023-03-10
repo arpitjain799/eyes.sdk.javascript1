@@ -1,6 +1,6 @@
 {
   "name": "@applitools/driver",
-  "version": "1.11.35",
+  "version": "1.11.36",
   "description": "Applitools universal framework wrapper",
   "keywords": [
     "applitools",
@@ -73,25 +73,22 @@
   "scripts": {
     "lint": "node ../../node_modules/.bin/eslint '**/*.ts'",
     "build": "node ../../node_modules/.bin/tsc --project ./tsconfig.build.json",
-    "test": "yarn test:unit",
-    "test:sanity": "yarn test:unit",
-    "test:unit": "mocha --no-timeouts -r ts-node/register ./test/unit/*.spec.ts",
+    "test": "node ../../node_modules/.bin/mocha './test/**/*.spec.ts'",
+    "test:sanity": "yarn test",
     "deps": "bongo deps",
     "preversion": "bongo preversion",
     "version": "bongo version",
-    "postversion": "bongo postversion --skip-release-notification"
+    "postversion": "bongo postversion"
   },
   "dependencies": {
-    "@applitools/logger": "1.1.46",
-    "@applitools/snippets": "2.4.15",
-    "@applitools/utils": "1.3.30",
+    "@applitools/logger": "1.1.47",
+    "@applitools/snippets": "2.4.16",
+    "@applitools/utils": "1.3.31",
     "semver": "7.3.7"
   },
   "devDependencies": {
     "@applitools/bongo": "^2.2.5",
-    "@types/mocha": "^9.1.1",
-    "@types/node": "12",
-    "mocha": "^10.0.0"
+    "@types/node": "^12.20.55"
   },
   "engines": {
     "node": ">=12.13.0"

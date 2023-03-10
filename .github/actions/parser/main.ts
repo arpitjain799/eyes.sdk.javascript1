@@ -75,10 +75,10 @@ const packages = await getPackages()
 
 if (input === 'changed') {
   input = getChangedPackagesInput()
-  core.notice(`Packages with changes: "${input}"`)
+  core.notice(`Changed packages: "${input}"`)
 } else if (input === 'all') {
   input = getAllPackagesInput()
-  core.notice(`Packages to change: "${input}"`)
+  core.notice(`All packages: "${input}"`)
 } else {
   core.notice(`Input provided: "${input}"`)
 }
@@ -97,11 +97,6 @@ if (includeOnlyChanged) {
   jobs = filterInsignificantJobs(jobs)
   core.info(`Filtered jobs: "${Object.values(jobs).map(job => job.displayName).join(', ')}"`)
 }
-
-core.summary
-  .addHeading('Jobs', 2)
-  .addList(Object.values(jobs).map(job => job.displayName))
-  .write()
 
 core.setOutput('packages', allowVariations ? Object.values(jobs) : jobs)
 
