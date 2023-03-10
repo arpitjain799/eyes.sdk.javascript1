@@ -376,7 +376,7 @@ jobs:
 
   # JS SDKS
   images:
-    needs: [ setup, core, test-utils ]
+    needs: [ setup, eyes, test-utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).images && !failure() && !cancelled()}}
     name: images
     runs-on: ubuntu-latest
@@ -389,7 +389,7 @@ jobs:
           workflow: publish-images.yml
           inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).images.params.version}}"}'
   playwright:
-    needs: [ setup, core, spec-playwright, test-utils ]
+    needs: [ setup, eyes, spec-playwright, test-utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).playwright && !failure() && !cancelled()}}
     name: playwright
     runs-on: ubuntu-latest
@@ -402,7 +402,7 @@ jobs:
           workflow: publish-playwright.yml
           inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).playwright.params.version}}"}'
   puppeteer:
-    needs: [ setup, core, spec-puppeteer, test-utils ]
+    needs: [ setup, eyes, spec-puppeteer, test-utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).puppeteer && !failure() && !cancelled()}}
     name: puppeteer
     runs-on: ubuntu-latest
@@ -415,7 +415,7 @@ jobs:
           workflow: publish-puppeteer.yml
           inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).puppeteer.params.version}}"}'
   webdriverio:
-    needs: [ setup, core, spec-webdriverio, test-utils ]
+    needs: [ setup, eyes, spec-webdriverio, test-utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).webdriverio && !failure() && !cancelled()}}
     name: webdriverio
     runs-on: ubuntu-latest
@@ -428,7 +428,7 @@ jobs:
           workflow: publish-webdriverio.yml
           inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).webdriverio.params.version}}"}'
   selenium:
-    needs: [ setup, core, spec-selenium, test-utils ]
+    needs: [ setup, eyes, spec-selenium, test-utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).selenium && !failure() && !cancelled()}}
     name: selenium
     runs-on: ubuntu-latest
@@ -444,8 +444,8 @@ jobs:
     needs:
       [
         setup,
-        core,
         driver,
+        eyes,
         spec-webdriver,
         utils,
         test-utils
@@ -488,17 +488,7 @@ jobs:
           workflow: publish-cypress.yml
           inputs: '{"version": "${{fromJSON(needs.setup.outputs.packages).cypress.params.version}}"}'
   browser-extension:
-    needs:
-      [
-        setup,
-        core,
-        driver,
-        logger,
-        screenshoter,
-        utils,
-        spec-playwright,
-        test-utils
-      ]
+    needs: [ setup, utils, spec-playwright, test-utils ]
     if: ${{fromJSON(needs.setup.outputs.packages).browser-extension && !failure() && !cancelled()}}
     name: browser-extension
     runs-on: ubuntu-latest
