@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 2.3.15 - 2023/3/11
+
+### Features
+### Bug fixes
+- Fixed ufg concurrency regression
+
 ## 2.3.14 - 2023/3/7
 
 ### Features
