@@ -1,11 +1,8 @@
 {
   "name": "@applitools/bongo",
-  "version": "2.2.5",
+  "version": "3.0.1",
   "engines": {
     "node": ">=12.0.0"
-  },
-  "publishConfig": {
-    "access": "restricted"
   },
   "directories": {
     "lib": "./src",
@@ -33,21 +30,23 @@
     "test:sanity": "yarn test",
     "deps": "yarn bongo deps",
     "prepublish:setup": "echo 'no setup'",
-    "preversion": "yarn bongo preversion && yarn test",
+    "preversion": "yarn bongo preversion",
     "version": "yarn bongo version",
-    "postversion": "yarn bongo postversion --skip-release-notification"
+    "postversion": "yarn bongo postversion"
   },
   "bugs": {
     "url": "https://github.com/applitools/eyes.sdk.javascript1/issues"
   },
   "dependencies": {
-    "@applitools/utils": "1.3.30",
+    "@applitools/utils": "1.3.31",
+    "@azure/storage-blob": "12.2.0-preview.1",
     "chalk": "3.0.0",
     "compare-versions": "4.1.3",
     "js-yaml": "4.1.0",
     "lodash.pickby": "4.6.0",
     "micromatch": "4.0.2",
     "node-fetch": "2.6.1",
+    "xml-js": "1.6.11",
     "yargs": "15.0.2"
   },
   "devDependencies": {
@@ -58,6 +57,7 @@
     "eslint-plugin-prettier": "^3.1.4",
     "husky": "^4.3.7",
     "mocha": "^6.2.2",
+    "nock": "^13.3.0",
     "prettier": "^2.1.2"
   },
   "husky": {

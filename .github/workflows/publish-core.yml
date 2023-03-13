@@ -33,7 +33,7 @@ on:
 env:
   FORCE_COLOR: 3
   NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-  APPLITOOLS_API_KEY: ${{secrets.APPLITOOLS_API_KEY_JSSDK}}
+  APPLITOOLS_API_KEY: ${{secrets.APPLITOOLS_API_KEY}}
   APPLITOOLS_API_KEY_READ: ${{secrets.APPLITOOLS_API_KEY_READ}}
   SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
   SAUCE_ACCESS_KEY: ${{secrets.SAUCE_ACCESS_KEY}}
@@ -132,6 +132,7 @@ jobs:
         uses: ./.github/actions/tests
         with:
           working-directory: ./js/packages/core
+          report: prod
   test-bin:
     needs: [version, build]
     strategy:

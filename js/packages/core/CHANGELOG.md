@@ -2,6 +2,57 @@
 
 ## Unreleased
 
+## 2.4.0 - 2023/3/12
+
+### Features
+### Bug fixes
+- Fixed ufg concurrency regression
+
+## 2.3.14 - 2023/3/7
+
+### Features
+### Bug fixes
+- Upgrade tunnel version
+
+## 2.3.13 - 2023/3/7
+
+### Features
+### Bug fixes
+- Fixed selector transformation for scroll root elements for ufg
+
+## 2.3.12 - 2023/3/7
+
+### Features
+- Update broker url using last response instead of using driver
+### Bug fixes
+- Replaced broker url cache with nml element cache
+
+## 2.3.11 - 2023/3/6
+
+### Features
+### Bug fixes
+- setting the universal cli for javascript right
+
+## 2.3.10 - 2023/3/3
+
+### Features
+- Added `Resize` stitch mode value
+### Bug fixes
+- Fixed issue when `.visualgrid` was not added to agent id
+- Fixed issue with aborting ufg tests
+
+## 2.3.9 - 2023/3/2
+
+### Features
+### Bug fixes
+- Update `@applitools/execution-grid-tunnel` dependency
+
+## 2.3.8 - 2023/3/2
+
+### Features
+### Bug fixes
+- upgrade dom-snapshot with a fix to CSP
+
 ## 2.3.7 - 2023/2/23
 
 ### Features

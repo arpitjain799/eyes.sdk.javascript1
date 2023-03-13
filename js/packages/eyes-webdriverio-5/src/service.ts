@@ -1,5 +1,3 @@
-import {makeCore} from '@applitools/core'
-import * as spec from './spec-driver'
 import {Driver, Element, Eyes, VisualGridRunner, ClassicRunner, ConfigurationPlain, TestResults} from './api'
 
 if (!process.env.APPLITOOLS_WEBDRIVERIO_MAJOR_VERSION) {
@@ -12,13 +10,11 @@ if (!process.env.APPLITOOLS_WEBDRIVERIO_MAJOR_VERSION) {
   }
 }
 
-// TODO have to be removed
-const sdk = makeCore({
-  agentId: `eyes-webdriverio-service/${require('../package.json').version}`,
-  spec,
-})
 class EyesOverride extends Eyes {
-  protected static readonly _spec = sdk
+  protected static readonly _sdk = {
+    ...Eyes._sdk,
+    agentId: `eyes-webdriverio-service/${require('../package.json').version}`,
+  }
 }
 
 interface EyesServiceOptions extends ConfigurationPlain {
@@ -47,7 +43,7 @@ class EyesService {
   private async _eyesOpen() {
     if (!this._eyes.isOpen) {
       this._testResults = undefined
-      await this._eyes.open(browser as Driver)
+      await this._eyes.open(browser as unknown as Driver)
     }
   }
 
