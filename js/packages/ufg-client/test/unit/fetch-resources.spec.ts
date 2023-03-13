@@ -2,6 +2,7 @@ import {makeFetchResource} from '../../src/resources/fetch-resource'
 import {makeResource} from '../../src/resources/resource'
 import assert from 'assert'
 import nock from 'nock'
+import * as utils from '@applitools/utils'
 
 describe('fetch-resource', () => {
   const mockResource = makeResource({
@@ -72,6 +73,39 @@ describe('fetch-resource', () => {
     assert.deepStrictEqual(resource2, mockResource)
   })
 
+  it('fetch with concurrency limitation', async () => {
+    const mockResources = []
+    let count = 0,
+      maxCount = 0
+    for (let i = 0; i < 10; i++) {
+      mockResources.push(
+        makeResource({
+          url: `http://something${i}`,
+          contentType: 'some/content-type',
+          value: Buffer.from('bla'),
+        }),
+      )
+      nock(`http://something${i}`).get('/').reply(200, countServerParallelRequests)
+    }
+
+    const fetchResource = makeFetchResource({fetchConcurrency: 5})
+    const resources = []
+    for (const resource of mockResources) {
+      resources.push(fetchResource({resource}))
+    }
+
+    await Promise.all(resources)
+
+    assert.strictEqual(maxCount, 5)
+
+    async function countServerParallelRequests() {
+      count += 1
+      maxCount = count > maxCount ? count : maxCount
+      await utils.general.sleep(300)
+      count -= 1
+    }
+  })
+
   describe('works with streamingTimeout', () => {
     const mockMediaResource = makeResource({
       url: 'http://something-media',
@@ -86,7 +120,7 @@ describe('fetch-resource', () => {
         .delayBody(200)
         .reply(200, mockMediaResource.value, {'content-type': mockMediaResource.contentType})
 
-      const fetchResource = makeFetchResource({streamingTimeout: 80})
+      const fetchResource = makeFetchResource({streamingTimeout: 80, fetchTimeout: 0})
       const resource = await fetchResource({resource: urlMediaResource})
       assert.deepStrictEqual(resource, makeResource({id: urlMediaResource.url, errorStatusCode: 599}))
     })

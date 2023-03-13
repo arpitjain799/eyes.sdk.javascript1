@@ -13,18 +13,20 @@ export const defaultResourceCache = new Map<string, any>()
 export function makeUFGClient({
   config,
   concurrency,
+  fetchConcurrency,
   cache = defaultResourceCache,
   logger,
 }: {
   config: UFGRequestsConfig
   concurrency?: number
+  fetchConcurrency?: number
   cache?: Map<string, any>
   logger?: Logger
 }): UFGClient {
   logger = logger?.extend({label: 'ufg client'}) ?? makeLogger({label: 'ufg client'})
 
   const requests = makeUFGRequests({config, logger})
-  const fetchResource = makeFetchResource({logger})
+  const fetchResource = makeFetchResource({logger, fetchConcurrency})
   const uploadResource = makeUploadResource({requests, logger})
   const processResources = makeProcessResources({fetchResource, uploadResource, cache, logger})
 
