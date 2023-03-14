@@ -81,8 +81,6 @@ describe('fetch-resource', () => {
       mockResources.push(
         makeResource({
           url: `http://something${i}`,
-          contentType: 'some/content-type',
-          value: Buffer.from('bla'),
         }),
       )
       nock(`http://something${i}`).get('/').reply(200, countServerParallelRequests)

@@ -30,7 +30,7 @@ describe('fetch-resource', () => {
       fetchResource({
         resource: makeResource({url: `http://localhost:${server.port}/page/smurfs.jpg`}),
       }),
-      err => err.message.includes('The user aborted a request'),
+      err => err.constructor.name === 'AbortError',
     )
   })
 })
