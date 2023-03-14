@@ -113,7 +113,7 @@ describe('fetch-resource', () => {
         .delayBody(200)
         .reply(200, mockMediaResource.value, {'content-type': mockMediaResource.contentType})
 
-      const fetchResource = makeFetchResource({streamingTimeout: 80, fetchTimeout: 0})
+      const fetchResource = makeFetchResource({streamingTimeout: 80})
       const resource = await fetchResource({resource: urlMediaResource})
       assert.deepStrictEqual(resource, makeResource({id: urlMediaResource.url, errorStatusCode: 599}))
     })
