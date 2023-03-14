@@ -87,12 +87,7 @@ describe('fetch-resource', () => {
     }
 
     const fetchResource = makeFetchResource({fetchConcurrency: 5})
-    const resources = []
-    for (const resource of mockResources) {
-      resources.push(fetchResource({resource}))
-    }
-
-    await Promise.all(resources)
+    await Promise.all(mockResources.map(resource => fetchResource({resource})))
 
     assert.strictEqual(maxCount, 5)
 
