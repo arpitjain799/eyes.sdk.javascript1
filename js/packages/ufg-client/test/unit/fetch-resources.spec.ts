@@ -88,7 +88,12 @@ describe('fetch-resource', () => {
     const fetchResource = makeFetchResource({fetchConcurrency: 5})
     const resResources = await Promise.all(mockResources.map(resource => fetchResource({resource})))
 
-    assert.strictEqual(resResources.filter(resource => resource.errorStatusCode).length, 0)
+    assert.strictEqual(
+      resResources.filter(resource => {
+        utils.types.has(resource, `errorStatusCode`)
+      }).length,
+      0,
+    )
 
     async function limitServerParallelRequests() {
       count += 1
