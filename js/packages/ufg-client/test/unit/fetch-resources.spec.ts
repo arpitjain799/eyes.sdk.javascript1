@@ -75,27 +75,26 @@ describe('fetch-resource', () => {
 
   it('fetch with concurrency limitation', async () => {
     const mockResources = []
-    let count = 0,
-      maxCount = 0
+    let count = 0
     for (let i = 0; i < 10; i++) {
       mockResources.push(
         makeResource({
           url: `http://something${i}`,
         }),
       )
-      nock(`http://something${i}`).get('/').reply(200, countServerParallelRequests)
+      nock(`http://something${i}`).get('/').once().reply(limitServerParallelRequests)
     }
 
     const fetchResource = makeFetchResource({fetchConcurrency: 5})
-    await Promise.all(mockResources.map(resource => fetchResource({resource})))
+    const resResources = await Promise.all(mockResources.map(resource => fetchResource({resource})))
 
-    assert.strictEqual(maxCount, 5)
+    assert.strictEqual(resResources.filter(resource => resource.errorStatusCode).length, 0)
 
-    async function countServerParallelRequests() {
+    async function limitServerParallelRequests() {
       count += 1
-      maxCount = count > maxCount ? count : maxCount
       await utils.general.sleep(300)
       count -= 1
+      return [count > 4 ? 504 : 200, 'font', {'Content-Type': `some-context-type`}]
     }
   })
 
