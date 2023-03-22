@@ -1,12 +1,12 @@
 {
+  "bootstrap-sha": "0492323f4e735fa90312f302923aed489d33e40a",
+  "plugins": ["node-workspace"],
   "packages": {
-    "./js/packages/core": {
-      "changelog-path": "CHANGELOG.md",
-      "release-type": "node",
-      "bump-minor-pre-major": false,
-      "bump-patch-for-minor-pre-major": false,
-      "draft": false,
-      "prerelease": false
+    "js/packages/eyes-cypress": {
+      "release-type": "node"
+    },
+    "js/packages/core": {
+      "release-type": "node"
     }
   },
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json"
