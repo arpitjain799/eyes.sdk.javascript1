@@ -5,6 +5,9 @@
     "js/packages/eyes-cypress": {
       "release-type": "node"
     },
+    "js/packages/eyes-playwright": {
+      "release-type": "node"
+    },
     "js/packages/core": {
       "release-type": "node"
     }
