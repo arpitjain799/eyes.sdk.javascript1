@@ -27,8 +27,8 @@ export const TargetAutomation = {...eyes.TargetAutomation, spec} as TargetAutoma
 export const Target = {...eyes.Target, spec} as eyes.Target<SpecType>
 
 export type OCRRegion = eyes.OCRRegion<SpecType>
-
 export type ConfigurationPlain = eyes.ConfigurationPlain<SpecType>
+
 export class Configuration extends eyes.Configuration<SpecType> {
   protected static readonly _spec = spec
 }
