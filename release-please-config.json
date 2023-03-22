@@ -1,15 +1,10 @@
 {
   "packages": {
-    "js/packages/eyes-cypress": {
-      "release-type": "node"
-    },
-    "js/packages/eyes-playwright": {
-      "release-type": "node"
-    },
-    "js/packages/core": {
-      "release-type": "node",
-      "draft": false
-    }
+    "js/packages/eyes-cypress": {},
+    "js/packages/eyes-playwright": {},
+    "js/packages/core": {},
+    "js/packages/eyes-selenium": {},
+    "js/packages/eyes-api": {}
   },
   "release-type": "node",
   "changelog-sections": [
