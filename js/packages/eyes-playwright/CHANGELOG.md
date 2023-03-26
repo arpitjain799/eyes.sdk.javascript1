@@ -11,6 +11,20 @@
 
 
 
+## [1.14.1](https://github.com/applitools/eyes.sdk.javascript1/compare/eyes-playwright-v1.14.0...eyes-playwright-v1.14.1) (2023-03-26)
+
+
+### Bug Fixes
+
+* **js:** demo ([65646db](https://github.com/applitools/eyes.sdk.javascript1/commit/65646db53f43b0e22558939c0525419ac67e6597))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @applitools/eyes bumped from 1.0.0 to 1.0.2
+
 ## 1.14.0 - 2023/2/21
 
 ### Features

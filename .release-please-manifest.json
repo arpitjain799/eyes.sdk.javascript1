@@ -1,7 +1,7 @@
 {
   "js/packages/core": "2.4.2",
-  "js/packages/eyes-playwright": "1.14.0",
+  "js/packages/eyes-playwright": "1.14.1",
   "js/packages/eyes-cypress": "3.30.0",
   "js/packages/eyes-api": "1.0.1",
-    "js/packages/eyes-selenium": "4.64.0"
+  "js/packages/eyes-selenium": "4.64.0"
 }

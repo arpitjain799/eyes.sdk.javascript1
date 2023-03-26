@@ -1,6 +1,6 @@
 {
   "name": "@applitools/eyes-playwright",
-  "version": "1.14.0",
+  "version": "1.14.1",
   "description": "Applitools Eyes SDK for Playwright",
   "keywords": [
     "eyes-playwright",
@@ -54,7 +54,7 @@
     "postpublish": "bongo send-release-notification --name 'playwright'"
   },
   "dependencies": {
-    "@applitools/eyes": "1.0.0",
+    "@applitools/eyes": "1.0.2",
     "@applitools/spec-driver-playwright": "1.3.10"
   },
   "devDependencies": {
