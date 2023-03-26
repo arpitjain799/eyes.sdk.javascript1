@@ -30,7 +30,7 @@
     "dist"
   ],
   "scripts": {
-    "lint": "eslint '**/*.js'",
+    "lint": "eslint '**/*.js' '**/*.ts'",
     "build": "rollup -c rollup.config.js",
     "build:heavy": "node scripts/bitmap.js",
     "test": "yarn build && yarn test:mocha && yarn lint",
