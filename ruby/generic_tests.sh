@@ -19,6 +19,7 @@ fi
 
 # commented out if need eg client logs
 export APPLITOOLS_SHOW_LOGS=true
+export APPLITOOLS_DONT_CLOSE_BATCHES=true
 export MOZ_HEADLESS=1
 
 yarn parallel:local
