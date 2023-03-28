@@ -255,13 +255,14 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: packages
-      - run: make eyes_playwright_generated_tests
-        working-directory: python
+      - uses: ./.github/actions/pytests
+        with:
+          test-type: eyes_playwright_generated_tests
+          bongo-report: true
+          bongo-report-release-package: ${{ inputs.releasing_package }}
         env:
           APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
           APPLITOOLS_API_KEY_READ: ${{ secrets.APPLITOOLS_API_KEY_READ }}
-          GH_TOKEN: ${{secrets.GITHUB_TOKEN }}
-          RELEASING_PACKAGE: ${{ inputs.releasing_package }}
 
   functional-tests:
     needs: dist-build
