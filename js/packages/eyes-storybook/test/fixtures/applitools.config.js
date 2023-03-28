@@ -4,7 +4,7 @@ module.exports = {
   storybookConfigDir: 'test/fixtures/appWithStorybook/',
   storybookStaticDir: 'test/fixtures',
   storybookPort: 4567,
-  // storybookUrl: 'https://eyes.applitools.com',
+  // storybookUrl: 'http://localhost:9001',
   // puppeteerOptions: {headless: false, devtools: true},
   include: ({name}) => !/^\[SKIP\]/.test(name),
   // include: ({name}) => /background */.test(name),
