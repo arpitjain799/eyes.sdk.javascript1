@@ -102,7 +102,7 @@ exports.makeDriver = async function makeDriver({
   const apps = {
     android: 'https://applitools.jfrog.io/artifactory/Examples/android/1.3/app-debug.apk',
     androidx: 'https://applitools.jfrog.io/artifactory/Examples/androidx/helper_lib/1.8.6/app-androidx-debug.apk',
-    ios: 'https://applitools.jfrog.io/artifactory/Examples/IOSTestApp/1.11/app/IOSTestApp.zip',
+    ios: 'https://applitools.jfrog.io/artifactory/Examples/IOSTestApp/1.14/app/IOSTestApp.zip',
   }
 
   const envs = {
