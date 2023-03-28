@@ -126,10 +126,10 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: packages
-      - run: make unit_tests
-        working-directory: python
-        env:
-          BONGO_REPORT_TESTS: false
+      - uses: ./.github/actions/pytests
+        with:
+          test-type: unit_tests
+          bongo-report: false
 
   unit-tests-alpine:
     needs: dist-build
