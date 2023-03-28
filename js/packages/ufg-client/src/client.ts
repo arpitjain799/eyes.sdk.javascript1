@@ -12,15 +12,13 @@ export const defaultResourceCache = new Map<string, any>()
 
 export function makeUFGClient({
   config,
-  concurrency,
-  fetchConcurrency,
   cache = defaultResourceCache,
+  fetchConcurrency,
   logger,
 }: {
   config: UFGRequestsConfig
-  concurrency?: number
-  fetchConcurrency?: number
   cache?: Map<string, any>
+  fetchConcurrency?: number
   logger?: Logger
 }): UFGClient {
   logger = logger?.extend({label: 'ufg client'}) ?? makeLogger({label: 'ufg client'})
@@ -33,7 +31,7 @@ export function makeUFGClient({
   return {
     createRenderTarget: makeCreateRenderTarget({processResources}),
     bookRenderer: makeBookRenderer({requests, logger}),
-    render: makeRender({requests, concurrency, logger}),
+    render: makeRender({requests, logger}),
     getChromeEmulationDevices: requests.getChromeEmulationDevices,
     getAndroidDevices: requests.getAndroidDevices,
     getIOSDevices: requests.getIOSDevices,

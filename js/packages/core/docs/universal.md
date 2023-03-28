@@ -9,7 +9,7 @@
     - [Core.deleteTest](#coredeletetest)
     - [Core.getViewportSize](#coregetviewportsize)
     - [Core.setViewportSize](#coresetviewportsize)
-    - [Core.makeECClient](#coremakeecclient)
+    - [Core.getECClient](#coregetecclient)
     - [Core.makeManager](#coremakemanager)
     - [Core.locate](#corelocate)
     - [Core.locateText](#corelocatetext)
@@ -25,6 +25,7 @@
   - [Type examples](#type-examples)
     - [ImageTarget](#imagetarget)
     - [DriverTarget](#drivertarget)
+    - [EyesManagerSettings](#eyesmanagersettings)
     - [LocateSettings](#locatesettings)
     - [LocateTextSettings](#locatetextsettings)
     - [ExtractTextSettings](#extracttextsettings)
@@ -34,6 +35,8 @@
     - [CloseSettings](#closesettings)
     - [GetResultsSettings](#getresultssettings)
     - [Config](#config)
+    - [TestResult](#testresult)
+    - [Error](#error)
 
 
 ## Events
@@ -98,13 +101,13 @@ interface SetViewportSizeRequestPayload {
 }
 ```
 
-### Core.makeECClient
+### Core.getECClient
 ```ts
-interface MakeECClientRequestPayload {
+interface GetECClientRequestPayload {
   settings?: ECClientSettings
 }
 
-interface MakeECClientResponsePayload {
+interface GetECClientResponsePayload {
   url: string
 }
 ```
@@ -113,9 +116,7 @@ interface MakeECClientResponsePayload {
 ```ts
 interface MakeManagerRequestPayload {
   type: 'ufg' | 'classic'
-  concurrency?: number
-  legacyConcurrency?: number
-  agentId?: string
+  settings?: EyesManagerSettings
 }
 
 type MakeManagerResponsePayload = Ref<EyesManager>
@@ -281,6 +282,15 @@ type GetHistoryResponsePayload = Record<string, any>
   },
   "sessionId": "123456",
   "capabilities": {}
+}
+```
+
+### EyesManagerSettings
+```jsonc
+{
+  "concurrency": 10,
+  "legacyConcurrency": 50,
+  "agentId": "js/eyes/1.0.0"
 }
 ```
 
@@ -688,5 +698,78 @@ New config structure represents the fact that it just provides a default values 
     "updateBaselineIfNew": true,
     "updateBaselineIfDifferent": true,
   }
+}
+```
+
+### TestResult
+```jsonc
+{
+  "id": "numeric-test-id",
+  "exactMatches": 0,
+  "strictMatches": 0,
+  "contentMatches": 0,
+  "layoutMatches": 0,
+  "noneMatches": 0,
+  "steps": 1,
+  "matches": 0,
+  "mismatches": 1,
+  "missing": 0,
+  "new": 0,
+  "name": "test-name",
+  "secretToken": "secret-token",
+  "status": "Unresolved",
+  "appName": "app-name",
+  "baselineId": "baseline-id",
+  "batchName": "batch-name",
+  "batchId": "batch-d",
+  "branchName": "branch-name",
+  "hostOS": "Mac OS X 12.6",
+  "hostApp": "Safari",
+  "hostDisplaySize": { "width": 1280, "height": 1000 },
+  "startedAt": "2023-03-10T20:34:03.2773400+00:00",
+  "duration": 37,
+  "isNew": false,
+  "isDifferent": true,
+  "isAborted": false,
+  "appUrls": {
+    "batch": "some-url",
+    "session": "some-url"
+  },
+  "apiUrls": {
+    "batch": "some-url",
+    "session": "some-url"
+  },
+  "stepsInfo": [
+    {
+      "name": "step-name",
+      "isDifferent": true,
+      "hasBaselineImage": true,
+      "hasCurrentImage": true,
+      "hasCheckpointImage": true,
+      "appUrls": {
+        "step": "some-url",
+        "stepEditor": "some-url"
+      },
+      "apiUrls": {
+        "baselineImage": "some-url",
+        "currentImage": "some-url",
+        "checkpointImage": "some-url",
+        "checkpointImageThumbnail": "some-url",
+        "diffImage": "some-url"
+      }
+    }
+  ],
+  "userTestId": "custom-or-generated-user-test-id",
+  "url": "dashboard-url"
+}
+```
+
+### Error
+
+```jsonc
+{
+  "message": "error-message",
+  "stack": "error-stack",
+  "type": "internal"
 }
 ```

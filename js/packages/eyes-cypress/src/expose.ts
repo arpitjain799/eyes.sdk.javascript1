@@ -8,6 +8,7 @@
  **/
 /// <reference types="cypress" />
 import type * as api from '@applitools/eyes-api'
+import type * as core from '@applitools/core'
 import {type EyesSelector, type TestResultsStatus} from '@applitools/eyes-api'
 
 export type {EyesSelector, TestResultsStatus}
@@ -18,8 +19,9 @@ type LegacyRegion = {left: number; top: number; width: number; height: number}
 type Selector = {selector: string; type?: 'css' | 'xpath'; nodeType?: 'element' | 'shadow-root'} | string
 type Element = HTMLElement | JQuery<HTMLElement>
 type ElementWithOptions = {element: Element; regionId?: string; padding?: any}
+type SpecType = core.SpecType<unknown, unknown, Element, Selector>
 
-export type CypressCheckSettings = api.CheckSettingsAutomationPlain<Element, Selector> & {
+export type CypressCheckSettings = api.CheckSettingsAutomationPlain<SpecType> & {
   tag?: CypressCheckSettings['name']
 
   target?: 'window' | 'region'
@@ -47,7 +49,7 @@ export type CypressCheckSettings = api.CheckSettingsAutomationPlain<Element, Sel
   ignoreCaret?: boolean
   ignoreDisplacements?: boolean
 }
-export type CypressEyesConfig = api.ConfigurationPlain<Element, Selector> & {
+export type CypressEyesConfig = api.ConfigurationPlain<SpecType> & {
   browser?: MaybeArray<
     | NonNullable<CypressEyesConfig['browsersInfo']>[number]
     | {deviceName: string; screenOrientation?: api.ScreenOrientationPlain; name?: string}

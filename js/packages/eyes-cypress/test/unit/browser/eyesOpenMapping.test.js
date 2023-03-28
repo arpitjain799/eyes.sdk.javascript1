@@ -4,7 +4,7 @@ const {eyesOpenMapValues} = require('../../../src/browser/eyesOpenMapping')
 
 describe('eyes open mapping', () => {
   const shouldUseBrowserHooks = true,
-    dontCloseBatches = false,
+    keepBatchOpen = false,
     testName = 'test open mapping',
     defaultBrowser = {}
   it('should work with eyes open config', () => {
@@ -16,27 +16,21 @@ describe('eyes open mapping', () => {
       useDom: true,
       ignoreCaret: true,
       ignoreDisplacements: true,
-      accessibilityValidation: {level: 'AAA', guidelinesVersion: 'WCAG_2_0'},
+      accessibilitySettings: {level: 'AAA', version: 'WCAG_2_0'},
       matchLevel: 'Layout',
       enablePatterns: true,
       batch: {id: '1234'},
     }
 
     const expected = {
-      browsersInfo: [
-        {width: 1200, height: 1000, name: 'chrome'},
-        {width: 800, height: 1000, name: 'chrome'},
-      ],
-      dontCloseBatches,
+      keepBatchOpen,
       testName,
-      defaultMatchSettings: {
-        accessibilitySettings: {level: 'AAA', guidelinesVersion: 'WCAG_2_0'},
-        enablePatterns: true,
-        ignoreCaret: true,
-        ignoreDisplacements: true,
-        matchLevel: 'Layout',
-        useDom: true,
-      },
+      enablePatterns: true,
+      ignoreCaret: true,
+      ignoreDisplacements: true,
+      matchLevel: 'Layout',
+      useDom: true,
+      accessibilitySettings: {level: 'AAA', version: 'WCAG_2_0'},
       batch: {id: '1234'},
     }
 
@@ -54,23 +48,17 @@ describe('eyes open mapping', () => {
     const args = {}
 
     const expected = {
-      browsersInfo: [
-        {width: 1200, height: 1000, name: 'chrome'},
-        {width: 800, height: 1000, name: 'chrome'},
-      ],
       apiKey: 'my api key',
       showLogs: true,
       testName,
       shouldUseBrowserHooks,
-      dontCloseBatches: false,
-      defaultMatchSettings: {
-        accessibilitySettings: {level: 'AAA', guidelinesVersion: 'WCAG_2_0'},
-        enablePatterns: true,
-        ignoreCaret: true,
-        ignoreDisplacements: true,
-        matchLevel: 'Layout',
-        useDom: true,
-      },
+      keepBatchOpen: false,
+      enablePatterns: true,
+      ignoreCaret: true,
+      ignoreDisplacements: true,
+      matchLevel: 'Layout',
+      useDom: true,
+      accessibilitySettings: {level: 'AAA', version: 'WCAG_2_0'},
       batch: {id: '1234'},
     }
     const appliConfFile = {
@@ -80,13 +68,13 @@ describe('eyes open mapping', () => {
       ],
       apiKey: 'my api key',
       showLogs: true,
-      dontCloseBatches: false,
+      keepBatchOpen: false,
       testName,
       shouldUseBrowserHooks,
       useDom: true,
       ignoreCaret: true,
       ignoreDisplacements: true,
-      accessibilityValidation: {level: 'AAA', guidelinesVersion: 'WCAG_2_0'},
+      accessibilitySettings: {level: 'AAA', version: 'WCAG_2_0'},
       matchLevel: 'Layout',
       enablePatterns: true,
       batch: {id: '1234'},
@@ -109,11 +97,11 @@ describe('eyes open mapping', () => {
       ],
       testName,
       shouldUseBrowserHooks,
-      dontCloseBatches,
+      keepBatchOpen,
       useDom: true,
       ignoreCaret: true,
       ignoreDisplacements: true,
-      accessibilityValidation: {level: 'AAA', guidelinesVersion: 'WCAG_2_0'},
+      accessibilitySettings: {level: 'AAA', version: 'WCAG_2_0'},
       matchLevel: 'Layout',
       enablePatterns: true,
       batchId: '12345',
@@ -122,21 +110,15 @@ describe('eyes open mapping', () => {
     }
 
     const expected = {
-      browsersInfo: [
-        {width: 1200, height: 1000, name: 'chrome'},
-        {width: 800, height: 1000, name: 'chrome'},
-      ],
       testName,
-      dontCloseBatches,
+      keepBatchOpen,
       shouldUseBrowserHooks,
-      defaultMatchSettings: {
-        accessibilitySettings: {level: 'AAA', guidelinesVersion: 'WCAG_2_0'},
-        enablePatterns: true,
-        ignoreCaret: true,
-        ignoreDisplacements: true,
-        matchLevel: 'Layout',
-        useDom: true,
-      },
+      enablePatterns: true,
+      ignoreCaret: true,
+      ignoreDisplacements: true,
+      matchLevel: 'Layout',
+      useDom: true,
+      accessibilitySettings: {level: 'AAA', version: 'WCAG_2_0'},
       batch: {id: '12345', name: 'test config file mapping 2', sequenceName: 'S2'},
     }
     const appliConfFile = {
@@ -148,7 +130,7 @@ describe('eyes open mapping', () => {
       useDom: false,
       ignoreCaret: false,
       ignoreDisplacements: false,
-      accessibilityValidation: {level: 'AA', guidelinesVersion: 'WCAG_2_1'},
+      accessibilitySettings: {level: 'AA', version: 'WCAG_2_1'},
       matchLevel: 'Strict',
       enablePatterns: false,
       batch: {id: '1234', name: 'test config file mapping', sequenceName: 'S1'},
@@ -172,17 +154,13 @@ describe('eyes open mapping', () => {
     }
 
     const expected = {
-      browsersInfo: undefined,
-      defaultMatchSettings: {
-        accessibilitySettings: undefined,
-        enablePatterns: undefined,
-        enablePatterns: undefined,
-        ignoreCaret: undefined,
-        ignoreDisplacements: undefined,
-        matchLevel: undefined,
-        useDom: undefined,
-      },
-      dontCloseBatches,
+      enablePatterns: undefined,
+      enablePatterns: undefined,
+      ignoreCaret: undefined,
+      ignoreDisplacements: undefined,
+      matchLevel: undefined,
+      useDom: undefined,
+      keepBatchOpen,
       testName,
       batch: {id: '1234', name: 'test eyesOpen mapping', sequenceName: 'S1'},
     }
@@ -209,17 +187,13 @@ describe('eyes open mapping', () => {
     }
 
     const expected = {
-      browsersInfo: undefined,
-      defaultMatchSettings: {
-        accessibilitySettings: undefined,
-        enablePatterns: undefined,
-        enablePatterns: undefined,
-        ignoreCaret: undefined,
-        ignoreDisplacements: undefined,
-        matchLevel: undefined,
-        useDom: undefined,
-      },
-      dontCloseBatches,
+      enablePatterns: undefined,
+      enablePatterns: undefined,
+      ignoreCaret: undefined,
+      ignoreDisplacements: undefined,
+      matchLevel: undefined,
+      useDom: undefined,
+      keepBatchOpen,
       testName,
       batch: {
         id: '1234',
@@ -248,17 +222,13 @@ describe('eyes open mapping', () => {
     }
 
     const expected = {
-      browsersInfo: undefined,
-      defaultMatchSettings: {
-        accessibilitySettings: undefined,
-        enablePatterns: undefined,
-        enablePatterns: undefined,
-        ignoreCaret: undefined,
-        ignoreDisplacements: undefined,
-        matchLevel: undefined,
-        useDom: undefined,
-      },
-      dontCloseBatches,
+      enablePatterns: undefined,
+      enablePatterns: undefined,
+      ignoreCaret: undefined,
+      ignoreDisplacements: undefined,
+      matchLevel: undefined,
+      useDom: undefined,
+      keepBatchOpen,
       testName,
       batch: {id: '1234', name: 'test config file mapping', sequenceName: 'S1'},
     }
@@ -285,17 +255,13 @@ describe('eyes open mapping', () => {
     }
 
     const expected = {
-      browsersInfo: undefined,
-      defaultMatchSettings: {
-        accessibilitySettings: undefined,
-        enablePatterns: undefined,
-        enablePatterns: undefined,
-        ignoreCaret: undefined,
-        ignoreDisplacements: undefined,
-        matchLevel: undefined,
-        useDom: undefined,
-      },
-      dontCloseBatches,
+      enablePatterns: undefined,
+      enablePatterns: undefined,
+      ignoreCaret: undefined,
+      ignoreDisplacements: undefined,
+      matchLevel: undefined,
+      useDom: undefined,
+      keepBatchOpen,
       testName,
       batch: {
         id: '1234',
@@ -320,23 +286,17 @@ describe('eyes open mapping', () => {
     const args = {}
 
     const expected = {
-      browsersInfo: [
-        {width: 1200, height: 1000, name: 'chrome'},
-        {width: 800, height: 1000, name: 'chrome'},
-      ],
       apiKey: 'my api key',
       showLogs: true,
       testName,
       shouldUseBrowserHooks,
-      dontCloseBatches: false,
-      defaultMatchSettings: {
-        accessibilitySettings: {level: 'AAA', guidelinesVersion: 'WCAG_2_0'},
-        enablePatterns: true,
-        ignoreCaret: true,
-        ignoreDisplacements: true,
-        matchLevel: 'Layout',
-        useDom: true,
-      },
+      keepBatchOpen: false,
+      enablePatterns: true,
+      ignoreCaret: true,
+      ignoreDisplacements: true,
+      matchLevel: 'Layout',
+      useDom: true,
+      accessibilitySettings: {level: 'AAA', version: 'WCAG_2_0'},
       batch: {id: '1234'},
     }
     const appliConfFile = {
@@ -346,13 +306,13 @@ describe('eyes open mapping', () => {
       ],
       apiKey: 'my api key',
       showLogs: true,
-      dontCloseBatches: false,
+      keepBatchOpen: false,
       testName,
       shouldUseBrowserHooks,
       useDom: true,
       ignoreCaret: true,
       ignoreDisplacements: true,
-      accessibilityValidation: {level: 'AAA', guidelinesVersion: 'WCAG_2_0'},
+      accessibilitySettings: {level: 'AAA', version: 'WCAG_2_0'},
       matchLevel: 'Layout',
       enablePatterns: true,
       batch: {id: '1234'},

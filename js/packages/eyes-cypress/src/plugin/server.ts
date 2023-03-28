@@ -1,7 +1,5 @@
 import connectSocket, {type SocketWithUniversal} from './webSocket'
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import {makeServerProcess} from '@applitools/eyes-universal'
+import {type CloseBatchSettings, makeCoreServerProcess} from '@applitools/core'
 import handleTestResults from './handleTestResults'
 import path from 'path'
 import fs from 'fs'
@@ -12,9 +10,16 @@ import which from 'which'
 import {type Logger} from '@applitools/logger'
 import {AddressInfo} from 'net'
 import {promisify} from 'util'
+export type StartServerReturn = {
+  server: Omit<SocketWithUniversal, 'disconnect' | 'ref' | 'unref' | 'send' | 'request' | 'setPassthroughListener'>
+  port: number
+  closeManager: () => Promise<any[]>
+  closeBatches: (settings: CloseBatchSettings | CloseBatchSettings[]) => Promise<void>
+  closeUniversalServer: () => void
+}
 
 export default function makeStartServer({logger}: {logger: Logger}) {
-  return async function startServer() {
+  return async function startServer(options?: Cypress.PluginConfigOptions): Promise<StartServerReturn> {
     const key = fs.readFileSync(path.resolve(__dirname, '../../src/pem/server.key'))
     const cert = fs.readFileSync(path.resolve(__dirname, '../../src/pem/server.cert'))
     const https = new HttpsServer({
@@ -40,11 +45,22 @@ export default function makeStartServer({logger}: {logger: Logger}) {
     // `cypress` version below `7.0.0` has an old Electron version which not support async shell process.
     // By passing `execPath` with the node process cwd it will switch the `node` process to be the like the OS have
     // and will not use the unsupported `Cypress Helper.app` with the not supported shell process Electron
-    if (semverLt(cypressVersion, '7.0.0')) {
+    const isCypressVersionBelow7 = semverLt(cypressVersion, '7.0.0')
+
+    // `nodeVersion` property set the way the `node` process will be executed
+    // if set to `system` it will use the `node` process that the OS have
+    // if set to `bundled` it will use the `node` process that the `Cypress Helper.app` have
+    //
+    // [doc link](https://docs.cypress.io/guides/references/configuration#Node-version)
+    //
+    // this is why if `nodeVersion` exits and not set to `system` we need to tell to the `universal` server the `execPath` to `node`
+    const isNodeVersionSystem = !!options?.nodeVersion && options.nodeVersion !== 'system'
+
+    if (isCypressVersionBelow7 || isNodeVersionSystem) {
       forkOptions.execPath = await which('node')
     }
 
-    const {port: universalPort, close: closeUniversalServer} = await makeServerProcess({
+    const {port: universalPort, close: closeUniversalServer} = await makeCoreServerProcess({
       idleTimeout: 0,
       shutdownMode: 'stdin',
       forkOptions,
@@ -126,16 +142,13 @@ export default function makeStartServer({logger}: {logger: Logger}) {
     function closeManager() {
       return Promise.all(
         managers.map(({manager, socketWithUniversal}) =>
-          socketWithUniversal.request('EyesManager.closeManager', {
-            manager,
-            throwErr: false,
-          }),
+          socketWithUniversal.request('EyesManager.getResults', {manager, settings: {throwErr: false}}),
         ),
       )
     }
-    function closeBatches(settings: any) {
+    function closeBatches(settings: CloseBatchSettings | CloseBatchSettings[]) {
       if (socketWithUniversal)
-        return socketWithUniversal.request('Core.closeBatches', {settings}).catch((err: Error) => {
+        return socketWithUniversal.request('Core.closeBatch', {settings}).catch((err: Error) => {
           logger.log('@@@', err)
         })
     }

@@ -15,7 +15,7 @@ Apollo SDK:
     - Add a timeout and max concurrency for fetching resources
 "@applitools/eyes-selenium":
   feature:
-    - Added `Resize` value to `StitchMode` enum
+    - 
   bug-fix:
     - Add a timeout and max concurrency for fetching resources
 "@applitools/eyes-webdriverio":
@@ -55,12 +55,16 @@ Apollo SDK:
 "@applitools/eyes-nightwatch":
   feature:
     - Added `Resize` value to `StitchMode` enum
+    - Improved extraction of nml element
   bug-fix:
-    - Add a timeout and max concurrency for fetching resources
+    - Avoid handing process when using execution cloud
+    - Fixed slowness during ufg tests
+    - Optimized number of requests during polling
 "@applitools/eyes-cypress":
   feature:
-    - Crop screenshot image base on account info
+    - 
   bug-fix:
+    - map visualGridOptions to ufgOptions
     - Add a timeout and max concurrency for fetching resources
 "@applitools/eyes-storybook":
   feature:
@@ -148,4 +152,4 @@ Apollo SDK:
     - Crop screenshot image base on account info
     - Passing density metric for PPI support in the sdk
   bug-fix:
-    - 
+    - Optimized number of requests during polling

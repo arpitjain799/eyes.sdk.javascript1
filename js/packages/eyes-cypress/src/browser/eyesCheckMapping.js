@@ -1,9 +1,12 @@
 /* global Node */
-function eyesCheckMapValues({args, refer}) {
+function eyesCheckMapValues({openToCheckSettingsArgs, args, refer, appliConfFile}) {
   if (typeof args === `string`) {
     args = {tag: args}
   }
-  const config = args // just did it for having less git changes at this moment
+  args = {...openToCheckSettingsArgs, ...args}
+  if (typeof args.waitBeforeCapture !== 'number') args.waitBeforeCapture = appliConfFile.waitBeforeCapture
+  let accessibilitySettings = args.accessibilitySettings || appliConfFile.accessibilityValidation
+
   const mappedValues = [
     'tag',
     'scriptHooks',
@@ -16,60 +19,86 @@ function eyesCheckMapValues({args, refer}) {
     'region',
     'selector',
     'element',
+    'variationGroupId',
+    'accessibilitySettings',
+    'visualGridOptions',
   ]
 
   let regionSettings = {}
   let shadowDomSettings = {}
-  const checkSettings = {
-    name: config.tag,
-    hooks: config.scriptHooks,
-    ignoreRegions: convertPaddedRegion(config.ignore),
-    floatingRegions: convertFloatingRegion(config.floating),
-    strictRegions: convertPaddedRegion(config.strict),
-    layoutRegions: convertPaddedRegion(config.layout),
-    contentRegions: convertPaddedRegion(config.content),
-    accessibilityRegions: convertAccessabilityRegions(config.accessibility),
+
+  let renderers = args.renderers || args.browser || appliConfFile.browser
+  if (renderers) {
+    if (Array.isArray(renderers)) {
+      for (const [index, value] of renderers.entries()) {
+        renderers[index] = fillDefaultBrowserName(value)
+      }
+    } else {
+      renderers = [fillDefaultBrowserName(renderers)]
+    }
   }
 
-  if (config.target === 'region') {
-    if (!Array.isArray(config.selector)) {
-      if (config.element) {
-        if (isHTMLElement(config.element)) {
+  const checkSettings = {
+    name: args.tag,
+    hooks: args.scriptHooks,
+    ignoreRegions: convertPaddedRegion(args.ignore),
+    floatingRegions: convertFloatingRegion(args.floating),
+    strictRegions: convertPaddedRegion(args.strict),
+    layoutRegions: convertPaddedRegion(args.layout),
+    contentRegions: convertPaddedRegion(args.content),
+    accessibilityRegions: convertAccessabilityRegions(args.accessibility),
+    renderers,
+  }
+  if (args.variationGroupId) {
+    checkSettings.userCommandId = args.variationGroupId
+  }
+  if (args.accessibilitySettings) {
+    checkSettings.accessibilitySettings = accessibilitySettings
+  }
+
+  if (args.visualGridOptions) {
+    checkSettings.ufgOptions = args.visualGridOptions
+  }
+
+  if (args.target === 'region') {
+    if (!Array.isArray(args.selector)) {
+      if (args.element) {
+        if (isHTMLElement(args.element)) {
           regionSettings = {
-            region: Object.assign(refer.ref(config.element), {type: 'element'}),
+            region: Object.assign(refer.ref(args.element), {type: 'element'}),
           }
         } else {
           // JQuery element
           regionSettings = {
-            region: Object.assign(refer.ref(config.element[0]), {type: 'element'}),
+            region: Object.assign(refer.ref(args.element[0]), {type: 'element'}),
           }
         }
       } else if (
-        config.region &&
-        config.region.hasOwnProperty('top') &&
-        config.region.hasOwnProperty('left') &&
-        config.region.hasOwnProperty('width') &&
-        config.region.hasOwnProperty('height')
+        args.region &&
+        args.region.hasOwnProperty('top') &&
+        args.region.hasOwnProperty('left') &&
+        args.region.hasOwnProperty('width') &&
+        args.region.hasOwnProperty('height')
       ) {
         regionSettings = {
           region: {
-            y: config.region.top,
-            x: config.region.left,
-            width: config.region.width,
-            height: config.region.height,
+            y: args.region.top,
+            x: args.region.left,
+            width: args.region.width,
+            height: args.region.height,
           },
         }
-      } else if (!config.hasOwnProperty('selector')) {
+      } else if (!args.hasOwnProperty('selector')) {
         regionSettings = {
-          region: config.region,
+          region: args.region,
         }
       } else {
         regionSettings = {
-          region: config.selector,
+          region: args.selector,
         }
       }
     } else {
-      const selectors = config.selector
+      const selectors = args.selector
       for (let i = selectors.length - 1; i > -1; i--) {
         if (i === selectors.length - 1) {
           shadowDomSettings['shadow'] = selectors[i].selector
@@ -88,12 +117,12 @@ function eyesCheckMapValues({args, refer}) {
   }
 
   for (const val of mappedValues) {
-    if (config.hasOwnProperty(val)) {
-      delete config[val]
+    if (args.hasOwnProperty(val)) {
+      delete args[val]
     }
   }
 
-  return Object.assign({}, checkSettings, regionSettings, config)
+  return Object.assign({}, checkSettings, regionSettings, args)
 
   // #region helper functions
 
@@ -176,10 +205,12 @@ function eyesCheckMapValues({args, refer}) {
 
     for (const region of floatingRegions) {
       const floatingRegion = {
-        maxDownOffset: region.maxDownOffset || 0,
-        maxLeftOffset: region.maxLeftOffset || 0,
-        maxUpOffset: region.maxUpOffset || 0,
-        maxRightOffset: region.maxRightOffset || 0,
+        offset: {
+          bottom: region.maxDownOffset || 0,
+          left: region.maxLeftOffset || 0,
+          top: region.maxUpOffset || 0,
+          right: region.maxRightOffset || 0,
+        },
       }
       if (region.hasOwnProperty('selector')) {
         floatingRegion.region = region.selector
@@ -191,7 +222,7 @@ function eyesCheckMapValues({args, refer}) {
           floating.push(Object.assign({}, region, floatingRegion, {region: element}))
         }
       } else if (region.hasOwnProperty('region')) {
-        floating.push(region)
+        floating.push({offset: floatingRegion.offset, ...region})
       } else {
         floatingRegion.region = {
           y: region.top,
@@ -231,6 +262,20 @@ function isHTMLElement(element) {
   // Avoiding instanceof here since the element might come from an iframe, and `instanceof HTMLElement` would fail.
   // This check looks naive, but if anyone passes something like {nodeType: 1} as a region, then I'm fine with them crashing :)
   return element.nodeType && element.nodeType === Node.ELEMENT_NODE
+}
+
+function fillDefaultBrowserName(browser) {
+  if (!browser.iosDeviceInfo && !browser.chromeEmulationInfo) {
+    if (!browser.name) {
+      browser.name = 'chrome'
+    }
+    if (browser.deviceName) {
+      browser = {chromeEmulationInfo: browser}
+    }
+    return browser
+  } else {
+    return browser
+  }
 }
 
 module.exports = {eyesCheckMapValues}

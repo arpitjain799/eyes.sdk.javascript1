@@ -1,0 +1,23 @@
+{{#if errors}}
+## ❓ No tests
+{{#each errors}}
+{{> error }}
+
+{{/each}}
+{{/if}}
+
+{{#if failures}}
+## ❌ Failures
+{{#each failures}}
+{{> report }}
+
+{{/each}}
+{{/if}}
+
+{{#if passes}}
+## ✅ Passes
+{{#each passes}}
+{{> report }}
+
+{{/each}}
+{{/if}}

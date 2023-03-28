@@ -3,8 +3,15 @@ import isGlobalHooksSupported from './isGlobalHooksSupported'
 import {presult} from '@applitools/functional-commons'
 import makeGlobalRunHooks from './hooks'
 import {type EyesPluginConfig} from './'
+import {type StartServerReturn} from './server'
 
-export default function makePluginExport({startServer, eyesConfig}: any) {
+export default function makePluginExport({
+  startServer,
+  eyesConfig,
+}: {
+  startServer: (options?: Cypress.PluginConfigOptions) => Promise<StartServerReturn>
+  eyesConfig: EyesPluginConfig
+}) {
   return function pluginExport(pluginInitArgs: Cypress.ConfigOptions | NodeJS.Module) {
     let eyesServer: any, pluginModuleExports: any, pluginExportsE2E: any, pluginExportsComponent: any
     let pluginExports
@@ -55,14 +62,14 @@ export default function makePluginExport({startServer, eyesConfig}: any) {
       return pluginInitArgs
     }
     return function getCloseServer() {
-      return eyesServer.close()
+      return new Promise<void>(res => eyesServer.close(() => res()))
     }
 
     async function setupNodeEvents(
       origOn: Cypress.PluginEvents,
       cypressConfig: Cypress.PluginConfigOptions,
     ): Promise<EyesPluginConfig> {
-      const {server, port, closeManager, closeBatches, closeUniversalServer} = await startServer()
+      const {server, port, closeManager, closeBatches, closeUniversalServer} = await startServer(cypressConfig)
       eyesServer = server
 
       const globalHooks: any = makeGlobalRunHooks({

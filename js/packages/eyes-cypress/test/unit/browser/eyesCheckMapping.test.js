@@ -23,7 +23,7 @@ describe('eyes check mapping', () => {
           maxRightOffset: 30,
         },
       ],
-      variationGroupId: {variationGroupId: 'Login screen variation #1'},
+      userCommandId: 'Login screen variation #1',
       target: 'region',
       selector: {
         type: 'css',
@@ -48,19 +48,22 @@ describe('eyes check mapping', () => {
       },
       ignoreRegions: [{region: 'some ignore region selector'}],
       layoutRegions: [{region: 'some layout region selector'}],
+      renderers: undefined,
       strictRegions: [{region: 'some strict region selector'}],
       contentRegions: [{region: 'some content region selector'}],
       accessibilityRegions: [{region: 'some accessibility region selector', type: 'RegularText'}],
       floatingRegions: [
         {
           region: 'some floating region selector',
-          maxUpOffset: 3,
-          maxDownOffset: 3,
-          maxLeftOffset: 20,
-          maxRightOffset: 30,
+          offset: {
+            top: 3,
+            bottom: 3,
+            left: 20,
+            right: 30,
+          },
         },
       ],
-      variationGroupId: {variationGroupId: 'Login screen variation #1'},
+      userCommandId: 'Login screen variation #1',
       target: 'region',
       region: {
         selector: '.my-element',
@@ -69,7 +72,7 @@ describe('eyes check mapping', () => {
       useDom: true,
       enablePatterns: true,
       matchLevel: 'Layout',
-      visualGridOptions: {
+      ufgOptions: {
         polyfillAdoptedStyleSheets: true,
       },
       layoutBreakpoints: [500, 1000],
@@ -98,6 +101,8 @@ describe('eyes check mapping', () => {
       contentRegions: undefined,
       accessibilityRegions: undefined,
       region: {'applitools-ref-id': '1234', type: 'element'},
+      waitBeforeCapture: undefined,
+      renderers: undefined,
       target: 'region',
     }
 
@@ -109,7 +114,7 @@ describe('eyes check mapping', () => {
       },
     }
 
-    const coreConfig = eyesCheckMapValues({args, refer})
+    const coreConfig = eyesCheckMapValues({args, refer, appliConfFile: {}})
     expect(coreConfig).to.be.deep.equal(expected)
   })
   it('should work with string input', () => {
@@ -122,9 +127,116 @@ describe('eyes check mapping', () => {
       strictRegions: undefined,
       layoutRegions: undefined,
       contentRegions: undefined,
+      waitBeforeCapture: undefined,
+      renderers: undefined,
       accessibilityRegions: undefined,
     }
-    const coreConfig = eyesCheckMapValues({args})
+    const coreConfig = eyesCheckMapValues({args, appliConfFile: {}})
     expect(coreConfig).to.be.deep.equal(expected)
+  })
+
+  it('should work with args before appliConfFile file', () => {
+    const args = {
+      tag: 'some tag name',
+      waitBeforeCapture: 3000,
+    }
+
+    const expected = {
+      renderers: [
+        {
+          width: 1200,
+          height: 1000,
+          name: 'chrome',
+        },
+        {
+          width: 800,
+          height: 1000,
+          name: 'chrome',
+        },
+      ],
+      name: 'some tag name',
+      hooks: undefined,
+      ignoreRegions: undefined,
+      floatingRegions: undefined,
+      strictRegions: undefined,
+      layoutRegions: undefined,
+      contentRegions: undefined,
+      waitBeforeCapture: 3000,
+      accessibilityRegions: undefined,
+    }
+
+    const appliConfFile = {
+      browser: [
+        {width: 1200, height: 1000, name: 'chrome'},
+        {width: 800, height: 1000, name: 'chrome'},
+      ],
+      apiKey: 'my api key',
+      waitBeforeCapture: 2000,
+      showLogs: true,
+      dontCloseBatches: false,
+      useDom: true,
+      ignoreCaret: true,
+      ignoreDisplacements: true,
+      accessibilityValidation: {level: 'AAA', guidelinesVersion: 'WCAG_2_0'},
+      matchLevel: 'Layout',
+      enablePatterns: true,
+      batch: {id: '1234'},
+    }
+    const coreConfig = eyesCheckMapValues({
+      args,
+      appliConfFile,
+    })
+    expect(coreConfig).to.eql(expected)
+  })
+  it('should work with config file', () => {
+    const args = {
+      tag: 'some tag name',
+    }
+
+    const expected = {
+      renderers: [
+        {
+          width: 1200,
+          height: 1000,
+          name: 'chrome',
+        },
+        {
+          width: 800,
+          height: 1000,
+          name: 'chrome',
+        },
+      ],
+      name: 'some tag name',
+      hooks: undefined,
+      ignoreRegions: undefined,
+      floatingRegions: undefined,
+      strictRegions: undefined,
+      layoutRegions: undefined,
+      contentRegions: undefined,
+      waitBeforeCapture: 2000,
+      accessibilityRegions: undefined,
+    }
+
+    const appliConfFile = {
+      browser: [
+        {width: 1200, height: 1000, name: 'chrome'},
+        {width: 800, height: 1000, name: 'chrome'},
+      ],
+      apiKey: 'my api key',
+      waitBeforeCapture: 2000,
+      showLogs: true,
+      dontCloseBatches: false,
+      useDom: true,
+      ignoreCaret: true,
+      ignoreDisplacements: true,
+      matchLevel: 'Layout',
+      enablePatterns: true,
+      batch: {id: '1234'},
+    }
+    const coreConfig = eyesCheckMapValues({
+      args,
+      appliConfFile,
+    })
+    expect(coreConfig).to.eql(expected)
   })
 })

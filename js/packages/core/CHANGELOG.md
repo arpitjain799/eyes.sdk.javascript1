@@ -2,6 +2,26 @@
 
 ## Unreleased
 
+## 2.4.3 - 2023/3/22
+
+### Features
+- Changed `makeManager` api to accept `settings`
+### Bug fixes
+- Fixed retry interval during poll requests to eyes back-end
+
+## 2.4.2 - 2023/3/17
+
+### Features
+### Bug fixes
+- Fixed issue with concurrency of the renders in ufg mode
+
+## 2.4.1 - 2023/3/17
+
+### Features
+- Improved extraction of nml element
+### Bug fixes
+- Fixed issue with concurrency of the renders in ufg mode
+
 ## 2.4.0 - 2023/3/12
 
 ### Features

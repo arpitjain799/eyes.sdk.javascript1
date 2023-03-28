@@ -3,6 +3,25 @@
 ## Unreleased
 
 
+## 3.31.5 - 2023/3/28
+
+### Features
+### Bug fixes
+- Optimized number of requests during polling
+- Write result files without throwing error
+
+## 3.31.4 - 2023/3/17
+
+### Features
+### Bug fixes
+- Fixed slowness during ufg tests
+
+## 3.31.3 - 2023/3/14
+
+### Features
+### Bug fixes
+- Update internal dependencies
+
 ## 3.31.2 - 2023/3/9
 
 ### Features

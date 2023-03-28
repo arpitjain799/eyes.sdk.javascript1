@@ -12,6 +12,21 @@
 
 
 
+## 3.30.1 - 2023/3/22
+
+### Features
+### Bug fixes
+- Fixed cypress 8 not working with core v2
+- Fixed closeBatch issue
+
+## 3.30.0 - 2023/3/19
+
+### Features
+- Crop screenshot image base on account info
+### Bug fixes
+- Fixed slowness during ufg tests
+- Upgrade to core@v2
+
 ## 3.29.1 - 2023/2/2
 
 ### Features
