@@ -5,9 +5,10 @@ import * as utils from '@applitools/utils'
 type Options = {
   client?: UFGClient
   logger: Logger
+  fetchConcurrency?: number
 }
 
-export function makeGetUFGClient({client, logger: defaultLogger}: Options) {
+export function makeGetUFGClient({client, fetchConcurrency, logger: defaultLogger}: Options) {
   const getUFGClientWithCache = utils.general.cachify(getUFGClient, ([options]) =>
     client ? 'default' : [options.config],
   )
@@ -15,6 +16,6 @@ export function makeGetUFGClient({client, logger: defaultLogger}: Options) {
   return getUFGClientWithCache
 
   async function getUFGClient({config, logger = defaultLogger}: {config: UFGRequestsConfig; logger?: Logger}) {
-    return makeUFGClient({config, logger})
+    return makeUFGClient({config, fetchConcurrency, logger})
   }
 }

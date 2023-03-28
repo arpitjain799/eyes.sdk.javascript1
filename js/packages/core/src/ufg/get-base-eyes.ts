@@ -18,7 +18,7 @@ export function makeGetBaseEyes<TSpec extends SpecType>({
   base,
   logger: defaultLogger,
 }: Options<TSpec>) {
-  const getBaseEyesWithCache = utils.general.cachify(getBaseEyes, ([options]) => options?.settings)
+  const getBaseEyesWithCache = utils.general.cachify(getBaseEyes, ([options]) => options)
   if (base) {
     base.forEach(baseEyes =>
       getBaseEyesWithCache.setCachedValue(baseEyes.test.rendererInfo, Promise.resolve([baseEyes])),
@@ -29,14 +29,17 @@ export function makeGetBaseEyes<TSpec extends SpecType>({
   async function getBaseEyes({
     settings,
     logger = defaultLogger,
+    fetchConcurrency,
   }: {
     settings?: RendererSettings
     logger?: Logger
+    fetchConcurrency?: number
   } = {}): Promise<BaseEyes[]> {
     logger.log(`Command "getBaseEyes" is called with settings`, settings)
     if (!settings) throw new Error('')
     const ufgClient = await eyes.core.getUFGClient({
       config: {...eyes.test.account, ...eyes.test.account.ufg, proxy: eyes.test.server.proxy},
+      fetchConcurrency,
       logger,
     })
     const environment = await ufgClient.bookRenderer({settings})

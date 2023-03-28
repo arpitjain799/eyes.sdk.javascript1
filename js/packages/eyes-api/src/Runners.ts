@@ -70,6 +70,7 @@ export abstract class EyesRunner {
 export class VisualGridRunner extends EyesRunner {
   private _testConcurrency?: number
   private _legacyConcurrency?: number
+  private _fetchConcurrency?: number
   /** @internal */
   readonly type = 'ufg' as const
   /** @internal */
@@ -77,6 +78,7 @@ export class VisualGridRunner extends EyesRunner {
     return {
       concurrency: this._testConcurrency,
       legacyConcurrency: this._legacyConcurrency,
+      fetchConcurrency: this._fetchConcurrency,
     }
   }
 
@@ -95,6 +97,7 @@ export class VisualGridRunner extends EyesRunner {
           ? optionsOrLegacyConcurrency.toJSON()
           : optionsOrLegacyConcurrency
       this._testConcurrency = options.testConcurrency
+      this._fetchConcurrency = options.fetchConcurrency
     }
   }
 

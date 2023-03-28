@@ -21,7 +21,12 @@ export type Target<TSpec extends SpecType> = SnapshotTarget | AutomationCore.Tar
 
 export interface Core<TSpec extends SpecType> extends AutomationCore.Core<TSpec> {
   readonly type: 'ufg'
-  getUFGClient(options?: {config: UFGRequestsConfig; concurrency?: number; logger?: Logger}): Promise<UFGClient>
+  getUFGClient(options?: {
+    config: UFGRequestsConfig
+    concurrency?: number
+    fetchConcurrency?: number
+    logger?: Logger
+  }): Promise<UFGClient>
   getNMLClient(options: {
     config: Omit<NMLRequestsConfig, 'brokerUrl'>
     driver: Driver<TSpec>

@@ -14,6 +14,7 @@ type Options<TSpec extends SpecType> = {
   concurrency?: number
   core: Core<TSpec>
   base?: BaseCore
+  fetchConcurrency?: number
   agentId?: string
   cwd?: string
   logger: Logger
@@ -44,7 +45,10 @@ export function makeMakeManager<TSpec extends SpecType>({
     settings.batch.id ??= utils.general.getEnvValue('BATCH_ID') ?? `generated-${utils.general.guid()}`
     settings.agentId ??= type === 'ufg' ? defaultAgentId?.replace(/(\/\d)/, '.visualgrid$1') : defaultAgentId
     base ??= makeBaseCore({agentId: settings.agentId, concurrency: settings.concurrency, cwd, logger})
-    const cores = {ufg: makeUFGCore({spec, base, logger}), classic: makeClassicCore({spec, base, logger})}
+    const cores = {
+      ufg: makeUFGCore({spec, base, fetchConcurrency: settings.fetchConcurrency, logger}),
+      classic: makeClassicCore({spec, base, logger}),
+    }
     const storage = [] as Eyes<TSpec, TType>[]
     return {
       openEyes: utils.general.wrap(

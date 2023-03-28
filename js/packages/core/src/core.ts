@@ -19,6 +19,7 @@ type Options<TSpec extends SpecType> = {
   spec?: SpecDriver<TSpec>
   concurrency?: number
   base?: BaseCore
+  fetchConcurrency?: number
   agentId?: string
   cwd?: string
   logger?: Logger
@@ -28,6 +29,7 @@ export function makeCore<TSpec extends SpecType>({
   spec,
   concurrency,
   base: defaultBase,
+  fetchConcurrency,
   agentId = 'core',
   cwd = process.cwd(),
   logger: defaultLogger,
@@ -42,7 +44,7 @@ export function makeCore<TSpec extends SpecType>({
       getViewportSize: spec && makeGetViewportSize({spec, logger}),
       setViewportSize: spec && makeSetViewportSize({spec, logger}),
       getECClient: makeGetECClient({logger}),
-      makeManager: makeMakeManager({spec, concurrency, core, base: defaultBase, agentId, logger}),
+      makeManager: makeMakeManager({spec, concurrency, core, base: defaultBase, fetchConcurrency, agentId, logger}),
       locate: makeLocate({spec, core, logger}),
       locateText: makeLocateText({spec, core, logger}),
       extractText: makeExtractText({spec, core, logger}),
