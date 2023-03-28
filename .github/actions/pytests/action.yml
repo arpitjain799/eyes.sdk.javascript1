@@ -1,10 +1,6 @@
 name: Tests
 description: Run tests for a package
 inputs:
-  working-directory:
-    description: the path to the directory from repository root
-    type: string
-    required: true
   test-type:
     # Can be one of:
     # eyes_images_functional_tests
@@ -17,98 +13,29 @@ inputs:
     # eyes_selenium_installation_tests
     # eyes_selenium_sauce_functional_tests
     # unit_tests
+    required: true
     description: type of the testing
-    type: string
-  build-type:
-    description: type of the build script
-    type: string
-  setup-type:
-    description: type of the setup script
-    type: string
-  remote:
-    description: remote type
-    type: string
-    default: local
-  links:
-    description: names of package directories to link before testing
-    type: string
-  grep:
+  pytest-filter:
+    required: false
     description: grep pattern to filter tests
-    type: string
-  jobs:
-    description: number of jobs to run tests in parallel
-    type: string
-  report:
-    description: report level
-    type: string
-    default: sandbox
-  shell:
-    description: shell to use
-    type: string
-    default: bash
+  core-build-dir:
+    required: false
+    description: path to core-universal binaries
+  bongo-report:
+    default: false
+    description: send bongo report, without bongo-report-release-package it will be marked as sandbox
+  bongo-report-release-package:
+    required: false
+    description: name of a package being released, bongo report will be marked as prod
 runs:
   using: composite
   steps:
     - name: Test
-      shell: ${{inputs.shell}}
-      working-directory: ${{inputs.working-directory}}
+      shell: bash
       env:
-        APPLITOOLS_TEST_REMOTE: ${{inputs.remote}}
-        MOCHA_GREP: ${{inputs.grep}}
-        MOCHA_JOBS: ${{inputs.jobs}}
+        BONGO_REPORT_TESTS: ${{inputs.bongo-report}}
+        RELEASING_PACKAGE: ${{inputs.bongo-report-release-package}}
+        PYTEST_FILTER: ${{inputs.pytest-filter}}
+        USDK_BUILD_DIR: ${{inputs.core-build-dir}}
       run: |
-        echo "::group::Configure NPM and YARN"
-        if [ "${{runner.os}}" = "Windows" ]; then npm config set script-shell "C:\\Program Files\\Git\\bin\\bash.exe"; fi
-        yarn config set ignore-engines true
-        echo "::endgroup::"
-
-        echo "::group::Installing and updating dependencies"
-        yarn install
-        if [ "${{runner.os}}" = "Windows" ]
-        then
-          npm run deps --if-present --script-shell $COMSPEC
-        else
-          npm run deps --if-present
-        fi
-        npm run upgrade:framework --if-present
-        echo "::endgroup::"
-
-        if [ ! -z "${{inputs.links}}" ]
-        then
-          echo "::group::Linking dependencies"
-          yarn --cwd ../scripts install
-          yarn --cwd ../scripts link
-          yarn link @applitools/scripts
-          npx -p @applitools/scripts link "${{inputs.links}}" --build --install
-          ls -F ./node_modules/@applitools
-          echo "::endgroup::"
-        fi
-
-        echo "::group::Building package"
-        if [ ! -z "${{inputs.build-type}}" ]
-        then
-          if [ "${{inputs.build-type}}" != "none" ]; then npm run build:${{inputs.build-type}}; fi
-        else
-          npm run build --if-present
-        fi
-        echo "::endgroup::"
-
-        echo "::group::Setting up test environment"
-        if [ ! -z "${{inputs.setup-type}}" ]
-        then
-          if [ "${{inputs.setup-type}}" != "none" ]; then npm run setup:${{inputs.setup-type}}; fi
-        else
-          npm run setup --if-present
-        fi
-        if [ -e .env ]
-        then
-          set -o allexport
-          source .env
-          set +o allexport
-        fi
-        echo "::endgroup::"
-
-        echo "::group::Running tests"
-        USDK_BUILD_DIR=`realpath bin`
         make --directory=${{github.workspace}}/python ${{inputs.test-type}}
-        echo "::endgroup::"
