@@ -38,4 +38,4 @@ runs:
         PYTEST_FILTER: ${{inputs.pytest-filter}}
         USDK_BUILD_DIR: ${{inputs.core-build-dir}}
       run: |
-        make --directory=${{github.workspace}}/python ${{inputs.test-type}}
+        cd ${{github.workspace}} && make --directory=python ${{inputs.test-type}}
