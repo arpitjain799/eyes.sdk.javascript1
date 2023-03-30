@@ -32,7 +32,6 @@ export function makeGetBaseEyes<TSpec extends SpecType>({
   }: {
     settings?: RendererSettings
     logger?: Logger
-    fetchConcurrency?: number
   } = {}): Promise<BaseEyes[]> {
     logger.log(`Command "getBaseEyes" is called with settings`, settings)
     if (!settings) throw new Error('')
