@@ -1,0 +1,16 @@
+<!doctype html>
+<html>
+<head>
+    <script>
+        window.onload = function(){
+            function randomHexNumber(){
+                return Math.floor(Math.random() * 16).toString(16);
+            }
+            var random_color = `#${randomHexNumber()}${randomHexNumber()}${randomHexNumber()}${randomHexNumber()}${randomHexNumber()}${randomHexNumber()}`;
+            document.body.style.background = random_color;
+        }
+    </script>
+</head>
+<body>
+</body>
+</html>

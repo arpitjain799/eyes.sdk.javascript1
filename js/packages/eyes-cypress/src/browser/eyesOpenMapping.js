@@ -74,12 +74,13 @@ function eyesOpenMapValues({args, appliConfFile, testName, shouldUseBrowserHooks
 }
 
 function eyesOpenToCheckMapValues(args) {
-  const {browser, waitBeforeCapture, layoutBreakpoints, accessibilityValidation} = args
+  const {browser, waitBeforeCapture, layoutBreakpoints, accessibilityValidation, matchLevel} = args
 
   const openToCheckSettingsArgs = {
     browser,
     waitBeforeCapture,
     layoutBreakpoints,
+    matchLevel,
   }
 
   if (accessibilityValidation) {

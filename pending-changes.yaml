@@ -64,6 +64,7 @@ Apollo SDK:
     - 
   bug-fix:
     - disableBrowserFetching change from open to check
+    - matchLevel change from open to check
 "@applitools/eyes-storybook":
   feature:
     - 
