@@ -18,7 +18,7 @@ export function makeGetBaseEyes<TSpec extends SpecType>({
   base,
   logger: defaultLogger,
 }: Options<TSpec>) {
-  const getBaseEyesWithCache = utils.general.cachify(getBaseEyes, ([options]) => options)
+  const getBaseEyesWithCache = utils.general.cachify(getBaseEyes, ([options]) => options?.settings)
   if (base) {
     base.forEach(baseEyes =>
       getBaseEyesWithCache.setCachedValue(baseEyes.test.rendererInfo, Promise.resolve([baseEyes])),
