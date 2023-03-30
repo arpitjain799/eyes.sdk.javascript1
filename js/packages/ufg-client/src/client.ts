@@ -1,6 +1,6 @@
-import type {UFGClient} from './types'
+import type {UFGClient, UFGClientConfig} from './types'
 import {makeLogger, type Logger} from '@applitools/logger'
-import {makeUFGRequests, type UFGRequestsConfig} from './server/requests'
+import {makeUFGRequests} from './server/requests'
 import {makeCreateRenderTarget} from './create-render-target'
 import {makeBookRenderer} from './book-renderer'
 import {makeRender} from './render'
@@ -13,18 +13,16 @@ export const defaultResourceCache = new Map<string, any>()
 export function makeUFGClient({
   config,
   cache = defaultResourceCache,
-  fetchConcurrency,
   logger,
 }: {
-  config: UFGRequestsConfig
+  config: UFGClientConfig
   cache?: Map<string, any>
-  fetchConcurrency?: number
   logger?: Logger
 }): UFGClient {
   logger = logger?.extend({label: 'ufg client'}) ?? makeLogger({label: 'ufg client'})
 
   const requests = makeUFGRequests({config, logger})
-  const fetchResource = makeFetchResource({logger, fetchConcurrency})
+  const fetchResource = makeFetchResource({logger, fetchConcurrency: config.fetchConcurrency})
   const uploadResource = makeUploadResource({requests, logger})
   const processResources = makeProcessResources({fetchResource, uploadResource, cache, logger})
 

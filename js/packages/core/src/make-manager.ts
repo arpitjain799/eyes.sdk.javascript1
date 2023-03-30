@@ -14,7 +14,6 @@ type Options<TSpec extends SpecType> = {
   concurrency?: number
   core: Core<TSpec>
   base?: BaseCore
-  fetchConcurrency?: number
   agentId?: string
   cwd?: string
   logger: Logger

@@ -29,7 +29,6 @@ export function makeGetBaseEyes<TSpec extends SpecType>({
   async function getBaseEyes({
     settings,
     logger = defaultLogger,
-    fetchConcurrency,
   }: {
     settings?: RendererSettings
     logger?: Logger
@@ -39,7 +38,6 @@ export function makeGetBaseEyes<TSpec extends SpecType>({
     if (!settings) throw new Error('')
     const ufgClient = await eyes.core.getUFGClient({
       config: {...eyes.test.account, ...eyes.test.account.ufg, proxy: eyes.test.server.proxy},
-      fetchConcurrency,
       logger,
     })
     const environment = await ufgClient.bookRenderer({settings})
