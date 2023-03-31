@@ -1,7 +1,7 @@
 import {parse as urlToHttpOptions} from 'url' // should be replaced with `urlToHttpOptions` after supporting node >=16
 import {AbortController, type AbortSignal} from 'abort-controller'
 import {Agent as HttpsAgent} from 'https'
-import globalFetch, {Request, Headers, Response} from 'node-fetch'
+import globalFetch, {Request, Headers, Response} from 'node-fetch-commonjs'
 import ProxyAgent from 'proxy-agent'
 import * as utils from '@applitools/utils'
 
