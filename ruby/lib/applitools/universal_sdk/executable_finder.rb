@@ -10,18 +10,17 @@ module Applitools::Connectivity
       server_lib ? File.join(server_lib.gem_dir, 'ext', 'eyes-universal', filename) : ''
     end
 
-    def filepath2
-      File.join(Gem.default_dir, 'gems', server_lib.full_name, 'ext', 'eyes-universal', filename)
+    def other_filepaths
+      in_gem_path = File.join('gems', server_lib.full_name, 'ext', 'eyes-universal', filename)
+      Gem.path.map {|path| File.expand_path(in_gem_path, path) }
     end
 
     def executable_filepath
       raise 'Universal server not Found' if server_lib.nil?
       puts "filepath1 : #{filepath}"
       return filepath if valid_file?(filepath)
-      puts "Gem.default_dir : #{Gem.default_dir}"
-      puts "server_lib.base_dir : #{server_lib.base_dir}"
-      puts "filepath2 : #{filepath2}"
-      return filepath2 if (Gem.default_dir != server_lib.base_dir) && valid_file?(filepath2) # build & unpublished
+      core_path = other_filepaths.find {|path| valid_file?(path) }
+      return core_path if core_path
       raise 'Universal server unrecognized'
     end
 
