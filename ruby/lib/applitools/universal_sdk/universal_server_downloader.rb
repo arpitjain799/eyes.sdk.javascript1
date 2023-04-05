@@ -10,6 +10,15 @@ module Applitools
   class UniversalServerDownloader
     class << self
 
+      EXPECTED_SHA = {
+        'core.tar.gz'      => '220f932255e3a5045af16b2433e9b96c8774150a47a5d8806e1bd4eedbffa1de',
+        'core-alpine'      => 'f4f9834b0a17c6c81da9177de99ad4618178fe1fcda358a19424651b80d06a2e',
+        'core-linux'       => '05b3c1490d2743a9ffc94edbd13024beaf1491b4d34c9d24cfc63db72157f00e',
+        'core-linux-arm64' => '62d86656a203718f8f92aefe55d7b7419999307f19e2c68f321bbd0b37e1a0b5',
+        'core-macos'       => '1ad02f8fc7fb2b501fd48214af3866999be5a2b7fddabd7fd8bef7272818ed6f',
+        'core-win.exe'     => '74eb7bc0a31b991ac5eac75d3f74b33b751009a1bd54b61b1bece26b5de94f3a'
+      }
+
       def download(to)
         puts "[eyes-universal] Downloading Eyes universal server from #{full_url}"
         where = filepath(to)
@@ -33,7 +42,9 @@ module Applitools
       def tar_gz_download(to) # build
         puts "[eyes-universal] Downloading Core server from #{tar_gz_full_url}"
         where = tar_gz_filepath(to)
-        tar_gz_full_url.open {|cloud| File.binwrite(where, cloud.read) }
+        unless File.exist?(where) && Digest::SHA256.file(where).to_s == tar_gz_sha
+          tar_gz_full_url.open {|cloud| File.binwrite(where, cloud.read) }
+        end
         downloaded_sha = Digest::SHA256.file(where).to_s
         if downloaded_sha == tar_gz_sha
           Gem::Package::TarReader.new(Zlib::GzipReader.open(where)) do |tar|
@@ -104,18 +115,18 @@ module Applitools
       end
 
       def expected_binary_sha
-        return '9f790b0731e620ddf39f80a7193585ecb99058a86a0eab89de70b5dc34dbcc7b' if Gem.win_platform?
+        return EXPECTED_SHA['core-win.exe'] if Gem.win_platform?
         case RUBY_PLATFORM
           when /darwin/i
-            '5489be902fdc79b2d5c271c5c4a639db829a3f652280ab979759ff4a2d3675a4'
+            EXPECTED_SHA['core-macos']
           when /arm/i
-            '217cd833752547b4fe74e178e8526a87f4020974a4719bf032a0d818587e8651'
+            EXPECTED_SHA['core-linux-arm64']
           when /mswin|windows|mingw/i
-            '9f790b0731e620ddf39f80a7193585ecb99058a86a0eab89de70b5dc34dbcc7b'
+            EXPECTED_SHA['core-win.exe']
           when /musl/i
-            '5408a87369445f0d9a571e55b8e86755710ce59d1f3fac0df7bdcbc5243b11c8'
+            EXPECTED_SHA['core-alpine']
           when /linux|arch/i
-            '7fa0b5ad01e7ac55e0574f40d80400404540f00f5ea92a852bd48299f600b787'
+            EXPECTED_SHA['core-linux']
           else
             raise 'Unsupported platform'
         end
@@ -147,24 +158,12 @@ module Applitools
         'core.tar.gz'
       end
       def tar_gz_sha
-        'b2c180b52eced0e5253dc03c527a42f944afb68a27b7f77b80b51dc4192a4d06'
+        EXPECTED_SHA[tar_gz_filename]
       end
 
       def check_binary(binary_filename, binary_sha)
-        expected_sha = case binary_filename
-                       when 'core-alpine'
-                         '5408a87369445f0d9a571e55b8e86755710ce59d1f3fac0df7bdcbc5243b11c8'
-                       when 'core-linux'
-                         '7fa0b5ad01e7ac55e0574f40d80400404540f00f5ea92a852bd48299f600b787'
-                       when 'core-linux-arm64'
-                         '217cd833752547b4fe74e178e8526a87f4020974a4719bf032a0d818587e8651'
-                       when 'core-macos'
-                         '5489be902fdc79b2d5c271c5c4a639db829a3f652280ab979759ff4a2d3675a4'
-                       when 'core-win.exe'
-                         '9f790b0731e620ddf39f80a7193585ecb99058a86a0eab89de70b5dc34dbcc7b'
-                       else
-                         raise "Unsupported platform #{binary_filename}"
-                       end
+        expected_sha = EXPECTED_SHA[binary_filename]
+        raise "Unsupported platform #{binary_filename}" if expected_sha.nil?
         binary_sha == expected_sha
       end
 
