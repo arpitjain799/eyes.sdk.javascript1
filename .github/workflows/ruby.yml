@@ -147,6 +147,7 @@ jobs:
           BUNDLE_GEMFILE: ${{ github.workspace }}/ruby/GemfileGithub
         working-directory: ruby
         run: |
+          gem install pkg/gems/eyes_universal-*.gem
           bundle install
           bundle exec rake github:platform_test
 
@@ -169,6 +170,8 @@ jobs:
           name: gems
           path: "ruby/pkg/"
       - run: apk add --no-cache g++ musl-dev make git chromium chromium-chromedriver xvfb xvfb-run
+        working-directory: ruby
+      - run: gem install pkg/gems/eyes_universal-*.gem
         working-directory: ruby
       - run: bundle install
         working-directory: ruby
@@ -204,6 +207,7 @@ jobs:
           BUNDLE_GEMFILE: ${{ github.workspace }}/ruby/GemfileGithub
         working-directory: ruby
         run: |
+          gem install pkg/gems/eyes_universal-*.gem
           bundle install
           bundle exec rake github:unit_tests
 
@@ -236,6 +240,7 @@ jobs:
           BUNDLE_GEMFILE: ${{ github.workspace }}/ruby/GemfileGithub
         working-directory: ruby
         run: |
+          gem install pkg/gems/eyes_universal-*.gem
           bundle install
           bundle exec rake github:vg_tests
 
@@ -303,6 +308,7 @@ jobs:
           BUNDLE_GEMFILE: ${{ github.workspace }}/ruby/GemfileGithub
         working-directory: ruby
         run: |
+          gem install pkg/gems/eyes_universal-*.gem
           bundle install
           bundle exec rake github:server_tests
           pip install pytest psutil
@@ -342,6 +348,7 @@ jobs:
         env:
           BUNDLE_GEMFILE: ${{ github.workspace }}/ruby/GemfileGithub
         run: |
+          gem install pkg/gems/eyes_universal-*.gem
           bundle install
           chmod +x ./generic_tests.sh && ./generic_tests.sh
 
