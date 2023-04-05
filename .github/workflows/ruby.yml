@@ -175,9 +175,9 @@ jobs:
         working-directory: ruby
       - run: bundle install
         working-directory: ruby
-      - run: ls /usr/local/lib/ruby/gems/2.7.0/gems/
+      - run: gem env
         working-directory: ruby
-      - run: ls /usr/local/lib/ruby/gems/2.7.0/gems/eyes_universal-3.3.1.a/ext/eyes-universal/
+      - run: rm pkg/gems/eyes_universal-*.gem
         working-directory: ruby
       - run: xvfb-run bundle exec rspec spec/version/simple_spec.rb
         working-directory: ruby
