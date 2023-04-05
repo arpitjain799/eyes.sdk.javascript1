@@ -17,7 +17,6 @@ module Applitools::Connectivity
 
     def executable_filepath
       raise 'Universal server not Found' if server_lib.nil?
-      puts "filepath1 : #{filepath}"
       return filepath if valid_file?(filepath)
       core_path = other_filepaths.find {|path| valid_file?(path) }
       return core_path if core_path
