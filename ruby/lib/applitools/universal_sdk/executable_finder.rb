@@ -16,7 +16,11 @@ module Applitools::Connectivity
 
     def executable_filepath
       raise 'Universal server not Found' if server_lib.nil?
+      puts "filepath1 : #{filepath}"
       return filepath if valid_file?(filepath)
+      puts "Gem.default_dir : #{Gem.default_dir}"
+      puts "server_lib.base_dir : #{server_lib.base_dir}"
+      puts "filepath2 : #{filepath2}"
       return filepath2 if (Gem.default_dir != server_lib.base_dir) && valid_file?(filepath2) # build & unpublished
       raise 'Universal server unrecognized'
     end
