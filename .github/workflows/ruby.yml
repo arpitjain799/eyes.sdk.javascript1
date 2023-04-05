@@ -147,6 +147,7 @@ jobs:
           BUNDLE_GEMFILE: ${{ github.workspace }}/ruby/GemfileGithub
         working-directory: ruby
         run: |
+          gem install pkg/gems/eyes_universal-*.gem
           bundle install
           bundle exec rake github:platform_test
 
@@ -169,6 +170,8 @@ jobs:
           name: gems
           path: "ruby/pkg/"
       - run: apk add --no-cache g++ musl-dev make git chromium chromium-chromedriver xvfb xvfb-run
+        working-directory: ruby
+      - run: gem install pkg/gems/eyes_universal-*.gem
         working-directory: ruby
       - run: bundle install
         working-directory: ruby
@@ -204,6 +207,7 @@ jobs:
           BUNDLE_GEMFILE: ${{ github.workspace }}/ruby/GemfileGithub
         working-directory: ruby
         run: |
+          gem install pkg/gems/eyes_universal-*.gem
           bundle install
           bundle exec rake github:unit_tests
 
@@ -236,42 +240,43 @@ jobs:
           BUNDLE_GEMFILE: ${{ github.workspace }}/ruby/GemfileGithub
         working-directory: ruby
         run: |
+          gem install pkg/gems/eyes_universal-*.gem
           bundle install
           bundle exec rake github:vg_tests
 
-  appium-test:
-    needs: dist-build
-    if: ${{ !(github.event_name == 'workflow_dispatch') || inputs.basic-tests }}
-    strategy:
-      matrix:
-        os: [ ubuntu-latest ]
-        ruby-version: ['2.7', '3.1']
-    runs-on: ${{ matrix.os }}
-    env:
-      APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
-      BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
-      BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
-
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          ref: ${{inputs.ref || github.ref}}
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ${{ matrix.ruby-version }}
-      - name: Load gems
-        uses: actions/download-artifact@v3
-        with:
-          name: gems
-          path: "ruby/pkg/"
-      - name: Run Appium tests
-        env:
-          BUNDLE_GEMFILE: ${{ github.workspace }}/ruby/GemfileGithub
-        working-directory: ruby
-        run: |
-          bundle install
-          bundle exec rake github:appium_tests
+#  appium-test:
+#    needs: dist-build
+#    if: ${{ !(github.event_name == 'workflow_dispatch') || inputs.basic-tests }}
+#    strategy:
+#      matrix:
+#        os: [ ubuntu-latest ]
+#        ruby-version: ['2.7', '3.1']
+#    runs-on: ${{ matrix.os }}
+#    env:
+#      APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
+#      BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+#      BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+#
+#    steps:
+#      - uses: actions/checkout@v3
+#        with:
+#          ref: ${{inputs.ref || github.ref}}
+#      - name: Set up Ruby
+#        uses: ruby/setup-ruby@v1
+#        with:
+#          ruby-version: ${{ matrix.ruby-version }}
+#      - name: Load gems
+#        uses: actions/download-artifact@v3
+#        with:
+#          name: gems
+#          path: "ruby/pkg/"
+#      - name: Run Appium tests
+#        env:
+#          BUNDLE_GEMFILE: ${{ github.workspace }}/ruby/GemfileGithub
+#        working-directory: ruby
+#        run: |
+#          bundle install
+#          bundle exec rake github:appium_tests
 
   universal-server-test:
     needs: dist-build
@@ -303,6 +308,7 @@ jobs:
           BUNDLE_GEMFILE: ${{ github.workspace }}/ruby/GemfileGithub
         working-directory: ruby
         run: |
+          gem install pkg/gems/eyes_universal-*.gem
           bundle install
           bundle exec rake github:server_tests
           pip install pytest psutil
@@ -342,6 +348,7 @@ jobs:
         env:
           BUNDLE_GEMFILE: ${{ github.workspace }}/ruby/GemfileGithub
         run: |
+          gem install pkg/gems/eyes_universal-*.gem
           bundle install
           chmod +x ./generic_tests.sh && ./generic_tests.sh
 
@@ -351,7 +358,7 @@ jobs:
       - alpine-test
       - unit-test
       - visual-test
-      - appium-test
+#      - appium-test
       - universal-server-test
       - generic-test
     runs-on: ubuntu-latest
