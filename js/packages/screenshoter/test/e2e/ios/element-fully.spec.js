@@ -16,6 +16,8 @@ describe('screenshoter ios app', () => {
     await button.click()
     await sleep(3000)
 
+    await driver.mainContext.setScrollingElement({type: 'xpath', selector: '//XCUIElementTypeTable[1]'})
+
     await test({
       type: 'ios',
       tag: 'element-fully',
