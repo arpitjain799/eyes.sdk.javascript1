@@ -204,12 +204,17 @@ exports.makeDriver = async function makeDriver({
     'ios-sauce': {
       url: 'https://ondemand.saucelabs.com:443/wd/hub',
       capabilities: {
+        'sauce:options': {
+          name: 'IOS screenshoter',
+          appiumVersion: '1.20.0',
+          username: process.env.SAUCE_USERNAME,
+          accessKey: process.env.SAUCE_ACCESS_KEY,
+        },
         browserName: app === 'safari' ? app : '',
         'appium:app': apps[app || type] || (app !== 'safari' ? app : undefined),
-        'appium:deviceName': deviceName || 'iPhone 12',
+        'appium:deviceName': deviceName || 'iPhone 12 Simulator',
         platformName: 'iOS',
-        'appium:platformVersion': platformVersion || '16.0',
-        'appium:automationName': 'XCUITest',
+        'appium:platformVersion': platformVersion || '14.5',
         'appium:orientation': orientation ? orientation.toUpperCase() : 'PORTRAIT',
         'appium:processArguments': {
           args: [],
@@ -219,13 +224,6 @@ exports.makeDriver = async function makeDriver({
           },
         },
         ...rest,
-        'sauce:options': {
-          name: 'IOS screenshoter',
-          // appiumVersion: '1.20.0',
-          username: process.env.SAUCE_USERNAME,
-          accessKey: process.env.SAUCE_ACCESS_KEY,
-          deviceName: deviceName || 'iPhone 12 Simulator',
-        },
       },
     },
     'ios-bs': {
