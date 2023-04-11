@@ -1,6 +1,6 @@
 ## [vNext] - dNext
 ### Updated
-- Updated core binaries to `2.4.9`.
+- Updated core binaries to `2.4.11`.
 ### Fixed
 - Fix `TestResults.delete` not properly deleting a test when getting results from `Runner.getAllTestResults`. [Trello 3193](https://trello.com/c/AiLEfEZZ)
 
