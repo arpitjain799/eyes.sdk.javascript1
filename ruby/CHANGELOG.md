@@ -1,3 +1,27 @@
+## [4.6.1] - 2023-04-12
+### Changed
+- Packaging server core inside eyes_universal
+### Updated
+- Update version of Universal SDK Core to 2.4.8
+### Features
+- Added removeDuplicateTests property to the GetManagerResultsSettings
+- Changed makeManager api to accept settings
+- Improved extraction of nml element
+- Update broker url using last response instead of using driver
+### Bug fixes
+- Fixed screenshot framing
+- Fixed issue with css fetching for dom capture
+- Fixed issue with emulation driver detection
+- Fixed relative url resolution in css files
+- Added timeout to css fetching during preparing dom capture
+- Improve performance in DOM snapshot
+- Fixed retry interval during poll requests to eyes back-end
+- Fixed issue with concurrency of the renders in ufg mode
+- Fixed issue with concurrency of the renders in ufg mode
+- Fixed ufg concurrency regression
+- Replaced broker url cache with nml element cache
+- Fixed selector transformation for scroll root elements for ufg
+- Upgrade tunnel version
 ## [4.6.0] - 2023-03-06
 ### Changed
 - change server package to @applitools/core
