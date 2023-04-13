@@ -1,6 +1,8 @@
 ## [vNext] - dNext
 ### Updated
 - Updated core binaries to `2.4.12`.
+### Added
+- Added support for `runner.setRemoveDuplicateTests(Boolean)`.
 ### Fixed
 - Fix `TestResults.delete` not deleting a test in some cases when getting results from `Runner.getAllTestResults`. [Trello 3193](https://trello.com/c/AiLEfEZZ)
 
