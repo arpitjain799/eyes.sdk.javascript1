@@ -4,7 +4,7 @@ import * as spec from '@applitools/spec-driver-puppeteer'
 import assert from 'assert'
 import {createApp} from '../../fixtures/browser-fetching-fetchConcurrency/app'
 
-describe('browser-fetching', () => {
+describe('resource fetching with fetchConcurrency', () => {
   let page: spec.Driver, destroyPage: () => Promise<void>, server: any, baseUrl: string, closeApp: any
   const {startApp} = createApp({maxRequests: 2})
 

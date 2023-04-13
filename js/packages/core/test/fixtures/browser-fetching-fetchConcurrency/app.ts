@@ -52,13 +52,6 @@ const limitParallelRequests = async (_req: any, res: any, next: any) => {
        
           return promisify(server.close.bind(server));
     }
-    
-    const closeApp = () => {
-        app.close(() => {
-            console.log('Server closed. Exiting process...');
-            process.exit(0);
-        });
-    }
 
-    return {startApp, closeApp}
+    return {startApp}
 }
