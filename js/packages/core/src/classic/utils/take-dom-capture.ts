@@ -1,6 +1,6 @@
 import {type SpecType, type Driver, type Context} from '@applitools/driver'
 import {type Logger} from '@applitools/logger'
-import {req, type Fetch} from '@applitools/req'
+import {req, type Fetch, type Proxy} from '@applitools/req'
 
 const {
   getCaptureDomPoll,
@@ -10,10 +10,12 @@ const {
 } = require('@applitools/dom-capture')
 
 export type DomCaptureSettings = {
-  fetch?: Fetch
   executionTimeout?: number
   pollTimeout?: number
+  fetchTimeout?: number
   chunkByteLength?: number
+  proxy?: Proxy
+  fetch?: Fetch
 }
 
 export async function takeDomCapture<TSpec extends SpecType>({
@@ -25,19 +27,22 @@ export async function takeDomCapture<TSpec extends SpecType>({
   settings?: DomCaptureSettings
   logger: Logger
 }) {
-  const isLegacyBrowser = driver.isIE || driver.isEdgeLegacy
+  const environment = await driver.getEnvironment()
+  const features = await driver.getFeatures()
+  const isLegacyBrowser = environment.isIE || environment.isEdgeLegacy
   const arg = {
     chunkByteLength:
       settings?.chunkByteLength ??
-      (Number(process.env.APPLITOOLS_SCRIPT_RESULT_MAX_BYTE_LENGTH) || (driver.isIOS ? 100_000 : 250 * 1024 * 1024)),
+      (Number(process.env.APPLITOOLS_SCRIPT_RESULT_MAX_BYTE_LENGTH) ||
+        (environment.isIOS ? 100_000 : 250 * 1024 * 1024)),
   }
   const scripts = {
-    main: driver.features?.canExecuteOnlyFunctionScripts
+    main: features.canExecuteOnlyFunctionScripts
       ? require('@applitools/dom-capture').captureDomPoll
       : `return (${
           isLegacyBrowser ? await getCaptureDomPollForIE() : await getCaptureDomPoll()
         }).apply(null, arguments);`,
-    poll: driver.features?.canExecuteOnlyFunctionScripts
+    poll: features.canExecuteOnlyFunctionScripts
       ? require('@applitools/dom-capture').pollResult
       : `return (${isLegacyBrowser ? await getPollResultForIE() : await getPollResult()}).apply(null, arguments);`,
   }
@@ -95,17 +100,20 @@ export async function takeDomCapture<TSpec extends SpecType>({
     logger.log(`Request to download css will be sent to the address "[GET]${url}"`)
     try {
       const response = await req(url, {
+        timeout: settings?.fetchTimeout ?? 60_000,
         retry: {
           limit: 1,
-          validate: ({response, error}) => Boolean(error) || !response!.ok,
+          validate: ({response, error}) => !!error || !response!.ok,
         },
+        proxy: settings?.proxy,
         fetch: settings?.fetch,
       })
+      const css = await response.text()
       logger.log(
         `Request to download css that was sent to the address "[GET]${url}" respond with ${response.statusText}(${response.status})`,
-        response.ok ? `and css of length ${(await response.clone().text()).length} chars` : '',
+        response.ok ? `and css of length ${css.length} chars` : '',
       )
-      return {url, css: response.ok ? encodeJSON(await response.text()) : ''}
+      return {url, css: response.ok ? encodeJSON(css) : ''}
     } catch (error) {
       logger.error(`Request to download css that was sent to the address "[GET]${url}" failed with error`, error)
       return {url, css: ''}

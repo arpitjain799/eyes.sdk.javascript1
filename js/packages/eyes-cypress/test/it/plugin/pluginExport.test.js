@@ -42,6 +42,7 @@ describe('pluginExport', () => {
       eyesFailCypressOnDiff: true,
       eyesIsDisabled: false,
       eyesIsGlobalHooksSupported: false,
+      eyesRemoveDuplicateTests: false,
       eyesBrowser: undefined,
       eyesTestConcurrency: 5,
       eyesWaitBeforeCapture: undefined,
@@ -66,6 +67,7 @@ describe('pluginExport', () => {
       eyesFailCypressOnDiff: true,
       eyesIsDisabled: false,
       eyesIsGlobalHooksSupported: false,
+      eyesRemoveDuplicateTests: false,
       eyesBrowser: undefined,
       eyesTestConcurrency: 5,
       version: '6.5.0',
@@ -95,6 +97,7 @@ describe('pluginExport', () => {
       eyesFailCypressOnDiff: true,
       eyesIsDisabled: false,
       eyesIsGlobalHooksSupported: false,
+      eyesRemoveDuplicateTests: false,
       eyesBrowser: undefined,
       eyesTestConcurrency: 5,
       eyesWaitBeforeCapture: undefined,
@@ -120,6 +123,7 @@ describe('pluginExport', () => {
       eyesDisableBrowserFetching: false,
       eyesLayoutBreakpoints: undefined,
       eyesFailCypressOnDiff: true,
+      eyesRemoveDuplicateTests: false,
       eyesBrowser: undefined,
       eyesTestConcurrency: 5,
       eyesWaitBeforeCapture: undefined,
@@ -145,31 +149,7 @@ describe('pluginExport', () => {
       eyesIsDisabled: false,
       eyesIsGlobalHooksSupported: false,
       eyesFailCypressOnDiff: false,
-      eyesBrowser: undefined,
-      eyesTestConcurrency: 5,
-      eyesWaitBeforeCapture: undefined,
-      tapDirPath: undefined,
-      tapFileName: undefined,
-    })
-  })
-
-  it('works with eyes disableBrowserFetching', async () => {
-    eyesConfig.eyesDisableBrowserFetching = true
-    const pluginExport = makePluginExport({startServer, eyesConfig, globalHooks})
-    const __module = {
-      exports: () => ({bla: 'ret'}),
-    }
-
-    pluginExport(__module)
-    const ret = await __module.exports(() => {}, {})
-    expect(ret).to.eql({
-      bla: 'ret',
-      eyesPort: 123,
-      eyesDisableBrowserFetching: true,
-      eyesLayoutBreakpoints: undefined,
-      eyesIsDisabled: false,
-      eyesIsGlobalHooksSupported: false,
-      eyesFailCypressOnDiff: true,
+      eyesRemoveDuplicateTests: false,
       eyesBrowser: undefined,
       eyesTestConcurrency: 5,
       eyesWaitBeforeCapture: undefined,
@@ -195,6 +175,7 @@ describe('pluginExport', () => {
       eyesFailCypressOnDiff: true,
       eyesIsDisabled: false,
       eyesIsGlobalHooksSupported: false,
+      eyesRemoveDuplicateTests: false,
       eyesBrowser: undefined,
       eyesTestConcurrency: 5,
       eyesWaitBeforeCapture: undefined,
@@ -223,6 +204,7 @@ describe('pluginExport', () => {
       eyesFailCypressOnDiff: true,
       eyesIsDisabled: false,
       eyesIsGlobalHooksSupported: false,
+      eyesRemoveDuplicateTests: false,
       eyesBrowser: undefined,
       eyesTestConcurrency: 5,
       eyesWaitBeforeCapture: undefined,
@@ -251,6 +233,7 @@ describe('pluginExport', () => {
       eyesFailCypressOnDiff: true,
       eyesIsDisabled: false,
       eyesIsGlobalHooksSupported: false,
+      eyesRemoveDuplicateTests: false,
       eyesBrowser: undefined,
       eyesTestConcurrency: 5,
       eyesWaitBeforeCapture: undefined,

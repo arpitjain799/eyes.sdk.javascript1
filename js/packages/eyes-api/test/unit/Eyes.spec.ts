@@ -53,6 +53,32 @@ describe('Eyes', () => {
     )
   })
 
+  it('should create classic eyes with removeDuplicateTests', async () => {
+    const eyes = new Eyes(new api.ClassicRunner({removeDuplicateTests: true}))
+    assert.ok(eyes.runner instanceof api.ClassicRunner)
+    await eyes.open(driver)
+    await eyes.check()
+    await eyes.close()
+    await eyes.runner.getAllTestResults()
+    assert.deepEqual(
+      core.history.filter(h => h.command === 'getManagerResults'),
+      [{command: 'getManagerResults', data: {settings: {throwErr: true, removeDuplicateTests: true}}}],
+    )
+  })
+
+  it('should create vg eyes with removeDuplicateTests', async () => {
+    const eyes = new Eyes(new api.VisualGridRunner({removeDuplicateTests: true}))
+    assert.ok(eyes.runner instanceof api.VisualGridRunner)
+    await eyes.open(driver)
+    await eyes.check()
+    await eyes.close()
+    await eyes.runner.getAllTestResults()
+    assert.deepEqual(
+      core.history.filter(h => h.command === 'getManagerResults'),
+      [{command: 'getManagerResults', data: {settings: {throwErr: true, removeDuplicateTests: true}}}],
+    )
+  })
+
   it('should merge configuration from eyes instance and "open" method', async () => {
     const config = {
       appName: 'base-app',

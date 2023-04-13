@@ -1,7 +1,7 @@
 'use strict';
 const {describe, it, beforeEach, afterEach} = require('mocha');
 const {expect} = require('chai');
-const generateConfig = require('../../src/generateConfig');
+const {generateConfig} = require('../../src/generateConfig');
 
 const sideEffectConfig = {
   testConcurrency: 5,
@@ -98,5 +98,16 @@ describe('generateConfig', function() {
     const defaultConfig = {waitBeforeCapture: 50, waitBeforeScreenshot: 50};
     const config = generateConfig({defaultConfig});
     expect(config.waitBeforeCapture).to.eql('.someClass');
+  });
+
+  it('populates showLogs if APPLITOOLS_SHOW_LOGS env var is defined', () => {
+    process.env.APPLITOOLS_SHOW_LOGS = 'true';
+    const config = generateConfig({});
+    expect(config.showLogs).to.be.true;
+  });
+
+  it('populate default renderers in not provided', () => {
+    const config = generateConfig({argv: {}});
+    expect(config.renderers).to.eql([{name: 'chrome', width: 1024, height: 768}]);
   });
 });

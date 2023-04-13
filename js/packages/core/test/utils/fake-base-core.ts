@@ -1,4 +1,4 @@
-import type {AccountInfo, Core, Eyes} from '@applitools/core-base'
+import type {AccountInfo, Core, Eyes, TestResult} from '@applitools/core-base'
 import * as utils from '@applitools/utils'
 import EventEmitter from 'events'
 
@@ -22,13 +22,22 @@ export function makeFakeCore({
     async getAccountInfo(options) {
       emitter.emit('getAccountInfo', options)
       await hooks?.getAccountInfo?.(options)
-      return account as AccountInfo
+      return {
+        server: {
+          serverUrl: options.settings?.serverUrl,
+          apiKey: options.settings?.apiKey,
+          proxy: options.settings?.proxy,
+        },
+        ...account,
+      } as AccountInfo
     },
     async closeBatch(options) {
       emitter.emit('closeBatch', options)
       await hooks?.closeBatch?.(options)
     },
-    deleteTest: null as never,
+    async deleteTest(options) {
+      emitter.emit('deleteTest', options)
+    },
     async logEvent() {
       emitter.emit('logEvent')
     },
@@ -75,6 +84,8 @@ export function makeFakeCore({
             resultsUrl: 'https://result-url.com',
             keepBatchOpen: false,
             isNew: true,
+            initializedAt: new Date().toISOString(),
+            keepIfDuplicate: !!options.settings.baselineEnvName,
             account: account as AccountInfo,
             server: {
               serverUrl: options.settings?.serverUrl,
@@ -132,7 +143,7 @@ export function makeFakeCore({
                   status: steps.every(result => result.asExpected) ? ('Passed' as const) : ('Unresolved' as const),
                   stepsInfo: steps,
                 },
-              ]
+              ] as TestResult[]
             } finally {
               emitter.emit('afterCheckAndClose', options)
             }
@@ -146,6 +157,10 @@ export function makeFakeCore({
               results.push({
                 status: steps.every(result => result.asExpected) ? ('Passed' as const) : ('Unresolved' as const),
                 stepsInfo: steps,
+                baselineId: 'baseline-id',
+                batchId: 'batch-id',
+                keepIfDuplicate: false,
+                server: {serverUrl: 'server-url', apiKey: 'api-key', proxy: 'proxy'},
               })
             } finally {
               emitter.emit('afterClose', options)
@@ -167,7 +182,7 @@ export function makeFakeCore({
             try {
               await utils.general.sleep(40)
               await hooks?.getResults?.(options)
-              return results
+              return results as TestResult[]
             } finally {
               emitter.emit('afterGetResults', options)
             }

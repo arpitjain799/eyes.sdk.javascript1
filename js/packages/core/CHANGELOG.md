@@ -2,6 +2,63 @@
 
 ## Unreleased
 
+## 2.4.12 - 2023/4/12
+
+### Features
+### Bug fixes
+- Expose types for eyes-cypress
+
+## 2.4.11 - 2023/4/11
+
+### Features
+- Make `locate` to return coordinates that could be directly used with the driver
+### Bug fixes
+- Fix issue when `locate` return wrong type of the region, with `left` and `top` properties instead of `x` and `y`
+
+## 2.4.10 - 2023/4/10
+
+### Features
+### Bug fixes
+- Improved appium prefixed capabilities parsing
+
+## 2.4.9 - 2023/4/7
+
+### Features
+### Bug fixes
+- Fixed issue in dom snapshot that prevented urls that start with a whitespace to be mapped
+
+## 2.4.8 - 2023/4/5
+
+### Features
+### Bug fixes
+- Fixed screenshot framing
+- Fixed issue with css fetching for dom capture
+
+## 2.4.7 - 2023/4/4
+
+### Features
+### Bug fixes
+- Fixed issue with emulation driver detection
+
+## 2.4.6 - 2023/4/4
+
+### Features
+### Bug fixes
+- Fixed relative url resolution in css files
+- Added timeout to css fetching during preparing dom capture
+
+## 2.4.5 - 2023/3/31
+
+### Features
+- Added `removeDuplicateTests` property to the `GetManagerResultsSettings`
+### Bug fixes
+
+## 2.4.4 - 2023/3/30
+
+### Features
+### Bug fixes
+- Improve performance in DOM snapshot
+
 ## 2.4.3 - 2023/3/22
 
 ### Features

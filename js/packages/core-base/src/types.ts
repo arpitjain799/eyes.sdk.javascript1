@@ -59,9 +59,12 @@ export interface TestInfo {
   sessionId: string
   appId: string
   resultsUrl: string
+  initializedAt: string
   isNew: boolean
   keepBatchOpen: boolean
+  keepIfDuplicate: boolean
   server: ServerSettings
+  ufgServer: UFGServerSettings
   account: AccountInfo
   rendererId?: string
   rendererUniqueId?: string
@@ -71,8 +74,17 @@ export interface TestInfo {
 export interface ServerSettings {
   serverUrl: string
   apiKey: string
-  proxy?: Proxy
   agentId?: string
+  proxy?: Proxy
+}
+
+export interface UFGServerSettings {
+  serverUrl: string
+  uploadUrl: string
+  stitchingServiceUrl: string
+  accessToken: string
+  agentId?: string
+  proxy?: Proxy
 }
 
 type SessionType = 'SEQUENTIAL' | 'PROGRESSION'
@@ -179,10 +191,8 @@ export interface LogEventSettings extends ServerSettings {
 }
 
 export interface AccountInfo {
-  ufg: {
-    serverUrl: string // serviceUrl
-    accessToken: string // accessToken
-  }
+  server: ServerSettings
+  ufgServer: UFGServerSettings
   rcaEnabled: boolean
   stitchingServiceUrl: string
   uploadUrl: string // resultsUrl
@@ -191,7 +201,6 @@ export interface AccountInfo {
   selfHealingEnabled: boolean
 }
 
-type ImageRotation = -270 | -180 | -90 | 0 | 90 | 180 | 270
 type OffsetRect = {
   top?: number
   right?: number
@@ -204,7 +213,7 @@ export interface ImageSettings<TRegion = Region> {
   region?: TRegion
   normalization?: {
     cut?: ImageCropRect | ImageCropRegion
-    rotation?: ImageRotation
+    rotation?: -270 | -180 | -90 | 0 | 90 | 180 | 270
     scaleRatio?: number
     limit?: {maxImageArea: number; maxImageHeight: number}
   }
@@ -283,66 +292,68 @@ export interface GetResultsSettings {
   userCommandId?: string
 }
 
-type TestResultsStatus = 'Passed' | 'Unresolved' | 'Failed'
-type AccessibilityStatus = 'Passed' | 'Failed'
 type StepInfo = {
-  readonly name?: string
-  readonly isDifferent?: boolean
-  readonly hasBaselineImage?: boolean
-  readonly hasCurrentImage?: boolean
-  readonly appUrls?: AppUrls
-  readonly apiUrls?: ApiUrls
-  readonly renderId?: string[]
+  readonly name: string
+  readonly isDifferent: boolean
+  readonly hasBaselineImage: boolean
+  readonly hasCurrentImage: boolean
+  readonly appUrls: AppUrls
+  readonly apiUrls: ApiUrls
+  readonly renderId: string[]
 }
 type ApiUrls = {
-  readonly baselineImage?: string
-  readonly currentImage?: string
-  readonly checkpointImage?: string
-  readonly checkpointImageThumbnail?: string
-  readonly diffImage?: string
+  readonly baselineImage: string
+  readonly currentImage: string
+  readonly checkpointImage: string
+  readonly checkpointImageThumbnail: string
+  readonly diffImage: string
 }
 type AppUrls = {
-  readonly step?: string
-  readonly stepEditor?: string
+  readonly step: string
+  readonly stepEditor: string
 }
 type SessionUrls = {
-  readonly batch?: string
-  readonly session?: string
+  readonly batch: string
+  readonly session: string
 }
 export interface TestResult {
-  readonly id?: string
-  readonly userTestId?: string
-  readonly name?: string
-  readonly secretToken?: string
-  readonly status?: TestResultsStatus
-  readonly appName?: string
-  readonly batchId?: string
-  readonly batchName?: string
-  readonly branchName?: string
-  readonly hostOS?: string
-  readonly hostApp?: string
-  readonly hostDisplaySize?: Size
-  readonly accessibilityStatus?: {
+  readonly id: string
+  readonly baselineId: string
+  readonly userTestId: string
+  readonly batchId: string
+  readonly server: ServerSettings
+  readonly secretToken: string
+  readonly status: 'Passed' | 'Unresolved' | 'Failed'
+  readonly name: string
+  readonly appName: string
+  readonly batchName: string
+  readonly branchName: string
+  readonly hostOS: string
+  readonly hostApp: string
+  readonly hostDisplaySize: Size
+  readonly accessibilityStatus: {
     readonly level: AccessibilityLevel
     readonly version: AccessibilityGuidelinesVersion
-    readonly status: AccessibilityStatus
+    readonly status: 'Passed' | 'Failed'
   }
-  readonly startedAt?: Date | string
-  readonly duration?: number
-  readonly isNew?: boolean
-  readonly isDifferent?: boolean
-  readonly isAborted?: boolean
-  readonly appUrls?: SessionUrls
-  readonly apiUrls?: SessionUrls
-  readonly stepsInfo?: StepInfo[]
-  readonly steps?: number
-  readonly matches?: number
-  readonly mismatches?: number
-  readonly missing?: number
-  readonly exactMatches?: number
-  readonly strictMatches?: number
-  readonly contentMatches?: number
-  readonly layoutMatches?: number
-  readonly noneMatches?: number
-  readonly url?: string
+  readonly initializedAt: string
+  readonly startedAt: string
+  readonly duration: number
+  readonly isNew: boolean
+  readonly isDifferent: boolean
+  readonly isAborted: boolean
+  readonly keepIfDuplicate: boolean
+  readonly appUrls: SessionUrls
+  readonly apiUrls: SessionUrls
+  readonly url: string
+  readonly stepsInfo: StepInfo[]
+  readonly steps: number
+  readonly matches: number
+  readonly mismatches: number
+  readonly missing: number
+  readonly exactMatches: number
+  readonly strictMatches: number
+  readonly contentMatches: number
+  readonly layoutMatches: number
+  readonly noneMatches: number
 }

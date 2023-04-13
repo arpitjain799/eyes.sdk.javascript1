@@ -87,6 +87,7 @@ export function makeCoreRequests({
 
     const accountPromise = getAccountInfoWithCache({settings})
 
+    const initializedAt = new Date().toISOString()
     const response = await req('/api/sessions/running', {
       name: 'openEyes',
       method: 'POST',
@@ -143,20 +144,31 @@ export function makeCoreRequests({
         baselineId: result.baselineId,
         sessionId: result.sessionId,
         resultsUrl: result.url,
+        initializedAt,
         appId: settings.appName,
         isNew: result.isNew ?? response.status === 201,
-        keepBatchOpen: settings.keepBatchOpen ?? false,
-        server: {serverUrl: settings.serverUrl, apiKey: settings.apiKey, proxy: settings.proxy},
+        keepBatchOpen: !!settings.keepBatchOpen,
+        keepIfDuplicate: !!settings.baselineEnvName,
         rendererId: settings.environment?.rendererId,
         rendererUniqueId: settings.environment?.rendererUniqueId,
         rendererInfo: settings.environment?.rendererInfo,
       } as TestInfo
       if (result.renderingInfo) {
         const {serviceUrl, accessToken, resultsUrl, ...rest} = result.renderingInfo
-        test.account = {ufg: {serverUrl: serviceUrl, accessToken}, uploadUrl: resultsUrl, ...rest}
+        test.account = {server: {...settings, agentId}, uploadUrl: resultsUrl, ...rest} as AccountInfo
+        test.account.ufgServer = {
+          serverUrl: serviceUrl,
+          uploadUrl: test.account.uploadUrl,
+          stitchingServiceUrl: test.account.stitchingServiceUrl,
+          accessToken,
+          agentId: test.account.server.agentId,
+          proxy: test.account.server.proxy,
+        }
       } else {
         test.account = await accountPromise
       }
+      test.server = test.account.server
+      test.ufgServer = test.account.ufgServer
       return test
     })
     logger.log('Request "openEyes" finished successfully with body', test)
@@ -195,7 +207,13 @@ export function makeCoreRequests({
       expected: 200,
       logger,
     })
-    const result = await response.json()
+    const result = await response.json().then(results => {
+      return Object.entries<any[]>(results).reduce((results, [key, regions]) => {
+        results[key as TLocator] =
+          regions?.map(region => ({x: region.left, y: region.top, width: region.width, height: region.height})) ?? []
+        return results
+      }, {} as LocateResult<TLocator>)
+    })
     logger.log('Request "locate" finished successfully with body', result)
     return result
   }
@@ -301,7 +319,20 @@ export function makeCoreRequests({
     })
     const result = await response.json().then(result => {
       const {serviceUrl, accessToken, resultsUrl, ...rest} = result
-      return {ufg: {serverUrl: serviceUrl, accessToken}, uploadUrl: resultsUrl, ...rest}
+      const account = {
+        server: {serverUrl: settings.serverUrl, apiKey: settings.apiKey, proxy: settings.proxy, agentId},
+        uploadUrl: resultsUrl,
+        ...rest,
+      } as AccountInfo
+      account.ufgServer = {
+        serverUrl: serviceUrl,
+        uploadUrl: account.uploadUrl,
+        stitchingServiceUrl: account.stitchingServiceUrl,
+        accessToken,
+        agentId: account.server.agentId,
+        proxy: account.server.proxy,
+      }
+      return account
     })
     logger.log('Request "getAccountInfo" finished successfully with body', result)
     return result
@@ -502,6 +533,11 @@ export function makeEyesRequests({
       }
       const result: Mutable<TestResult> = await response.json()
       result.userTestId = test.userTestId
+      result.url = test.resultsUrl
+      result.isNew = test.isNew
+      result.initializedAt = test.initializedAt
+      result.keepIfDuplicate = test.keepIfDuplicate
+      result.server = test.server
       logger.log('Request "checkAndClose" finished successfully with body', result)
       return [result]
     })
@@ -538,6 +574,9 @@ export function makeEyesRequests({
         result.userTestId = test.userTestId
         result.url = test.resultsUrl
         result.isNew = test.isNew
+        result.initializedAt = test.initializedAt
+        result.keepIfDuplicate = test.keepIfDuplicate
+        result.server = test.server
         // for backwards compatibility with outdated servers
         result.status ??= result.missing === 0 && result.mismatches === 0 ? 'Passed' : 'Unresolved'
         logger.log('Request "close" finished successfully with body', result)
@@ -573,6 +612,9 @@ export function makeEyesRequests({
       .then(async response => {
         const result: Mutable<TestResult> = await response.json()
         result.userTestId = test.userTestId
+        result.initializedAt = test.initializedAt
+        result.keepIfDuplicate = test.keepIfDuplicate
+        result.server = test.server
         logger.log('Request "abort" finished successfully with body', result)
         return [result]
       })

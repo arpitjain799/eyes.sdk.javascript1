@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@applitools/bongo@^3.0.2":
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/@applitools/bongo/-/bongo-3.0.2.tgz#3909ebfd36273860e8d22ae6ec3cf31f56fa2221"
-  integrity sha512-8yfJiyg+26Z1PbqMmHmFadklS7JegiOG+0n3KF1givxQ5YLbRqNuCPTwcrf+NC5b/rUwC9M/GuwpamJRzVw0uA==
+"@applitools/bongo@^3.0.3":
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/@applitools/bongo/-/bongo-3.0.3.tgz#13d9d855ffd0d71956fcc365fad67ea68f2ed8b3"
+  integrity sha512-xSF04Zfl626sRFHBSCrqA0Q7IBENg4H8uEd1zMB+3jIafftdiJUwSABevSBGYhjlo3iI5HSnsi6pF7mb2qRXMQ==
   dependencies:
     "@applitools/utils" "1.3.32"
     "@azure/storage-blob" "12.2.0-preview.1"
@@ -18,10 +18,10 @@
     xml-js "1.6.11"
     yargs "15.0.2"
 
-"@applitools/eg-frpc@1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@applitools/eg-frpc/-/eg-frpc-1.0.2.tgz#085814f410fa84666cd03cefb3177487e6cf5b2e"
-  integrity sha512-qNY+u1se+PCmiLTqGg7ed4tYf0ScjNOSIZmtqwi+cGeJFuny/oZ7ChctQLD6x8GL1YO3CDjZiJc9Zrcbnx7u0w==
+"@applitools/eg-frpc@1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@applitools/eg-frpc/-/eg-frpc-1.0.3.tgz#fc7743d0394114e114c177d51294dec8fee1078d"
+  integrity sha512-16CrVdq2onkN5j6wpHxd8dfapJehHJq7GnYEg86QGFZPhTgZI5WukKrp9ryM0EblUJUjdTwEPymc5B8cffuZZQ==
 
 "@applitools/eg-socks5-proxy-server@^0.5.4":
   version "0.5.4"
@@ -31,12 +31,12 @@
     binary "^0.3.0"
     is-localhost-ip "^2.0.0"
 
-"@applitools/execution-grid-tunnel@1.0.20":
-  version "1.0.20"
-  resolved "https://registry.yarnpkg.com/@applitools/execution-grid-tunnel/-/execution-grid-tunnel-1.0.20.tgz#1897ffb110018fa7b9df35d378c93e2c0b3b1d7e"
-  integrity sha512-lnsHm4TQ0ugoHi7L8ZzsQFB23AA5bwsx2HU3u06mN4ryBkiuywYMoXa5OJ8h0e5iIFukyRNuRnYaiofpfifprQ==
+"@applitools/execution-grid-tunnel@1.0.24":
+  version "1.0.24"
+  resolved "https://registry.yarnpkg.com/@applitools/execution-grid-tunnel/-/execution-grid-tunnel-1.0.24.tgz#aceb0a60de63c84c1028f2201b1c40001e6b7568"
+  integrity sha512-PVOHhTSqC5JCZh76GJCuShLjApogl5IzE5xaDOF0ptX1gvlEqN1MuONw/TTcT4P9j4Xs/XLU+T4o265R4Z+dbA==
   dependencies:
-    "@applitools/eg-frpc" "1.0.2"
+    "@applitools/eg-frpc" "1.0.3"
     "@applitools/eg-socks5-proxy-server" "^0.5.4"
     "@applitools/execution-grid-tunnel" "^1.0.14"
     "@applitools/logger" "^1.0.12"
@@ -88,10 +88,10 @@
     chalk "4.1.2"
     debug "4.3.3"
 
-"@applitools/req@1.1.33":
-  version "1.1.33"
-  resolved "https://registry.yarnpkg.com/@applitools/req/-/req-1.1.33.tgz#d43b6d02c1aa102dcf28adaff1bbab924a5bed11"
-  integrity sha512-44NXNxHYoWWzDC/CQmyrQLU+nsKZhNTF7TYI+dc+CrMXJjFTwzHDx6WMah90xX2leA7jBaUkRvgXhlt0aC5fRA==
+"@applitools/req@1.1.34":
+  version "1.1.34"
+  resolved "https://registry.yarnpkg.com/@applitools/req/-/req-1.1.34.tgz#1a0864c2699d899af32ddbc6126e84f93aa90c61"
+  integrity sha512-QEHAN6fO5aMaS5gOlXnI6mZGg0xSfMZm+/GO5lU/Eoh+qqKPn4XDEtca4ATFDFRmH2O5i+FFKEmIL/oBNAXnkg==
   dependencies:
     "@applitools/utils" "1.3.32"
     "@types/node-fetch" "2.6.2"
@@ -2196,9 +2196,9 @@ vary@^1, vary@~1.1.2:
   integrity sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==
 
 vm2@^3.9.8:
-  version "3.9.11"
-  resolved "https://registry.yarnpkg.com/vm2/-/vm2-3.9.11.tgz#a880f510a606481719ec3f9803b940c5805a06fe"
-  integrity sha512-PFG8iJRSjvvBdisowQ7iVF580DXb1uCIiGaXgm7tynMR1uTBlv7UJlB1zdv5KJ+Tmq1f0Upnj3fayoEOPpCBKg==
+  version "3.9.16"
+  resolved "https://registry.yarnpkg.com/vm2/-/vm2-3.9.16.tgz#0fbc2a265f7bf8b837cea6f4a908f88a3f93b8e6"
+  integrity sha512-3T9LscojNTxdOyG+e8gFeyBXkMlOBYDoF6dqZbj+MPVHi9x10UfiTAJIobuchRCp3QvC+inybTbMJIUrLsig0w==
   dependencies:
     acorn "^8.7.0"
     acorn-walk "^8.2.0"

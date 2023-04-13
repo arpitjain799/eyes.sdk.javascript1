@@ -37,10 +37,11 @@ export function makeOpenEyes<TSpec extends SpecType>({core, spec, logger: defaul
     )
     const driver = target && (await makeDriver({spec, driver: target, logger}))
     if (driver && !base) {
+      const environment = await driver?.getEnvironment()
       const currentContext = driver.currentContext
       settings.environment ??= {}
-      if (driver.isEC) {
-        settings.environment.ecSessionId = driver.sessionId
+      if (environment.isEC) {
+        settings.environment.ecSessionId = (await driver.getSessionId()) ?? undefined
       }
       if (settings.environment.viewportSize) {
         await driver.setViewportSize(settings.environment.viewportSize)
@@ -59,7 +60,8 @@ export function makeOpenEyes<TSpec extends SpecType>({core, spec, logger: defaul
           userTestId: settings.userTestId,
           batchId: settings.batch?.id,
           keepBatchOpen: settings.keepBatchOpen,
-          server: {serverUrl: settings.serverUrl, apiKey: settings.apiKey, proxy: settings.proxy},
+          server: account.server,
+          ufgServer: account.ufgServer,
           account,
         } as TestInfo,
         get running() {

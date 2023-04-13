@@ -12,6 +12,19 @@
 
 
 
+## 3.31.0 - 2023/4/4
+
+### Features
+- Added `removeDuplicateTests` configuration to remove duplicated tests in the runner at the end of execution
+### Bug fixes
+- disableBrowserFetching change from open to check
+
+## 3.30.2 - 2023/3/28
+
+### Features
+### Bug fixes
+- map visualGridOptions to ufgOptions
+
 ## 3.30.1 - 2023/3/22
 
 ### Features

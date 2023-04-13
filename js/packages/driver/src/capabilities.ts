@@ -1,54 +1,85 @@
 import type {Size} from '@applitools/utils'
-import {type DriverInfo} from './spec-driver'
+import type {Capabilities, Environment, Viewport} from './types'
 
-type Capabilities = Record<string, any>
+export function extractCapabilitiesEnvironment(capabilities: Capabilities): Partial<Environment> {
+  if (capabilities.capabilities) capabilities = capabilities.capabilities as Capabilities
 
-export function parseCapabilities(capabilities: Capabilities): DriverInfo {
-  if (capabilities.capabilities) capabilities = capabilities.capabilities
-
-  const info: DriverInfo = {
+  const environment: Environment = {
     browserName:
-      !capabilities.app && !capabilities.bundleId
+      !(capabilities.app ?? capabilities['appium:app'] ?? capabilities['appium:desired']?.app) && !capabilities.bundleId
         ? (capabilities.browserName ?? capabilities.desired?.browserName) || undefined
         : undefined,
     browserVersion: (capabilities.browserVersion ?? capabilities.version) || undefined,
     platformName:
-      (capabilities.platformName ?? capabilities.platform ?? capabilities.desired?.platformName) || undefined,
-    platformVersion: capabilities.platformVersion || undefined,
+      (capabilities.platformName ??
+        (capabilities.desired ?? capabilities['appium:desired'])?.platformName ??
+        capabilities.platform) ||
+      undefined,
+    platformVersion:
+      (capabilities.platformVersion ??
+        capabilities['appium:platformVersion'] ??
+        capabilities['appium:desired']?.platformVersion) ||
+      undefined,
     isW3C: isW3C(capabilities),
     isMobile: isMobile(capabilities),
     isChrome: isChrome(capabilities),
     isECClient: Boolean(capabilities['applitools:isECClient']),
   }
 
-  if (info.isMobile) {
-    info.deviceName = (capabilities.desired?.deviceName ?? capabilities.deviceName) || undefined
-    info.orientation = (capabilities.deviceOrientation ?? capabilities.orientation)?.toLowerCase()
-    info.isIOS = isIOS(capabilities)
-    info.isAndroid = isAndroid(capabilities)
-    if (!info.browserName) {
-      info.isNative = true
-    } else if (info.isIOS && !/mobilesafari/i.test(capabilities.CFBundleIdentifier)) {
-      info.browserName = undefined
-      info.isNative = true
+  if (environment?.isMobile) {
+    environment.deviceName =
+      ((capabilities['appium:desired'] ?? capabilities.desired)?.deviceName ??
+        capabilities['appium:deviceName'] ??
+        capabilities.deviceName) ||
+      undefined
+    environment.isIOS = isIOS(capabilities)
+    environment.isAndroid = isAndroid(capabilities)
+    if (!environment.browserName) {
+      environment.isNative = true
+    } else if (environment.isIOS && !/mobilesafari/i.test(capabilities.CFBundleIdentifier)) {
+      environment.browserName = undefined
+      environment.isNative = true
     } else {
-      info.isNative = false
+      environment.isNative = false
     }
   }
 
-  if (info.isNative) {
-    info.displaySize = extractDisplaySize(capabilities)
-    info.pixelRatio = capabilities.pixelRatio
-    info.statusBarSize = capabilities.statBarHeight ?? capabilities.viewportRect?.top
-    if (info.displaySize && info.orientation && capabilities.viewportRect) {
-      info.navigationBarSize =
-        info.orientation === 'landscape'
-          ? info.displaySize.width - (capabilities.viewportRect.left + capabilities.viewportRect.width)
-          : info.displaySize.height - (capabilities.viewportRect.top + capabilities.viewportRect.height)
-    }
+  return environment
+}
+
+export function extractCapabilitiesViewport(capabilities: Capabilities): Partial<Viewport> {
+  if (capabilities.capabilities) capabilities = capabilities.capabilities as Capabilities
+
+  const viewport: Partial<Viewport> = {
+    displaySize: extractDisplaySize(capabilities),
+    orientation: (
+      capabilities['appium:orientation'] ??
+      capabilities.deviceOrientation ??
+      capabilities.orientation
+    )?.toLowerCase(),
+    pixelRatio: capabilities['appium:pixelRatio'] ?? capabilities.pixelRatio,
+    statusBarSize:
+      capabilities['appium:statBarHeight'] ??
+      capabilities.statBarHeight ??
+      (capabilities['appium:viewportRect'] ?? capabilities.viewportRect)?.top,
   }
 
-  return info
+  if (
+    viewport.displaySize &&
+    viewport.orientation &&
+    (capabilities['appium:viewportRect'] ?? capabilities.viewportRect)
+  ) {
+    viewport.navigationBarSize =
+      viewport.orientation === 'landscape'
+        ? viewport.displaySize.width -
+          ((capabilities['appium:viewportRect'] ?? capabilities.viewportRect).left +
+            (capabilities['appium:viewportRect'] ?? capabilities.viewportRect).width)
+        : viewport.displaySize.height -
+          ((capabilities['appium:viewportRect'] ?? capabilities.viewportRect).top +
+            (capabilities['appium:viewportRect'] ?? capabilities.viewportRect).height)
+  }
+
+  return viewport
 }
 
 function isW3C(capabilities: Capabilities) {
@@ -91,8 +122,9 @@ function isAndroid(capabilities: Capabilities) {
 }
 
 function extractDisplaySize(capabilities: Capabilities): Size | undefined {
-  if (!capabilities.deviceScreenSize) return undefined
-  const [width, height] = capabilities.deviceScreenSize.split('x')
+  const deviceScreenSize = capabilities['appium:deviceScreenSize'] ?? capabilities.deviceScreenSize
+  if (!deviceScreenSize) return undefined
+  const [width, height] = deviceScreenSize.split('x')
   if (Number.isNaN(Number(width)) || Number.isNaN(Number(height))) return undefined
   return {width: Number(width), height: Number(height)}
 }

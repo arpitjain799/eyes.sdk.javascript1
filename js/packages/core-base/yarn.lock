@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@applitools/bongo@^3.0.2":
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/@applitools/bongo/-/bongo-3.0.2.tgz#3909ebfd36273860e8d22ae6ec3cf31f56fa2221"
-  integrity sha512-8yfJiyg+26Z1PbqMmHmFadklS7JegiOG+0n3KF1givxQ5YLbRqNuCPTwcrf+NC5b/rUwC9M/GuwpamJRzVw0uA==
+"@applitools/bongo@^3.0.3":
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/@applitools/bongo/-/bongo-3.0.3.tgz#13d9d855ffd0d71956fcc365fad67ea68f2ed8b3"
+  integrity sha512-xSF04Zfl626sRFHBSCrqA0Q7IBENg4H8uEd1zMB+3jIafftdiJUwSABevSBGYhjlo3iI5HSnsi6pF7mb2qRXMQ==
   dependencies:
     "@applitools/utils" "1.3.32"
     "@azure/storage-blob" "12.2.0-preview.1"
@@ -37,10 +37,10 @@
     chalk "4.1.2"
     debug "4.3.3"
 
-"@applitools/req@1.1.33":
-  version "1.1.33"
-  resolved "https://registry.yarnpkg.com/@applitools/req/-/req-1.1.33.tgz#d43b6d02c1aa102dcf28adaff1bbab924a5bed11"
-  integrity sha512-44NXNxHYoWWzDC/CQmyrQLU+nsKZhNTF7TYI+dc+CrMXJjFTwzHDx6WMah90xX2leA7jBaUkRvgXhlt0aC5fRA==
+"@applitools/req@1.1.34":
+  version "1.1.34"
+  resolved "https://registry.yarnpkg.com/@applitools/req/-/req-1.1.34.tgz#1a0864c2699d899af32ddbc6126e84f93aa90c61"
+  integrity sha512-QEHAN6fO5aMaS5gOlXnI6mZGg0xSfMZm+/GO5lU/Eoh+qqKPn4XDEtca4ATFDFRmH2O5i+FFKEmIL/oBNAXnkg==
   dependencies:
     "@applitools/utils" "1.3.32"
     "@types/node-fetch" "2.6.2"
@@ -66,10 +66,10 @@
     node-forge "1.3.1"
     yargs "17.0.1"
 
-"@applitools/test-utils@^1.5.14":
-  version "1.5.14"
-  resolved "https://registry.yarnpkg.com/@applitools/test-utils/-/test-utils-1.5.14.tgz#d92606dfb3d7754e4c18db36e8bd91e20f020b93"
-  integrity sha512-MCEBRop2pAP5KzwmbdrbpKkKD5F/PZiazjKdUUmn4sNN3PNtIcLZABH6KjAHHfEQGmE5jRa6nbd+gTCvvmCMjw==
+"@applitools/test-utils@^1.5.16":
+  version "1.5.16"
+  resolved "https://registry.yarnpkg.com/@applitools/test-utils/-/test-utils-1.5.16.tgz#fefbcc3cf34da6a4ddfe3e984746fb7022fe5e73"
+  integrity sha512-IQEX+nC7Tj/BVeALaLVKua7InfSLRd8ZItkLoH5ohZ9Puq9G5nW37ZTYJfRpdVHjkbo+bqtQoB+eqebq/e4UhA==
   dependencies:
     node-fetch "2.6.1"
 
@@ -1533,9 +1533,9 @@ vary@^1, vary@~1.1.2:
   integrity sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==
 
 vm2@^3.9.8:
-  version "3.9.11"
-  resolved "https://registry.yarnpkg.com/vm2/-/vm2-3.9.11.tgz#a880f510a606481719ec3f9803b940c5805a06fe"
-  integrity sha512-PFG8iJRSjvvBdisowQ7iVF580DXb1uCIiGaXgm7tynMR1uTBlv7UJlB1zdv5KJ+Tmq1f0Upnj3fayoEOPpCBKg==
+  version "3.9.16"
+  resolved "https://registry.yarnpkg.com/vm2/-/vm2-3.9.16.tgz#0fbc2a265f7bf8b837cea6f4a908f88a3f93b8e6"
+  integrity sha512-3T9LscojNTxdOyG+e8gFeyBXkMlOBYDoF6dqZbj+MPVHi9x10UfiTAJIobuchRCp3QvC+inybTbMJIUrLsig0w==
   dependencies:
     acorn "^8.7.0"
     acorn-walk "^8.2.0"
