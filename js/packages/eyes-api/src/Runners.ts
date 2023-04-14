@@ -21,7 +21,11 @@ export abstract class EyesRunner {
 
   constructor(options?: RunnerOptions) {
     if (options) {
-      this._managerSettings = {concurrency: options.testConcurrency, legacyConcurrency: options.legacyConcurrency}
+      this._managerSettings = {
+        concurrency: options.testConcurrency,
+        legacyConcurrency: options.legacyConcurrency,
+        fetchConcurrency: options.fetchConcurrency,
+      }
       this._getResultsSettings = {removeDuplicateTests: options.removeDuplicateTests}
     }
   }
@@ -97,10 +101,6 @@ export class VisualGridRunner extends EyesRunner {
 
   get testConcurrency() {
     return this._managerSettings?.concurrency
-  }
-
-  get fetchConcurrency() {
-    return this._managerSettings?.fetchConcurrency
   }
 
   /** @deprecated */

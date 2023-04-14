@@ -29,7 +29,6 @@ const limitParallelRequests = async (_req: any, res: any, next: any) => {
     };
 
     const startApp = () => {
-        let port;
         // Use the middleware function for all routes
         app.use(limitParallelRequests);
         app.get('/image1', (_req: any, res: any) => {
@@ -50,7 +49,7 @@ const limitParallelRequests = async (_req: any, res: any, next: any) => {
             console.log('Server listening on port 3000');
           });
        
-          return promisify(server.close.bind(server));
+        return promisify(server.close.bind(server));
     }
 
     return {startApp}
