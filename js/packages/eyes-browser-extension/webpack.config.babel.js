@@ -15,6 +15,7 @@ export default {
     background: ['./src/background'],
     api: ['./src/api'],
     'api-simple': ['./src/api-simple'],
+    'api-world-main': ['./src/api-world-main'],
   },
   output: {
     path: path.resolve(__dirname, './dist'),

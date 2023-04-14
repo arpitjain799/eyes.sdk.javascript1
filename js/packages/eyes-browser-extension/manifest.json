@@ -34,7 +34,7 @@
       "all_frames": true
     },
     {
-      "js": ["api.js"],
+      "js": ["api-world-main.js"],
       "world": "MAIN",
       "matches": ["<all_urls>"],
       "match_about_blank": true,
