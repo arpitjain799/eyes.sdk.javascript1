@@ -71,7 +71,6 @@ Apollo SDK:
     - 
   bug-fix:
     - Add a timeout and max concurrency for fetching resources
-    - Map values from open and global config
 "@applitools/eyes-storybook":
   feature:
     - 
