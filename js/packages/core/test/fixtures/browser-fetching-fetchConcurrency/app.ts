@@ -33,16 +33,28 @@ const limitParallelRequests = async (_req: any, res: any, next: any) => {
         app.use(limitParallelRequests);
         app.get('/image1', (_req: any, res: any) => {
             res.sendFile(path.join(__dirname, '/smurfs.jpg'));
-          });
-          app.get('/image2', (_req: any, res: any) => {
-            res.sendFile(path.join(__dirname, '/smurfs.jpg'));
-          });
-          app.get('/image3', (_req: any, res: any) => {
-            res.sendFile(path.join(__dirname, '/smurfs.jpg'));
-          });
-          app.get('/image4', (_req: any, res: any) => {
-            res.sendFile(path.join(__dirname, '/smurfs.jpg'));
-          });
+        });
+        app.get('/image2', (_req: any, res: any) => {
+          res.sendFile(path.join(__dirname, '/smurfs.jpg'));
+        });
+        app.get('/image3', (_req: any, res: any) => {
+          res.sendFile(path.join(__dirname, '/smurfs.jpg'));
+        });
+        app.get('/image4', (_req: any, res: any) => {
+          res.sendFile(path.join(__dirname, '/smurfs.jpg'));
+        });
+        app.get('/gargamel1', (_req: any, res: any) => {
+          res.sendFile(path.join(__dirname, '/gargamel.jpg'));
+        });
+        app.get('/gargamel2', (_req: any, res: any) => {
+          res.sendFile(path.join(__dirname, '/gargamel.jpg'));
+        });
+        app.get('/gargamel3', (_req: any, res: any) => {
+          res.sendFile(path.join(__dirname, '/gargamel.jpg'));
+        });
+        app.get('/gargamel4', (_req: any, res: any) => {
+          res.sendFile(path.join(__dirname, '/gargamel.jpg'));
+        });
         
         // Start the server
         const server = app.listen(3000, () => {
