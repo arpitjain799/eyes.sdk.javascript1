@@ -39,7 +39,6 @@ export interface UFGRequests {
 export type UFGRequestsConfig = ReqUFGConfig & {
   uploadUrl: string
   stitchingServiceUrl: string
-  fetchConcurrency?: number
 }
 
 export function makeUFGRequests({
