@@ -11,8 +11,10 @@ export default {
   node: {__dirname: true},
   entry: {
     content: ['./src/content'],
+    'content-simple': ['./src/content-simple'],
     background: ['./src/background'],
     api: ['./src/api'],
+    'api-simple': ['./src/api-simple'],
   },
   output: {
     path: path.resolve(__dirname, './dist'),

@@ -20,14 +20,29 @@
   "background": {
     "service_worker": "background.js"
   },
-  "content_scripts": [{
-    "js": ["content.js"],
-    "matches": ["<all_urls>"],
-    "match_about_blank": true,
-    "all_frames": true
-  }],
+  "content_scripts": [
+    {
+      "js": ["content.js"],
+      "matches": ["<all_urls>"],
+      "match_about_blank": true,
+      "all_frames": true
+    },
+    {
+      "js": ["content-simple.js"],
+      "matches": ["<all_urls>"],
+      "match_about_blank": true,
+      "all_frames": true
+    },
+    {
+      "js": ["api.js"],
+      "world": "MAIN",
+      "matches": ["<all_urls>"],
+      "match_about_blank": true,
+      "all_frames": true
+    }
+  ],
   "web_accessible_resources": [{
-    "resources": ["api.js", "assets/dom-snapshot/*", "assets/dom-capture/*"],
+    "resources": ["api.js", "api-simple.js", "assets/dom-snapshot/*", "assets/dom-capture/*"],
     "matches": ["<all_urls>"]
   }],
   "content_security_policy": {
