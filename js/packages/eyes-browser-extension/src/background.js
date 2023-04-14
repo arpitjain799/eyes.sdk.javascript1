@@ -92,3 +92,4 @@ messenger.command('Eyes.close', async ({eyes, throwErr}) => {
 messenger.command('Eyes.abort', async ({eyes}) => {
   return refer.deref(eyes).abort()
 })
+messenger.command('ping', () => 'pong')

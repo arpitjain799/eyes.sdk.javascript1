@@ -53,3 +53,30 @@ frameMessenger.on('*', (_, type) => backgroundMessenger.emit(type))
 
 // NOTE: Listen for events initiated by the background script
 backgroundMessenger.on('*', async (payload, name) => apiMessenger.emit(name, payload))
+
+/*
+To use, run the following command from the dev tools console on the page being tested:
+
+  window.postMessage({type: 'ping'})
+
+For a successful run you should see the following console output:
+
+  Content script received (from the page): ping
+  Content script received (from the background worker): pong
+*/
+window.addEventListener(
+  'message',
+  async event => {
+    // We only accept messages from ourselves
+    if (event.source !== window) {
+      return
+    }
+
+    if (event.data.type && event.data.type === 'ping') {
+      console.log('Content script received (from the page):', event.data.type)
+      const result = await backgroundMessenger.request('ping')
+      console.log('Content script received (from the background worker):', result)
+    }
+  },
+  false,
+)
