@@ -1,6 +1,5 @@
 'use strict'
 
-const {describe, it} = require('mocha')
 const {expect} = require('chai')
 const isPluginDefined = require('../../../src/setup/isPluginDefined')
 const isPluginDefinedESM = require('../../../src/setup/isPluginDefinedESM')

@@ -1,5 +1,4 @@
 'use strict'
-const {describe, it, before, after} = require('mocha')
 const path = require('path')
 const pexec = require('../util/pexec')
 const fs = require('fs')

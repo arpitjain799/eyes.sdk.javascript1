@@ -1,5 +1,4 @@
 'use strict'
-const {describe, it, before, after, beforeEach, afterEach} = require('mocha')
 const {expect} = require('chai')
 let startPlugin = require('../../../dist/plugin').default
 

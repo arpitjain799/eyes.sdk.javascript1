@@ -1,5 +1,4 @@
 'use strict'
-const {describe, it, after} = require('mocha')
 const {expect} = require('chai')
 const path = require('path')
 const {presult} = require('@applitools/functional-commons')

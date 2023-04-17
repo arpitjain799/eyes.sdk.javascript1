@@ -1,5 +1,4 @@
 'use strict'
-const {describe, it, beforeEach, afterEach} = require('mocha')
 const {expect} = require('chai')
 const makePluginExport = require('../../../dist/plugin/pluginExport').default
 const {promisify: p} = require('util')

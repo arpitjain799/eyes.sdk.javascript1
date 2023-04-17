@@ -1,5 +1,4 @@
 'use strict'
-const {describe, it} = require('mocha')
 const {expect} = require('chai')
 const isGlobalHooksSupported = require('../../../dist/plugin/isGlobalHooksSupported').default
 

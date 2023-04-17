@@ -1,6 +1,5 @@
 'use strict'
 
-const {describe, it} = require('mocha')
 const {expect} = require('chai')
 const {addEyesCypressPlugin, pluginRequire} = require('../../../src/setup/addEyesCypressPlugin')
 const fs = require('fs')

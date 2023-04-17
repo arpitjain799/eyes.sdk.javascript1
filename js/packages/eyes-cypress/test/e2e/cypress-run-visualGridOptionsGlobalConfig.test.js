@@ -1,5 +1,4 @@
 'use strict'
-const {describe, it, before, after} = require('mocha')
 const path = require('path')
 const pexec = require('../util/pexec')
 const fs = require('fs')
@@ -37,7 +36,7 @@ describe('works with visualGridOptions from global config', () => {
     fs.rmdirSync(targetTestAppPath, {recursive: true})
   })
 
-  it('works with visualGriedOptions from applitools.config file', async () => {
+  it('works with visualGridOptions from applitools.config file', async () => {
     const config = {...applitoolsConfig, visualGridOptions: {polyfillAdoptedStyleSheets: true}}
     fs.writeFileSync(`${targetTestAppPath}/applitools.config.js`, 'module.exports =' + JSON.stringify(config, 2, null))
     const [err, _stdout] = await presult(runCypress('index-run.js', 'visualGridOptionsGlobalConfig.js'))

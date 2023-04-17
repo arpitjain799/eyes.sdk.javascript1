@@ -1,5 +1,4 @@
 'use strict'
-const {describe, it} = require('mocha')
 const {expect} = require('chai')
 const makeConfig = require('../../../dist/plugin/config').default
 const fs = require('fs')

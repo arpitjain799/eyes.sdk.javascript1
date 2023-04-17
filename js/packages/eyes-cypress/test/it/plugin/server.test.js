@@ -1,5 +1,4 @@
 'use strict'
-const {describe, it} = require('mocha')
 const {expect} = require('chai')
 const makeStartServer = require('../../../dist/plugin/server').default
 const {makeLogger} = require('@applitools/logger')

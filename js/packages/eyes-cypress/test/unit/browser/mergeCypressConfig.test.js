@@ -1,5 +1,4 @@
 const {mergeCypressConfigs} = require('../../../dist/browser/mergeCypressConfigs')
-const {describe, it} = require('mocha')
 const {expect} = require('chai')
 describe('merge cypress configs', () => {
   const shouldUseBrowserHooks = true,

@@ -1,5 +1,4 @@
 'use strict'
-const {describe, it, before} = require('mocha')
 const cypress = require('cypress')
 const path = require('path')
 const {exec} = require('child_process')

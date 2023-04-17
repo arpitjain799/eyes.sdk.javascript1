@@ -1,5 +1,4 @@
 'use strict'
-const {describe, it} = require('mocha')
 const errorDigest = require('../../../dist/plugin/errorDigest').default
 const snap = require('@applitools/snaptdout')
 
