@@ -12,17 +12,22 @@ const env = {...process.env}
 function pexecWarpper(cmd, options) {
   let cypressVersion
   try {
-    cypressVersion = require(`${process.cwd()}/node_modules/cypress/package.json`).version
+    const npxCyVersion = cmd.match(/npx cypress@(\d+)/)
+    if (npxCyVersion) cypressVersion = npxCyVersion[1]
+    else cypressVersion = require(`${process.cwd()}/node_modules/cypress/package.json`).version
   } catch (_e) {}
   if (cypressVersion && getMajorVersion(cypressVersion) < 9 && nodeMajorVersion >= 18) {
     env.NODE_OPTIONS = '--openssl-legacy-provider'
+    cmd = `NODE_OPTIONS=--openssl-legacy-provider ${cmd}`
   }
   const promisePPexec = pexec(cmd, {...options, env})
   console.log(`$ ${cmd}`)
-  // const {child} = promisePPexec
-  // child.stdout.on('data', msg => {
-  //   console.log(msg)
-  // })
+  if (process.env.APPLITOOLS_SHOW_LOGS) {
+    const {child} = promisePPexec
+    child.stdout.on('data', msg => {
+      console.log(msg)
+    })
+  }
   return promisePPexec
 }
 

@@ -16,9 +16,6 @@ describe('eyes configurations', () => {
     }
     await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
     process.chdir(targetTestAppPath)
-    await pexec(`npm install`, {
-      maxBuffer: 1000000,
-    })
   })
 
   after(async () => {
@@ -28,7 +25,7 @@ describe('eyes configurations', () => {
   it('works with disabled eyes', async () => {
     try {
       const {stdout} = await pexec(
-        'APPLITOOLS_IS_DISABLED=1 ./node_modules/.bin/cypress run --headless --headless --spec cypress/integration-play/iframe.js --config integrationFolder=cypress/integration-play,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
+        'APPLITOOLS_IS_DISABLED=1 npx cypress@6.5.0 run --headless --headless --spec cypress/integration-play/iframe.js --config integrationFolder=cypress/integration-play,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
         {
           maxBuffer: 10000000,
         },
@@ -44,7 +41,7 @@ describe('eyes configurations', () => {
   it('does not fail Cypress test if failCypressOnDiff flag is false', async () => {
     try {
       await pexec(
-        'APPLITOOLS_FAIL_CYPRESS_ON_DIFF=false ./node_modules/.bin/cypress run --headless --headless --spec cypress/integration-play/always-fail.js --config integrationFolder=cypress/integration-play,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
+        'APPLITOOLS_FAIL_CYPRESS_ON_DIFF=false npx cypress@6.5.0 run --headless --headless --spec cypress/integration-play/always-fail.js --config integrationFolder=cypress/integration-play,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
         {
           maxBuffer: 10000000,
         },

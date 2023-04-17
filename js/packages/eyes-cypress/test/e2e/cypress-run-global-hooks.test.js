@@ -9,10 +9,10 @@ const {presult} = require('@applitools/functional-commons')
 const sourceTestAppPath = path.resolve(__dirname, '../fixtures/testApp')
 const targetTestAppPath = path.resolve(__dirname, '../fixtures/testAppCopies/testApp-global-hooks')
 
-async function runCypress(testFile) {
+async function runCypress(testFile, cypressVersion = '6.5.0') {
   return (
     await pexec(
-      `./node_modules/.bin/cypress run --headless --config testFiles=${testFile},integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js`,
+      `npx cypress@${cypressVersion} run --headless --config testFiles=${testFile},integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js`,
       {
         maxBuffer: 10000000,
       },
@@ -27,9 +27,6 @@ describe('global hooks', () => {
     }
     await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
     process.chdir(targetTestAppPath)
-    await pexec(`npm install`, {
-      maxBuffer: 1000000,
-    })
   })
 
   after(async () => {
@@ -53,15 +50,13 @@ describe('global hooks', () => {
   })
 
   it('works with cypress version 4 (< 6.2.0 no global hooks available)', async () => {
-    await pexec(`npm install cypress@4`)
-    const [err, _stdout] = await presult(runCypress('fail.js'))
+    const [err, _stdout] = await presult(runCypress('fail.js', '4'))
     expect(err).not.to.be.undefined
     expect(err.stdout).to.contain('Eyes-Cypress detected diffs or errors')
   })
 
   it('works with cypress 6.7.0 or greater without flag', async () => {
-    await pexec(`npm install cypress@9`)
-    const [err, _stdout] = await presult(runCypress('fail.js'))
+    const [err, _stdout] = await presult(runCypress('fail.js', '9'))
     expect(err).not.to.be.undefined
     expect(err.stdout).to.contain('Eyes-Cypress detected diffs or errors')
   })

@@ -11,7 +11,7 @@ const targetTestAppPath = path.resolve(__dirname, '../fixtures/testAppCopies/tes
 async function runCypress(pluginsFile, testFile = 'getAllTestResults.js') {
   return (
     await pexec(
-      `./node_modules/.bin/cypress run --headless --config testFiles=${testFile},integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/${pluginsFile},supportFile=cypress/support/index-run.js`,
+      `npx cypress@6.5.0 run --headless --config testFiles=${testFile},integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/${pluginsFile},supportFile=cypress/support/index-run.js`,
       {
         maxBuffer: 10000000,
       },
@@ -28,9 +28,6 @@ describe.skip('Retries', () => {
     try {
       await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
       process.chdir(targetTestAppPath)
-      await pexec(`npm install`, {
-        maxBuffer: 1000000,
-      })
     } catch (ex) {
       console.log(ex)
       throw ex

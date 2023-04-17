@@ -14,9 +14,6 @@ describe('works with layoutbreakpoing in global config', () => {
     }
     await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
     process.chdir(targetTestAppPath)
-    await pexec(`npm install`, {
-      maxBuffer: 1000000,
-    })
   })
 
   after(async () => {
@@ -28,7 +25,7 @@ describe('works with layoutbreakpoing in global config', () => {
     fs.writeFileSync(`${targetTestAppPath}/applitools.config.js`, 'module.exports =' + JSON.stringify(config, 2, null))
     try {
       await pexec(
-        './node_modules/.bin/cypress run --config testFiles=layoutBreakpointsGlobalConfig.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
+        'npx cypress@6.5.0 run --config testFiles=layoutBreakpointsGlobalConfig.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
         {
           maxBuffer: 10000000,
         },

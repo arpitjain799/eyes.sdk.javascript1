@@ -10,11 +10,14 @@ const targetTestAppPath = path.resolve(
   __dirname,
   '../fixtures/testAppCopies/testApp-global-hooks-overrides-config-file-with-eyes-plugin',
 )
-const cwd = process.cwd()
+let latestCypressVersion = null
 
 async function runCypress() {
+  if (latestCypressVersion === null) {
+    latestCypressVersion = (await pexec('npm view cypress version')).stdout.trim()
+  }
   return (
-    await pexec(`./node_modules/.bin/cypress run`, {
+    await pexec(`npx cypress@${latestCypressVersion} run`, {
       maxBuffer: 10000000,
     })
   ).stdout
@@ -57,18 +60,7 @@ describe('global hooks override in cypress.config.js file using eyes-plugin', ()
     await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
     await pexec(`cp ${sourceTestAppPath}Cypress10/cypress.config.js ${targetTestAppPath}/cypress.config.js`)
     fs.unlinkSync(`${targetTestAppPath}/cypress.json`)
-    const packageJsonPath = path.resolve(targetTestAppPath, 'package.json')
-
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath))
-    process.chdir(cwd)
-    const latestCypressVersion = (await pexec('npm view cypress version')).stdout.trim()
-
-    packageJson.devDependencies['cypress'] = latestCypressVersion
-    fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2))
     process.chdir(targetTestAppPath)
-    await pexec(`npm install`, {
-      maxBuffer: 1000000,
-    })
   })
   beforeEach(() => {
     fs.copyFileSync(

@@ -13,9 +13,6 @@ describe('iframe', () => {
     }
     await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
     process.chdir(targetTestAppPath)
-    await pexec(`npm install`, {
-      maxBuffer: 1000000,
-    })
   })
 
   after(async () => {
@@ -25,7 +22,7 @@ describe('iframe', () => {
   it('works for iframe.js', async () => {
     try {
       await pexec(
-        './node_modules/.bin/cypress run --headless --config testFiles=iframe.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
+        'npx cypress@6.5.0 run --headless --config testFiles=iframe.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
         {
           maxBuffer: 10000000,
         },

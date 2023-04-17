@@ -14,9 +14,6 @@ describe('hello world', () => {
     try {
       await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
       process.chdir(targetTestAppPath)
-      await pexec(`npm install`, {
-        maxBuffer: 1000000,
-      })
     } catch (ex) {
       console.log(ex)
       throw ex
@@ -31,7 +28,7 @@ describe('hello world', () => {
     try {
       //testFiles=helloworld.js,
       await pexec(
-        './node_modules/.bin/cypress run --headless --config testFiles=helloworld.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
+        'npx cypress@6.5.0 run --headless --config testFiles=helloworld.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
         {
           maxBuffer: 10000000,
         },

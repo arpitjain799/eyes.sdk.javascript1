@@ -13,9 +13,6 @@ describe('legacy hooks', () => {
     }
     await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
     process.chdir(targetTestAppPath)
-    await pexec('npm install', {
-      maxBuffer: 1000000,
-    })
   })
 
   after(async () => {
@@ -23,12 +20,9 @@ describe('legacy hooks', () => {
   })
 
   it('works with older versions without legacyHooks flag', async () => {
-    await pexec('npm install cypress@6.0.0', {
-      maxBuffer: 1000000,
-    })
     try {
       await pexec(
-        './node_modules/.bin/cypress run --headless --config testFiles=simple.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
+        'npx cypress@6.0.0 run --headless --config testFiles=simple.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
         {
           maxBuffer: 10000000,
         },
@@ -41,11 +35,8 @@ describe('legacy hooks', () => {
 
   it('works with newer versions without legacyHooks flag', async () => {
     try {
-      await pexec('npm install cypress@6.3.0', {
-        maxBuffer: 1000000,
-      })
       await pexec(
-        './node_modules/.bin/cypress run --headless --config testFiles=simple.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
+        'npx cypress@6.3.0 run --headless --config testFiles=simple.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
         {
           maxBuffer: 10000000,
         },

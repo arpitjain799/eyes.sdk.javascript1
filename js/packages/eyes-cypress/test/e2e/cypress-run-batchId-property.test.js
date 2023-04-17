@@ -22,9 +22,6 @@ describe('handle batchId property', () => {
     }
     await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
     process.chdir(targetTestAppPath)
-    await pexec(`npm install`, {
-      maxBuffer: 1000000,
-    })
   })
 
   after(async () => {
@@ -36,11 +33,10 @@ describe('handle batchId property', () => {
   })
 
   it('works with batchId from env var with global hooks', async () => {
-    await pexec(`npm install cypress@9`)
     process.env.APPLITOOLS_BATCH_ID = 'batchId1234'
     try {
       await pexec(
-        './node_modules/.bin/cypress run --headless --config testFiles=batchIdProperty.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
+        'npx cypress@9 run --headless --config testFiles=batchIdProperty.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
         {
           maxBuffer: 10000000,
         },
@@ -53,12 +49,11 @@ describe('handle batchId property', () => {
     }
   })
   it('works with batchId from config file with global hooks', async () => {
-    await pexec(`npm install cypress@9`)
     const config = {...applitoolsConfig, batchId: 'batchId123456'}
     fs.writeFileSync(`${targetTestAppPath}/applitools.config.js`, 'module.exports =' + JSON.stringify(config, 2, null))
     try {
       await pexec(
-        './node_modules/.bin/cypress run --headless --config testFiles=batchIdProperty.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
+        'npx cypress@9 run --headless --config testFiles=batchIdProperty.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
         {
           maxBuffer: 10000000,
         },

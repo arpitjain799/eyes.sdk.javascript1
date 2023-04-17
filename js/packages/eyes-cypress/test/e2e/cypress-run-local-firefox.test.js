@@ -15,10 +15,6 @@ describe.skip('hello world firefox', () => {
     try {
       await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
       process.chdir(targetTestAppPath)
-      await pexec(`npm install`, {
-        maxBuffer: 1000000,
-      })
-      await pexec(`npm install cypress@9`)
     } catch (ex) {
       console.log(ex)
       throw ex
@@ -33,7 +29,7 @@ describe.skip('hello world firefox', () => {
     try {
       //testFiles=helloworld.js,
       await pexec(
-        './node_modules/.bin/cypress run --browser firefox --config testFiles=helloworld.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
+        'npx cypress@9 run --browser firefox --config testFiles=helloworld.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
         {
           maxBuffer: 10000000,
         },
