@@ -89,7 +89,7 @@ jobs:
           report: deploy
 
   arm64-tests:
-    needs: setup
+    needs: debug
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository and submodules
@@ -118,7 +118,7 @@ jobs:
             mvn test -Dtest="TestLinuxArmArchitecture" -DfailIfNoTests=false
 
   alpine-tests:
-    needs: setup
+    needs: debug
     runs-on: ubuntu-latest
     container: "alpine:latest"
     steps:
