@@ -246,7 +246,7 @@ jobs:
       - name: Publish
         if: success()
         run: |
-          mvn --batch-mode -P ${{inputs.server}} deploy
+          mvn --batch-mode -P ${{inputs.server}} deploy -DskipTests
         env:
          MAVEN_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
          MAVEN_CENTRAL_TOKEN: ${{ secrets.MAVEN_CENTRAL_TOKEN }}
