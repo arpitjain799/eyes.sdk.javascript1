@@ -42,8 +42,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - working-directory: eyes.sdk.core
-          - working-directory: selenium4
+          - working-directory: ./java/eyes.sdk.core
+          - working-directory: ./java/selenium4
 
           - working-directory: ./java/eyes.images.java
             report-id: java_selenium
