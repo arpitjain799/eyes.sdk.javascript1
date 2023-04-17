@@ -8,10 +8,10 @@ on:
         type: string
         required: true
       server:
-        description: Distribution management repository
+        description: Distribution management repository (snapshot, maven, jfrog)
         type: string
         required: false
-        default: deploy-maven
+        default: snapshot
       ref:
         description: Branch to be used
         type: string
@@ -35,6 +35,16 @@ jobs:
           echo "is not fork ${{github.event.pull_request.head.repo.fork == false }}"
           echo "is dispatch ${{ github.event_name == 'workflow_dispatch' }}"
           echo "release tag: $RELEASE_TAG"
+          
+          if [[ "$RELEASE_TAG" == *"SNAPSHOT"* && "${{inputs.server}}" != "snapshot" ]]; then
+            echo "The release tag contains 'SNAPSHOT' but the distribution repository is not snapshot!"
+            exit 1
+          else
+            if [[ "$RELEASE_TAG" != *"SNAPSHOT"* && "${{inputs.server}}" == "snapshot" ]]; then
+              echo "The distribution repository is snapshot but the release tag doesn't contains 'SNAPSHOT'"
+              exit 1
+            fi
+          fi
 
   tests:
     needs: debug
@@ -203,7 +213,12 @@ jobs:
           git tag $RELEASE_TAG
           git push origin "v${{inputs.version}}" $RELEASE_TAG
 
+      - name: Package project (snapshot)
+        if: ${{ inputs.server == 'snapshot' }}
+        run: mvn clean package -DskipTests
+
       - name: Package project
+        if: ${{ inputs.server != 'snapshot' }}
         run: mvn clean package -P ${{inputs.server}} -DskipTests
 
       - name: Replace Core sources
@@ -222,32 +237,36 @@ jobs:
             exit 1
           fi
 
-#      - name: Set up Maven Central Repository
-#        uses: actions/setup-java@v3
-#        with:
-#          java-version: 8
-#          distribution: "temurin"
-#          server-id: ${{ inputs.server }} # Value of the distributionManagement/repository/id field of the pom.xml
-#          server-username: MAVEN_USERNAME # env variable for username in deploy
-#          server-password: MAVEN_CENTRAL_TOKEN # env variable for token in deploy
-#          gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }} # Value of the GPG private key to import
-#          gpg-passphrase: MAVEN_GPG_PASSPHRASE # env variable for GPG private key passphrase
-#
-#      - name: Publish
-#        if: success()
-#        run: mvn --batch-mode deploy
-#        env:
-#         MAVEN_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
-#         MAVEN_CENTRAL_TOKEN: ${{ secrets.MAVEN_CENTRAL_TOKEN }}
-#         MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+  #      - name: Set up Maven Central Repository
+  #        uses: actions/setup-java@v3
+  #        with:
+  #          java-version: 8
+  #          distribution: "temurin"
+  #          server-id: ${{ inputs.server }} # Value of the distributionManagement/repository/id field of the pom.xml
+  #          server-username: MAVEN_USERNAME # env variable for username in deploy
+  #          server-password: MAVEN_CENTRAL_TOKEN # env variable for token in deploy
+  #          gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }} # Value of the GPG private key to import
+  #          gpg-passphrase: MAVEN_GPG_PASSPHRASE # env variable for GPG private key passphrase
+  #
+  #      - name: Publish
+  #        if: success()
+  #        run: |
+  #          if [[ "${{ inputs.server }}" == "snapshot"]]; then
+  #            echo "deploying snapshot"
+  #            mvn --batch-mode deploy
+  #          else
+  #            echo "deploying ${{inputs.server}}"
+  #            mvn --batch-mode -P ${{inputs.server}} deploy
+  #          fi
+  #        env:
+  #         MAVEN_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+  #         MAVEN_CENTRAL_TOKEN: ${{ secrets.MAVEN_CENTRAL_TOKEN }}
+  #         MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
 
   release-mail:
     needs:
       - deploy
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./java/
     env:
       APPLITOOLS_REPORT_ID: ${{ needs.deploy.outputs.APPLITOOLS_REPORT_ID }}
     steps:
@@ -260,10 +279,9 @@ jobs:
         with:
           ref: ${{inputs.ref || github.ref}}
           lfs: true
-          submodules: recursive
-          token: ${{ secrets.SUBMODULES_GA_TOKEN }}
 
       - name: Selenium release mail
+        working-directory: ./java/
         run: |
           export APPLITOOLS_REPORT_ID=$APPLITOOLS_REPORT_ID-java_selenium;
           echo "APPLITOOLS_REPORT_ID=$APPLITOOLS_REPORT_ID";
@@ -281,6 +299,7 @@ jobs:
           ./sendMail.sh "java" $VERSION "$CHANGELOG" "$TEST_COVERAGE_GAP" "ido.elmaleh@applitools.com";
 
       - name: Playwright release mail
+        working-directory: ./java/
         run: |
           export APPLITOOLS_REPORT_ID=$APPLITOOLS_REPORT_ID-java_playwright;
           echo "APPLITOOLS_REPORT_ID=$APPLITOOLS_REPORT_ID";
