@@ -1,14 +1,13 @@
 /* global cy expect*/
-describe('works with visualGridOptions from config gile', () => {
+describe('works with visualGridOptions from config file', () => {
   it('test visualGridOptions from config file', () => {
-    cy.visit('https://applitools.github.io/demo/TestPages/AdoptedStyleSheets/index.html')
+    cy.visit('https://applitools.github.io/demo/TestPages/ufg-options.html')
     cy.eyesOpen({
       appName: 'Applitools Eyes SDK',
-      testName: 'AdoptedStyleSheetsOnFirefox',
+      testName: 'ShouldSendUfgOptions',
+      displayName: 'should send ufg options',
       viewportSize: {width: 700, height: 460},
-      baselineEnvName: 'AdoptedStyleSheetsOnFirefox',
-      displayName: 'adopted styleSheets on firefox',
-      browser: [{name: 'firefox', width: 640, height: 480}],
+      browser: [{name: 'chrome', width: 640, height: 480}],
     })
     cy.eyesCheckWindow()
     cy.eyesClose()

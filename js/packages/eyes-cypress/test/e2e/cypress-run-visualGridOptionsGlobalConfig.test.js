@@ -34,7 +34,7 @@ describe('works with visualGridOptions from global config', () => {
   })
 
   it('works with visualGridOptions from applitools.config file', async () => {
-    const config = {...applitoolsConfig, visualGridOptions: {polyfillAdoptedStyleSheets: true}}
+    const config = {...applitoolsConfig, visualGridOptions: {adjustDocumentHeight: true}}
     fs.writeFileSync(`${targetTestAppPath}/applitools.config.js`, 'module.exports =' + JSON.stringify(config, 2, null))
     const [err, _stdout] = await presult(runCypress('index-run.js', 'visualGridOptionsGlobalConfig.js'))
     try {
