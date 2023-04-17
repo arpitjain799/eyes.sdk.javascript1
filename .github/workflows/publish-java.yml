@@ -193,7 +193,7 @@ jobs:
 
       - name: Branch out
         run: |
-          git checkout -b "v${{inputs.version}}"
+          git checkout -b "java_v${{inputs.version}}"
 
       - name: Build project
         run: mvn clean install -DskipTests
@@ -211,14 +211,9 @@ jobs:
       - name: Tag and push
         run: |
           git tag $RELEASE_TAG
-          git push origin "v${{inputs.version}}" $RELEASE_TAG
-
-      - name: Package project (snapshot)
-        if: ${{ inputs.server == 'snapshot' }}
-        run: mvn clean package -DskipTests
+          git push origin "java_v${{inputs.version}}" $RELEASE_TAG
 
       - name: Package project
-        if: ${{ inputs.server != 'snapshot' }}
         run: mvn clean package -P ${{inputs.server}} -DskipTests
 
       - name: Replace Core sources
@@ -237,31 +232,25 @@ jobs:
             exit 1
           fi
 
-  #      - name: Set up Maven Central Repository
-  #        uses: actions/setup-java@v3
-  #        with:
-  #          java-version: 8
-  #          distribution: "temurin"
-  #          server-id: ${{ inputs.server }} # Value of the distributionManagement/repository/id field of the pom.xml
-  #          server-username: MAVEN_USERNAME # env variable for username in deploy
-  #          server-password: MAVEN_CENTRAL_TOKEN # env variable for token in deploy
-  #          gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }} # Value of the GPG private key to import
-  #          gpg-passphrase: MAVEN_GPG_PASSPHRASE # env variable for GPG private key passphrase
-  #
-  #      - name: Publish
-  #        if: success()
-  #        run: |
-  #          if [[ "${{ inputs.server }}" == "snapshot"]]; then
-  #            echo "deploying snapshot"
-  #            mvn --batch-mode deploy
-  #          else
-  #            echo "deploying ${{inputs.server}}"
-  #            mvn --batch-mode -P ${{inputs.server}} deploy
-  #          fi
-  #        env:
-  #         MAVEN_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
-  #         MAVEN_CENTRAL_TOKEN: ${{ secrets.MAVEN_CENTRAL_TOKEN }}
-  #         MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+      - name: Set up Maven Central Repository
+        uses: actions/setup-java@v3
+        with:
+          java-version: 8
+          distribution: "temurin"
+          server-id: ${{ inputs.server }} # Value of the distributionManagement/repository/id field of the pom.xml
+          server-username: MAVEN_USERNAME # env variable for username in deploy
+          server-password: MAVEN_CENTRAL_TOKEN # env variable for token in deploy
+          gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }} # Value of the GPG private key to import
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE # env variable for GPG private key passphrase
+
+      - name: Publish
+        if: success()
+        run: |
+          mvn --batch-mode -P ${{inputs.server}} deploy
+        env:
+         MAVEN_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+         MAVEN_CENTRAL_TOKEN: ${{ secrets.MAVEN_CENTRAL_TOKEN }}
+         MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
 
   release-mail:
     needs:
@@ -280,6 +269,7 @@ jobs:
           ref: ${{inputs.ref || github.ref}}
           lfs: true
 
+        # TODO: remove specific mail
       - name: Selenium release mail
         working-directory: ./java/
         run: |
@@ -298,6 +288,7 @@ jobs:
           VERSION="$RELEASE_TAG;$SELENIUM_JAVA;$APPIUM_JAVA;$IMAGES_JAVA"
           ./sendMail.sh "java" $VERSION "$CHANGELOG" "$TEST_COVERAGE_GAP" "ido.elmaleh@applitools.com";
 
+        # TODO: remove specific mail
       - name: Playwright release mail
         working-directory: ./java/
         run: |
