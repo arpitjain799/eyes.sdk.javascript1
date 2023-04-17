@@ -214,7 +214,7 @@ jobs:
           rm -f $SOURCES
           echo "NA" > na.txt
           zip $SOURCES na.txt
-          gpg -s --armor --pinentry-mode loopback $SOURCES
+          gpg -s --armor --pinentry-mode loopback --passphrase ${{secrets.MAVEN_GPG_PASSPHRASE}} $SOURCES
           rm -f na.txt
           CONTENTS=$(jar tf $SOURCES)
           if [ "$CONTENTS" != "na.txt" ]; then
