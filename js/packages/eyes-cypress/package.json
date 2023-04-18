@@ -48,7 +48,7 @@
     "test:ts:run:12": "yarn cypress12 run --project ./test/e2e/ts --config-file ./cypress-12.config.ts",
     "test:ts:run": "yarn test:ts:run:legacy && yarn test:ts:run:9",
     "test:coverage": "yarn generate:tests && cd test/coverage/generic && yarn && APPLITOOLS_BATCH_NAME='JS Coverage Tests: eyes-cypress' APPLITOOLS_BATCH_ID=$(uuidgen) npx cypress run",
-    "test:e2e": "APPLITOOLS_DOCKER=true ../../node_modules/.bin/mocha -p -j 3 --grep parallel-test --no-timeouts 'test/e2e/**/*.test.js'",
+    "test:e2e": "APPLITOOLS_DOCKER=true ../../node_modules/.bin/mocha --grep parallel-test --no-timeouts 'test/e2e/**/*.test.js'",
     "test:components": "cd test/components && yarn && npx cypress run --component",
     "cypress": "cypress open --config-file test/fixtures/cypress-play.json",
     "cypress:new": "cd test/play && yarn && npx cypress open",
