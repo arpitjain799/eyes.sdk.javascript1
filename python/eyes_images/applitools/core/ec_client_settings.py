@@ -16,5 +16,7 @@ class ECClientCapabilitiesOptions(object):
 
 @attr.s
 class ECClientSettings(object):
-    options = attr.ib(type=ECClientCapabilitiesOptions)  # type: ECClientCapabilitiesOptions
+    options = attr.ib(
+        type=ECClientCapabilitiesOptions
+    )  # type: ECClientCapabilitiesOptions
     proxy = attr.ib(default=None)  # type: Optional[ProxySettings]
