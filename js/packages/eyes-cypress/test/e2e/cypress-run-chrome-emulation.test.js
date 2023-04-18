@@ -1,27 +1,18 @@
 'use strict'
 const path = require('path')
-const pexec = require('../util/pexec')
-const fs = require('fs')
+const {pexec} = require('../util/pexec')
 
-const sourceTestAppPath = path.resolve(__dirname, '../fixtures/testApp')
-const targetTestAppPath = path.resolve(__dirname, '../fixtures/testAppCopies/testApp-chrome-emulation')
+const sourceTestAppPath = './test/fixtures/testApp'
+const targetTestAppPath = './test/fixtures/testAppCopies/testApp-chrome-emulation'
 
-describe('chrome emulation', () => {
+describe('chrome emulation (parallel-test)', () => {
   before(async () => {
-    if (fs.existsSync(targetTestAppPath)) {
-      fs.rmdirSync(targetTestAppPath, {recursive: true})
-    }
-    try {
-      await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
-      process.chdir(targetTestAppPath)
-    } catch (ex) {
-      console.log(ex)
-      throw ex
-    }
+    await pexec(`rm -rf ${targetTestAppPath}`)
+    await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
   })
 
   after(async () => {
-    fs.rmdirSync(targetTestAppPath, {recursive: true})
+    await pexec(`rm -rf ${targetTestAppPath}`)
   })
 
   it('works for chrome emulation', async () => {
@@ -30,6 +21,7 @@ describe('chrome emulation', () => {
         'npx cypress@6.5.0 run --headless --config testFiles=chromeEmulation.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
         {
           maxBuffer: 10000000,
+          cwd: targetTestAppPath,
         },
       )
     } catch (ex) {

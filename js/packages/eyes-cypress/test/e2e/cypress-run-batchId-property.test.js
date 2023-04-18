@@ -1,10 +1,5 @@
 'use strict'
-const path = require('path')
-let pexec = require('../util/pexec')
-const {updateApplitoolsConfig, withDocker} = pexec
-if (process.env.APPLITOOLS_DOCKER) {
-  pexec = withDocker()
-}
+const {updateApplitoolsConfig, pexec} = require('../util/pexec')
 const applitoolsConfig = require('../fixtures/testApp/applitools.config.js')
 const targetTestAppPath = './test/fixtures/testAppCopies/testApp-batchId-property'
 

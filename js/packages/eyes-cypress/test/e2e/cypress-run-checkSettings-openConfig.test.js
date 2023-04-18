@@ -1,10 +1,5 @@
 'use strict'
-const path = require('path')
-let pexec = require('../util/pexec')
-const {updateApplitoolsConfigFile, withDocker} = pexec
-if (process.env.APPLITOOLS_DOCKER) {
-  pexec = withDocker()
-}
+const {pexec} = require('../util/pexec')
 const {presult} = require('@applitools/functional-commons')
 const {getTestInfo} = require('@applitools/test-utils')
 const {expect} = require('chai')

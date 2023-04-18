@@ -8,10 +8,8 @@ function getMajorVersion(version) {
 }
 
 const nodeMajorVersion = getMajorVersion(process.version)
-const env = {...process.env}
 
-function pexecWrapper(cmd, options) {
-  const {env: optionsEnv} = options || {}
+function addOpenSSLLegacyProvider(cmd, env = {}) {
   let cypressVersion
   try {
     const npxCyVersion = cmd.match(/npx cypress@(\d+)/)
@@ -21,12 +19,11 @@ function pexecWrapper(cmd, options) {
   if (cypressVersion && getMajorVersion(cypressVersion) < 9 && nodeMajorVersion >= 18) {
     env.NODE_OPTIONS = '--openssl-legacy-provider'
   }
-  if (optionsEnv) {
-    Object.entries(optionsEnv).forEach(([k, v]) => {
-      env[k] = v
-    })
-  }
-  const promisePPexec = pexec(cmd, {...options, env})
+  return env
+}
+
+function pexecWrapper(cmd, options) {
+  const promisePPexec = pexec(cmd, options)
   console.log(`$ ${cmd}`)
   // if (process.env.APPLITOOLS_SHOW_LOGS) {
   const {child} = promisePPexec
@@ -37,8 +34,12 @@ function pexecWrapper(cmd, options) {
   return promisePPexec
 }
 
-function cypress(cmd, options) {
-  return pexecWrapper(`yarn cypress ${cmd}`, options)
+function withTerminal() {
+  return async function (cmd, options) {
+    let {env, ...rest} = options || {}
+    env = addOpenSSLLegacyProvider(cmd, env)
+    return pexecWrapper(cmd, {...rest, env: {...process.env, ...env}})
+  }
 }
 
 function withDocker() {
@@ -52,7 +53,8 @@ function withDocker() {
     await pexec(`docker rm ${containerId}`)
   })
   return async function (cmd, options = {}) {
-    const {cwd, env, ...rest} = options
+    let {cwd, env, ...rest} = options
+    env = addOpenSSLLegacyProvider(cmd, env)
 
     const w = cwd ? ' -w ' + cwd.replace(/^\./, rootDir) : ' '
     const e = env
@@ -65,21 +67,25 @@ function withDocker() {
   }
 }
 
-function updateApplitoolsConfig(config) {
-  return `node -e 'console.log(require("fs").writeFileSync("./applitools.config.js", "module.exports =" + JSON.stringify(${JSON.stringify(
-    config,
-    2,
-    null,
-  )})))'`
+function updateConfig(sourceConfigFile) {
+  return function (config) {
+    return updateFile(sourceConfigFile)(`module.exports = ${JSON.stringify(config, 2, null)}`)
+  }
 }
 
-function updateApplitoolsConfigFile(file) {
-  return updateApplitoolsConfig(require(file))
+function updateFile(sourceConfigFile) {
+  return function (string) {
+    return `node -e 'console.log(require("fs").writeFileSync("${sourceConfigFile}", Buffer.from(\`${Buffer.from(
+      string,
+    ).toString('base64')}\`, "base64").toString()))'`
+  }
 }
 
-pexecWrapper.cypress = cypress
-pexecWrapper.withDocker = withDocker
-pexecWrapper.updateApplitoolsConfig = updateApplitoolsConfig
-pexecWrapper.updateApplitoolsConfigFile = updateApplitoolsConfigFile
-
-module.exports = pexecWrapper
+module.exports = {
+  pexec: process.env.APPLITOOLS_DOCKER === 'true' ? withDocker() : withTerminal(),
+  updateApplitoolsConfig: updateConfig('./applitools.config.js'),
+  updateApplitoolsConfigFile: function (file) {
+    return updateConfig('./applitools.config.js')(require(file))
+  },
+  updateCypressConfig: updateFile('./cypress.config.js'),
+}
