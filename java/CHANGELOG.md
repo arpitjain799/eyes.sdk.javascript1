@@ -1,4 +1,4 @@
-## [vNext] - dNext
+## [5.48.0] - 2023-04-18
 ### Updated
 - Improve performance in DOM snapshot.
 ### Added
