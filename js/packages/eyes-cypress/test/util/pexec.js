@@ -1,4 +1,5 @@
 const {exec} = require('child_process')
+const path = require('path')
 const fs = require('fs')
 const {promisify: p} = require('util')
 const pexec = p(exec)
@@ -80,6 +81,30 @@ function updateFile(sourceConfigFile) {
     ).toString('base64')}\`, "base64").toString()))'`
   }
 }
+async function updateConfigFile(targetTestAppPath, pluginFileName, testName) {
+  const promise = new Promise(resolve => {
+    require('fs').readFile(path.resolve(targetTestAppPath, `./cypress.config.js`), 'utf-8', function (err, contents) {
+      if (err) {
+        console.log(err)
+        return
+      }
+
+      const replaced = contents
+        .replace(/index-run.js/g, pluginFileName)
+        .replace(/integration-run.*\'/g, `integration-run/${testName}\'`)
+      pexecWrapper(updateCypressConfig(replaced), {
+        cwd: targetTestAppPath,
+      })
+        .then(() => resolve())
+        .catch(e => {
+          throw new Error(e)
+        })
+    })
+  })
+  await promise
+}
+
+const updateCypressConfig = updateFile('./cypress.config.js')
 
 module.exports = {
   init: process.env.APPLITOOLS_DOCKER === 'true' ? withDocker : withTerminal,
@@ -87,5 +112,9 @@ module.exports = {
   updateApplitoolsConfigFile: function (file) {
     return updateConfig('./applitools.config.js')(require(file))
   },
-  updateCypressConfig: updateFile('./cypress.config.js'),
+  updateCypressConfigFile: function (file) {
+    return updateFile('./cypress.config.js')(fs.readFileSync(file).toString())
+  },
+  updateCypressConfig,
+  updateConfigFile,
 }
