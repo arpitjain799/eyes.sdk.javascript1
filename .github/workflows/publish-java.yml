@@ -269,7 +269,6 @@ jobs:
           ref: ${{inputs.ref || github.ref}}
           lfs: true
 
-        # TODO: remove specific mail
       - name: Selenium release mail
         working-directory: ./java/
         run: |
@@ -286,9 +285,8 @@ jobs:
           APPIUM_JAVA="eyes-appium-java5@${{inputs.version}}";
           IMAGES_JAVA="eyes-images-java5@${{inputs.version}}";
           VERSION="$RELEASE_TAG;$SELENIUM_JAVA;$APPIUM_JAVA;$IMAGES_JAVA"
-          ./sendMail.sh "java" $VERSION "$CHANGELOG" "$TEST_COVERAGE_GAP" "ido.elmaleh@applitools.com";
+          ./sendMail.sh "java" $VERSION "$CHANGELOG" "$TEST_COVERAGE_GAP";
 
-        # TODO: remove specific mail
       - name: Playwright release mail
         working-directory: ./java/
         run: |
@@ -303,4 +301,4 @@ jobs:
           TEST_COVERAGE_GAP=$(cat testCoverageGap.txt);
           PLAYWRIGHT_JAVA="eyes-playwright-java5@${{inputs.version}}";
           VERSION="$RELEASE_TAG;$PLAYWRIGHT_JAVA"
-          ./sendMail.sh "java_playwright" $VERSION "$CHANGELOG" "$TEST_COVERAGE_GAP" "ido.elmaleh@applitools.com";
+          ./sendMail.sh "java_playwright" $VERSION "$CHANGELOG" "$TEST_COVERAGE_GAP";
