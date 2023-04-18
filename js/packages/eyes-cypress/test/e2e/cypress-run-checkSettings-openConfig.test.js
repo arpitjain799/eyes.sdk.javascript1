@@ -60,7 +60,7 @@ describe('works with checkSettings in open (parallel-test)', () => {
       const info = await getInfo(stdout)
       checkProps(info)
     } catch (ex) {
-      console.error('Error during test!', ex.stdout)
+      console.error('Error during test!', ex)
       throw ex
     }
   })

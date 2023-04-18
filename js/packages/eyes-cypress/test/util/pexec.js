@@ -8,10 +8,9 @@ function getMajorVersion(version) {
   return version.match(/(\d+)/g)[0] - ''
 }
 
-const nodeMajorVersion = getMajorVersion(process.version)
-
-function addOpenSSLLegacyProvider(cmd, env = {}) {
+function addOpenSSLLegacyProvider(cmd, nodeVersion, env = {}) {
   let cypressVersion
+  let nodeMajorVersion = getMajorVersion(nodeVersion)
   try {
     const npxCyVersion = cmd.match(/npx cypress@(\d+)/)
     if (npxCyVersion) cypressVersion = npxCyVersion[1]
@@ -38,7 +37,7 @@ function pexecWrapper(cmd, options) {
 function withTerminal() {
   return async function (cmd, options) {
     let {env, ...rest} = options || {}
-    env = addOpenSSLLegacyProvider(cmd, env)
+    env = addOpenSSLLegacyProvider(cmd, process.version, env)
     return pexecWrapper(cmd, {...rest, env: {...process.env, ...env}})
   }
 }
@@ -46,8 +45,10 @@ function withTerminal() {
 function withDocker() {
   let containerId
   const rootDir = '/app/packages/eyes-cypress'
+  let nodeVersion
   before(async () => {
     containerId = (await pexec('docker run -d -it cypress-e2e')).stdout.replace(/\n/, '')
+    nodeVersion = (await pexec(`docker exec ${containerId} node -v`)).stdout.replace(/\n/, '')
   })
   after(async () => {
     await pexec(`docker kill ${containerId}`)
@@ -55,7 +56,7 @@ function withDocker() {
   })
   return async function (cmd, options = {}) {
     let {cwd, env, ...rest} = options
-    env = addOpenSSLLegacyProvider(cmd, env)
+    env = addOpenSSLLegacyProvider(cmd, nodeVersion, env)
 
     const w = cwd ? ' -w ' + cwd.replace(/^\./, rootDir) : ' '
     const e = Object.keys(env).length

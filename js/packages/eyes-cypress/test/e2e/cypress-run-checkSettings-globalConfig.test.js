@@ -21,6 +21,7 @@ async function runCypress(pluginsFile, testFile) {
   ).stdout
 }
 async function getInfo(stdout) {
+  debugger
   const results = stdout
     .substring(stdout.indexOf('@@START@@') + '@@START@@'.length, stdout.indexOf('@@END@@'))
     .replace('Summary results: ', '')
@@ -52,7 +53,7 @@ describe('works with checkSettings in config file (parallel-test)', () => {
   })
 
   after(async () => {
-    await exec(`rm -rf ${targetTestAppPath}`)
+    // await exec(`rm -rf ${targetTestAppPath}`)
   })
 
   it('checkSettings works from applitools.config file', async () => {
@@ -72,7 +73,7 @@ describe('works with checkSettings in config file (parallel-test)', () => {
       const info = await getInfo(stdout)
       checkProps(info)
     } catch (ex) {
-      console.error('Error during test!', ex.stdout)
+      console.error('Error during test!', ex)
       throw ex
     }
   })

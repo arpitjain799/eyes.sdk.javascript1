@@ -39,7 +39,7 @@ describe('disableBrowserFetching (parallel-test)', () => {
       await updateConfigFile(targetTestAppPath, 'index-run.js', 'disableBrowserFetching.js')
       await runCypress()
     } catch (ex) {
-      console.error('Error during test!', ex.stdout)
+      console.error('Error during test!', ex)
       throw ex
     }
   })

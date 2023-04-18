@@ -24,7 +24,7 @@ describe('handle batchId property (parallel-test)', () => {
         },
       )
     } catch (ex) {
-      console.error('Error during test!', ex.stdout)
+      console.error('Error during test!', ex)
       throw ex
     } finally {
       delete process.env.APPLITOOLS_BATCH_ID
@@ -44,7 +44,7 @@ describe('handle batchId property (parallel-test)', () => {
         },
       )
     } catch (ex) {
-      console.error('Error during test!', ex.stdout)
+      console.error('Error during test!', ex)
       throw ex
     } finally {
       delete process.env.APPLITOOLS_BATCH_ID
