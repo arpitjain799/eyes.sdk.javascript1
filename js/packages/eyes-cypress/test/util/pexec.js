@@ -57,7 +57,7 @@ function withDocker() {
     env = addOpenSSLLegacyProvider(cmd, env)
 
     const w = cwd ? ' -w ' + cwd.replace(/^\./, rootDir) : ' '
-    const e = env
+    const e = Object.keys(env).length
       ? ' -e ' +
         Object.entries(env)
           .map(([k, v]) => `${k}=${v}`)
@@ -82,7 +82,7 @@ function updateFile(sourceConfigFile) {
 }
 
 module.exports = {
-  pexec: process.env.APPLITOOLS_DOCKER === 'true' ? withDocker() : withTerminal(),
+  init: process.env.APPLITOOLS_DOCKER === 'true' ? withDocker : withTerminal,
   updateApplitoolsConfig: updateConfig('./applitools.config.js'),
   updateApplitoolsConfigFile: function (file) {
     return updateConfig('./applitools.config.js')(require(file))

@@ -1,13 +1,14 @@
 'use strict'
 const path = require('path')
-const {pexec, updateApplitoolsConfig, updateCypressConfig} = require('../util/pexec')
+const {init, updateApplitoolsConfig, updateCypressConfig} = require('../util/pexec')
+const exec = init()
 
 const sourceTestAppPath = './test/fixtures/testApp'
 const targetTestAppPath = './test/fixtures/testAppCopies/testApp-disableBrowserFetching'
 
 async function runCypress() {
   return (
-    await pexec(`npx cypress@latest run`, {
+    await exec(`npx cypress@latest run`, {
       cwd: targetTestAppPath,
       maxBuffer: 10000000,
     })
@@ -25,7 +26,7 @@ async function updateConfigFile(pluginFileName, testName = 'global-hooks-overrid
       const replaced = contents
         .replace(/index-run.js/g, pluginFileName)
         .replace(/integration-run/g, `integration-run/${testName}`)
-      pexec(updateCypressConfig(replaced), {
+      exec(updateCypressConfig(replaced), {
         cwd: targetTestAppPath,
       })
         .then(() => resolve())
@@ -39,22 +40,22 @@ async function updateConfigFile(pluginFileName, testName = 'global-hooks-overrid
 
 describe('disableBrowserFetching (parallel-test)', () => {
   beforeEach(async () => {
-    await pexec(`cp ${sourceTestAppPath}Cypress10/cypress.config.js ${targetTestAppPath}`)
+    await exec(`cp ${sourceTestAppPath}Cypress10/cypress.config.js ${targetTestAppPath}`)
     const applitoolsConfig = require(path.resolve(targetTestAppPath, `./applitools.config.js`))
     applitoolsConfig.disableBrowserFetching = true
-    await pexec(updateApplitoolsConfig(applitoolsConfig), {
+    await exec(updateApplitoolsConfig(applitoolsConfig), {
       cwd: targetTestAppPath,
     })
   })
   before(async () => {
-    await pexec(`rm -rf ${targetTestAppPath}`)
-    await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
-    await pexec(`rm ${targetTestAppPath}/cypress.json`)
-    await pexec('npm i --save-dev cypress@latest')
+    await exec(`rm -rf ${targetTestAppPath}`)
+    await exec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
+    await exec(`rm ${targetTestAppPath}/cypress.json`)
+    await exec('npm i --save-dev cypress@latest')
   })
 
   after(async () => {
-    await pexec(`rm -rf ${targetTestAppPath}`)
+    await exec(`rm -rf ${targetTestAppPath}`)
   })
 
   it('works for disableBrowserFetching.js', async () => {

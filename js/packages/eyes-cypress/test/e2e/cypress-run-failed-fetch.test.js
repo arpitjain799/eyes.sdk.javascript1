@@ -1,30 +1,27 @@
 'use strict'
-const path = require('path')
-const pexec = require('../util/pexec')
-const fs = require('fs')
+const {init} = require('../util/pexec')
+const exec = init()
 
-const sourceTestAppPath = path.resolve(__dirname, '../fixtures/testApp')
-const targetTestAppPath = path.resolve(__dirname, '../fixtures/testAppCopies/testApp-failed-fetch')
+const sourceTestAppPath = './test/fixtures/testApp'
+const targetTestAppPath = './test/fixtures/testAppCopies/testApp-failed-fetch'
 
-describe('failed-fetch', () => {
+describe('failed-fetch (parallel-test)', () => {
   before(async () => {
-    if (fs.existsSync(targetTestAppPath)) {
-      fs.rmdirSync(targetTestAppPath, {recursive: true})
-    }
-    await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
-    process.chdir(targetTestAppPath)
+    await exec(`rm -rf ${targetTestAppPath}`)
+    await exec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
   })
 
   after(async () => {
-    fs.rmdirSync(targetTestAppPath, {recursive: true})
+    await exec(`rm -rf ${targetTestAppPath}`)
   })
 
   it('works for failed-fetch.js', async () => {
     try {
-      await pexec(
+      await exec(
         'npx cypress@6.5.0 run --headless --config testFiles=failed-fetch.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
         {
           maxBuffer: 10000000,
+          cwd: targetTestAppPath,
         },
       )
     } catch (ex) {
