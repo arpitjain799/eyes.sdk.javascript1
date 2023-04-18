@@ -1,19 +1,23 @@
 'use strict'
 const path = require('path')
-const pexec = require('../util/pexec')
-const fs = require('fs')
+let pexec = require('../util/pexec')
+const {updateApplitoolsConfigFile, withDocker} = pexec
+if (process.env.APPLITOOLS_DOCKER) {
+  pexec = withDocker()
+}
 const {presult} = require('@applitools/functional-commons')
 const {getTestInfo} = require('@applitools/test-utils')
 const {expect} = require('chai')
 
-const sourceTestAppPath = path.resolve(__dirname, '../fixtures/testApp')
-const targetTestAppPath = path.resolve(__dirname, '../fixtures/testAppCopies/testApp-checkSettings-openConfig')
+const sourceTestAppPath = './test/fixtures/testApp'
+const targetTestAppPath = './test/fixtures/testAppCopies/testApp-checkSettings-openConfig'
 
 async function runCypress(pluginsFile, testFile) {
   return (
     await pexec(
       `npx cypress@6.5.0 run --headless --config testFiles=${testFile},integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/${pluginsFile},supportFile=cypress/support/index-run.js`,
       {
+        cwd: targetTestAppPath,
         maxBuffer: 10000000,
       },
     )
@@ -44,17 +48,14 @@ function checkProps(info) {
   expect(info.startInfo.batchInfo.notifyOnCompletion).to.eq(true)
 }
 
-describe('works with checkSettings in open', () => {
+describe('works with checkSettings in open (parallel-test)', () => {
   before(async () => {
-    if (fs.existsSync(targetTestAppPath)) {
-      fs.rmdirSync(targetTestAppPath, {recursive: true})
-    }
+    await pexec(`rm -rf ${targetTestAppPath}`)
     await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
-    process.chdir(targetTestAppPath)
   })
 
   after(async () => {
-    fs.rmdirSync(targetTestAppPath, {recursive: true})
+    await pexec(`rm -rf ${targetTestAppPath}`)
   })
 
   it('checkSettings works from open file', async () => {

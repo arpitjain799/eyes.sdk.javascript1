@@ -1,44 +1,30 @@
 'use strict'
 const path = require('path')
-const pexec = require('../util/pexec')
-const {testServerInProcess} = require('@applitools/test-server')
-const fs = require('fs')
+let pexec = require('../util/pexec')
+const {updateApplitoolsConfig, withDocker} = pexec
+if (process.env.APPLITOOLS_DOCKER) {
+  pexec = withDocker()
+}
 const applitoolsConfig = require('../fixtures/testApp/applitools.config.js')
-
-const sourceTestAppPath = path.resolve(__dirname, '../fixtures/testApp')
-const targetTestAppPath = path.resolve(__dirname, '../fixtures/testAppCopies/testApp-batchId-property')
+const targetTestAppPath = './test/fixtures/testAppCopies/testApp-batchId-property'
 
 describe('handle batchId property', () => {
-  let closeServer
   before(async () => {
-    const staticPath = path.resolve(__dirname, '../fixtures')
-    const server = await testServerInProcess({
-      port: 5555,
-      staticPath,
-    })
-    closeServer = server.close
-    if (fs.existsSync(targetTestAppPath)) {
-      fs.rmdirSync(targetTestAppPath, {recursive: true})
-    }
-    await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
-    process.chdir(targetTestAppPath)
+    await pexec(`cp -r ./test/fixtures/testApp/. ${targetTestAppPath}`)
   })
-
   after(async () => {
-    try {
-      fs.rmdirSync(targetTestAppPath, {recursive: true})
-    } finally {
-      await closeServer()
-    }
+    await pexec(`rm -rf ${targetTestAppPath}`)
   })
-
-  it('works with batchId from env var with global hooks', async () => {
-    process.env.APPLITOOLS_BATCH_ID = 'batchId1234'
+  it('works with batchId from env var with global hooks (parallel)', async () => {
     try {
       await pexec(
         'npx cypress@9 run --headless --config testFiles=batchIdProperty.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
         {
           maxBuffer: 10000000,
+          cwd: targetTestAppPath,
+          env: {
+            APPLITOOLS_BATCH_ID: 'batchId1234',
+          },
         },
       )
     } catch (ex) {
@@ -50,12 +36,15 @@ describe('handle batchId property', () => {
   })
   it('works with batchId from config file with global hooks', async () => {
     const config = {...applitoolsConfig, batchId: 'batchId123456'}
-    fs.writeFileSync(`${targetTestAppPath}/applitools.config.js`, 'module.exports =' + JSON.stringify(config, 2, null))
+    await pexec(updateApplitoolsConfig(config), {
+      cwd: targetTestAppPath,
+    })
     try {
       await pexec(
         'npx cypress@9 run --headless --config testFiles=batchIdProperty.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
         {
           maxBuffer: 10000000,
+          cwd: targetTestAppPath,
         },
       )
     } catch (ex) {
