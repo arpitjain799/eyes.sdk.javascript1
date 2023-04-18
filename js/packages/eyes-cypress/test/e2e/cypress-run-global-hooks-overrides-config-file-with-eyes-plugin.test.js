@@ -30,7 +30,7 @@ async function updateGlobalHooks(globalHooks) {
   })
 }
 
-describe('global hooks override in cypress.config.js file using eyes-plugin (parallel-test)', () => {
+describe('global hooks override in cypress.config.js file using eyes-plugin', () => {
   before(async () => {
     await exec(`rm -rf ${targetTestAppPath}`)
     await exec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)

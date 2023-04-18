@@ -18,7 +18,7 @@ describe('failed-fetch (parallel-test)', () => {
   it('works for failed-fetch.js', async () => {
     try {
       await exec(
-        'npx cypress@6.5.0 run --headless --config testFiles=failed-fetch.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
+        'npx cypress@9 run --headless --config testFiles=failed-fetch.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
         {
           maxBuffer: 10000000,
           cwd: targetTestAppPath,

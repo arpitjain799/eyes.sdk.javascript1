@@ -11,7 +11,7 @@ const targetTestAppPath = './test/fixtures/testAppCopies/testApp-getAllTestResul
 async function runCypress(pluginsFile, testFile = 'getAllTestResults.js') {
   return (
     await exec(
-      `npx cypress@6.5.0 run --headless --config testFiles=${testFile},integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/${pluginsFile},supportFile=cypress/support/index-run.js`,
+      `npx cypress@9 run --headless --config testFiles=${testFile},integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/${pluginsFile},supportFile=cypress/support/index-run.js`,
       {
         maxBuffer: 10000000,
         cwd: targetTestAppPath,

@@ -18,7 +18,7 @@ describe('CORS iframe (parallel-test)', () => {
   it('works for CORS iframe', async () => {
     try {
       await exec(
-        'npx cypress@6.5.0 run --headless --config testFiles=CORSiframe.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
+        'npx cypress@9 run --headless --config testFiles=CORSiframe.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
         {
           maxBuffer: 10000000,
           cwd: targetTestAppPath,

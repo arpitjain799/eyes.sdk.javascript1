@@ -11,7 +11,7 @@ const targetTestAppPath = './test/fixtures/testAppCopies/testApp-checkSettings-o
 async function runCypress(pluginsFile, testFile) {
   return (
     await exec(
-      `npx cypress@6.5.0 run --headless --config testFiles=${testFile},integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/${pluginsFile},supportFile=cypress/support/index-run.js`,
+      `npx cypress@9 run --headless --config testFiles=${testFile},integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/${pluginsFile},supportFile=cypress/support/index-run.js`,
       {
         cwd: targetTestAppPath,
         maxBuffer: 10000000,
