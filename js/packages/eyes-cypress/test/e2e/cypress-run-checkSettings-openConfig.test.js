@@ -1,6 +1,6 @@
 'use strict'
-const {init} = require('../util/pexec')
-const exec = init()
+const {init, exec} = require('../util/pexec')
+const runInEnv = init()
 const {presult} = require('@applitools/functional-commons')
 const {getTestInfo} = require('@applitools/test-utils')
 const {expect} = require('chai')
@@ -10,7 +10,7 @@ const targetTestAppPath = './test/fixtures/testAppCopies/testApp-checkSettings-o
 
 async function runCypress(pluginsFile, testFile) {
   return (
-    await exec(
+    await runInEnv(
       `npx cypress@9 run --headless --config testFiles=${testFile},integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/${pluginsFile},supportFile=cypress/support/index-run.js`,
       {
         cwd: targetTestAppPath,

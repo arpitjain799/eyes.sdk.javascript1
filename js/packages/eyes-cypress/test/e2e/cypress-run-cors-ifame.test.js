@@ -1,6 +1,6 @@
 'use strict'
-const {init} = require('../util/pexec')
-const exec = init()
+const {init, exec} = require('../util/pexec')
+const runInEnv = init()
 
 const sourceTestAppPath = './test/fixtures/testApp'
 const targetTestAppPath = './test/fixtures/testAppCopies/testApp-cors-iframe'
@@ -17,7 +17,7 @@ describe('CORS iframe (parallel-test)', () => {
 
   it('works for CORS iframe', async () => {
     try {
-      await exec(
+      await runInEnv(
         'npx cypress@9 run --headless --config testFiles=CORSiframe.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
         {
           maxBuffer: 10000000,

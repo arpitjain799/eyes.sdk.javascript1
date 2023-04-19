@@ -1,6 +1,6 @@
 'use strict'
-const {updateApplitoolsConfig, init} = require('../util/pexec')
-const exec = init(before, after)
+const {updateApplitoolsConfig, init, exec} = require('../util/pexec')
+const runInEnv = init(before, after)
 const applitoolsConfig = require('../fixtures/testApp/applitools.config.js')
 const targetTestAppPath = './test/fixtures/testAppCopies/testApp-batchId-property'
 
@@ -13,7 +13,7 @@ describe('handle batchId property (parallel-test)', () => {
   })
   it('works with batchId from env var with global hooks (parallel)', async () => {
     try {
-      await exec(
+      await runInEnv(
         'npx cypress@9 run --headless --config testFiles=batchIdProperty.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
         {
           maxBuffer: 10000000,
@@ -32,11 +32,9 @@ describe('handle batchId property (parallel-test)', () => {
   })
   it('works with batchId from config file with global hooks', async () => {
     const config = {...applitoolsConfig, batchId: 'batchId123456'}
-    await exec(updateApplitoolsConfig(config), {
-      cwd: targetTestAppPath,
-    })
+    updateApplitoolsConfig(config, targetTestAppPath)
     try {
-      await exec(
+      await runInEnv(
         'npx cypress@9 run --headless --config testFiles=batchIdProperty.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
         {
           maxBuffer: 10000000,

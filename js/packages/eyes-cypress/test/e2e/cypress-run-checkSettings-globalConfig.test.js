@@ -1,7 +1,7 @@
 'use strict'
 const path = require('path')
-const {updateApplitoolsConfigFile, init} = require('../util/pexec')
-const exec = init()
+const {updateApplitoolsConfigFile, init, exec} = require('../util/pexec')
+const runInEnv = init()
 const {presult} = require('@applitools/functional-commons')
 const {getTestInfo} = require('@applitools/test-utils')
 const {expect} = require('chai')
@@ -11,7 +11,7 @@ const targetTestAppPath = './test/fixtures/testAppCopies/testApp-checkSettings-g
 
 async function runCypress(pluginsFile, testFile) {
   return (
-    await exec(
+    await runInEnv(
       `npx cypress@9 run --headless --config testFiles=${testFile},integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/${pluginsFile},supportFile=cypress/support/index-run.js`,
       {
         maxBuffer: 10000000,
@@ -57,13 +57,9 @@ describe('works with checkSettings in config file (parallel-test)', () => {
   })
 
   it('checkSettings works from applitools.config file', async () => {
-    await exec(
-      updateApplitoolsConfigFile(
-        path.resolve(__dirname, '../fixtures/testApp/happy-config/checkSettingsFromGlobal.config.js'),
-      ),
-      {
-        cwd: targetTestAppPath,
-      },
+    updateApplitoolsConfigFile(
+      path.resolve(__dirname, '../fixtures/testApp/happy-config/checkSettingsFromGlobal.config.js'),
+      targetTestAppPath,
     )
     try {
       const [_err, stdout] = await presult(

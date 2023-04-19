@@ -1,7 +1,7 @@
 'use strict'
 const path = require('path')
-const {init} = require('../util/pexec')
-const exec = init()
+const {init, exec} = require('../util/pexec')
+const runInEnv = init()
 
 const sourceTestAppPath = './test/fixtures/testApp'
 const targetTestAppPath = './test/fixtures/testAppCopies/testApp-chrome-emulation'
@@ -18,7 +18,7 @@ describe('chrome emulation (parallel-test)', () => {
 
   it('works for chrome emulation', async () => {
     try {
-      await exec(
+      await runInEnv(
         'npx cypress@9 run --headless --config testFiles=chromeEmulation.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
         {
           maxBuffer: 10000000,

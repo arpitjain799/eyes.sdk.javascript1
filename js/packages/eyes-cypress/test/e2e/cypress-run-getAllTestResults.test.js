@@ -1,7 +1,7 @@
 'use strict'
 const {expect} = require('chai')
-const {init, updateApplitoolsConfig} = require('../util/pexec')
-const exec = init()
+const {init, updateApplitoolsConfig, exec} = require('../util/pexec')
+const runInEnv = init()
 const {presult} = require('@applitools/functional-commons')
 const applitoolsConfig = require('../fixtures/testApp/applitools.config.js')
 
@@ -10,7 +10,7 @@ const targetTestAppPath = './test/fixtures/testAppCopies/testApp-getAllTestResul
 
 async function runCypress(pluginsFile, testFile = 'getAllTestResults.js') {
   return (
-    await exec(
+    await runInEnv(
       `npx cypress@9 run --headless --config testFiles=${testFile},integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/${pluginsFile},supportFile=cypress/support/index-run.js`,
       {
         maxBuffer: 10000000,
@@ -49,9 +49,7 @@ describe('getAllTestResults (parallel-test)', () => {
 
   it('delete test results', async () => {
     const config = {...applitoolsConfig, showLogs: true}
-    await exec(updateApplitoolsConfig(config), {
-      cwd: targetTestAppPath,
-    })
+    updateApplitoolsConfig(config, targetTestAppPath)
 
     const [err, v] = await presult(runCypress('get-test-results.js', 'deleteTestResults.js'))
     expect(err).to.be.undefined
