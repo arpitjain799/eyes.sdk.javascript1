@@ -2,6 +2,7 @@
 ### Features
 - Added functional session feature.
 - Add a timeout and max concurrency for fetching resources.
+- Make runners compatible with Java's AutoCloseable interface.
 ### Bug fixes
 
 ## [5.48.0] - 2023-04-18
