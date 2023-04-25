@@ -47,6 +47,7 @@ describe('pluginExport', () => {
       eyesWaitBeforeCapture: undefined,
       tapDirPath: undefined,
       tapFileName: undefined,
+      universalDebug: false,
     })
 
     __module = {
@@ -74,6 +75,7 @@ describe('pluginExport', () => {
       eyesWaitBeforeCapture: undefined,
       tapDirPath: undefined,
       tapFileName: undefined,
+      universalDebug: false,
     })
   })
 
@@ -102,6 +104,7 @@ describe('pluginExport', () => {
       eyesWaitBeforeCapture: undefined,
       tapDirPath: undefined,
       tapFileName: undefined,
+      universalDebug: false,
     })
   })
 
@@ -128,6 +131,7 @@ describe('pluginExport', () => {
       eyesWaitBeforeCapture: undefined,
       tapDirPath: undefined,
       tapFileName: undefined,
+      universalDebug: false,
     })
   })
 
@@ -154,6 +158,7 @@ describe('pluginExport', () => {
       eyesWaitBeforeCapture: undefined,
       tapDirPath: undefined,
       tapFileName: undefined,
+      universalDebug: false,
     })
   })
 
@@ -180,6 +185,7 @@ describe('pluginExport', () => {
       eyesWaitBeforeCapture: undefined,
       tapDirPath: undefined,
       tapFileName: undefined,
+      universalDebug: false,
     })
   })
 
@@ -209,6 +215,7 @@ describe('pluginExport', () => {
       eyesWaitBeforeCapture: undefined,
       tapDirPath: undefined,
       tapFileName: undefined,
+      universalDebug: false,
     })
   })
 
@@ -238,6 +245,7 @@ describe('pluginExport', () => {
       eyesWaitBeforeCapture: undefined,
       tapDirPath: undefined,
       tapFileName: undefined,
+      universalDebug: false,
     })
   })
 })

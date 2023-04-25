@@ -24,6 +24,7 @@ export type EyesPluginConfig = {
   eyesPort?: number
   eyesIsGlobalHooksSupported?: boolean
   eyesRemoveDuplicateTests?: boolean
+  universalDebug?: boolean
 }
 
 const {config, eyesConfig} = makeConfig()

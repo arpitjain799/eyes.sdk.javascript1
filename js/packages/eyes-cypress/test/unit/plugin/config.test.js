@@ -18,6 +18,7 @@ describe('config', () => {
       eyesRemoveDuplicateTests: false,
       tapDirPath: undefined,
       tapFileName: undefined,
+      universalDebug: false,
     })
   })
 
@@ -38,6 +39,7 @@ describe('config', () => {
       eyesRemoveDuplicateTests: false,
       tapDirPath: undefined,
       tapFileName: undefined,
+      universalDebug: false,
     })
     delete process.env.APPLITOOLS_BATCH_ID
   })

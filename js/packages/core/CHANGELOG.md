@@ -2,6 +2,32 @@
 
 ## Unreleased
 
+## 2.5.3 - 2023/4/20
+
+### Features
+- Add a timeout and max concurrency for fetching resources
+### Bug fixes
+- Fixed typo in ec custom property
+
+## 2.5.2 - 2023/4/19
+
+### Features
+### Bug fixes
+- Fixed functional test feature issues in ec client
+
+## 2.5.1 - 2023/4/18
+
+### Features
+### Bug fixes
+- Fixed the issue with session metadata extraction
+
+## 2.5.0 - 2023/4/18
+
+### Features
+- Added functional session feature
+### Bug fixes
+- Fixed issue with when webview were wasn't recognized as web compatible world
+
 ## 2.4.13 - 2023/4/16
 
 ### Features

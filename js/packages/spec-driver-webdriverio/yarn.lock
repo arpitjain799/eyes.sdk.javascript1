@@ -23,10 +23,10 @@
     xml-js "1.6.11"
     yargs "15.0.2"
 
-"@applitools/driver@1.11.41":
-  version "1.11.41"
-  resolved "https://registry.yarnpkg.com/@applitools/driver/-/driver-1.11.41.tgz#7286e0efb9f11f08112a0912aaf0280c64a79c6d"
-  integrity sha512-7wm8SKuNOwzv9naBO774+NXnUuJBjr/SjOY0jSQMrq7n9WJSIDyD1kT8QjMbveQzxx8Fp4BMUI4rOWVTeBGZ+w==
+"@applitools/driver@1.11.43":
+  version "1.11.43"
+  resolved "https://registry.yarnpkg.com/@applitools/driver/-/driver-1.11.43.tgz#e1d17c15b97d2433fbbad4cc6fd0465aaef6979b"
+  integrity sha512-a+tRvFog/uyJ8HXdH/eo3Ahfo1Zrw8i0FIL0l5Q/YgRH6l4xP3fV/a5/S2xFteiGshCoh5btEPhkBM+dEUSS/Q==
   dependencies:
     "@applitools/logger" "1.1.48"
     "@applitools/snippets" "2.4.19"
