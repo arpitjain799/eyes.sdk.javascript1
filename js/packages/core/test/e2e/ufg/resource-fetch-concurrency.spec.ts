@@ -2,27 +2,38 @@ import {makeCore} from '../../../src/ufg/core'
 import {makeTestServer} from '@applitools/test-server'
 import * as spec from '@applitools/spec-driver-puppeteer'
 import assert from 'assert'
-import {createApp} from '../../fixtures/fetch-concurrency/app'
 import {takeDomSnapshot} from '../../../src/ufg/utils/take-dom-snapshot'
 import {makeDriver} from '@applitools/driver'
 import {makeLogger} from '@applitools/logger'
 
 describe('resource fetching with fetchConcurrency', () => {
-  let page: spec.Driver, destroyPage: () => Promise<void>, server: any, baseUrl: string, closeApp: any
-  const {startApp} = createApp({maxRequests: 1})
+  let page: spec.Driver, destroyPage: () => Promise<void>, server: any, baseUrl: string
 
   before(async () => {
     ;[page, destroyPage] = await spec.build({browser: 'chrome'})
-    closeApp = await startApp()
+    let activeRequests = 0
+    const maxRequests = 1
+
+    const limitParallelRequests = async (_req: any, res: any, next: any) => {
+      // If the maximum number of requests is exceeded, send a 503 error
+      if (activeRequests >= maxRequests) {
+        return res.status(503).send('Too many requests')
+      }
+      activeRequests++
+      next()
+      res.on('finish', () => {
+        activeRequests--
+      })
+    }
     server = await makeTestServer({
-      userAgent: 'CustomUserAgent',
+      middlewares: [limitParallelRequests],
     })
     baseUrl = `http://localhost:${server.port}`
   })
 
   after(async () => {
     await server?.close()
-    await closeApp()
+    // await closeApp()
     await destroyPage?.()
   })
 

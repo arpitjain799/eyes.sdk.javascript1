@@ -132,7 +132,10 @@ Cypress.Commands.add('eyesOpen', function (args = {}) {
       manager =
         manager ||
         (await socket.request('Core.makeManager', {
-          concurrency: Cypress.config('eyesTestConcurrency'),
+          settings: {
+            concurrency: Cypress.config('eyesTestConcurrency'),
+            fetchConcurrency: Cypress.config('appliConfFile').eyesFetchConcurrency,
+          },
           type: 'ufg',
           fetchConcurrency: Cypress.config('appliConfFile').eyesFetchConcurrency,
         }))

@@ -44,6 +44,10 @@ export function makeCore<TSpec extends SpecType, TType extends 'classic' | 'ufg'
       const eyesRef = await socket.request('Core.openEyes', options)
       return makeEyes({socket, core, eyesRef})
     },
+    async openFunctionalSession(_options) {
+      // TODO
+      return null as never
+    },
     async makeManager(options) {
       const socket = await socketPromise
       const managerRef = await socket.request('Core.makeManager', options)
@@ -110,10 +114,10 @@ export function makeEyes<TSpec extends SpecType, TType extends 'classic' | 'ufg'
       return null as never
     },
     async check(options) {
-      return socket.request('Eyes.check', {...options, eyes: eyesRef}) as any
+      return socket.request('Eyes.check', {...(options as any), eyes: eyesRef}) as any
     },
     async checkAndClose(options) {
-      return socket.request('Eyes.checkAndClose', {...options, eyes: eyesRef}) as any
+      return socket.request('Eyes.checkAndClose', {...(options as any), eyes: eyesRef}) as any
     },
     async close(options) {
       return socket.request('Eyes.close', {...options, eyes: eyesRef})

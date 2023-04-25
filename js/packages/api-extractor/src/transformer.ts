@@ -35,7 +35,10 @@ export default function transformer(
 
   // TODO handle missed rootDir, outDir, declarationDir
   const rootFileName = path.resolve(options.rootDir, config.rootFile)
-  const declarationFileName = path.resolve(options.declarationDir, path.basename(rootFileName, '.ts') + '.d.ts')
+  const declarationFileName = path.resolve(
+    options.declarationDir,
+    path.basename(rootFileName).replace(/\.([cm]?ts)$/, '.d.$1'),
+  )
 
   // collection of everything is exported from the entry point
   const exports = {
@@ -48,7 +51,7 @@ export default function transformer(
 
   return function transformerFactory(context) {
     const host = context.getEmitHost()
-    host.isEmitBlocked = emitFileName => emitFileName.endsWith('.d.ts') && emitFileName !== declarationFileName
+    host.isEmitBlocked = emitFileName => /\.d\.[cm]?ts$/.test(emitFileName) && emitFileName !== declarationFileName
 
     return function transformSourceFile(sourceFile: ts.SourceFile): ts.SourceFile {
       if (sourceFile.fileName !== rootFileName) return sourceFile
@@ -214,7 +217,11 @@ export default function transformer(
     return Boolean(
       type.flags & ts.TypeFlags.Object &&
         type.symbol.flags &
-          (ts.SymbolFlags.TypeLiteral | ts.SymbolFlags.Interface | ts.SymbolFlags.Class | ts.SymbolFlags.Method),
+          (ts.SymbolFlags.TypeLiteral |
+            ts.SymbolFlags.Interface |
+            ts.SymbolFlags.Class |
+            ts.SymbolFlags.Method |
+            ts.SymbolFlags.Function),
     )
   }
 
@@ -260,12 +267,15 @@ export default function transformer(
 
   function getModuleNameOfType(type: ts.Type): string {
     const symbol = type.aliasSymbol ?? type.symbol
+    let parentSymbol = symbol
+    while (parentSymbol.parent) parentSymbol = parentSymbol.parent
     const sourceFile = symbol.declarations[0].getSourceFile()
     const fileName = sourceFile.fileName
     const dirName = fileName.includes('/node_modules/')
       ? sourceFile.fileName.replace(/\/node_modules\/.*$/, '')
       : program.getCurrentDirectory()
     const moduleName = config.allowModules?.find(moduleName => {
+      if (parentSymbol.getName() === `"${moduleName}"`) return true
       const cache = modules.getOrCreateCacheForModuleName(moduleName, ts.ModuleKind.CommonJS)
       const module = cache.get(dirName) ?? cache.get(`${dirName}/node_modules`)
       if (!module?.resolvedModule) return false
@@ -299,7 +309,7 @@ export default function transformer(
       if (name === '__global') {
         // if global type's name already taken then add `globalThis`, otherwise nothing
         name = exports.names.has(chunks[0]) ? 'globalThis' : ''
-      } else if (symbol.flags & ts.SymbolFlags.ValueModule) {
+      } else if (!config.allowGlobalNamespaces?.includes(name) && symbol.flags & ts.SymbolFlags.ValueModule) {
         // if type was imported from a module use import function to access the type
         name = `import('${getModuleNameOfType(type)}')`
       }
@@ -388,7 +398,9 @@ export default function transformer(
 
     type = !noReduce ? getTypeAlias(type) : type
 
-    if (isKnownType(type)) {
+    if (type.isThisType) {
+      return ts.factory.createThisTypeNode()
+    } else if (isKnownType(type)) {
       return createTypeReferenceNode({type, node})
     } else if (isPrimitiveType(type)) {
       return checker.typeToTypeNode(type, node, undefined)
@@ -632,8 +644,9 @@ export default function transformer(
 
     const type = checker.getTypeOfSymbolAtLocation(
       // if symbol is generic and the declaration of the generic is a descendant of the current node, then get generic type, otherwise calculated type in context
-      symbol.target && ts.findAncestor(symbol.target.valueDeclaration, ancestorNode => ancestorNode === node)
-        ? symbol.target
+      symbol.links?.target &&
+        ts.findAncestor(symbol.links.target.valueDeclaration, ancestorNode => ancestorNode === node)
+        ? symbol.links.target
         : symbol,
       node,
     )
@@ -775,8 +788,9 @@ export default function transformer(
     const optionalToken = isOptional(symbol) ? ts.factory.createToken(ts.SyntaxKind.QuestionToken) : undefined
     const type = checker.getTypeOfSymbolAtLocation(
       // if symbol is generic and the declaration of the generic is a descendant of the current node, then get generic type, otherwise calculated type in context
-      symbol.target && ts.findAncestor(symbol.target.valueDeclaration, ancestorNode => ancestorNode === node)
-        ? symbol.target
+      symbol.links?.target &&
+        ts.findAncestor(symbol.links.target.valueDeclaration, ancestorNode => ancestorNode === node)
+        ? symbol.links.target
         : symbol,
       node,
     )
@@ -878,7 +892,8 @@ export default function transformer(
     isStatic?: boolean
   }) {
     const {symbol, node, isSignature, isStatic} = options
-    const signatures = checker.getTypeOfSymbolAtLocation(symbol, node).getCallSignatures()
+    const type = checker.getTypeOfSymbolAtLocation(symbol, node)
+    const signatures = type.isUnion() ? type.types.flatMap(type => type.getCallSignatures()) : type.getCallSignatures()
     let modifierFlags = ts.getCombinedModifierFlags(symbol.declarations[symbol.declarations.length - 1])
     modifierFlags |= isStatic ? ts.ModifierFlags.Static : 0 // add `static` modifier
     modifierFlags &= ~ts.ModifierFlags.Async // remove `async` modifier
@@ -928,12 +943,14 @@ export default function transformer(
     const propertyName = getPropertyName(symbol)
     const type = checker.getTypeOfSymbolAtLocation(symbol, node) as ts.LiteralType
     let initializer
-    if (typeof type.regularType.value === 'number') {
-      initializer = ts.factory.createNumericLiteral(type.regularType.value)
-    } else if (typeof type.regularType.value === 'string') {
-      initializer = ts.factory.createStringLiteral(type.regularType.value as any, /* isSingleQuote */ true)
-    } else {
-      initializer = ts.factory.createBigIntLiteral(type.regularType.value)
+    if (type.regularType.isLiteral()) {
+      if (typeof type.regularType.value === 'number') {
+        initializer = ts.factory.createNumericLiteral(type.regularType.value)
+      } else if (typeof type.regularType.value === 'string') {
+        initializer = ts.factory.createStringLiteral(type.regularType.value, /* isSingleQuote */ true)
+      } else {
+        initializer = ts.factory.createBigIntLiteral(type.regularType.value)
+      }
     }
 
     return ts.factory.createEnumMember(propertyName, initializer)
@@ -1069,7 +1086,7 @@ export default function transformer(
     return ts.factory.createInterfaceDeclaration(
       modifiers,
       name,
-      /* typeParameters */ [],
+      node.typeParameters, // TODO figure out where it should come from
       heritageClauses,
       createTypeMembers({type, node}),
     )

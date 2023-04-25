@@ -78,7 +78,6 @@ export function transformDriver(driver: Driver): Driver {
   driver.getExecutor().defineCommand('getCurrentContext', 'GET', '/session/:sessionId/context')
   driver.getExecutor().defineCommand('getContexts', 'GET', '/session/:sessionId/contexts')
   driver.getExecutor().defineCommand('switchToContext', 'POST', '/session/:sessionId/context')
-  driver.getExecutor().defineCommand('getSessionMetadata', 'GET', '/session/:sessionId/applitools/metadata')
 
   if (process.env.APPLITOOLS_SELENIUM_MAJOR_VERSION === '3') {
     driver.getExecutor().defineCommand('switchToParentFrame', 'POST', '/session/:sessionId/frame/parent')
@@ -201,11 +200,6 @@ export async function setWindowSize(driver: Driver, size: Size) {
     else await executeCustomCommand(driver, new Command('setWindowSize').setParameters({...size}))
   }
 }
-// NOTE: this command is meant to be called when running with the eg-client
-// otherwise it will not be implemented on the driver and throw
-export async function getSessionMetadata(driver: Driver): Promise<[] | void> {
-  return await executeCustomCommand(driver, new Command('getSessionMetadata'))
-}
 export async function getCookies(driver: Driver, context?: boolean): Promise<Cookie[]> {
   if (context) return driver.manage().getCookies()
 
@@ -272,10 +266,6 @@ export async function hover(driver: Driver, element: Element | Selector) {
   } else {
     await driver.actions().move({origin: resolvedElement!}).perform()
   }
-}
-export async function scrollIntoView(driver: Driver, element: Element | Selector, align = false): Promise<void> {
-  const resolvedElement = isSelector(element) ? await findElement(driver, element) : element
-  await driver.executeScript('arguments[0].scrollIntoView(arguments[1])', resolvedElement, align)
 }
 export async function waitUntilDisplayed(driver: Driver, selector: Selector, timeout: number): Promise<void> {
   const element = await findElement(driver, selector)
