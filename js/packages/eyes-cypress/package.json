@@ -1,6 +1,6 @@
 {
   "name": "@applitools/eyes-cypress",
-  "version": "3.32.0",
+  "version": "3.32.1",
   "repository": {
     "type": "git",
     "url": "git://github.com/applitools/eyes.sdk.javascript1.git",
@@ -27,7 +27,7 @@
   ],
   "scripts": {
     "lint": "eslint \"**/*.{js,ts}\"",
-    "build": "node ../../node_modules/.bin/ttsc",
+    "build": "node ../../node_modules/.bin/tspc",
     "generate:tests": "coverage-tests generate",
     "test": "yarn test:unit && yarn test:it && yarn test:e2e && yarn test:ts && yarn test:components && yarn test:coverage",
     "test:sanity": "yarn test:unit && yarn test:it && yarn test:ts",
