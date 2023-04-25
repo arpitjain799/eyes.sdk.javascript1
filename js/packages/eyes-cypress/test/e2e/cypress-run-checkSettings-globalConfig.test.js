@@ -21,7 +21,6 @@ async function runCypress(pluginsFile, testFile) {
   ).stdout
 }
 async function getInfo(stdout) {
-  debugger
   const results = stdout
     .substring(stdout.indexOf('@@START@@') + '@@START@@'.length, stdout.indexOf('@@END@@'))
     .replace('Summary results: ', '')

@@ -1,33 +1,30 @@
 'use strict'
-const path = require('path')
-const pexec = require('../util/pexec')
-const fs = require('fs')
+const {init, exec, updateApplitoolsConfig} = require('../util/pexec')
+const runInEnv = init(before, after)
 const applitoolsConfig = require('../fixtures/testApp/applitools.config.js')
 
-const sourceTestAppPath = path.resolve(__dirname, '../fixtures/testApp')
-const targetTestAppPath = path.resolve(__dirname, '../fixtures/testAppCopies/testApp-layoutBreakpoints-globalConfig')
+const sourceTestAppPath = './test/fixtures/testApp'
+const targetTestAppPath = './test/fixtures/testAppCopies/testApp-layoutBreakpoints-globalConfig'
 
-describe('works with layoutbreakpoing in global config', () => {
+describe('works with layoutbreakpoing in global config (parallel-test)', () => {
   before(async () => {
-    if (fs.existsSync(targetTestAppPath)) {
-      fs.rmdirSync(targetTestAppPath, {recursive: true})
-    }
-    await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
-    process.chdir(targetTestAppPath)
+    await exec(`rm -rf ${targetTestAppPath}`)
+    await exec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
   })
 
   after(async () => {
-    fs.rmdirSync(targetTestAppPath, {recursive: true})
+    await exec(`rm -rf ${targetTestAppPath}`)
   })
 
   it('layoutbreakpoints works from applitools.config file', async () => {
     const config = {...applitoolsConfig, layoutBreakpoints: [500, 1000]}
-    fs.writeFileSync(`${targetTestAppPath}/applitools.config.js`, 'module.exports =' + JSON.stringify(config, 2, null))
+    updateApplitoolsConfig(config, targetTestAppPath)
     try {
-      await pexec(
-        'npx cypress@6.5.0 run --config testFiles=layoutBreakpointsGlobalConfig.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
+      await runInEnv(
+        'npx cypress@9 run --config testFiles=layoutBreakpointsGlobalConfig.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
         {
           maxBuffer: 10000000,
+          cwd: targetTestAppPath,
         },
       )
     } catch (ex) {

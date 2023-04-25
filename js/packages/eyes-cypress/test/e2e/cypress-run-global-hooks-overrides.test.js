@@ -1,69 +1,39 @@
 'use strict'
 const {expect} = require('chai')
-const path = require('path')
-const pexec = require('../util/pexec')
-const fs = require('fs')
+const {exec, init, updateConfigFile} = require('../util/pexec')
+const runInEnv = init()
 const {presult} = require('@applitools/functional-commons')
 
-const sourceTestAppPath = path.resolve(__dirname, '../fixtures/testApp')
-const targetTestAppPath = path.resolve(__dirname, '../fixtures/testAppCopies/testApp-global-hooks-overrides')
-
-let latestCypressVersion = null
+const sourceTestAppPath = './test/fixtures/testApp'
+const targetTestAppPath = './test/fixtures/testAppCopies/testApp-global-hooks-overrides-config-file'
 
 async function runCypress() {
-  if (latestCypressVersion === null) {
-    latestCypressVersion = (await pexec('npm view cypress version')).stdout.trim()
-  }
   return (
-    await pexec(`npx cypress@${latestCypressVersion} run`, {
+    await runInEnv(`npx cypress@latest run`, {
       maxBuffer: 10000000,
+      cwd: targetTestAppPath,
     })
   ).stdout
 }
 
-async function updateConfigFile(pluginFileName, testName = 'global-hooks-overrides.js') {
-  const promise = new Promise(resolve => {
-    fs.readFile(path.resolve(targetTestAppPath, `./cypress.config.js`), 'utf-8', function (err, contents) {
-      if (err) {
-        console.log(err)
-        return
-      }
-
-      const replaced = contents
-        .replace(/index-run.js/g, pluginFileName)
-        .replace(/integration-run/g, `integration-run/${testName}`)
-
-      fs.writeFile(path.resolve(targetTestAppPath, `./cypress.config.js`), replaced, 'utf-8', function (err) {
-        if (err) {
-          console.log(err)
-        }
-        resolve()
-      })
-    })
-  })
-  await promise
-}
-
-describe('global hooks override', () => {
+describe('global hooks override (parallel-test)', () => {
   beforeEach(async () => {
-    await pexec(`cp ${sourceTestAppPath}Cypress10/cypress.config.js ${targetTestAppPath}`)
-  })
-
-  before(async () => {
-    if (fs.existsSync(targetTestAppPath)) {
-      fs.rmdirSync(targetTestAppPath, {recursive: true})
-    }
-    await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
-    fs.unlinkSync(`${targetTestAppPath}/cypress.json`)
-    process.chdir(targetTestAppPath)
+    await exec(`cp ${sourceTestAppPath}Cypress10/cypress.config.js ${targetTestAppPath}`)
   })
 
   after(async () => {
-    fs.rmdirSync(targetTestAppPath, {recursive: true})
+    await exec(`rm -rf ${targetTestAppPath}`)
+  })
+
+  before(async () => {
+    await exec(`rm -rf ${targetTestAppPath}`)
+    await exec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
+    await exec(`cp ${sourceTestAppPath}Cypress10/cypress.config.js ${targetTestAppPath}/cypress.config.js`)
+    await exec(`rm ${targetTestAppPath}/cypress.json`)
   })
 
   it('supports running *sync* user defined global hooks', async () => {
-    await updateConfigFile('index-global-hooks-overrides-sync.js')
+    updateConfigFile(targetTestAppPath, 'index-global-hooks-overrides-sync.js', 'global-hooks-overrides.js')
     const [err, output] = await presult(runCypress())
     expect(err).to.be.undefined
     expect(output).to.contain('@@@ before:run @@@')
@@ -71,7 +41,7 @@ describe('global hooks override', () => {
   })
 
   it('supports running *async* user defined global hooks', async () => {
-    await updateConfigFile('index-global-hooks-overrides-async.js')
+    updateConfigFile(targetTestAppPath, 'index-global-hooks-overrides-async.js', 'global-hooks-overrides.js')
     const [err, output] = await presult(runCypress())
     expect(err).to.be.undefined
     expect(output).to.contain('@@@ before:run @@@')
@@ -79,7 +49,7 @@ describe('global hooks override', () => {
   })
 
   it('supports running user defined global hooks, when user throws error on before', async () => {
-    await updateConfigFile('index-global-hooks-overrides-error-before.js')
+    updateConfigFile(targetTestAppPath, 'index-global-hooks-overrides-error-before.js', 'global-hooks-overrides.js')
     const [err] = await presult(runCypress())
     expect(err).not.to.be.undefined
     expect(err.stdout).to.contain('@@@ before:run error @@@')
@@ -87,7 +57,7 @@ describe('global hooks override', () => {
   })
 
   it('supports running user defined global hooks, when user throws error on after', async () => {
-    await updateConfigFile('index-global-hooks-overrides-error-after.js')
+    updateConfigFile(targetTestAppPath, 'index-global-hooks-overrides-error-after.js', 'global-hooks-overrides.js')
     const [err] = await presult(runCypress('index-global-hooks-overrides-error-after.js'))
     expect(err).not.to.be.undefined
     expect(err.stdout).to.contain('@@@ before:run @@@')
@@ -95,7 +65,7 @@ describe('global hooks override', () => {
   })
 
   it('supports running user defined global hooks when only 1 hook is defined', async () => {
-    await updateConfigFile('index-global-hooks-overrides-only-after.js', 'helloworld.js')
+    updateConfigFile(targetTestAppPath, 'index-global-hooks-overrides-only-after.js', 'helloworld.js')
     const [err, output] = await presult(runCypress())
     expect(err).to.be.undefined
     expect(output).to.contain('@@@ after:run @@@')

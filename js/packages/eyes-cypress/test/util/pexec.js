@@ -96,6 +96,12 @@ function updateConfigFile(targetTestAppPath, pluginFileName, testName) {
   updateCypressConfig(replaced, targetTestAppPath)
 }
 
+function updateGlobalHooks(globalHooks, targetTestAppPath) {
+  let configContent = fs.readFileSync(path.resolve(targetTestAppPath, `./cypress.config.js`), 'utf-8')
+  const content = configContent.replace(/setupNodeEvents\(on, config\) {/g, globalHooks)
+  updateCypressConfig(content, targetTestAppPath)
+}
+
 module.exports = {
   init: process.env.APPLITOOLS_DOCKER === 'true' ? withDocker : withTerminal,
   exec: pexecWrapper,
@@ -106,6 +112,10 @@ module.exports = {
   updateCypressConfigFile: function (file, targetTestAppPath) {
     return updateFile('./cypress.config.js')(fs.readFileSync(file).toString(), targetTestAppPath)
   },
+  updateCypressJSONConfigFile: function (json, targetTestAppPath) {
+    return updateFile('./cypress.json')(JSON.stringify(json), targetTestAppPath)
+  },
   updateCypressConfig,
   updateConfigFile,
+  updateGlobalHooks,
 }

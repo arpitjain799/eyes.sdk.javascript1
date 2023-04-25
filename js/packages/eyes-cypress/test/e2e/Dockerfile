@@ -16,7 +16,6 @@ COPY . .
 WORKDIR /app/packages/eyes-cypress
 
 RUN npx cypress@9 install; \
-    npx cypress@6.5.0 install; \
     npx cypress@latest install
 
 # Run Cypress tests

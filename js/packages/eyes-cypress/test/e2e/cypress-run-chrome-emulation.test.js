@@ -1,5 +1,4 @@
 'use strict'
-const path = require('path')
 const {init, exec} = require('../util/pexec')
 const runInEnv = init()
 

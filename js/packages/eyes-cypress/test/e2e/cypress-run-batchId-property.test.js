@@ -6,6 +6,7 @@ const targetTestAppPath = './test/fixtures/testAppCopies/testApp-batchId-propert
 
 describe('handle batchId property (parallel-test)', () => {
   before(async () => {
+    await exec(`rm -rf ${targetTestAppPath}`)
     await exec(`cp -r ./test/fixtures/testApp/. ${targetTestAppPath}`)
   })
   after(async () => {

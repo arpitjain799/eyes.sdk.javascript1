@@ -1,34 +1,31 @@
 'use strict'
-const path = require('path')
-const pexec = require('../util/pexec')
-const fs = require('fs')
+const {init, exec} = require('../util/pexec')
+const runInEnv = init(before, after)
 
-const sourceTestAppPath = path.resolve(__dirname, '../fixtures/testApp')
-const targetTestAppPath = path.resolve(__dirname, '../fixtures/testAppCopies/testApp-region')
+const sourceTestAppPath = './test/fixtures/testApp'
+const targetTestAppPath = './test/fixtures/testAppCopies/testApp-region'
 
-describe('region', () => {
+describe('region (parallel-test)', () => {
   before(async () => {
-    if (fs.existsSync(targetTestAppPath)) {
-      fs.rmdirSync(targetTestAppPath, {recursive: true})
-    }
-    await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
-    process.chdir(targetTestAppPath)
+    await exec(`rm -rf ${targetTestAppPath}`)
+    await exec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
   })
 
   after(async () => {
-    fs.rmdirSync(targetTestAppPath, {recursive: true})
+    await exec(`rm -rf ${targetTestAppPath}`)
   })
 
   it('works for region.js', async () => {
     try {
-      await pexec(
-        'npx cypress@6.5.0 run --headless --config testFiles=region.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
+      await runInEnv(
+        'npx cypress@9 run --headless --config testFiles=region.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
         {
           maxBuffer: 10000000,
+          cwd: targetTestAppPath,
         },
       )
     } catch (ex) {
-      console.error('Error during test!', ex.stdout)
+      console.error('Error during test!', ex)
       throw ex
     }
   })

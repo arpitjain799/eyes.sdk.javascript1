@@ -1,18 +1,33 @@
 'use strict'
+const path = require('path')
 const {init, exec} = require('../util/pexec')
 const runInEnv = init(before, after)
 
-const sourceTestAppPath = './test/fixtures/testApp'
-const targetTestAppPath = './test/fixtures/testAppCopies/testApp-simple'
+const {testServerInProcess} = require('@applitools/test-server')
 
-describe('simple (parallel-test)', () => {
+const sourceTestAppPath = './test/fixtures/testApp'
+const targetTestAppPath = './test/fixtures/testAppCopies/testApp-simple-with-timeout'
+
+describe('simple with middleware (parallel-test)', () => {
+  let closeServer
   before(async () => {
+    const staticPath = path.resolve(__dirname, '../fixtures')
+    const server = await testServerInProcess({
+      port: 5555,
+      staticPath,
+      middlewares: ['slow'],
+    })
+    closeServer = server.close
     await exec(`rm -rf ${targetTestAppPath}`)
     await exec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
   })
 
   after(async () => {
-    await exec(`rm -rf ${targetTestAppPath}`)
+    try {
+      await exec(`rm -rf ${targetTestAppPath}`)
+    } finally {
+      await closeServer()
+    }
   })
 
   it('works for simple.js', async () => {
@@ -25,7 +40,7 @@ describe('simple (parallel-test)', () => {
         },
       )
     } catch (ex) {
-      console.error('Error during test!', ex.stdout)
+      console.error('Error during test!', ex)
       throw ex
     }
   })

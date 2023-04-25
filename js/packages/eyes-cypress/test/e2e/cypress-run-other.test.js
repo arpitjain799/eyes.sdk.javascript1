@@ -1,55 +1,59 @@
 'use strict'
-const path = require('path')
-const pexec = require('../util/pexec')
-const fs = require('fs')
+const {init, exec} = require('../util/pexec')
+const runInEnv = init(before, after)
 const {expect} = require('chai')
 const {msgText} = require('../../dist/plugin/concurrencyMsg').default
 const concurrencyMsg = msgText.substr(0, 100)
 
-const sourceTestAppPath = path.resolve(__dirname, '../fixtures/testApp')
-const targetTestAppPath = path.resolve(__dirname, '../fixtures/testAppCopies/testApp-other')
+const sourceTestAppPath = './test/fixtures/testApp'
+const targetTestAppPath = './test/fixtures/testAppCopies/testApp-other'
 
-describe('eyes configurations', () => {
+describe('eyes configurations (parallel-test)', () => {
   before(async () => {
-    if (fs.existsSync(targetTestAppPath)) {
-      fs.rmdirSync(targetTestAppPath, {recursive: true})
-    }
-    await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
-    process.chdir(targetTestAppPath)
+    await exec(`rm -rf ${targetTestAppPath}`)
+    await exec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
   })
 
   after(async () => {
-    fs.rmdirSync(targetTestAppPath, {recursive: true})
+    await exec(`rm -rf ${targetTestAppPath}`)
   })
 
   it('works with disabled eyes', async () => {
     try {
-      const {stdout} = await pexec(
-        'APPLITOOLS_IS_DISABLED=1 npx cypress@6.5.0 run --headless --headless --spec cypress/integration-play/iframe.js --config integrationFolder=cypress/integration-play,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
+      const {stdout} = await runInEnv(
+        'npx cypress@9 run --headless --headless --spec cypress/integration-play/iframe.js --config integrationFolder=cypress/integration-play,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
         {
           maxBuffer: 10000000,
+          cwd: targetTestAppPath,
+          env: {
+            APPLITOOLS_IS_DISABLED: '1',
+          },
         },
       )
 
       expect(stdout, 'cypress ran with eyes disabled but concurrency msg is shown').to.not.have.string(concurrencyMsg)
     } catch (ex) {
-      console.error('Error during test!', ex.stdout)
+      console.error('Error during test!', ex)
       throw ex
     }
   })
 
   it('does not fail Cypress test if failCypressOnDiff flag is false', async () => {
     try {
-      await pexec(
-        'APPLITOOLS_FAIL_CYPRESS_ON_DIFF=false npx cypress@6.5.0 run --headless --headless --spec cypress/integration-play/always-fail.js --config integrationFolder=cypress/integration-play,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
+      await runInEnv(
+        'npx cypress@9 run --headless --headless --spec cypress/integration-play/always-fail.js --config integrationFolder=cypress/integration-play,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
         {
           maxBuffer: 10000000,
+          cwd: targetTestAppPath,
+          env: {
+            APPLITOOLS_FAIL_CYPRESS_ON_DIFF: false,
+          },
         },
       )
     } catch (ex) {
       console.error(
         'Test Failed even though failCypressOnDiff flag is false, If this is the first time u ran this test then u need to set up an invalid baseline for it.',
-        ex.stdout,
+        ex,
       )
       throw ex
     }

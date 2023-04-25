@@ -1,53 +1,46 @@
 'use strict'
-const path = require('path')
-const pexec = require('../util/pexec')
-const fs = require('fs')
+const {exec, init} = require('../util/pexec')
+const runInEnv = init()
 
-const sourceTestAppPath = path.resolve(__dirname, '../fixtures/testApp')
-const targetTestAppPath = path.resolve(__dirname, '../fixtures/testAppCopies/testApp-parallel-run')
+const sourceTestAppPath = './test/fixtures/testApp'
+const targetTestAppPath = './test/fixtures/testAppCopies/testApp-parallel-run'
 
-describe('parallel run', () => {
+describe('parallel run (parallel-test)', () => {
   before(async () => {
-    if (fs.existsSync(targetTestAppPath)) {
-      fs.rmdirSync(targetTestAppPath, {recursive: true})
-    }
-    try {
-      await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
-      process.chdir(targetTestAppPath)
-    } catch (ex) {
-      console.log(ex)
-      throw ex
-    }
+    await exec(`rm -rf ${targetTestAppPath}`)
+    await exec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
   })
 
   after(async () => {
-    fs.rmdirSync(targetTestAppPath, {recursive: true})
+    await exec(`rm -rf ${targetTestAppPath}`)
   })
 
-  it('works for parallel cypress runs', async () => {
+  it('works for parallel cypress runs (parallel-test)', async () => {
     try {
       const runs = []
       runs.push(
-        pexec(
-          'npx cypress@6.5.0 run --headless --config testFiles=parallel-run-1.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
+        runInEnv(
+          'npx cypress@9 run --headless --config testFiles=parallel-run-1.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
           {
             maxBuffer: 10000000,
             timeout: 60000,
+            cwd: targetTestAppPath,
           },
         ),
       )
       runs.push(
-        pexec(
-          'xvfb-run -a npx cypress@6.5.0 run --headless --config testFiles=parallel-run-2.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
+        runInEnv(
+          'xvfb-run -a npx cypress@9 run --headless --config testFiles=parallel-run-2.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
           {
             maxBuffer: 10000000,
             timeout: 60000,
+            cwd: targetTestAppPath,
           },
         ),
       )
       await Promise.all(runs)
     } catch (ex) {
-      console.error('Error during test!', ex.stdout)
+      console.error('Error during test!', ex)
       throw ex
     }
   })
