@@ -41,7 +41,7 @@ jobs:
       - name: Run tests
         uses: ./.github/actions/tests
         with:
-          working-directory: ./js/packages/eyes-api
+          working-directory: ./js/packages/eyes
   publish:
     needs: [test]
     name: Publish
@@ -58,5 +58,5 @@ jobs:
       - name: Publish to NPM
         uses: ./.github/actions/publish
         with:
-          working-directory: ./js/packages/eyes-api
+          working-directory: ./js/packages/eyes
           version: ${{inputs.version || github.event.inputs.version}}
