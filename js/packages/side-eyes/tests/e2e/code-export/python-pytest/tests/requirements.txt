@@ -1,3 +1,0 @@
-pytest == 4.6.3
-selenium == 3.141.0
-eyes-selenium == 4.2.1
