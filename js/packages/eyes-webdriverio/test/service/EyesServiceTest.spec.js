@@ -1,10 +1,10 @@
-/* eslint-disable no-undef */
+/* eslint-disable no-console */
 'use strict'
 
 const assert = require('assert')
 const {By, Target} = require('../../dist')
 
-describe.only('EyesServiceTest', () => {
+describe('EyesServiceTest', () => {
   beforeEach(async () => {
     await browser.url('http://applitools.github.io/demo/TestPages/FramesTestPage/')
     await browser.eyesClearProperties()
@@ -35,7 +35,6 @@ describe.only('EyesServiceTest', () => {
   })
 
   afterEach(async () => {
-    /** @type {TestResults} */
     const testResults = await browser.eyesGetTestResults()
     if (testResults) {
       if (testResults.isPassed()) {
