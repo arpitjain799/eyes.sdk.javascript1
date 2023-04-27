@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+## 2.5.5 - 2023/4/26
+
+### Features
+### Bug fixes
+- Fixed platform name formatting
+- Prevented driver metadata extraction during check in ufg eyes
+
+## 2.5.4 - 2023/4/25
+
+### Features
+### Bug fixes
+- Fixed issue with hanging requests
+
 ## 2.5.3 - 2023/4/20
 
 ### Features
