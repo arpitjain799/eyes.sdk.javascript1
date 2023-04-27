@@ -4,6 +4,7 @@
 - Add a timeout and max concurrency for fetching resources.
 - Make runners compatible with Java's AutoCloseable interface.
 ### Bug fixes
+- Fixed platform name formatting.
 
 ## [5.48.0] - 2023-04-18
 ### Updated
