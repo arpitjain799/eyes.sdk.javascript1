@@ -1,10 +1,16 @@
 {
   "packages": {
-    "js/packages/eyes-cypress": {},
-    "js/packages/eyes-playwright": {},
     "js/packages/core": {},
-    "js/packages/eyes-selenium": {},
-    "js/packages/eyes-api": {}
+    "js/packages/core-base": {},
+    "js/packages/driver": {},
+    "js/packages/logger": {},
+    "js/packages/nml-client": {},
+    "js/packages/req": {},
+    "js/packages/screenshoter": {},
+    "js/packages/socket": {},
+    "js/packages/spec-driver-webdriver": {},
+    "js/packages/ufg-client": {},
+    "js/packages/utils": {}
   },
   "release-type": "node",
   "changelog-sections": [
@@ -25,7 +31,6 @@
   "plugins": ["node-workspace"],
   "skip-github-release": true,
   "always-link-local": true,
-  "separate-pull-requests": true,
   "sequential-calls": true,
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json"
 }
