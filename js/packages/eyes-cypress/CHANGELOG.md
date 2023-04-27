@@ -12,6 +12,20 @@
 
 
 
+## [3.30.1](https://github.com/applitools/eyes.sdk.javascript1/compare/eyes-cypress-v3.30.0...eyes-cypress-v3.30.1) (2023-04-27)
+
+
+### Bug Fixes
+
+* cypress ufg option generic test ([e3b20a9](https://github.com/applitools/eyes.sdk.javascript1/commit/e3b20a9a4dd88b4ce763221692b6385265f77502))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @applitools/core bumped from 2.5.3 to 2.4.3
+
 ## 3.32.1 - 2023/4/24
 
 ### Features
