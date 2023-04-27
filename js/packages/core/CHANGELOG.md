@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @applitools/core-base bumped from 1.1.52 to 1.0.0
+    * @applitools/driver bumped from 1.11.46 to 1.0.0
+    * @applitools/screenshoter bumped from 3.7.39 to 3.7.40
+    * @applitools/spec-driver-webdriver bumped from 1.0.26 to 1.0.27
+
 ## 2.5.5 - 2023/4/26
 
 ### Features
