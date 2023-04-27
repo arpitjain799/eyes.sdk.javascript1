@@ -27,7 +27,7 @@
     { "type": "build", "section": "Build System", "hidden": true },
     { "type": "ci", "section": "Continuous Integration", "hidden": true }
   ],
-  "bootstrap-sha": "0492323f4e735fa90312f302923aed489d33e40a",
+  "bootstrap-sha": "04bbd38e67c11b37f4b7d1fd90e575e2b190378d",
   "plugins": ["node-workspace"],
   "skip-github-release": true,
   "always-link-local": true,

@@ -37,6 +37,7 @@
     "types"
   ],
   "scripts": {
+    "a": "#",
     "lint": "node ../../node_modules/.bin/eslint '**/*.ts'",
     "build": "node ../../node_modules/.bin/tsc --project ./tsconfig.build.json",
     "test": "node ../../node_modules/.bin/mocha './test/**/*.spec.ts' --parallel --jobs ${MOCHA_JOBS:-15}",
