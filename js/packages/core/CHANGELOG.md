@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## [2.4.3](https://github.com/applitools/eyes.sdk.javascript1/compare/core-v2.4.2...core-v2.4.3) (2023-04-27)
+
+
+### Bug Fixes
+
+* map the results to result ([#1422](https://github.com/applitools/eyes.sdk.javascript1/issues/1422)) ([d772716](https://github.com/applitools/eyes.sdk.javascript1/commit/d772716807fe34de697a9b6babcd8b19fef80572))
+
 ## 2.5.5 - 2023/4/26
 
 ### Features
