@@ -6,7 +6,7 @@ const applitoolsConfig = require('../fixtures/testApp/applitools.config.js')
 const sourceTestAppPath = './test/fixtures/testApp'
 const targetTestAppPath = './test/fixtures/testAppCopies/testApp-waitBeforeCapture'
 
-describe('works with waitBeforeCapture', () => {
+describe('works with waitBeforeCapture (parallel-test)', () => {
   before(async () => {
     await exec(`rm -rf ${targetTestAppPath}`)
     await exec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
@@ -16,7 +16,7 @@ describe('works with waitBeforeCapture', () => {
     await exec(`rm -rf ${targetTestAppPath}`)
   })
 
-  it('waitBeforeCapture works from applitools.config file (parallel-test)', async () => {
+  it('waitBeforeCapture works from applitools.config file', async () => {
     const config = {...applitoolsConfig, waitBeforeCapture: 2000}
     updateApplitoolsConfig(config, targetTestAppPath)
     try {
@@ -28,7 +28,7 @@ describe('works with waitBeforeCapture', () => {
         },
       )
     } catch (ex) {
-      console.error('Error during test!', ex.stdout)
+      console.error('Error during test!', ex)
       throw ex
     }
   })

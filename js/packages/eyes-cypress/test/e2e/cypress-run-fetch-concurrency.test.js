@@ -56,7 +56,7 @@ describe('works with fetchConcurrency', () => {
       const fetchConcurrency = await getInfo(stdout)
       expect(fetchConcurrency).to.eq(5)
     } catch (ex) {
-      console.error('Error during test!', ex.stdout)
+      console.error('Error during test!', ex)
       throw ex
     }
   })

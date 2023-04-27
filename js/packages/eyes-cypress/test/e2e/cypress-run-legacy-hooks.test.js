@@ -28,7 +28,7 @@ describe('legacy hooks', () => {
         },
       )
     } catch (ex) {
-      console.error('Error during test!', ex.stdout)
+      console.error('Error during test!', ex)
       throw ex
     }
   })
@@ -42,7 +42,7 @@ describe('legacy hooks', () => {
         },
       )
     } catch (ex) {
-      console.error('Error during test!', ex.stdout)
+      console.error('Error during test!', ex)
       throw ex
     }
   })

@@ -28,7 +28,7 @@ describe('works with layoutbreakpoing in global config (parallel-test)', () => {
         },
       )
     } catch (ex) {
-      console.error('Error during test!', ex.stdout)
+      console.error('Error during test!', ex)
       throw ex
     }
   })

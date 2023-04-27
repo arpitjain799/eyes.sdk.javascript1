@@ -89,9 +89,7 @@ function updateFile(sourceConfigFile) {
 const updateCypressConfig = updateFile('./cypress.config.js')
 
 function updateConfigFile(targetTestAppPath, pluginFileName, testName) {
-  debugger
   const contents = fs.readFileSync(path.resolve(targetTestAppPath, `./cypress.config.js`)).toString()
-  debugger
   const replaced = contents
     .replace(/index-run.js/g, pluginFileName)
     .replace(/integration-run.*\'/g, `integration-run/${testName}\'`)

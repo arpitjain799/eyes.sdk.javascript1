@@ -56,7 +56,7 @@ describe('package and install', () => {
         maxBuffer: 10000000,
       })
     } catch (ex) {
-      console.error('Typescript compiling error:', ex.stdout)
+      console.error('Typescript compiling error:', ex)
       throw 'Typescript compiling error'
     }
   })

@@ -32,7 +32,6 @@ describe('getAllTestResults (parallel-test)', () => {
 
   it('return test results for all managers', async () => {
     const [err, v] = await presult(runCypress('get-test-results.js', 'getAllTestResults.js'))
-    debugger
     expect(err).to.be.undefined
     expect(v).to.contain('This is the first test')
     expect(v).to.contain('This is the second test')
