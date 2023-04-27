@@ -1,7 +1,6 @@
 //APPLITOOLS_UNIVERSAL_DEBUG
 
 'use strict'
-const {describe, it, before, after} = require('mocha')
 const path = require('path')
 const fs = require('fs')
 const {presult} = require('@applitools/functional-commons')

@@ -46,31 +46,30 @@ function withDocker() {
   let containerId
   const rootDir = '/app/packages/eyes-cypress'
   let nodeVersion
-  before(async () => {
+  return async function (cmd, options = {}) {
     containerId = (await pexec('docker run -d -it cypress-e2e')).stdout.replace(/\n/, '')
     nodeVersion = (await pexec(`docker exec ${containerId} node -v`)).stdout.replace(/\n/, '')
-  })
-  after(async () => {
-    await pexec(`docker kill ${containerId}`)
-    await pexec(`docker rm ${containerId}`)
-  })
-  return async function (cmd, options = {}) {
-    let {cwd, env, ...rest} = options
-    env = addOpenSSLLegacyProvider(cmd, nodeVersion, env)
+    try {
+      let {cwd, env, ...rest} = options
+      env = addOpenSSLLegacyProvider(cmd, nodeVersion, env)
 
-    cwd = cwd ? cwd : '.'
-    const e = Object.keys(env).length
-      ? ' -e ' +
-        Object.entries(env)
-          .map(([k, v]) => `${k}=${v}`)
-          .join(' -e ')
-      : ' '
-    const containerCwd = path.resolve(rootDir, cwd)
-    await pexecWrapper(`docker exec ${containerId} rm -rf ${containerCwd}`)
-    await pexecWrapper(`docker cp ${path.resolve(process.cwd(), cwd)} ${containerId}:${containerCwd}`)
-    const result = await pexecWrapper(`docker exec -w ${containerCwd} ${e} ${containerId} ${cmd}`, rest)
-    await pexecWrapper(`docker cp ${containerId}:${containerCwd} ${path.resolve(process.cwd(), cwd)}`)
-    return result
+      cwd = cwd ? cwd : '.'
+      const e = Object.keys(env).length
+        ? ' -e ' +
+          Object.entries(env)
+            .map(([k, v]) => `${k}=${v}`)
+            .join(' -e ')
+        : ' '
+      const containerCwd = path.resolve(rootDir, cwd)
+      await pexecWrapper(`docker exec ${containerId} rm -rf ${containerCwd}`)
+      await pexecWrapper(`docker cp ${path.resolve(process.cwd(), cwd)} ${containerId}:${containerCwd}`)
+      const result = await pexecWrapper(`docker exec -w ${containerCwd} ${e} ${containerId} ${cmd}`, rest)
+      await pexecWrapper(`docker cp ${containerId}:${containerCwd} ${path.resolve(process.cwd(), cwd)}`)
+      return result
+    } finally {
+      await pexec(`docker kill ${containerId}`)
+      await pexec(`docker rm ${containerId}`)
+    }
   }
 }
 

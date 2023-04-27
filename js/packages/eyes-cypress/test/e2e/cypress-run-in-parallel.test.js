@@ -5,7 +5,7 @@ const runInEnv = init()
 const sourceTestAppPath = './test/fixtures/testApp'
 const targetTestAppPath = './test/fixtures/testAppCopies/testApp-parallel-run'
 
-describe('parallel run (parallel-test)', () => {
+describe('parallel run', () => {
   before(async () => {
     await exec(`rm -rf ${targetTestAppPath}`)
     await exec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
