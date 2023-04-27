@@ -1,3 +1,13 @@
 {
-  "js/packages/core": "2.4.2"
+     "js/packages/core": "0.0.0",
+    "js/packages/core-base": "0.0.0",
+    "js/packages/driver": "0.0.0",
+    "js/packages/logger": "0.0.0",
+    "js/packages/nml-client": "0.0.0",
+    "js/packages/req": "0.0.0",
+    "js/packages/screenshoter": "0.0.0",
+    "js/packages/socket": "0.0.0",
+    "js/packages/spec-driver-webdriver": "0.0.0",
+    "js/packages/ufg-client": "0.0.0",
+    "js/packages/utils": "0.0.0"
 }
