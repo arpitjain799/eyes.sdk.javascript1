@@ -4,6 +4,7 @@ const tags = [
   'image',
   'headfull',
   'webdriver',
+  'emulator',
   'mobile',
   'chrome',
   'firefox',
@@ -21,5 +22,5 @@ module.exports = {
   require: ['ts-node/register'],
   reporter: 'mocha-multi',
   reporterOptions: [`spec=-,json=./logs/report${group ? `-${group}` : ''}.json,xunit=coverage-test-report.xml`],
-  grep: mochaGrep({tags}),
+  grep: group !== 'it' ? mochaGrep({tags}) : undefined,
 }

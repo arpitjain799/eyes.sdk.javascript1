@@ -1,5 +1,6 @@
 import type * as Core from '@applitools/core'
 import {TestResultsStatus, TestResultsStatusEnum} from '../enums/TestResultsStatus'
+import {ProxySettings} from '../input/ProxySettings'
 import {RectangleSize, RectangleSizeData} from '../input/RectangleSize'
 import {TestAccessibilityStatus} from './TestAccessibilityStatus'
 import {SessionUrls, SessionUrlsData} from './SessionUrls'
@@ -19,7 +20,7 @@ export type TestResults = {
   readonly hostApp?: string
   readonly hostDisplaySize?: RectangleSize
   readonly accessibilityStatus?: TestAccessibilityStatus
-  readonly startedAt?: Date | string
+  readonly startedAt?: string
   readonly duration?: number
   readonly isNew?: boolean
   readonly isDifferent?: boolean
@@ -37,6 +38,12 @@ export type TestResults = {
   readonly layoutMatches?: number
   readonly noneMatches?: number
   readonly url?: string
+  readonly server?: {
+    serverUrl: string
+    apiKey: string
+    proxy?: ProxySettings
+  }
+  readonly keepIfDuplicate?: boolean
 }
 
 export class TestResultsData implements Required<TestResults> {
@@ -45,11 +52,11 @@ export class TestResultsData implements Required<TestResults> {
 
   /** @internal */
   constructor(options: {
-    result?: Core.TestResult<'classic' | 'ufg'>
+    result?: Partial<Core.TestResult<'classic' | 'ufg'>>
     deleteTest?: Core.Core<Core.SpecType, 'classic' | 'ufg'>['deleteTest']
   }) {
     this._deleteTest = options.deleteTest
-    this._result = options.result ?? {}
+    this._result = options.result ?? ({} as any)
   }
 
   get id(): string {
@@ -184,7 +191,7 @@ export class TestResultsData implements Required<TestResults> {
     // DEPRECATED
   }
 
-  get startedAt(): Date | string {
+  get startedAt(): string {
     return this._result.startedAt!
   }
   getStartedAt(): Date {
@@ -380,6 +387,14 @@ export class TestResultsData implements Required<TestResults> {
   /** @deprecated */
   setUrl(_url: string) {
     // DEPRECATED
+  }
+
+  get server() {
+    return this._result.server
+  }
+
+  get keepIfDuplicate() {
+    return this._result.keepIfDuplicate
   }
 
   isPassed(): boolean {

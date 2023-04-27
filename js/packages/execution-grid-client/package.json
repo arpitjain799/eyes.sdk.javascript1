@@ -1,6 +1,6 @@
 {
   "name": "@applitools/ec-client",
-  "version": "1.2.16",
+  "version": "1.2.24",
   "homepage": "https://applitools.com",
   "bugs": {
     "url": "https://github.com/applitools/eyes.sdk.javascript1/issues"
@@ -27,8 +27,8 @@
       "default": "./dist/index.js"
     },
     "./cli": {
-      "types": "./types/cli.d.ts",
-      "default": "./dist/cli.js"
+      "types": "./types/cli/cli.d.ts",
+      "default": "./dist/cli/cli.js"
     },
     "./types": {
       "types": "./types/types.d.ts",
@@ -43,8 +43,8 @@
   "main": "./dist/index.js",
   "types": "./types/index.d.ts",
   "bin": {
-    "ec-client": "./dist/cli.js",
-    "eg-client": "./dist/cli.js"
+    "ec-client": "./dist/cli/cli.js",
+    "eg-client": "./dist/cli/cli.js"
   },
   "files": [
     "dist",
@@ -63,17 +63,22 @@
     "postversion": "bongo postversion"
   },
   "dependencies": {
-    "@applitools/execution-grid-tunnel": "1.0.20",
-    "@applitools/logger": "1.1.48",
-    "@applitools/req": "1.1.32",
-    "@applitools/socket": "1.0.10",
-    "@applitools/utils": "1.3.32",
+    "@applitools/core-base": "1.1.52",
+    "@applitools/driver": "1.11.46",
+    "@applitools/execution-grid-tunnel": "1.0.24",
+    "@applitools/logger": "1.1.52",
+    "@applitools/req": "1.2.2",
+    "@applitools/socket": "1.0.13",
+    "@applitools/spec-driver-webdriver": "1.0.26",
+    "@applitools/utils": "1.3.35",
     "abort-controller": "3.0.0",
+    "webdriver": "7",
     "yargs": "17.6.2"
   },
   "devDependencies": {
-    "@applitools/bongo": "^3.0.1",
-    "@applitools/test-server": "^1.1.28",
+    "@applitools/bongo": "^3.0.3",
+    "@applitools/test-server": "^1.1.31",
+    "@applitools/test-utils": "^1.5.16",
     "@types/node": "^12.20.55",
     "@types/node-fetch": "^2.6.1",
     "@types/selenium-webdriver": "^4.0.19",

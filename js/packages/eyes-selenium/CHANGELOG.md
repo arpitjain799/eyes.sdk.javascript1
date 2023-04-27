@@ -8,6 +8,41 @@
 
 
 
+## 4.65.3 - 2023/4/26
+
+### Features
+- No features
+### Bug fixes
+
+## 4.65.2 - 2023/4/11
+
+### Features
+- Make `locate` to return coordinates that could be directly used with the driver
+### Bug fixes
+
+## 4.65.1 - 2023/4/5
+
+### Features
+### Bug fixes
+- Fixed screenshot framing
+- Fixed issue with css fetching for dom capture
+
+## 4.65.0 - 2023/4/5
+
+### Features
+- Added `removeDuplicateTests` property to the `RunnerOptions` to remove duplicated tests in the runner at the end of execution
+### Bug fixes
+
+## 4.64.1 - 2023/3/22
+
+### Features
+- Added `Resize` value to `StitchMode` enum
+- Improved extraction of nml element
+### Bug fixes
+- Avoid handing process when using execution cloud
+- Fixed slowness during ufg tests
+- Optimized number of requests during polling
+
 ## 4.64.0 - 2023/2/23
 
 ### Features

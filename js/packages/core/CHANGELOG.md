@@ -2,6 +2,115 @@
 
 ## Unreleased
 
+## 2.5.5 - 2023/4/26
+
+### Features
+### Bug fixes
+- Fixed platform name formatting
+- Prevented driver metadata extraction during check in ufg eyes
+
+## 2.5.4 - 2023/4/25
+
+### Features
+### Bug fixes
+- Fixed issue with hanging requests
+
+## 2.5.3 - 2023/4/20
+
+### Features
+- Add a timeout and max concurrency for fetching resources
+### Bug fixes
+- Fixed typo in ec custom property
+
+## 2.5.2 - 2023/4/19
+
+### Features
+### Bug fixes
+- Fixed functional test feature issues in ec client
+
+## 2.5.1 - 2023/4/18
+
+### Features
+### Bug fixes
+- Fixed the issue with session metadata extraction
+
+## 2.5.0 - 2023/4/18
+
+### Features
+- Added functional session feature
+### Bug fixes
+- Fixed issue with when webview were wasn't recognized as web compatible world
+
+## 2.4.13 - 2023/4/16
+
+### Features
+### Bug fixes
+- format result `hostDisplaySize`
+
+## 2.4.12 - 2023/4/12
+
+### Features
+### Bug fixes
+- Expose types for eyes-cypress
+
+## 2.4.11 - 2023/4/11
+
+### Features
+- Make `locate` to return coordinates that could be directly used with the driver
+### Bug fixes
+- Fix issue when `locate` return wrong type of the region, with `left` and `top` properties instead of `x` and `y`
+
+## 2.4.10 - 2023/4/10
+
+### Features
+### Bug fixes
+- Improved appium prefixed capabilities parsing
+
+## 2.4.9 - 2023/4/7
+
+### Features
+### Bug fixes
+- Fixed issue in dom snapshot that prevented urls that start with a whitespace to be mapped
+
+## 2.4.8 - 2023/4/5
+
+### Features
+### Bug fixes
+- Fixed screenshot framing
+- Fixed issue with css fetching for dom capture
+
+## 2.4.7 - 2023/4/4
+
+### Features
+### Bug fixes
+- Fixed issue with emulation driver detection
+
+## 2.4.6 - 2023/4/4
+
+### Features
+### Bug fixes
+- Fixed relative url resolution in css files
+- Added timeout to css fetching during preparing dom capture
+
+## 2.4.5 - 2023/3/31
+
+### Features
+- Added `removeDuplicateTests` property to the `GetManagerResultsSettings`
+### Bug fixes
+
+## 2.4.4 - 2023/3/30
+
+### Features
+### Bug fixes
+- Improve performance in DOM snapshot
+
+## 2.4.3 - 2023/3/22
+
+### Features
+- Changed `makeManager` api to accept `settings`
+### Bug fixes
+- Fixed retry interval during poll requests to eyes back-end
+
 ## 2.4.2 - 2023/3/17
 
 ### Features

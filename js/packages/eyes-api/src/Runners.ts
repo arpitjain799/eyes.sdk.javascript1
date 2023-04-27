@@ -13,10 +13,22 @@ export abstract class EyesRunner {
   private _core?: Core.Core<Core.SpecType, 'classic' | 'ufg'>
   private _manager?: Core.EyesManager<Core.SpecType, 'classic' | 'ufg'>
   private _eyes: Eyes<Core.SpecType>[] = []
-  /** @internal */
   abstract readonly type: 'classic' | 'ufg'
   /** @internal */
-  abstract readonly settings: Core.EyesManagerSettings
+  protected readonly _managerSettings: Core.ManagerSettings = {}
+  /** @internal */
+  protected readonly _getResultsSettings: Core.GetManagerResultsSettings<'classic' | 'ufg'> = {}
+
+  constructor(options?: RunnerOptions) {
+    if (options) {
+      this._managerSettings = {
+        concurrency: options.testConcurrency,
+        legacyConcurrency: options.legacyConcurrency,
+        fetchConcurrency: options.fetchConcurrency,
+      }
+      this._getResultsSettings = {removeDuplicateTests: options.removeDuplicateTests}
+    }
+  }
 
   /** @internal */
   attach<TSpec extends Core.SpecType = Core.SpecType>(eyes: Eyes<TSpec>, core: Core.Core<TSpec, 'classic' | 'ufg'>) {
@@ -31,7 +43,7 @@ export abstract class EyesRunner {
     logger?: Logger
     on?: (name: string, data?: Record<string, any>) => void
   }): Promise<Core.Eyes<TSpec, 'classic' | 'ufg'>> {
-    this._manager ??= await this._core!.makeManager({type: this.type, settings: this.settings})
+    this._manager ??= await this._core!.makeManager({type: this.type, settings: this._managerSettings})
     return await this._manager.openEyes(options)
   }
 
@@ -49,7 +61,7 @@ export abstract class EyesRunner {
         },
       })
     try {
-      const summary = await this._manager.getResults({settings: {throwErr}})
+      const summary = await this._manager.getResults({settings: {throwErr, ...this._getResultsSettings}})
       return new TestResultsSummaryData({summary, deleteTest})
     } catch (err: any) {
       if (err.info?.result) {
@@ -68,17 +80,7 @@ export abstract class EyesRunner {
 }
 
 export class VisualGridRunner extends EyesRunner {
-  private _testConcurrency?: number
-  private _legacyConcurrency?: number
-  /** @internal */
   readonly type = 'ufg' as const
-  /** @internal */
-  get settings() {
-    return {
-      concurrency: this._testConcurrency,
-      legacyConcurrency: this._legacyConcurrency,
-    }
-  }
 
   constructor(options?: RunnerOptions)
   /** @deprecated */
@@ -86,38 +88,32 @@ export class VisualGridRunner extends EyesRunner {
   /** @deprecated */
   constructor(legacyConcurrency?: number)
   constructor(optionsOrLegacyConcurrency?: RunnerOptions | RunnerOptionsFluent | number) {
-    super()
-    if (utils.types.isNumber(optionsOrLegacyConcurrency)) {
-      this._legacyConcurrency = optionsOrLegacyConcurrency
-    } else if (optionsOrLegacyConcurrency) {
-      const options =
-        optionsOrLegacyConcurrency instanceof RunnerOptionsFluent
-          ? optionsOrLegacyConcurrency.toJSON()
-          : optionsOrLegacyConcurrency
-      this._testConcurrency = options.testConcurrency
+    let options: RunnerOptions | undefined
+    if (utils.types.instanceOf(optionsOrLegacyConcurrency, RunnerOptionsFluent)) {
+      options = optionsOrLegacyConcurrency.toJSON()
+    } else if (utils.types.isNumber(optionsOrLegacyConcurrency)) {
+      options = {legacyConcurrency: optionsOrLegacyConcurrency}
+    } else {
+      options = optionsOrLegacyConcurrency
     }
+    super(options)
   }
 
   get testConcurrency() {
-    return this._testConcurrency
+    return this._managerSettings?.concurrency
   }
 
   /** @deprecated */
   get legacyConcurrency() {
-    return this._legacyConcurrency
+    return this._managerSettings?.legacyConcurrency
   }
 
   /** @deprecated */
   getConcurrentSessions() {
-    return this._legacyConcurrency
+    return this._managerSettings?.legacyConcurrency
   }
 }
 
 export class ClassicRunner extends EyesRunner {
-  /** @internal */
   readonly type = 'classic' as const
-  /** @internal */
-  get settings() {
-    return {}
-  }
 }

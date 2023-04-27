@@ -3,6 +3,39 @@
 ## Unreleased
 
 
+## 3.33.1 - 2023/4/26
+
+### Features
+### Bug fixes
+- Make sure to pass LayoutBreakpoints and WaitBeforeCapture from story config to dom snapshot
+- Map UFG config correctly
+
+## 3.33.0 - 2023/4/26
+
+### Features
+### Bug fixes
+- Fixed `disableBrowserFetching` option behavior
+
+## 3.32.1 - 2023/4/16
+
+### Features
+### Bug fixes
+- result output throw error
+
+## 3.32.0 - 2023/3/30
+
+### Features
+- Add support for configuration per subsets of stories
+### Bug fixes
+- Improve performance in DOM snapshot
+
+## 3.31.5 - 2023/3/28
+
+### Features
+### Bug fixes
+- Optimized number of requests during polling
+- Write result files without throwing error
+
 ## 3.31.4 - 2023/3/17
 
 ### Features

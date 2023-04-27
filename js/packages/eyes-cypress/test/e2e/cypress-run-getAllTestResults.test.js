@@ -1,10 +1,8 @@
 'use strict'
 const {describe, it, before, after} = require('mocha')
 const {expect} = require('chai')
-const {exec} = require('child_process')
-const {promisify: p} = require('util')
 const path = require('path')
-const pexec = p(exec)
+const pexec = require('../util/pexec')
 const fs = require('fs')
 const {presult} = require('@applitools/functional-commons')
 const applitoolsConfig = require('../fixtures/testApp/applitools.config.js')
@@ -49,6 +47,15 @@ describe('getAllTestResults', () => {
     expect(err).to.be.undefined
     expect(v).to.contain('This is the first test')
     expect(v).to.contain('This is the second test')
+  })
+
+  it('return test results for all managers without duplicates', async () => {
+    // removeDuplicateTests opted into in test/fixtures/testApp/applitools.config.js
+    const [err, v] = await presult(runCypress('get-test-results.js', 'getAllTestResultsWithDuplicates.js'))
+    expect(err).to.be.undefined
+    expect(v).to.contain('This is the first test')
+    expect(v).to.contain('This is the second test')
+    expect(v).to.contain('passed=2')
   })
 
   it('delete test results', async () => {

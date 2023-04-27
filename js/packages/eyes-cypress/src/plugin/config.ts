@@ -6,7 +6,17 @@ import {type EyesPluginConfig} from './'
 
 export default function makeConfig(): {config: any; eyesConfig: EyesPluginConfig} {
   const config = utils.config.getConfig({
-    params: [...configParams, 'failCypressOnDiff', 'tapDirPath', 'tapFileName', 'disableBrowserFetching', 'testConcurrency'],
+    params: [
+      ...configParams,
+      'failCypressOnDiff',
+      'tapDirPath',
+      'tapFileName',
+      'disableBrowserFetching',
+      'testConcurrency',
+      'removeDuplicateTests',
+      'eyesFetchConcurrency',
+      'universalDebug',
+    ],
   })
 
   if ((!config.batch || !config.batch.id) && !config.batchId) {
@@ -40,6 +50,8 @@ export default function makeConfig(): {config: any; eyesConfig: EyesPluginConfig
     eyesDisableBrowserFetching: !!config.disableBrowserFetching,
     eyesTestConcurrency: config.testConcurrency || DEFAULT_TEST_CONCURRENCY,
     eyesWaitBeforeCapture: config.waitBeforeCapture,
+    eyesRemoveDuplicateTests: !!config.removeDuplicateTests,
+    universalDebug: !!config.universalDebug,
   }
 
   return {config, eyesConfig}

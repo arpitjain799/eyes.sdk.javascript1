@@ -2,17 +2,17 @@
 # yarn lockfile v1
 
 
-"@applitools/api-extractor@^1.2.12":
-  version "1.2.12"
-  resolved "https://registry.yarnpkg.com/@applitools/api-extractor/-/api-extractor-1.2.12.tgz#bf1cedc5b5c3aaf0d09ca8d862b3890074e6f717"
-  integrity sha512-O73PyrJUWFYuE/whksrgJuneXaNOS7luP35Sb/llh9KyxV/RZzPpwEqf1sl17q6us6lSDkTaV8FTYlCQ2vS9Mg==
+"@applitools/api-extractor@^1.2.19":
+  version "1.2.19"
+  resolved "https://registry.yarnpkg.com/@applitools/api-extractor/-/api-extractor-1.2.19.tgz#af8491c92aa8b7351f71a4151633bd8affde44cc"
+  integrity sha512-t9V65+wuePQk9yBKFaVHos1xr/fp43p5xKOXn0LAoVr/Sq8M283HK7aTZGWGA4vNNnlGsVjOh/I6qfPwkI2+WA==
 
-"@applitools/bongo@3.0.1":
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/@applitools/bongo/-/bongo-3.0.1.tgz#15d9eba8d85417b30a9c0ce3d8f01182de30a378"
-  integrity sha512-cuOFE19HzbF8sqaV6QqiXOLVBZy0z4TkVx58WoexcUM/1FN+JhN+UjAEV8U30UNiIRCtSec8erhqKNhX92Sr3Q==
+"@applitools/bongo@3.0.3":
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/@applitools/bongo/-/bongo-3.0.3.tgz#13d9d855ffd0d71956fcc365fad67ea68f2ed8b3"
+  integrity sha512-xSF04Zfl626sRFHBSCrqA0Q7IBENg4H8uEd1zMB+3jIafftdiJUwSABevSBGYhjlo3iI5HSnsi6pF7mb2qRXMQ==
   dependencies:
-    "@applitools/utils" "1.3.31"
+    "@applitools/utils" "1.3.32"
     "@azure/storage-blob" "12.2.0-preview.1"
     chalk "3.0.0"
     compare-versions "4.1.3"
@@ -23,46 +23,46 @@
     xml-js "1.6.11"
     yargs "15.0.2"
 
-"@applitools/driver@1.11.37":
-  version "1.11.37"
-  resolved "https://registry.yarnpkg.com/@applitools/driver/-/driver-1.11.37.tgz#5d551399d0913249e09f73c0f8c48f0c7189616d"
-  integrity sha512-ZfoltRq649KN/ObEm9CLXLaNn0a+vKIy9m9xFyAeg+9tUFyTgYXy0eTGbDYOPJ1j6DNqiM2F7tUFloJAeC1fqw==
+"@applitools/driver@1.11.46":
+  version "1.11.46"
+  resolved "https://registry.yarnpkg.com/@applitools/driver/-/driver-1.11.46.tgz#05bde4f23f19c638895a7b3f189b29bdf83aba3d"
+  integrity sha512-RMNdrU8eDysTXPdoLMRIKdPiKPwSx55f3UaeA74UkiEy5VHWFN7S1mdwrWpq9sg9BqTOqaUdL8gYGHSg0AEL1Q==
   dependencies:
-    "@applitools/logger" "1.1.48"
-    "@applitools/snippets" "2.4.17"
-    "@applitools/utils" "1.3.32"
+    "@applitools/logger" "1.1.52"
+    "@applitools/snippets" "2.4.19"
+    "@applitools/utils" "1.3.35"
     semver "7.3.7"
 
-"@applitools/logger@1.1.48":
-  version "1.1.48"
-  resolved "https://registry.yarnpkg.com/@applitools/logger/-/logger-1.1.48.tgz#c8a0d8eb0edd1ee5742cdc93943cc65dac7be0f6"
-  integrity sha512-A/8Q9p2INPDOMGE8Hqodpw5UxXLGdW4z2w8gOzEJ3zi0MyLOY3lBZiaPKEP0nmOs29q4r/yr0srYY5j9FVAmCg==
+"@applitools/logger@1.1.52":
+  version "1.1.52"
+  resolved "https://registry.yarnpkg.com/@applitools/logger/-/logger-1.1.52.tgz#01c15c9a43634eacb7022f9f82002d6a24109725"
+  integrity sha512-bloAZUIC8hOdQjobX2UjWI3bA/HRE7wPVm58W0DKJ++VKo/W5swF/WpG/0pgfsWMBL8ia8kgbZOkxopn6HnCDQ==
   dependencies:
-    "@applitools/utils" "1.3.32"
+    "@applitools/utils" "1.3.35"
     chalk "4.1.2"
     debug "4.3.3"
 
-"@applitools/snippets@2.4.17":
-  version "2.4.17"
-  resolved "https://registry.yarnpkg.com/@applitools/snippets/-/snippets-2.4.17.tgz#c84c46c8d39a364ef6bca9d075632dec22870ef3"
-  integrity sha512-NH6T61wU1NsZmtdYVKbsRwPbq+sr2zqzHrjICXfqkaRn261+xckArKsjqM6GVcErD70LY6/w7BKFxZgzHsXtqQ==
+"@applitools/snippets@2.4.19":
+  version "2.4.19"
+  resolved "https://registry.yarnpkg.com/@applitools/snippets/-/snippets-2.4.19.tgz#2633a0e6df6663ab3ddeb2ac4d21e748d3eea04d"
+  integrity sha512-cXIB5fuVGYFQzZK3tylgIRLh5dTWoCS2v2ZDGpSgdWuz0NH5LArGQpqPr8svqv3nEHCKMBHCMbwEF/CoblIblA==
 
-"@applitools/test-utils@1.5.14":
-  version "1.5.14"
-  resolved "https://registry.yarnpkg.com/@applitools/test-utils/-/test-utils-1.5.14.tgz#d92606dfb3d7754e4c18db36e8bd91e20f020b93"
-  integrity sha512-MCEBRop2pAP5KzwmbdrbpKkKD5F/PZiazjKdUUmn4sNN3PNtIcLZABH6KjAHHfEQGmE5jRa6nbd+gTCvvmCMjw==
+"@applitools/test-utils@1.5.16":
+  version "1.5.16"
+  resolved "https://registry.yarnpkg.com/@applitools/test-utils/-/test-utils-1.5.16.tgz#fefbcc3cf34da6a4ddfe3e984746fb7022fe5e73"
+  integrity sha512-IQEX+nC7Tj/BVeALaLVKua7InfSLRd8ZItkLoH5ohZ9Puq9G5nW37ZTYJfRpdVHjkbo+bqtQoB+eqebq/e4UhA==
   dependencies:
     node-fetch "2.6.1"
-
-"@applitools/utils@1.3.31":
-  version "1.3.31"
-  resolved "https://registry.yarnpkg.com/@applitools/utils/-/utils-1.3.31.tgz#90a2d35992d15a348cd7f20989034ad64cd04db2"
-  integrity sha512-Rj8mW4owd9MphyETE0sMRQkI/2xgWY/aju9SQeGUEY6mJbxm9GfnjODvXsfNoABWfkEmpf+s7bxgCJv9rWOLFg==
 
 "@applitools/utils@1.3.32":
   version "1.3.32"
   resolved "https://registry.yarnpkg.com/@applitools/utils/-/utils-1.3.32.tgz#cfe006146d1d589a442513c4973b950c607f405f"
   integrity sha512-GSMSf1NNW6fEm0u1ANGrQY+ESs8UgDYAZnaVrgjpFJ8ONL8eVDXn3tiIDdhmj/HKthAHqiYOYdRESmpuru/zrQ==
+
+"@applitools/utils@1.3.35":
+  version "1.3.35"
+  resolved "https://registry.yarnpkg.com/@applitools/utils/-/utils-1.3.35.tgz#21dd16536291c80c04b1133b89ac7514c3e11398"
+  integrity sha512-RerHkSBR7pVJXhTFEEpAVGh4xI76WM/vU9jR9s9d4X3Ao6y/MdgKp0BPNwv3A/ReSsCDhmr9nEu32Po49UflGQ==
 
 "@azure/abort-controller@^1.0.0":
   version "1.1.0"

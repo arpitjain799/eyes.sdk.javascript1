@@ -44,7 +44,8 @@ export function makeCheckAndClose<TSpec extends SpecType>({
       ).flat()
     }
     const driver = await makeDriver({spec, driver: target, logger})
-    if (settings.lazyLoad && driver.isWeb) {
+    const environment = await driver.getEnvironment()
+    if (settings.lazyLoad && environment.isWeb) {
       await waitForLazyLoad({
         context: driver.currentContext,
         settings: settings.lazyLoad !== true ? settings.lazyLoad : {},
@@ -65,15 +66,17 @@ export function makeCheckAndClose<TSpec extends SpecType>({
       isTransformed: true,
     } as BaseTarget
     const baseSettings = getBaseCheckSettings({calculatedRegions: screenshot.calculatedRegions})
-    if (driver.isWeb && settings.sendDom) {
+    if (environment.isWeb && settings.sendDom) {
       if (settings.fully) await screenshot.scrollingElement.setAttribute('data-applitools-scroll', 'true')
       else await screenshot.element?.setAttribute('data-applitools-scroll', 'true')
-      baseTarget.dom = await takeDomCapture({driver, logger}).catch(() => undefined)
+      baseTarget.dom = await takeDomCapture({driver, settings: {proxy: eyes.test.server.proxy}, logger}).catch(
+        () => undefined,
+      )
     }
     if (settings.pageId) {
       const scrollingElement = await driver.mainContext.getScrollingElement()
       const scrollingOffset =
-        !scrollingElement || driver.isNative ? {x: 0, y: 0} : await scrollingElement.getScrollOffset()
+        !scrollingElement || environment.isNative ? {x: 0, y: 0} : await scrollingElement.getScrollOffset()
       baseTarget.locationInView = utils.geometry.offset(scrollingOffset, screenshot.region)
       baseTarget.fullViewSize = scrollingElement
         ? await scrollingElement.getContentSize()

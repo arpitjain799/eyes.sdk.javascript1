@@ -2,11 +2,11 @@ import sys
 
 import selenium
 from pytest import fixture
+from selenium.common.exceptions import WebDriverException
 
 from applitools.selenium import BatchInfo, ClassicRunner, Eyes, StitchMode
 
 from .browsers import *
-from .devices import *
 from .sauce import pytest_collection_modifyitems, sauce_url
 
 batch_info = BatchInfo(
@@ -31,8 +31,8 @@ def driver_builder(chrome):
 
 @fixture
 def driver(driver_builder):
-    with driver_builder:
-        yield driver_builder
+    yield driver_builder
+    driver_builder.quit()
 
 
 @fixture
@@ -72,4 +72,4 @@ def eyes(eyes_runner_class, stitch_mode, emulation):
         eyes.add_property("Page", page)
     yield eyes
     # If the test was aborted before eyes.close was called, ends the test as aborted.
-    eyes.abort()
+    eyes.abort_async()

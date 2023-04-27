@@ -4,12 +4,13 @@ const spec = require('../../dist/browser/spec-driver')
 const Refer = require('./refer')
 const Socket = require('./socket')
 const {socketCommands} = require('./socketCommands')
-const {eyesOpenMapValues, eyesOpenToCheckMapValues} = require('./eyesOpenMapping')
-const {eyesCheckMapValues} = require('./eyesCheckMapping')
 const {TestResultsSummary} = require('@applitools/eyes-api')
 const refer = new Refer()
 const socket = new Socket()
 const throwErr = Cypress.config('failCypressOnDiff')
+const {transformCypressConfig} = require('../../dist/browser/transformCypressConfig')
+const {mergeCypressConfigs} = require('../../dist/browser/mergeCypressConfigs')
+const {transformCypressCheckSettings} = require('../../dist/browser/transformCypressCheckSettings')
 socketCommands(socket, refer)
 
 let manager,
@@ -17,14 +18,17 @@ let manager,
   closePromiseArr = [],
   _summary,
   connectedToUniversal,
-  openToCheckSettingsArgs
+  openAndGlobalConfig
 
 async function getSummary() {
   if (_summary) return _summary
   await Promise.all(closePromiseArr)
-  _summary = socket.request('EyesManager.getResults', {manager, settings: {throwErr}}).catch(err => {
-    return {results: [{result: err.info.result}]}
-  })
+  const removeDuplicateTests = Cypress.config('eyesRemoveDuplicateTests')
+  _summary = socket
+    .request('EyesManager.getResults', {manager, settings: {throwErr, removeDuplicateTests}})
+    .catch(err => {
+      return {results: [{result: err.info.result}]}
+    })
   _summary = await _summary
 
   return _summary
@@ -127,24 +131,20 @@ Cypress.Commands.add('eyesOpen', function (args = {}) {
 
       manager =
         manager ||
-        (await socket.request(
-          'Core.makeManager',
-          Object.assign({}, {concurrency: Cypress.config('eyesTestConcurrency')}, {type: 'ufg'}),
-        ))
+        (await socket.request('Core.makeManager', {
+          settings: {
+            concurrency: Cypress.config('eyesTestConcurrency'),
+            fetchConcurrency: Cypress.config('appliConfFile').eyesFetchConcurrency,
+          },
+          type: 'ufg',
+        }))
     }
 
     const appliConfFile = Cypress.config('appliConfFile')
+    const mergedConfig = mergeCypressConfigs({globalConfig: appliConfFile, openConfig: {testName, ...args}})
+    openAndGlobalConfig = transformCypressConfig({...mergedConfig, shouldUseBrowserHooks})
 
-    openToCheckSettingsArgs = eyesOpenToCheckMapValues(args)
-
-    const settings = eyesOpenMapValues({
-      args,
-      appliConfFile,
-      testName,
-      shouldUseBrowserHooks,
-    })
-
-    eyes = await socket.request('EyesManager.openEyes', {manager, target, settings})
+    eyes = await socket.request('EyesManager.openEyes', {manager, target, config: openAndGlobalConfig})
   })
 })
 
@@ -157,16 +157,13 @@ Cypress.Commands.add('eyesCheckWindow', (args = {}) =>
 
     Cypress.log({name: 'Eyes: check window'})
 
-    const settings = eyesCheckMapValues({
-      args: {...openToCheckSettingsArgs, ...args},
-      refer,
-      appliConfFile: Cypress.config('appliConfFile'),
-    })
+    const settings = transformCypressCheckSettings(args, refer)
 
     return socket.request('Eyes.check', {
       eyes,
       settings,
       target,
+      config: openAndGlobalConfig,
     })
   }),
 )
@@ -182,12 +179,20 @@ Cypress.Commands.add('eyesClose', () => {
     }
 
     // Eyes.close in core is not waiting on results anymore. So we should return it in order to await it
-    const p = socket.request('Eyes.close', {eyes}).catch(err => {
+    const p = socket.request('Eyes.close', {eyes, config: openAndGlobalConfig}).catch(err => {
       console.log('Error in cy.eyesClose', err)
     })
     closePromiseArr.push(p)
     return p
   })
+})
+
+// internal command //
+Cypress.Commands.add('debugHistory', async function () {
+  Cypress.log({name: 'Debug: history'})
+  const history = await socket.request('Debug.getHistory')
+
+  return history
 })
 
 function setRootContext() {

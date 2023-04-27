@@ -29,6 +29,7 @@ function emitTest(test, {makeSpecEmitter, makeFile}) {
   test.meta = {features: test.features}
   if (test.env) {
     test.meta.browser = test.env.browser
+    test.meta.emulator = Boolean(test.env.emulation)
     test.meta.mobile = Boolean(test.env.device)
     test.meta.native = Boolean(test.env.device && !test.env.browser)
     test.meta.headfull = test.env.headless === false

@@ -36,7 +36,10 @@ export interface UFGRequests {
   getAndroidDevices(options?: {logger?: Logger}): Promise<Record<AndroidDevice, any>>
 }
 
-export type UFGRequestsConfig = ReqUFGConfig & {uploadUrl: string; stitchingServiceUrl: string}
+export type UFGRequestsConfig = ReqUFGConfig & {
+  uploadUrl: string
+  stitchingServiceUrl: string
+}
 
 export function makeUFGRequests({
   config,
@@ -87,8 +90,8 @@ export function makeUFGRequests({
       expected: 200,
       logger,
     })
-    const results = await response.json().then((results: any[]) => {
-      return results.map((result, index) => {
+    const results = await response.json().then((results: any) => {
+      return (results as any[]).map((result, index) => {
         return {
           rendererId: result.renderer,
           rendererUniqueId: utils.general.guid(),
@@ -132,6 +135,8 @@ export function makeUFGRequests({
         if (settings.type === 'native') {
           renderOptions.renderInfo.vhsType = target.vhsType
           renderOptions.renderInfo.vhsCompatibilityParams = target.vhsCompatibilityParams
+          //NOTE: at the moment stitch mode is supported only for native devices
+          renderOptions.renderInfo.stitchMode = settings.stitchMode
         }
         if (settings.region) {
           if (utils.types.has(settings.region, ['x', 'y', 'width', 'height'])) {
@@ -143,21 +148,18 @@ export function makeUFGRequests({
           }
         } else {
           renderOptions.renderInfo.target = settings.fully ? 'full-page' : 'viewport'
-          //NOTE at the moment scroll root is supported only for native devices
+          //NOTE: at the moment scroll root is supported only for native devices
           if (settings.type === 'native') {
             renderOptions.renderInfo.selector = settings.scrollRootElement
           }
-        }
-        if (settings.stitchMode) {
-          renderOptions.renderInfo.stitchMode = settings.stitchMode
         }
         return renderOptions
       }),
       expected: 200,
       logger,
     })
-    const results = await response.json().then((results: any[]) => {
-      return results.map(result => {
+    const results = await response.json().then((results: any) => {
+      return (results as any[]).map(result => {
         return {jobId: result.jobId, renderId: result.renderId, status: result.renderStatus} as StartedRender
       })
     })
@@ -193,8 +195,8 @@ export function makeUFGRequests({
       },
       logger,
     })
-    const results = await response.json().then((results: any[]) => {
-      return results.map((result, index) => ({
+    const results = await response.json().then((results: any) => {
+      return (results as any[]).map((result, index) => ({
         renderId: renders[index].renderId,
         status: result.status,
         error: result.error,
@@ -234,7 +236,7 @@ export function makeUFGRequests({
       expected: 200,
       logger,
     })
-    const results = await response.json()
+    const results: any = await response.json()
     logger.log('Request "checkResources" finished successfully with body', results)
     return results
   }
@@ -272,7 +274,7 @@ export function makeUFGRequests({
       method: 'GET',
       logger,
     })
-    const result = await response.json()
+    const result: any = await response.json()
     logger.log('Request "getChromeEmulationDevices" finished successfully with body', result)
     return result
   }
@@ -284,7 +286,7 @@ export function makeUFGRequests({
       method: 'GET',
       logger,
     })
-    const result = await response.json()
+    const result: any = await response.json()
     logger.log('Request "getIOSDevices" finished successfully with body', result)
     return result
   }

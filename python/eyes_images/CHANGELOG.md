@@ -1,7 +1,27 @@
+## [5.18.0] - 2023-04-26
+### Add
+- DOM can now be attached to images.Eyes checks via `dom` method of target [Trello 3196](https://trello.com/c/FZ6KcVd6)
+- Runners now support `remove_duplicate_tests` option via RunnerOptions and `set_remove_duplicate_tests` method [Trello 3202](https://trello.com/c/tfg6cLPd)
+### Fixed
+- Images.Eyes.open method does not require `app_name` and `test_name` if they are set in configuration [Trello 3197](https://trello.com/c/euyA23yG)
+
+## [5.17.1] - 2023-04-01
+### Fixed
+- Permit compatible values of enums in Configuration objects [Trello 3188](https://trello.com/c/VaZniTQ4)
+
+## [5.17.0] - 2023-03-31
+### Added
+- Galaxy S22, Galaxy Tab S7, Huawei Mate 50 Pro, Huawei Matepad 11 and Sony Xperia 10 II to the enum of supported emulators [Trello 3187](https://trello.com/c/mnXe35i8)
+- Huawei P30 Lite, Sony Xperia 1 II, Sony Xperia 10 II, Sony Xperia Ace II and Xiaomi Redmi Note 10 JE added to the enum of supported Android NMG devices [Trello 3187](https://trello.com/c/mnXe35i8)
+- iPad Air (4th generation) and iPad Pro (11-inch) (4th generation) added to the enum of supported iOS NMG devices [Trello 3187](https://trello.com/c/mnXe35i8)
+### Updated
+- Use new Core.makeManager command structure introduced in eyes-core 2.4.3 [Trello 3182](https://trello.com/c/LuGK3JCN)
+- Removed unsupported Galaxy Note 9, Galaxy S9 and Galaxy S9 Plus NMG devices [Trello 3187](https://trello.com/c/mnXe35i8)
+
 ## [5.16.0] - 2023-03-08
 ### Added
 - Support webview targets with appium [Trello 3162](https://trello.com/c/77BDT6t6)
-## Fixed
+### Fixed
 - Add missing set_configuration/get_configuration methods and configuration property to images.Eyes [Trello 3155](https://trello.com/c/QZz64qr3)
 ### Updated
 - Drop obsolete eyes-core and eyes-common dependencies [Trello 3165](https://trello.com/c/aLfsFODx)

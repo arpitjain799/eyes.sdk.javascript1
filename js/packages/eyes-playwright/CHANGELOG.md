@@ -11,6 +11,31 @@
 
 
 
+## 1.16.0 - 2023/4/26
+
+### Features
+- Make `locate` to return coordinates that could be directly used with the driver
+### Bug fixes
+
+## 1.15.1 - 2023/4/6
+
+### Features
+### Bug fixes
+- Fixed issue with css fetching for dom capture
+
+## 1.15.0 - 2023/4/5
+
+### Features
+- Added `removeDuplicateTests` property to the `RunnerOptions` to remove duplicated tests in the runner at the end of execution
+### Bug fixes
+
+## 1.14.1 - 2023/3/22
+
+### Features
+### Bug fixes
+- Fixed slowness during ufg tests
+- Optimized number of requests during polling
+
 ## 1.14.0 - 2023/2/21
 
 ### Features

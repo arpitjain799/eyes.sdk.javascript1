@@ -7,7 +7,7 @@ const eyesStorybook = require('./eyesStorybook');
 const processResults = require('./processResults');
 const validateAndPopulateConfig = require('./validateAndPopulateConfig');
 const yargsOptions = require('./yargsOptions');
-const generateConfig = require('./generateConfig');
+const {generateConfig} = require('./generateConfig');
 const defaultConfig = require('./defaultConfig');
 const configDigest = require('./configDigest');
 const {makeTiming} = require('@applitools/monitoring-commons');
@@ -42,7 +42,7 @@ const {performance, timeItAsync} = makeTiming();
       process.exit(config.exitcode ? config.exitcode : 0);
     } else {
       const totalTime = performance['eyesStorybook'];
-      const {exitCode, formatter, outputStr} = processResults({
+      const {exitCode, summary, outputStr} = processResults({
         results,
         totalTime,
         testConcurrency: config.testConcurrency,
@@ -50,13 +50,13 @@ const {performance, timeItAsync} = makeTiming();
       });
       console.log(outputStr);
       if (config.jsonFilePath) {
-        handleJsonFile(config.jsonFilePath, formatter);
+        handleJsonFile(config.jsonFilePath, summary);
       }
       if (config.tapFilePath) {
-        handleTapFile(config.tapFilePath, formatter);
+        handleTapFile(config.tapFilePath, summary);
       }
       if (config.xmlFilePath) {
-        handleXmlFile(config.xmlFilePath, formatter, {totalTime});
+        handleXmlFile(config.xmlFilePath, summary, {totalTime});
       }
       process.exit(config.exitcode ? exitCode : 0);
     }

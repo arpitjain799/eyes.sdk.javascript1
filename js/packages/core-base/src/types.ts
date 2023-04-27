@@ -18,6 +18,7 @@ export type Target = ImageTarget
 
 export interface Core {
   openEyes(options: {settings: OpenSettings; logger?: Logger}): Promise<Eyes>
+  openFunctionalSession(options: {settings: OpenSettings; logger?: Logger}): Promise<FunctionalSession>
   locate<TLocator extends string>(options: {
     target: Target
     settings: LocateSettings<TLocator>
@@ -29,7 +30,7 @@ export interface Core {
     logger?: Logger
   }): Promise<LocateTextResult<TPattern>>
   extractText(options: {target: Target; settings: MaybeArray<ExtractTextSettings>; logger?: Logger}): Promise<string[]>
-  getAccountInfo(options: {settings: ServerSettings; logger?: Logger}): Promise<AccountInfo>
+  getAccountInfo(options: {settings: ServerSettings; logger?: Logger}): Promise<Account>
   closeBatch(options: {settings: MaybeArray<CloseBatchSettings>; logger?: Logger}): Promise<void>
   deleteTest(options: {settings: MaybeArray<DeleteTestSettings>; logger?: Logger}): Promise<void>
   /** @internal */
@@ -38,7 +39,7 @@ export interface Core {
 
 export interface Eyes {
   readonly core: Core
-  readonly test: TestInfo
+  readonly test: VisualTest
   readonly running: boolean
   check(options: {target: Target; settings?: CheckSettings; logger?: Logger}): Promise<CheckResult[]>
   checkAndClose(options: {
@@ -51,7 +52,16 @@ export interface Eyes {
   getResults(options?: {settings?: GetResultsSettings; logger?: Logger}): Promise<TestResult[]>
 }
 
-export interface TestInfo {
+export interface FunctionalSession {
+  readonly core: Core
+  readonly test: FunctionalTest
+  readonly running: boolean
+  close(options?: {settings?: CloseSettings; logger?: Logger}): Promise<void>
+  abort(options?: {settings?: AbortSettings; logger?: Logger}): Promise<void>
+  getResults(options?: {settings?: GetResultsSettings; logger?: Logger}): Promise<TestResult[]>
+}
+
+export interface VisualTest {
   testId: string
   userTestId: string
   batchId: string
@@ -59,27 +69,61 @@ export interface TestInfo {
   sessionId: string
   appId: string
   resultsUrl: string
+  initializedAt: string
   isNew: boolean
   keepBatchOpen: boolean
+  keepIfDuplicate: boolean
   server: ServerSettings
-  account: AccountInfo
+  ufgServer: UFGServerSettings
+  account: Account
   rendererId?: string
   rendererUniqueId?: string
   rendererInfo?: {type?: 'web' | 'native'; renderer?: Record<string, any>}
 }
 
+export interface FunctionalTest {
+  testId: string
+  userTestId: string
+  batchId: string
+  sessionId: string
+  appId: string
+  resultsUrl: string
+  initializedAt: string
+  keepBatchOpen: boolean
+  keepIfDuplicate: boolean
+  server: ServerSettings
+  account: Account
+}
+
+export interface Account {
+  server: ServerSettings
+  ufgServer: UFGServerSettings
+  stitchingServiceUrl: string
+  uploadUrl: string
+  maxImageHeight: number
+  maxImageArea: number
+  rcaEnabled: boolean
+  selfHealingEnabled: boolean
+  ecEnabled: boolean
+}
+
 export interface ServerSettings {
   serverUrl: string
   apiKey: string
-  proxy?: Proxy
   agentId?: string
+  proxy?: Proxy
 }
 
-type SessionType = 'SEQUENTIAL' | 'PROGRESSION'
-type CustomProperty = {
-  name: string
-  value: string
+export interface UFGServerSettings {
+  serverUrl: string
+  uploadUrl: string
+  stitchingServiceUrl: string
+  accessToken: string
+  agentId?: string
+  proxy?: Proxy
 }
+
+type CustomProperty = {name: string; value: string}
 export type Batch = {
   id?: string
   name?: string
@@ -88,7 +132,7 @@ export type Batch = {
   notifyOnCompletion?: boolean
   properties?: CustomProperty[]
 }
-type Environment = {
+export type Environment = {
   os?: string
   osInfo?: string
   hostingApp?: string
@@ -108,7 +152,7 @@ export interface OpenSettings extends ServerSettings {
   displayName?: string
   /** @internal */
   userTestId?: string
-  sessionType?: SessionType
+  sessionType?: 'SEQUENTIAL' | 'PROGRESSION'
   properties?: CustomProperty[]
   batch?: Batch
   keepBatchOpen?: boolean
@@ -127,6 +171,7 @@ export interface OpenSettings extends ServerSettings {
   abortIdleTestTimeout?: number
   connectionTimeout?: number
   removeSession?: boolean
+  isFunctionalTest?: boolean
 }
 
 export interface LocateSettings<TLocator extends string, TRegion = Region>
@@ -178,33 +223,14 @@ export interface LogEventSettings extends ServerSettings {
   timestamp?: string
 }
 
-export interface AccountInfo {
-  ufg: {
-    serverUrl: string // serviceUrl
-    accessToken: string // accessToken
-  }
-  rcaEnabled: boolean
-  stitchingServiceUrl: string
-  uploadUrl: string // resultsUrl
-  maxImageHeight: number
-  maxImageArea: number
-  selfHealingEnabled: boolean
-}
-
-type ImageRotation = -270 | -180 | -90 | 0 | 90 | 180 | 270
-type OffsetRect = {
-  top?: number
-  right?: number
-  bottom?: number
-  left?: number
-}
+type OffsetRect = {top?: number; right?: number; bottom?: number; left?: number}
 type ImageCropRect = OffsetRect
 type ImageCropRegion = Region
 export interface ImageSettings<TRegion = Region> {
   region?: TRegion
   normalization?: {
     cut?: ImageCropRect | ImageCropRegion
-    rotation?: ImageRotation
+    rotation?: -270 | -180 | -90 | 0 | 90 | 180 | 270
     scaleRatio?: number
     limit?: {maxImageArea: number; maxImageHeight: number}
   }
@@ -269,6 +295,7 @@ export interface ReportSettings {
 export interface CloseSettings extends ReportSettings {
   updateBaselineIfNew?: boolean
   updateBaselineIfDifferent?: boolean
+  status?: 'Passed' | 'Failed' | 'Completed'
   /** @internal */
   userCommandId?: string
 }
@@ -283,66 +310,68 @@ export interface GetResultsSettings {
   userCommandId?: string
 }
 
-type TestResultsStatus = 'Passed' | 'Unresolved' | 'Failed'
-type AccessibilityStatus = 'Passed' | 'Failed'
 type StepInfo = {
-  readonly name?: string
-  readonly isDifferent?: boolean
-  readonly hasBaselineImage?: boolean
-  readonly hasCurrentImage?: boolean
-  readonly appUrls?: AppUrls
-  readonly apiUrls?: ApiUrls
-  readonly renderId?: string[]
+  readonly name: string
+  readonly isDifferent: boolean
+  readonly hasBaselineImage: boolean
+  readonly hasCurrentImage: boolean
+  readonly appUrls: AppUrls
+  readonly apiUrls: ApiUrls
+  readonly renderId: string[]
 }
 type ApiUrls = {
-  readonly baselineImage?: string
-  readonly currentImage?: string
-  readonly checkpointImage?: string
-  readonly checkpointImageThumbnail?: string
-  readonly diffImage?: string
+  readonly baselineImage: string
+  readonly currentImage: string
+  readonly checkpointImage: string
+  readonly checkpointImageThumbnail: string
+  readonly diffImage: string
 }
 type AppUrls = {
-  readonly step?: string
-  readonly stepEditor?: string
+  readonly step: string
+  readonly stepEditor: string
 }
 type SessionUrls = {
-  readonly batch?: string
-  readonly session?: string
+  readonly batch: string
+  readonly session: string
 }
 export interface TestResult {
-  readonly id?: string
-  readonly userTestId?: string
-  readonly name?: string
-  readonly secretToken?: string
-  readonly status?: TestResultsStatus
-  readonly appName?: string
-  readonly batchId?: string
-  readonly batchName?: string
-  readonly branchName?: string
-  readonly hostOS?: string
-  readonly hostApp?: string
-  readonly hostDisplaySize?: Size
-  readonly accessibilityStatus?: {
+  readonly id: string
+  readonly baselineId: string
+  readonly userTestId: string
+  readonly batchId: string
+  readonly server: ServerSettings
+  readonly secretToken: string
+  readonly status: 'Passed' | 'Unresolved' | 'Failed'
+  readonly name: string
+  readonly appName: string
+  readonly batchName: string
+  readonly branchName: string
+  readonly hostOS: string
+  readonly hostApp: string
+  readonly hostDisplaySize: Size
+  readonly accessibilityStatus: {
     readonly level: AccessibilityLevel
     readonly version: AccessibilityGuidelinesVersion
-    readonly status: AccessibilityStatus
+    readonly status: 'Passed' | 'Failed'
   }
-  readonly startedAt?: Date | string
-  readonly duration?: number
-  readonly isNew?: boolean
-  readonly isDifferent?: boolean
-  readonly isAborted?: boolean
-  readonly appUrls?: SessionUrls
-  readonly apiUrls?: SessionUrls
-  readonly stepsInfo?: StepInfo[]
-  readonly steps?: number
-  readonly matches?: number
-  readonly mismatches?: number
-  readonly missing?: number
-  readonly exactMatches?: number
-  readonly strictMatches?: number
-  readonly contentMatches?: number
-  readonly layoutMatches?: number
-  readonly noneMatches?: number
-  readonly url?: string
+  readonly initializedAt: string
+  readonly startedAt: string
+  readonly duration: number
+  readonly isNew: boolean
+  readonly isDifferent: boolean
+  readonly isAborted: boolean
+  readonly keepIfDuplicate: boolean
+  readonly appUrls: SessionUrls
+  readonly apiUrls: SessionUrls
+  readonly url: string
+  readonly stepsInfo: StepInfo[]
+  readonly steps: number
+  readonly matches: number
+  readonly mismatches: number
+  readonly missing: number
+  readonly exactMatches: number
+  readonly strictMatches: number
+  readonly contentMatches: number
+  readonly layoutMatches: number
+  readonly noneMatches: number
 }

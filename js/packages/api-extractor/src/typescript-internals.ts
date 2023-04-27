@@ -23,6 +23,7 @@ declare module 'typescript' {
 
   export interface Type {
     default?: ts.Type
+    isThisType?: boolean
   }
 
   export interface Node {
@@ -33,7 +34,9 @@ declare module 'typescript' {
     parent?: ts.Symbol
     checkFlags?: ts.CheckFlags
     nameType?: ts.UniqueESSymbolType
-    target?: ts.Symbol
+    links?: {
+      target?: ts.Symbol
+    }
   }
 
   export enum SymbolFlags {

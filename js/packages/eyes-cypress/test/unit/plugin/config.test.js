@@ -16,8 +16,10 @@ describe('config', () => {
       eyesDisableBrowserFetching: false,
       eyesTestConcurrency: 5,
       eyesWaitBeforeCapture: undefined,
+      eyesRemoveDuplicateTests: false,
       tapDirPath: undefined,
       tapFileName: undefined,
+      universalDebug: false,
     })
   })
 
@@ -35,8 +37,10 @@ describe('config', () => {
       eyesDisableBrowserFetching: false,
       eyesTestConcurrency: 5,
       eyesWaitBeforeCapture: undefined,
+      eyesRemoveDuplicateTests: false,
       tapDirPath: undefined,
       tapFileName: undefined,
+      universalDebug: false,
     })
     delete process.env.APPLITOOLS_BATCH_ID
   })

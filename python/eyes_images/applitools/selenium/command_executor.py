@@ -86,13 +86,14 @@ class CommandExecutor(object):
     ):
         # type: (ManagerType, Optional[int], Optional[int], Optional[Text]) -> dict
         context = self._protocol.context(self._connection)
-        payload = {"type": manager_type.value}
+        settings = {}
         if concurrency is not None:
-            payload["concurrency"] = concurrency
+            settings["concurrency"] = concurrency
         if legacy_concurrency is not None:
-            payload["legacyConcurrency"] = legacy_concurrency
+            settings["legacyConcurrency"] = legacy_concurrency
         if agent_id is not None:
-            payload["agentId"] = agent_id
+            settings["agentId"] = agent_id
+        payload = {"type": manager_type.value, "settings": settings}
         return self._checked_command(context, "Core.makeManager", payload)
 
     def core_get_viewport_size(self, driver):
@@ -149,13 +150,17 @@ class CommandExecutor(object):
             payload["config"] = m.marshal_configuration(config)
         return self._checked_command(context, "EyesManager.openEyes", payload)
 
-    def manager_get_results(self, manager, raise_ex, timeout):
-        # type: (dict, bool, float) -> List[dict]
+    def manager_get_results(self, manager, raise_ex, remove_duplicate_tests, timeout):
+        # type: (dict, bool, Optional[bool], float) -> List[dict]
         context = self._protocol.context(self._connection)
+        settings = {"throwErr": raise_ex}
+        if remove_duplicate_tests is not None:
+            settings["removeDuplicateTests"] = remove_duplicate_tests
+
         return self._checked_command(
             context,
             "EyesManager.getResults",
-            {"manager": manager, "settings": {"throwErr": raise_ex}},
+            {"manager": manager, "settings": settings},
             wait_timeout=timeout,
         )
 

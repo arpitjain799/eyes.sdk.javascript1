@@ -12,6 +12,44 @@
 
 
 
+## 3.32.1 - 2023/4/24
+
+### Features
+### Bug fixes
+- Fix fetchConcurrency mapping
+
+## 3.32.0 - 2023/4/21
+
+### Features
+- Add a timeout and max concurrency for fetching resources
+### Bug fixes
+
+## 3.31.1 - 2023/4/14
+
+### Features
+### Bug fixes
+- Map values from open and global config
+
+## 3.31.0 - 2023/4/4
+
+### Features
+- Added `removeDuplicateTests` configuration to remove duplicated tests in the runner at the end of execution
+### Bug fixes
+- disableBrowserFetching change from open to check
+
+## 3.30.2 - 2023/3/28
+
+### Features
+### Bug fixes
+- map visualGridOptions to ufgOptions
+
+## 3.30.1 - 2023/3/22
+
+### Features
+### Bug fixes
+- Fixed cypress 8 not working with core v2
+- Fixed closeBatch issue
+
 ## 3.30.0 - 2023/3/19
 
 ### Features

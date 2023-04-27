@@ -6,7 +6,7 @@ import {makeLogger} from '@applitools/logger'
 
 // DON'T REMOVE
 //
-// if remove the `ttsc` will compile the absolute path
+// if remove the `tspc` will compile the absolute path
 //
 // the absolute path is added because api-extractor goes over the `eyesPlugin`
 // declaration before it goes over the `EyesConfig` definition, and this is why
@@ -23,12 +23,14 @@ export type EyesPluginConfig = {
   eyesWaitBeforeCapture: number
   eyesPort?: number
   eyesIsGlobalHooksSupported?: boolean
+  eyesRemoveDuplicateTests?: boolean
+  universalDebug?: boolean
 }
 
 const {config, eyesConfig} = makeConfig()
 const logger = makeLogger({level: config.showLogs ? 'info' : 'silent', label: 'eyes'})
 
-const startServer = makeStartServer({logger})
+const startServer = makeStartServer({logger, eyesConfig})
 
 const pluginExport = makePluginExport({
   startServer,
