@@ -7,7 +7,7 @@ describe('works with visualGridOptions from config file', () => {
       testName: 'ShouldSendUfgOptions',
       displayName: 'should send ufg options',
       viewportSize: {width: 700, height: 460},
-      browser: [{name: 'chrome', width: 640, height: 480}],
+      browser: [{width: 640, height: 480}],
     })
     cy.eyesCheckWindow()
     cy.eyesClose()

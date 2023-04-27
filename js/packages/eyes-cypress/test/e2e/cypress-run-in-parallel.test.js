@@ -15,7 +15,7 @@ describe('parallel run (parallel-test)', () => {
     await exec(`rm -rf ${targetTestAppPath}`)
   })
 
-  it('works for parallel cypress runs (parallel-test)', async () => {
+  it('works for parallel cypress runs', async () => {
     try {
       const runs = []
       runs.push(

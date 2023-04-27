@@ -68,7 +68,9 @@ function withDocker() {
     const containerCwd = path.resolve(rootDir, cwd)
     await pexecWrapper(`docker exec ${containerId} rm -rf ${containerCwd}`)
     await pexecWrapper(`docker cp ${path.resolve(process.cwd(), cwd)} ${containerId}:${containerCwd}`)
-    return await pexecWrapper(`docker exec -w ${containerCwd} ${e} ${containerId} ${cmd}`, rest)
+    const result = await pexecWrapper(`docker exec -w ${containerCwd} ${e} ${containerId} ${cmd}`, rest)
+    await pexecWrapper(`docker cp ${containerId}:${containerCwd} ${path.resolve(process.cwd(), cwd)}`)
+    return result
   }
 }
 
