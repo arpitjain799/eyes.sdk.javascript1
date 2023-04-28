@@ -25,6 +25,7 @@ const checkSettingsParams = [
   'fully',
   'fakeIE',
   'disableBrowserFetching',
+  'lazyLoad',
 ];
 
 module.exports = {checkSettingsParams};

@@ -58,6 +58,7 @@ function makeRenderStory({
       ignoreCaret,
       matchLevel,
       ignoreBaseline,
+      lazyLoad,
     } = eyesOptions;
 
     if (sizeMode) {
@@ -106,7 +107,7 @@ function makeRenderStory({
       strictRegions,
       contentRegions,
       accessibilityRegions: mapAccessibilityRegions(accessibilityRegions),
-      renderers,
+      renderers: eyesOptions.browser || renderers,
       hooks: scriptHooks,
       sizeMode,
       region: target === 'region' ? selector : undefined,
@@ -128,6 +129,7 @@ function makeRenderStory({
               : undefined,
           }
         : undefined,
+      lazyLoad,
     };
 
     return timeItAsync(baselineName, async () => {
