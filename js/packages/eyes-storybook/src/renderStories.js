@@ -58,19 +58,14 @@ function makeRenderStories({
         const story = stories[currIndex++];
         const storyUrl = getStoryUrl(story, storybookUrl);
         const title = getStoryBaselineName(story);
-        const {waitBeforeCapture, browser, layoutBreakpoints, disableBrowserFetching} =
-          (story.parameters && story.parameters.eyes) || {};
-
+        const {waitBeforeCapture} = (story.parameters && story.parameters.eyes) || {};
         try {
           let [error, storyData] = await presult(
             getStoryData({
               story,
               storyUrl,
-              renderers: browser || story.config.renderers,
               page,
-              layoutBreakpoints: layoutBreakpoints || story.config.layoutBreakpoints,
               waitBeforeStory: waitBeforeCapture || story.config.waitBeforeCapture,
-              disableBrowserFetching: disableBrowserFetching || story.config.disableBrowserFetching,
             }),
           );
 
@@ -94,12 +89,8 @@ function makeRenderStories({
               getStoryData({
                 story,
                 storyUrl,
-                renderers: browser || story.config.renderers,
                 page: newPageObj.page,
-                layoutBreakpoints: layoutBreakpoints || story.config.layoutBreakpoints,
                 waitBeforeStory: waitBeforeCapture || story.config.waitBeforeCapture,
-                disableBrowserFetching:
-                  disableBrowserFetching || story.config.disableBrowserFetching,
               }),
             );
             error = newError;
